@@ -32,6 +32,7 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style type="text/css">p {color:red}</style>
 
 </head>
 
@@ -47,11 +48,12 @@
                     <div class="panel-body">
                         <form role="form">
                             <fieldset>
+                                <div id="tips"><p id="erro_msg"></p></div>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder={% trans "E-mail" %} name="email" type="email" autofocus>
+                                    <input id="email" class="form-control" placeholder={% trans "E-mail" %} name="email" type="email" autofocus>
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder={% trans "Password" %} name="password" type="password" value="">
+                                    <input id="passwd" class="form-control" placeholder={% trans "Password" %} name="password" type="password" value="">
                                 </div>
                                 <div class="checkbox">
                                     <label>
@@ -59,7 +61,7 @@
                                     </label>
                                 </div>
                                 <!-- Change this to a button or input when using this as a form -->
-                                <a href="index.html" class="btn btn-lg btn-success btn-block">{% trans "Login" %}</a>
+                                <input type="button" id="logon_btn" class="btn btn-lg btn-success btn-block" value="{% trans "Login" %}" />
                             </fieldset>
                         </form>
                     </div>
@@ -67,8 +69,6 @@
             </div>
         </div>
     </div>
-
-    <script type="text/javascript" src="{% static "luhyaAdmin/jquery-ui-1.10.3.custom.min.js" %}" ></script>
 
     <!-- jQuery Version 1.11.0 -->
     <script src="{% static "clc/js/jquery-1.11.0.js" %}" ></script>
@@ -81,6 +81,38 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="{% static "clc/js/sb-admin-2.js" %}"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#logon_btn").click(function () {
+                vemail = $("#email").val();
+                secrete = $("#passwd").val();
+                if (vemail == "")
+                {
+                    $("#erro_msg").text("{% trans "Please input user email address !" %}");
+                }
+                else if (secrete == "")
+                {
+                    $("#erro_msg").text("{% trans "Please input user password !" %}");
+                }
+                else
+                {
+                    url = "/clc/user_login";
+                    $.post(url, { email: vemail, password: secrete }, function (data) {
+                        var items = [];
+                        $.each(data, function (key, val) {
+                            items[key] = val
+                        });
+                        if (items['status'] == 'SUCCESS') {
+                            window.location.replace(items['url']);
+                        } else {
+                            $("#erro_msg").text(items['reason']);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 
 </body>
 
