@@ -1,0 +1,56 @@
+webdav.local => IP 10.1.1.61 
+apt-get install apache2
+a2dissite default
+service apache2 reload
+cd /etc/apache2/sites-available/
+<
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        Servername webdav.local
+
+        DocumentRoot /var/www/webdav
+        <Directory />
+                Options FollowSymLinks
+                AllowOverride None
+        </Directory>
+        <Directory /var/www/webdav/>
+                Options Indexes FollowSymLinks MultiViews
+                AllowOverride None
+                Order allow,deny
+                allow from all
+        </Directory>
+</VirtualHost>
+> 
+mkdir /var/www/webdav
+chown www-data.www-data /var/www/webdav
+a2ensite webdav.local
+sh -c 'echo "Welcome from WebDAV.local" > /var/www/webdav/index.html'
+service apache2 reload
+a2enmod dav_fs
+service apache2 restart
+mkdir /var/www/webdav/svn
+chown www-data.www-data /var/www/webdav/svn/
+<
+Alias /svn /var/www/webdav/svn
+<Location /svn>
+    DAV On
+</Location>
+>
+
+mkdir /usr/local/apache2/
+htpasswd -c /usr/local/apache2/webdav.passwords lubos
+<
+Alias /svn /var/www/webdav/svn
+<Location /svn>
+    DAV On
+        AuthType Basic
+        AuthName "webdav"
+        AuthUserFile /usr/local/apache2/webdav.passwords
+        Require valid-user
+</Location>
+>
+
+a2enmod rewrite
+
+
+

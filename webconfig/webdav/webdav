@@ -1,0 +1,28 @@
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        Servername www.webdav.com
+	    ServerAlias webdav.come
+
+        DocumentRoot /var/www/webdav
+        <Directory />
+                Options FollowSymLinks
+                AllowOverride None
+        </Directory>
+        <Directory /var/www/webdav/>
+                Options Indexes FollowSymLinks MultiViews
+                AllowOverride None
+                Order allow,deny
+                allow from all
+        </Directory>
+Alias /svn /var/www/webdav/svn
+<Directory /var/www/webdav/svn/*>
+	DAV On
+	AuthType Basic
+	AuthName "webdav"
+        AuthUserFile /usr/local/apache2/webdav.passwords
+        Require valid-user
+	<Limit GET HEAD OPTIONS PROPFIND>
+		Require user write_user read_user
+	</Limit>
+</Directory>
+</VirtualHost>

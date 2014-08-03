@@ -1,0 +1,4 @@
+#! /bin/bash
+
+cd /usr/local/www/luhyaServer
+celery -A luhyaServer worker -l info -f /var/log/luhyaServer/celery.log
