@@ -201,6 +201,7 @@ sdist/
 develop-eggs/
 .idea/
 .installed.cfg
+luhyacloud/luhyacloud/*.pyc
 
 # Installer logs
 pip-log.txt
