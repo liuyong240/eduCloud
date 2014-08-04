@@ -52,7 +52,7 @@ def user_login(request):
 
 def user_logout(request):
     logout(request)
-    display_login_window(request)
+    return render(request, 'clc/login.html', {})
 
 @login_required
 def index_view(request):

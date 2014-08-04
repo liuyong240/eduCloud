@@ -1,0 +1,17 @@
+Source: educloud 
+Section: python
+Priority: optional
+Maintainer: thomas.li  <libiao.2005@gmail.com>
+Build-Depends:
+Homepage: http://www.google.com
+Standards-Version: 3.8.3
+
+Package: educloud-client
+Architecture: all
+Depends:  python2.7, python-wxgtk2.8, python-wxtools, wx2.8-i18n, libwxgtk2.8-dev, libgtk2.0-dev, ifstat, sudo, ttf-arphic-uming, python-psutil, openssh-server, wmctrl, xdotool
+Description: educloud client package 
+
+Package: educloud-server
+Architecture: all
+Depends: mysql-server, libmysqld-dev, libmysqlclient-dev, apache2, rabbitmq-server, libapache2-mod-wsgi, python2.7, python-dev, ifstat, sudo, ttf-arphic-uming, python-psutil, python-setuptools, openssh-server
+Description: educloud server package

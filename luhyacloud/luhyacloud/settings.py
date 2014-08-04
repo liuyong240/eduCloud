@@ -142,7 +142,7 @@ LOGGING = {
         'default': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/luhyaServer/access.log',
+            'filename': '/var/log/educloud/access.log',
             'maxBytes': 1024*1024*10, # 10 MB
             'backupCount': 10,
             'formatter':'standard',
@@ -150,7 +150,7 @@ LOGGING = {
         'database': {
                 'level':'DEBUG',
                 'class':'logging.handlers.RotatingFileHandler',
-                'filename': '/var/log/luhyaServer/sql.log',
+                'filename': '/var/log/educloud/sql.log',
                 'maxBytes': 1024*1024*5, # 5 MB
                 'backupCount': 5,
                 'formatter':'standard',
@@ -158,7 +158,7 @@ LOGGING = {
         'celery': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/luhyaServer/celery.log',
+            'filename': '/var/log/educloud/celery.log',
             'formatter': 'standard',
             'backupCount': 5,
             'maxBytes': 1024 * 1024 * 100,  # 100 mb
