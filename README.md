@@ -282,7 +282,15 @@ II Adminstrator's Scenario
    - the authorization value of owner group looks like "edu.cloud.longyou.country.school.class.room.xxx.yyy.zzz", and can be extend unlimited.
    - the account belongs to owner-group "aaa.bbb" can access resource belongs to "aaa.bbb.*";
    - the account belongs to owner-group "aaa.bbb.ccc" can NOT access resource belongs to "aaa.bbb"
-   - besides authorization, there are permission associated to owner group "read, write, execute, delete, full" 
+   - besides authorization, there are permission associated to owner group "read, write, execute, create, delete, full" 
+   - each permison created for one type of resource (host, image, instance, etc)
+   - finally, the owner group will looks like below:
+     - name: any string
+     - auth: aaa.bbb.ccc.ddd.*
+     - permission:
+       - host:    None, {read | write | execute | create | delete }, Full
+       - image:   None, {read | write | execute | create | delete }, Full
+       - instance:None, {read | write | execute | create | delete }, Full
 
 2. Administrator's tasks
    - admin watch system status
