@@ -145,3 +145,62 @@ Luhya私有云平台同时提供了虚拟服务器和虚拟桌面两种服务。
 7. CloudWatch Service
 7.1 instance Metrics & Dimension
 7.2 enable/disable monitoring
+
+
+
+
+
+Task List:
+----------------------------------------------
+1. install memcach and python-memcache
+2. build educloud memcache api
+3. build daemon to communicate via rabbitmq: nc->cc->clc; walurs->clc, sc->cc
+
+
+Host App Definition
+1 NC
+   web service: get request and run vm accordingly
+   daemon:      collect host & instance status to cc
+
+2 CC
+   web service: get request to select a NC to run vm
+   daemon:      collect host & NCs infor to clc
+
+   there are 3 type of CC
+   - cc for virtual server
+   - cc for remote virtual desktop
+   - cc for local virtual desktop
+
+3 SC
+   web service: get request to allocate storage and mount to NC
+   daemon:      collect host info to CC
+
+4 walrus:
+    web service:  manage images files(add/upload, modify, remove, download)
+    daemon:     collect host info to clc
+
+5 clc
+    web service: 
+      1 admin web interface
+      2 user web interface
+    daemon:     collect host info & all other component info into memcache
+
+Module Definition
+1. luhyaapi module
+2. luhyadb module
+   all database definitions are here.
+   - eduServer db
+   - image db
+   - instance db
+   - build task db
+   - sync task db
+
+A few Typical Scenario
+1. user login
+2. watch educloud status
+3. list all eduServer
+4. list all images
+5. list all active instance
+6. list all tasks
+7.
+
