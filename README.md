@@ -210,62 +210,68 @@ A few Typical Scenario
 ------------------
 I System Overview
 ------------------
+
 there are 3 category scenarios, and 3 kinds of resouceshosts, images, instances) :
-- manage virtual server
-  create image based on template;
-  submit image;
-  modify image;
-      version management
-  set image para:
-      name, OS type, 32bit/64bit, usage(desktop/server), owner-group, description, version, pubDate, size   
-  create instance, and set vm para;
-      VM Type para - memory, disk, cpu, network(manage IP, access IP, internal IP, etc)
-      runtime para - host server(IP or any), access mode/para, starup para(vbox only), version, persistent/temperary etc
-      metrics para - CPU/DISK/NETWORK/alive
-      # below para need set nginx proxy on CC for loadbalance/HA/scale 
-      HA:       acive vs active, active vs standby
-      scale:    default number of instance, maximum number of instance
-  run/stop vm;
-      auto vs manual
-  monitor vm; collect all metrics data
 
-- manage remote virtual desktop
-  create image based on template;
-  submit image;
-  modify image;
-      version management
-  set image para:
-      name, OS type, 32bit/64bit, usage(desktop/server), owner-group, description, version, pubDate, size
+1. manage virtual server
+
+  - create image based on template;
+  - submit image;
+  - modify image;
+     - version management
+  - set image para:
+     - name, OS type, 32bit/64bit, usage(desktop/server), owner-group, description, version, pubDate, size   
+  - create instance, and set vm para;
+     - VM Type para - memory, disk, cpu, network(manage IP, access IP, internal IP, etc)
+     - runtime para - host server(IP or any), access mode/para, starup para(vbox only), version, persistent/temperary etc
+     - metrics para - CPU/DISK/NETWORK/alive
+     # below para need set nginx proxy on CC for loadbalance/HA/scale 
+     - HA:       acive vs active, active vs standby
+     - scale:    default number of instance, maximum number of instance
+     - run/stop vm;
+       - auto vs manual
+  - monitor vm; collect all metrics data
+
+2. manage remote virtual desktop
+
+   - create image based on template;
+   - submit image;
+   - modify image;
+     - version management
+   - set image para:
+     - name, OS type, 32bit/64bit, usage(desktop/server), owner-group, description, version, pubDate, size
+   - create vm instance, and set vm para;
+     - VM Type para - memory, disk, cpu, network(manage IP, access IP, internal IP, etc)
+     - runtime para - host server(IP or any), access mode/para, starup para(vbox only), version, persistent/temperary, auto-shutdown, etc
+     - metrics para - CPU/DISK/NETWORK/alive
+   - pull image;
+   - run/stop vm; 
+   - monitor vm; collect all metrics data  
+
+3. manage local virtual desktop
+
+   - create image based on template;
+   - submit image;
+   - modify iamge;
+     - version management
+   - set image para:
+     - name, OS type, 32bit/64bit, usage(desktop/server), owner-group, description, version, pubDate, size
   create vm instance, and set vm para;
-      VM Type para - memory, disk, cpu, network(manage IP, access IP, internal IP, etc)
-      runtime para - host server(IP or any), access mode/para, starup para(vbox only), version, persistent/temperary, auto-shutdown, etc
-      metrics para - CPU/DISK/NETWORK/alive
-  pull image;
-  run/stop vm; 
-  monitor vm; collect all metrics data  
+     - VM Type para - memory, disk, cpu, network(manage IP, access IP, internal IP, etc)
+     - runtime para - host server(IP or any), access mode/para, starup para(vbox only), version, persistent/temperary etc
+     - metrics para - CPU/DISK/NETWORK/alive
+   - push/pull image;
+   - run/stop vm; 
+   - monitor vm; collect necessary metrics data
 
-- manage local virtual desktop
-  create image based on template;
-  submit image;
-  modify iamge;
-      version management
-  set image para:
-      name, OS type, 32bit/64bit, usage(desktop/server), owner-group, description, version, pubDate, size
-  create vm instance, and set vm para;
-      VM Type para - memory, disk, cpu, network(manage IP, access IP, internal IP, etc)
-      runtime para - host server(IP or any), access mode/para, starup para(vbox only), version, persistent/temperary etc
-      metrics para - CPU/DISK/NETWORK/alive
-  push/pull image;
-  run/stop vm; 
-  monitor vm; collect necessary metrics data
+3. manage server/Host
 
-- manage server/Host
-  add physical server/host;
-  set host para;
-      IP, MAC(for wake on LAN), name, location, owner-group(definiton as : edu.cloud.longyou.country.school.class.room),
-      physical para: memory, disk,
-      run-time option(valid only for local host): 
-         autoSync, autoPoweroff, offlineEnabled, isPad,   
+   - add physical server/host;
+   - set host para;
+     - IP, MAC(for wake on LAN), name, location, owner-group(definiton as : edu.cloud.longyou.country.school.class.room),
+     - physical para: memory, disk,
+     - run-time option(valid only for local host): 
+       -  autoSync, autoPoweroff, offlineEnabled, isPad,   
   
 --------------------------
 II Adminstrator's Scenario
@@ -273,25 +279,21 @@ II Adminstrator's Scenario
 
 1. owner-group definiton
 
-   the authorization value of owner group looks like "edu.cloud.longyou.country.school.class.room.xxx.yyy.zzz", and can be extend unlimited.
-   the account belongs to owner-group "aaa.bbb" can access resource belongs to "aaa.bbb.*";
-   the account belongs to owner-group "aaa.bbb.ccc" can NOT access resource belongs to "aaa.bbb"
-  
-   besides authorization, there are permission associated to owner group "read, write, execute, delete, full" 
+   - the authorization value of owner group looks like "edu.cloud.longyou.country.school.class.room.xxx.yyy.zzz", and can be extend unlimited.
+   - the account belongs to owner-group "aaa.bbb" can access resource belongs to "aaa.bbb.*";
+   - the account belongs to owner-group "aaa.bbb.ccc" can NOT access resource belongs to "aaa.bbb"
+   - besides authorization, there are permission associated to owner group "read, write, execute, delete, full" 
 
 2. Administrator's tasks
-
-2.1 admin watch system status
-
-2.2 admin manage images
-2.2.1 read image properties
-2.2.2 add/modify image content & properties
-      this is a special instance, and associated with different properties.
-2.2.3 delete image
-
-2.3 admin manage hosts/servers
-2.3.1  manage hosts
-       there are only one kinds of hosts need to be managed, the one that run VM locally.
+   - admin watch system status
+   - admin manage images
+     - read image properties
+     - add/modify image content & properties
+       - this is a special instance, and associated with different properties.
+     - delete image
+   - admin manage hosts/servers
+     - manage hosts
+       - there are only one kinds of hosts need to be managed, the one that run VM locally.
        - host will auto be added when powered on.
        - host will send heartbeat to its CC every 5 minutes(configurable) via rabbitmq message queue
        - host will publish its status data to CC  if there are any change
@@ -300,29 +302,25 @@ II Adminstrator's Scenario
        - admin can read/modify host properties
        - admin can delete host
        - admin can power on/off host remotely
-
-2.3.2  manage servers
-       there are 5 kinds of servers: clc, walrus, cc, nc, sc
+     - manage servers
+       - there are 5 kinds of servers: clc, walrus, cc, nc, sc
        - server will auto be added when power on.
        - severr will send heatbeat, and publish its status data(if any change) to its boss via rabbitmq message queue
-          clc's boss    - clc 
-          wlaurs's boss - clc
-          cc's boss     - clc
-          nc's boss     - cc
-          sc's boss     - cc
+          - clc's boss    - clc 
+          - wlaurs's boss - clc
+          - cc's boss     - clc
+          - nc's boss     - cc
+          - sc's boss     - cc
        - admin can pull data from server if necessary
        - admin can remove server ( how to deal with multipl walrus ? )
-
-2.4 admin manage instances
-2.4.1 manage server instance
-      admin can create/modify/run/stop/delete instance
-
-2.4.2 manage remote desktop instance
-      admin can create/modify/run/stop/delete instance
-
-2.4.3 manage local desktop instance
-      admin can create/modify/run/stop/delete instance
-      admin can push instance to its host
+   - admin manage instances
+     - manage server instance
+       - admin can create/modify/run/stop/delete instance
+     - manage remote desktop instance
+       - admin can create/modify/run/stop/delete instance
+     - manage local desktop instance
+       - admin can create/modify/run/stop/delete instance
+       - admin can push instance to its host
 
 ------------------
 II User's Scenario
@@ -347,4 +345,3 @@ There are 3 kinds of users:
 - run selected instance (download from walrus to CC for cache, and sync to host when running)
 - stop instance
 - power off host
-
