@@ -15,6 +15,12 @@ urlpatterns = patterns('',
     url(r'^user_login$',    views.user_login,                         name='user_login'),
     url(r'^user_logout$',   views.user_logout,                        name='user_logout'),
     url(r'^index$',         views.index_view,                         name='index_view'),
-
-
+    url(r'^accounts$',      views.accounts_view,                      name='accounts_view'),
+    url(r'^images$',        views.images_view,                        name='images_view'),
+    url(r'^hosts$',         views.hosts_view,                         name='images_view'),
+    url(r'^settings$',      views.settings_view,                      name='settings_view'),
+    url(r'^vss$',           views.vss_view,                           name='vss_view'),
+    url(r'^rvds$',          views.rvds_view,                          name='rvds_view'),
+    url(r'^lvds$',          views.lvds_view,                          name='lvds_view'),
+    url(r'^tasks$',         views.tasks_view,                         name='tasks_view'),
     )

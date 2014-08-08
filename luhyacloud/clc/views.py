@@ -56,5 +56,37 @@ def user_logout(request):
 
 @login_required
 def index_view(request):
-    return render(request, 'clc/index.html', {})
+    return render(request, 'clc/overview.html', {})
+
+@login_required
+def accounts_view(request):
+    return render(request, 'clc/accounts.html', {})
+
+@login_required
+def images_view(request):
+    return render(request, 'clc/images.html', {})
+
+@login_required
+def hosts_view(request):
+    return render(request, 'clc/hosts.html', {})
+
+@login_required
+def settings_view(request):
+    return render(request, 'clc/settings.html', {})
+
+@login_required
+def vss_view(request):
+    return render(request, 'clc/vss.html', {})
+
+@login_required
+def rvds_view(request):
+    return render(request, 'clc/rvds.html', {})
+
+@login_required
+def lvds_view(request):
+    return render(request, 'clc/lvds.html', {})
+
+@login_required
+def tasks_view(request):
+    return render(request, 'clc/tasks.html', {})
 

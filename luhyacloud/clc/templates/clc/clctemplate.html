@@ -82,7 +82,7 @@
                             <a class="active" href="index"><i class="fa fa-cloud fa-fw"></i>{% trans " System Overview" %}</a>
                         </li>
                         <li>
-                            <a class="active" href="account"><i class="fa fa-user fa-fw"></i>{% trans " Accounts" %}</a>
+                            <a class="active" href="accounts"><i class="fa fa-user fa-fw"></i>{% trans " Accounts" %}</a>
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
@@ -95,7 +95,7 @@
                                     <a href="hosts"><i class="fa fa-h-square fa-fw"></i>{% trans " Hosts" %}</a>
                                 </li>
                                 <li>
-                                    <a href="systemparas"><i class="fa fa-globe fa-fw"></i>{% trans " Settings" %}</a>
+                                    <a href="settings"><i class="fa fa-globe fa-fw"></i>{% trans " Settings" %}</a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
@@ -104,19 +104,19 @@
                             <a href="#"><i class="fa fa-cogs fa-fw"></i>{% trans " Instance" %}<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="images"><i class="fa fa-suitcase fa-fw"></i>{% trans " Virtual Servers" %}</a>
+                                    <a href="vss"><i class="fa fa-suitcase fa-fw"></i>{% trans " Virtual Servers" %}</a>
                                 </li>
                                 <li>
-                                    <a href="hosts"><i class="fa fa-tablet fa-fw"></i>{% trans " Remote Virtual Desktops" %}</a>
+                                    <a href="rvds"><i class="fa fa-tablet fa-fw"></i>{% trans " Remote Virtual Desktops" %}</a>
                                 </li>
                                 <li>
-                                    <a href="instances"><i class="fa fa-desktop fa-fw"></i>{% trans " Local Virtual Desktops" %}</a>
+                                    <a href="lvds"><i class="fa fa-desktop fa-fw"></i>{% trans " Local Virtual Desktops" %}</a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="tables.html"><i class="fa fa-tasks fa-fw"></i>{% trans " Tasks" %}</a>
+                            <a href="tasks"><i class="fa fa-tasks fa-fw"></i>{% trans " Tasks" %}</a>
                         </li>
                         
                     </ul>
@@ -134,6 +134,8 @@
                 <!-- /.col-lg-12 -->
             </div>
             <!-- /.row -->
+            {% block content %}
+            {% endblock %}
         </div>
         <!-- /#page-wrapper -->
 
