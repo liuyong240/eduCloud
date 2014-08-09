@@ -58,38 +58,76 @@ def user_logout(request):
 def index_view(request):
     context = {
         'loginname': request.user,
+        'dashboard' : "System Run-time Status Overview",
     }
     return render(request, 'clc/overview.html', context)
 
 @login_required
 def accounts_view(request):
-    return render(request, 'clc/accounts.html', {})
+    context = {
+        'loginname': request.user,
+        'dashboard' : "Account Management",
+    }
+    return render(request, 'clc/accounts.html', context)
 
 @login_required
 def images_view(request):
-    return render(request, 'clc/images.html', {})
+    context = {
+        'loginname': request.user,
+        'dashboard' : "Images Management",
+    }
+
+    return render(request, 'clc/images.html', context)
 
 @login_required
 def hosts_view(request):
-    return render(request, 'clc/hosts.html', {})
+    context = {
+        'loginname': request.user,
+        'dashboard' : "Hosts Management",
+    }
+    return render(request, 'clc/hosts.html', context)
 
 @login_required
 def settings_view(request):
-    return render(request, 'clc/settings.html', {})
+    context = {
+        'loginname': request.user,
+        'dashboard' : "System Settings Management",
+    }
+    return render(request, 'clc/settings.html', context)
 
 @login_required
 def vss_view(request):
-    return render(request, 'clc/vss.html', {})
+    context = {
+        'loginname': request.user,
+        'dashboard' : "Cloud App Management",
+    }
+
+    return render(request, 'clc/vss.html', context)
 
 @login_required
 def rvds_view(request):
-    return render(request, 'clc/rvds.html', {})
+    context = {
+        'loginname': request.user,
+        'dashboard' : "Remote Cloud Desktop Management",
+    }
+
+    return render(request, 'clc/rvds.html', context)
 
 @login_required
 def lvds_view(request):
-    return render(request, 'clc/lvds.html', {})
+    context = {
+        'loginname': request.user,
+        'dashboard' : "Local Cloud Desktop Management",
+    }
+
+    return render(request, 'clc/lvds.html', context)
 
 @login_required
 def tasks_view(request):
-    return render(request, 'clc/tasks.html', {})
+    context = {
+        'loginname': request.user,
+        'dashboard' : "Tasks Management",
+    }
+
+    return render(request, 'clc/tasks.html', context)
 
