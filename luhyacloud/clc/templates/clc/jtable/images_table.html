@@ -1,0 +1,100 @@
+{% extends "clc/jtable/template.html" %}
+{% load i18n %}
+
+{% block myjs %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myjtable').jtable({
+            jqueryuiTheme: true,
+
+            selecting: true, //Enable selecting
+            multiselect: true, //Allow multiple selecting
+            selectingCheckboxes: true, //Show checkboxes on first column
+            //selectOnRowClick: false, //Enable this to only select using checkboxes
+
+            title: 'Student List',
+            paging: true,
+            pageSize: 10,
+            sorting: true,
+            multiSorting: true,
+            defaultSorting: 'Name ASC',
+
+            actions: {
+                listAction:   'http://www.jtable.org/Demo/StudentList',
+                deleteAction: 'http://www.jtable.org/Demo/DeleteStudent',
+                updateAction: 'http://www.jtable.org/Demo/UpdateStudent',
+                createAction: 'http://www.jtable.org/Demo/CreateStudent'
+            },
+            fields: {
+                StudentId: {
+                    key: true,
+                    create: false,
+                    edit: false,
+                    list: false
+                },
+                Name: {
+                    title: 'Name',
+                    width: '23%'
+                },
+                EmailAddress: {
+                    title: 'Email address',
+                    list: false
+                },
+                Password: {
+                    title: 'User Password',
+                    type: 'password',
+                    list: false
+                },
+                Gender: {
+                    title: 'Gender',
+                    width: '13%',
+                    options: { 'M': 'Male', 'F': 'Female' }
+                },
+                CityId: {
+                    title: 'City',
+                    list: false
+                },
+                BirthDate: {
+                    title: 'Birth date',
+                    width: '15%',
+                    type: 'date',
+                    displayFormat: 'yy-mm-dd'
+                },
+                Education: {
+                    title: 'Education',
+                    list: false,
+                    type: 'radiobutton',
+                    options: { '1': 'Primary school', '2': 'High school', '3': 'University' }
+                },
+                About: {
+                    title: 'About this person',
+                    type: 'textarea',
+                    list: false
+                },
+                IsActive: {
+                    title: 'Status',
+                    width: '12%',
+                    type: 'checkbox',
+                    values: { 'false': 'Passive', 'true': 'Active' },
+                    defaultValue: 'true'
+                },
+                RecordDate: {
+                    title: 'Record date',
+                    width: '15%',
+                    type: 'date',
+                    displayFormat: 'yy-mm-dd',
+                    create: false,
+                    edit: false,
+                    sorting: false //This column is not sortable!
+                }
+            }
+        });
+
+        //Load student list from server
+        $('#myjtable').jtable('load');
+    });
+
+</script>
+{% endblock %}

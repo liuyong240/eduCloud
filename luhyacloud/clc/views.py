@@ -131,3 +131,7 @@ def tasks_view(request):
 
     return render(request, 'clc/tasks.html', context)
 
+
+@login_required
+def jtable_images(request):
+    return render(request, 'clc/jtable/images_table.html', {})

@@ -23,4 +23,8 @@ urlpatterns = patterns('',
     url(r'^rvds$',          views.rvds_view,                          name='rvds_view'),
     url(r'^lvds$',          views.lvds_view,                          name='lvds_view'),
     url(r'^tasks$',         views.tasks_view,                         name='tasks_view'),
+
+
+    # iframe page
+    url(r'^jt/images$',         views.jtable_images,               name='jtable_images_view'),
     )
