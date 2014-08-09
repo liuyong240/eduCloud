@@ -56,7 +56,10 @@ def user_logout(request):
 
 @login_required
 def index_view(request):
-    return render(request, 'clc/overview.html', {})
+    context = {
+        'loginname': request.user,
+    }
+    return render(request, 'clc/overview.html', context)
 
 @login_required
 def accounts_view(request):
