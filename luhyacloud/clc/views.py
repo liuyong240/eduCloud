@@ -136,11 +136,31 @@ def tasks_view(request):
 def jtable_images(request):
     return render(request, 'clc/jtable/images_table.html', {})
 
-
-
 # API Version 1.0
 def list_images(request):
-    pass
+    response = {}
+    data = []
+
+    recs = ecImages.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['ec_authpath_name'] = rec.ec_authpath_name
+        jrec['ecid'] = rec.ecid
+        jrec['name'] = rec.name
+        jrec['ostype']=rec.ostype
+        jrec['usage'] = rec.usage
+        jrec['description'] = rec.description
+        jrec['publish_date'] = str(rec.publish_date)
+        jrec['version'] = rec.version
+        jrec['size'] = rec.size
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
 
 def delete_images(request):
     pass
@@ -166,4 +186,5 @@ def create_images(request):
     response['Result'] = 'OK'
     response['Records'] = rec
 
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
