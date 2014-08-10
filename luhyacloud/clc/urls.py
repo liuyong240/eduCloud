@@ -27,4 +27,13 @@ urlpatterns = patterns('',
 
     # iframe page
     url(r'^jt/images$',         views.jtable_images,               name='jtable_images_view'),
+
+
+
+    # API v1.0
+    url(r'^api/1.0/images/listimages$',         views.list_images,                 name='list_images_view'),
+    url(r'^api/1.0/images/deleteimages',        views.delete_images,               name='delete_images_view'),
+    url(r'^api/1.0/images/updateimages',        views.update_images,               name='update_images_view'),
+    url(r'^api/1.0/images/createimages',        views.create_images,               name='create_images_view'),
+
     )

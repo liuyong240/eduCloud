@@ -14,7 +14,7 @@
             selectingCheckboxes: true, //Show checkboxes on first column
             //selectOnRowClick: false, //Enable this to only select using checkboxes
 
-            title: 'Student List',
+            title: 'Images List',
             paging: true,
             pageSize: 10,
             sorting: true,
@@ -22,73 +22,59 @@
             defaultSorting: 'Name ASC',
 
             actions: {
-                listAction:   '',
-                deleteAction: '',
-                updateAction: '',
-                createAction: ''
+                listAction:   '/clc/api/1.0/images/listimages',
+                deleteAction: '/clc/api/1.0/images/deleteimages',
+                updateAction: '/clc/api/1.0/images/updateimages',
+                createAction: '/clc/api/1.0/images/createimages'
             },
             fields: {
-                StudentId: {
+                id: {
                     key: true,
-                    create: false,
                     edit: false,
                     list: false
                 },
-                Name: {
+                ec_authpath_name: {
+                    title: 'Group',
+                    list: false
+                },
+                ecid: {
+                    title: 'ecID',
+                    width: '10%'
+                },
+                name: {
                     title: 'Name',
-                    width: '23%'
+                    width: '10%'
                 },
-                EmailAddress: {
-                    title: 'Email address',
-                    list: false
+                ostype: {
+                    title: 'OSType',
+                    width: '10%',
+                    options: { 'xp': 'WinXP', 'win7': 'Win7', 'win2003': 'Windows2003' }
                 },
-                Password: {
-                    title: 'User Password',
-                    type: 'password',
-                    list: false
-                },
-                Gender: {
-                    title: 'Gender',
-                    width: '13%',
-                    options: { 'M': 'Male', 'F': 'Female' }
-                },
-                CityId: {
-                    title: 'City',
-                    list: false
-                },
-                BirthDate: {
-                    title: 'Birth date',
-                    width: '15%',
-                    type: 'date',
-                    displayFormat: 'yy-mm-dd'
-                },
-                Education: {
-                    title: 'Education',
-                    list: false,
+                usage: {
+                    title: 'Usage',
+                    width: '10%',
                     type: 'radiobutton',
-                    options: { '1': 'Primary school', '2': 'High school', '3': 'University' }
+                    options: { '1': 'Desktop', '2': 'Server' }
                 },
-                About: {
-                    title: 'About this person',
+                description: {
+                    title: 'Desc',
                     type: 'textarea',
                     list: false
                 },
-                IsActive: {
-                    title: 'Status',
-                    width: '12%',
-                    type: 'checkbox',
-                    values: { 'false': 'Passive', 'true': 'Active' },
-                    defaultValue: 'true'
-                },
-                RecordDate: {
-                    title: 'Record date',
-                    width: '15%',
+                publish_date: {
+                    title: 'Pub Date',
+                    width: '20%',
                     type: 'date',
-                    displayFormat: 'yy-mm-dd',
-                    create: false,
-                    edit: false,
-                    sorting: false //This column is not sortable!
-                }
+                    displayFormat: 'yy-mm-dd'
+                },
+                version: {
+                    title: "Version",
+                    width: '20%'
+                },
+                size: {
+                    title: "Size",
+                    width: '20%'
+                },
             }
         });
 

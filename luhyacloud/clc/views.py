@@ -135,3 +135,35 @@ def tasks_view(request):
 @login_required
 def jtable_images(request):
     return render(request, 'clc/jtable/images_table.html', {})
+
+
+
+# API Version 1.0
+def list_images(request):
+    pass
+
+def delete_images(request):
+    pass
+
+def update_images(request):
+    pass
+
+def create_images(request):
+    response = {}
+    rec = ecImages(
+        ec_authpath_name = request.POST['ec_authpath_name'],
+        ecid = request.POST['ecid'],
+        name = request.POST['name'],
+        ostype = request.POST['ostype'],
+        usage = request.POST['usage'],
+        description = request.POST['description'],
+        publish_date = request.POST['publish_date'],
+        version = request.POST['version'],
+        size = request.POST['size'],
+    )
+    rec.save()
+
+    response['Result'] = 'OK'
+    response['Records'] = rec
+
+    return HttpResponse(json.dumps(response), mimetype="application/json")
