@@ -353,3 +353,21 @@ There are 3 kinds of users:
 - run selected instance (download from walrus to CC for cache, and sync to host when running)
 - stop instance
 - power off host
+
+
+---------------------
+III  initialization
+---------------------
+when ecCloud is installed, the next step is to initialize it with database table and insert some init data, so that system can be ready for running.
+
+3.1 create tables
+    either "python manage.py syncdb" or below 3 commands:
+    python manage.py syncdb --noinput
+    python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com
+    python manage.py changepassword luhya
+    
+3.2 insert data into tables
+    python manage.py sqlcustom
+    it will ooks for the file <appname>/sql/<modelname>.sql to run when "python manage.py syncdb" call "CREATE TABLE".
+
+

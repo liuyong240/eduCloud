@@ -11,8 +11,9 @@ class ecAuthPath(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
     ec_authpath_value = models.CharField(max_length=100)
 
+# namely, group definition
 class ecRBAC(models.Model):
-    ec_rbac_authpath_name = models.CharField(max_length=100)
+    ec_authpath_name = models.CharField(max_length=100)
     ec_rbac_name = models.CharField(max_length=20)
 
     # None, {read | write | execute | create | delete }, Full
@@ -22,20 +23,20 @@ class ecRBAC(models.Model):
     # Read+Execute 101000
     # Read+Create+Delete 100110
     # full   000001 or xxxxx1
-    ec_rbac_permison = models.CharField(max_length=6)
+    ec_rbac_permision = models.CharField(max_length=6)
 
-    # possible values for imgfile_ostype are :
-    # Windows:  Windows XP, Windows 7, Windows 2003, Windows 2008, Windows 2012
-    # Linux:    Ubuntu, Ubuntu_64
-    # ostype already include 32/64bit information
-
+# possible values for imgfile_ostype are :
+# Windows:  Windows XP, Windows 7, Windows 2003, Windows 2008, Windows 2012
+# Linux:    Ubuntu, Ubuntu_64
+# ostype already include 32/64bit information
 class ecOSTypes(models.Model):
     # possible values for imgfile_ostype are :
     # Windows:  Windows XP, Windows 7, Windows 2003, Windows 2008, Windows 2012
     # Linux:    Ubuntu, Ubuntu_64
     # ostype already include 32/64bit information
     ec_ostype = models.CharField(max_length=20)
-    ec_poweron_para = models.CharField(max_length=100)
+    ec_storagectl = models.CharField(max_length=100)
+    ec_waishe_para = models.CharField(max_length=100)
 
 # currently only 2 value: Server and Desktop
 class ecVMUsages(models.Model):
@@ -44,7 +45,7 @@ class ecVMUsages(models.Model):
 # currently 5 values: clc, walrus, cc, nc, sc
 class ecServerRole(models.Model):
     ec_role_name = models.CharField(max_length=100)
-    ec_role_value = models.CharField(max_length=5)
+    ec_role_value = models.CharField(max_length=10)
 
 class ecVMTypes(models.Model):
     # available value are as below
@@ -62,7 +63,7 @@ class ecVMTypes(models.Model):
     # vdxlarege m=4G, cpu=2
     name = models.CharField(max_length=20)
     memory = models.IntegerField(default=1)
-    cpuNum = models.IntegerField(default=1)
+    cpus = models.IntegerField(default=1)
 
 #==============================================
 # Core table definition
@@ -96,13 +97,10 @@ class ecHosts(models.Model):
     name = models.CharField(max_length=20)
     location = models.CharField(max_length=20)
     memory = models.IntegerField(default=0)
-    diskcapacity = models.IntegerField(default=0)
+    disk = models.IntegerField(default=0)
 
     # value as json formate, display value by a function
     runtime_option = models.TextField()
-
-    def getDisplayHostRuntimeOption(self):
-        pass
 
 class ecImages(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
