@@ -31,9 +31,68 @@ urlpatterns = patterns('',
 
 
     # API v1.0
-    url(r'^api/1.0/images/listimages$',         views.list_images,                 name='list_images_view'),
-    url(r'^api/1.0/images/deleteimages',        views.delete_images,               name='delete_images_view'),
-    url(r'^api/1.0/images/updateimages',        views.update_images,               name='update_images_view'),
-    url(r'^api/1.0/images/createimages',        views.create_images,               name='create_images_view'),
+    # system setting table ops by POST
+    url(r'^api/1.0/settings/listauthpath$',    views.list_authpath,               name='list_authpath_view'),
+    url(r'^api/1.0/settings/deleteauthpath$',    views.delete_authpath,             name='delete_authpath_view'),
+    url(r'^api/1.0/settings/updateauthpath$',    views.update_authpath,             name='update_authpath_view'),
+    url(r'^api/1.0/settings/createauthpath$',    views.create_authpath,             name='create_authpath_view'),
+
+    url(r'^api/1.0/settings/listostypes$',       views.list_ostypes,               name='list_ostypes_view'),
+    url(r'^api/1.0/settings/deleteostypes$',     views.delete_ostypes,             name='delete_ostypes_view'),
+    url(r'^api/1.0/settings/updateostypes$',     views.update_ostypes,             name='update_ostypes_view'),
+    url(r'^api/1.0/settings/createostypes$',     views.create_ostypes,             name='create_ostypes_view'),
+
+    url(r'^api/1.0/settings/listrbac$',       views.list_rbac,               name='list_rbac_view'),
+    url(r'^api/1.0/settings/deleterbac$',     views.delete_rbac,             name='delete_rbac_view'),
+    url(r'^api/1.0/settings/updaterbac$',     views.update_rbac,             name='update_rbac_view'),
+    url(r'^api/1.0/settings/createrbac$',     views.create_rbac,             name='create_rbac_view'),
+
+    url(r'^api/1.0/settings/listserverrole$',       views.list_serverrole,               name='list_serverrole_view'),
+    url(r'^api/1.0/settings/deleteserverrole$',     views.delete_serverrole,             name='delete_serverrole_view'),
+    url(r'^api/1.0/settings/updateserverrole$',     views.update_serverrole,             name='update_serverrole_view'),
+    url(r'^api/1.0/settings/createserverrole$',     views.create_serverrole,             name='create_serverrole_view'),
+
+    url(r'^api/1.0/settings/listvmtypes$',       views.list_vmtypes,               name='list_vmtypes_view'),
+    url(r'^api/1.0/settings/deletevmtypes$',     views.delete_vmtypes,             name='delete_vmtypes_view'),
+    url(r'^api/1.0/settings/updatevmtypes$',     views.update_vmtypes,             name='update_vmtypes_view'),
+    url(r'^api/1.0/settings/createvmtypes$',     views.create_vmtypes,             name='create_vmtypes_view'),
+
+    url(r'^api/1.0/settings/listvmusage$',       views.list_vmusage,               name='list_vmusage_view'),
+    url(r'^api/1.0/settings/deletevmusage$',     views.delete_vmusage,             name='delete_vmusage_view'),
+    url(r'^api/1.0/settings/updatevmusage$',     views.update_vmusage,             name='update_vmusage_view'),
+    url(r'^api/1.0/settings/createvmusage$',     views.create_vmusage,             name='create_vmusage_view'),
+
+    # system core table ops by POST
+    url(r'^api/1.0/images/list$',          views.list_images,                 name='list_images_view'),
+    url(r'^api/1.0/images/delete$',        views.delete_images,               name='delete_images_view'),
+    url(r'^api/1.0/images/update$',        views.update_images,               name='update_images_view'),
+    url(r'^api/1.0/images/create$',        views.create_images,               name='create_images_view'),
+
+    # url(r'^api/1.0/hosts/list$',          views.list_hosts,                 name='list_hosts_view'),
+    # url(r'^api/1.0/hosts/delete$',        views.delete_hosts,               name='delete_hosts_view'),
+    # url(r'^api/1.0/hosts/update$',        views.update_hosts,               name='update_hosts_view'),
+    # url(r'^api/1.0/hosts/create$',        views.create_hosts,               name='create_hosts_view'),
+    #
+    # url(r'^api/1.0/servers/list$',          views.list_servers,                 name='list_servers_view'),
+    # url(r'^api/1.0/servers/delete$',        views.delete_servers,               name='delete_servers_view'),
+    # url(r'^api/1.0/servers/update$',        views.update_servers,               name='update_servers_view'),
+    # url(r'^api/1.0/servers/create$',        views.create_servers,               name='create_servers_view'),
+    #
+    # url(r'^api/1.0/vapp/list$',          views.list_vapp,                 name='list_vapp_view'),
+    # url(r'^api/1.0/vapp/delete$',        views.delete_vapp,               name='delete_vapp_view'),
+    # url(r'^api/1.0/vapp/update$',        views.update_vapp,               name='update_vapp_view'),
+    # url(r'^api/1.0/vapp/create$',        views.create_vapp,               name='create_vapp_view'),
+    #
+    # url(r'^api/1.0/vds/list$',          views.list_vds,                 name='list_vds_view'),
+    # url(r'^api/1.0/vds/delete$',        views.delete_vds,               name='delete_vds_view'),
+    # url(r'^api/1.0/vds/update$',        views.update_vds,               name='update_vds_view'),
+    # url(r'^api/1.0/vds/create$',        views.create_vds,               name='create_vds_view'),
+    #
+    # url(r'^api/1.0/vss/list$',          views.list_vss,                 name='list_vss_view'),
+    # url(r'^api/1.0/vss/delete$',        views.delete_vss,               name='delete_vss_view'),
+    # url(r'^api/1.0/vss/update$',        views.update_vss,               name='update_vss_view'),
+    # url(r'^api/1.0/vss/create$',        views.create_vss,               name='create_vss_view'),
+
+
 
     )

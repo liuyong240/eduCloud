@@ -136,7 +136,293 @@ def tasks_view(request):
 def jtable_images(request):
     return render(request, 'clc/jtable/images_table.html', {})
 
-# API Version 1.0
+
+
+
+
+
+
+#################################################################################
+# API Version 1.0 for accessing data model by POST request
+#################################################################################
+
+# settings tables ecAuthPath
+# -----------------------------------
+def list_authpath(request):
+    response = {}
+    data = []
+
+    recs = ecAuthPath.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['ec_authpath_name'] = rec.ec_authpath_name
+        jrec['ec_authpath_value'] = rec.ec_authpath_value
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_authpath(request):
+    response = {}
+
+    rec = ecAuthPath.objects.get(id=request.POST['id'])
+    rec.delete()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_authpath(request):
+    response = {}
+
+    rec = ecAuthPath.objects.get(id=request.POST['id']);
+    rec.ec_authpath_name = request.POST['ec_authpath_name']
+    rec.ec_authpath_value = request.POST['ec_authpath_value']
+    rec.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def create_authpath(request):
+    response = {}
+    data = []
+
+    rec = ecAuthPath(
+        ec_authpath_name = request.POST['ec_authpath_name'],
+        ec_authpath_value = request.POST['ec_authpath_value']
+    )
+    rec.save()
+    data.append(rec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+# settings tables ecAuthPath
+# -----------------------------------
+def list_ostypes(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_ostypes(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_ostypes(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def create_ostypes(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+
+# settings tables ecRBAC
+# -----------------------------------
+def list_rbac(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_rbac(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_rbac(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def create_rbac(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+# settings tables ecAuthPath
+# -----------------------------------
+def list_serverrole(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_serverrole(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_serverrole(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def create_serverrole(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+# settings tables ecVMTypes
+# -----------------------------------
+def list_vmtypes(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_vmtypes(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_vmtypes(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def create_vmtypes(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+# settings tables ecVMUsage
+# -----------------------------------
+def list_vmusage(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_vmusage(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_vmusage(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def create_vmusage(request):
+    response = {}
+    data = []
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+
+
+
+
+# core tables for images
+# ------------------------------------
 def list_images(request):
     response = {}
     data = []
@@ -188,3 +474,6 @@ def create_images(request):
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
+
+
+
