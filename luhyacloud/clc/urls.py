@@ -27,7 +27,7 @@ urlpatterns = patterns('',
 
     # iframe page
     url(r'^jt/images$',         views.jtable_images,               name='jtable_images_view'),
-
+    url(r'^jt/settings$',       views.jtable_settings,             name='jtable_settings_view'),
 
 
     # API v1.0

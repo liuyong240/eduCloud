@@ -132,10 +132,18 @@ def tasks_view(request):
     return render(request, 'clc/tasks.html', context)
 
 
+
+#################################################################################
+# jTable views
+#################################################################################
+
 @login_required
 def jtable_images(request):
     return render(request, 'clc/jtable/images_table.html', {})
 
+@login_required
+def jtable_settings(request):
+    return render(request, 'clc/jtable/authpath_table.html', {})
 
 
 
@@ -198,9 +206,14 @@ def create_authpath(request):
         ec_authpath_value = request.POST['ec_authpath_value']
     )
     rec.save()
-    data.append(rec)
 
-    response['Records'] = data
+    jrec = {}
+    jrec['id'] = rec.id
+    jrec['ec_authpath_name'] = rec.ec_authpath_name
+    jrec['ec_authpath_value'] = rec.ec_authpath_value
+    data.append(jrec)
+
+    response['Record'] = data
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)

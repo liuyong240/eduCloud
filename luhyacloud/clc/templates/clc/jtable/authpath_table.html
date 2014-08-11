@@ -1,0 +1,42 @@
+{% extends "clc/jtable/template.html" %}
+{% load i18n %}
+
+{% block myjs %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myjtable').jtable({
+            jqueryuiTheme: true,
+
+            title: 'AuthPath List',
+
+            actions: {
+                listAction:    '/clc/api/1.0/settings/listauthpath',
+                createAction:  '/clc/api/1.0/settings/createauthpath',
+                updateAction:  '/clc/api/1.0/settings/updateauthpath',
+                deleteAction:  '/clc/api/1.0/settings/deleteauthpath'
+            },
+
+            fields: {
+                id: {
+                    key: true,
+                    list: false
+                },
+                ec_authpath_name: {
+                    title: 'name',
+                    width: '40%'
+                },
+                ec_authpath_value: {
+                    title: 'value',
+                    width: '40%'
+                }
+            }
+        });
+
+        //Load student list from server
+        $('#myjtable').jtable('load');
+    });
+
+</script>
+{% endblock %}
