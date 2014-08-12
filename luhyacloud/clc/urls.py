@@ -26,7 +26,7 @@ urlpatterns = patterns('',
 
 
     # iframe page
-    url(r'^jt/images$',         views.jtable_images,               name='jtable_images_view'),
+    url(r'^jt/images$',             views.jtable_images,                 name='jtable_images_view'),
     url(r'^jt/settings/authpath$',  views.jtable_settings_for_authapth,  name='jtable_settings_authpath_view'),
     url(r'^jt/settings/ostypes$',   views.jtable_settings_for_ostypes,   name='jtable_settings_ostypes_view'),
     url(r'^jt/settings/rbac$',      views.jtable_settings_for_rbac,      name='jtable_settings_rbac_view'),

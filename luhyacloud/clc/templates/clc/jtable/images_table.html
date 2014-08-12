@@ -9,36 +9,30 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            selecting: true, //Enable selecting
-            multiselect: true, //Allow multiple selecting
-            selectingCheckboxes: true, //Show checkboxes on first column
-            //selectOnRowClick: false, //Enable this to only select using checkboxes
-
             title: 'Images List',
-            paging: true,
-            pageSize: 10,
-            sorting: true,
-            multiSorting: true,
-            defaultSorting: 'Name ASC',
+
+            sorting: true, //Enable sorting
+            defaultSorting: 'Name ASC', //Set default sorting
 
             actions: {
-                listAction:   '/clc/api/1.0/images/listimages',
-                deleteAction: '/clc/api/1.0/images/deleteimages',
-                updateAction: '/clc/api/1.0/images/updateimages',
-                createAction: '/clc/api/1.0/images/createimages'
+                listAction:   '/clc/api/1.0/images/list',
+                deleteAction: '/clc/api/1.0/images/delete',
+                updateAction: '/clc/api/1.0/images/update',
+                createAction: '/clc/api/1.0/images/create'
             },
             fields: {
                 id: {
                     key: true,
                     edit: false,
-                    list: false
-                },
-                ec_authpath_name: {
-                    title: 'Group',
-                    list: false
+                    create: false,
+                    list: false,
                 },
                 ecid: {
                     title: 'ecID',
+                    width: '10%'
+                },
+                ec_authpath_name: {
+                    title: 'Group',
                     width: '10%'
                 },
                 name: {
@@ -60,10 +54,6 @@
                     title: 'Desc',
                     type: 'textarea',
                     list: false
-                },
-                publish_date: {
-                    title: 'Pub Date',
-                    width: '20%',
                 },
                 version: {
                     title: "Version",

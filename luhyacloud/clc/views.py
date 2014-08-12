@@ -646,7 +646,6 @@ def create_images(request):
         ostype = request.POST['ostype'],
         usage = request.POST['usage'],
         description = request.POST['description'],
-        publish_date = request.POST['publish_date'],
         version = request.POST['version'],
         size = request.POST['size'],
     )
