@@ -163,6 +163,7 @@ def list_authpath(request):
     recs = ecAuthPath.objects.all()
     for rec in recs:
         jrec = {}
+        jrec['id'] = rec.id
         jrec['ec_authpath_name'] = rec.ec_authpath_name
         jrec['ec_authpath_value'] = rec.ec_authpath_value
         data.append(jrec)
