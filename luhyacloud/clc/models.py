@@ -114,7 +114,6 @@ class ecImages(models.Model):
     usage = models.CharField(max_length=20)
 
     description = models.TextField()
-    publish_date = models.DateTimeField('date published')
     version = models.CharField(max_length=10)
     size = models.IntegerField(default=0)
 

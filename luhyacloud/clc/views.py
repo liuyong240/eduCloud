@@ -226,6 +226,15 @@ def list_ostypes(request):
     response = {}
     data = []
 
+    recs = ecOSTypes.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['ec_ostype'] = rec.ec_ostype
+        jrec['ec_storagectl'] = rec.ec_storagectl
+        jrec['ec_waishe_para'] = rec.ec_waishe_para
+        data.append(jrec)
+
     response['Records'] = data
     response['Result'] = 'OK'
 
@@ -236,7 +245,9 @@ def delete_ostypes(request):
     response = {}
     data = []
 
-    response['Records'] = data
+    rec = ecOSTypes.objects.get(id=request.POST['id'])
+    rec.delete()
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -244,9 +255,13 @@ def delete_ostypes(request):
 
 def update_ostypes(request):
     response = {}
-    data = []
 
-    response['Records'] = data
+    rec = ecOSTypes.objects.get(id=request.POST['id']);
+    rec.ec_ostype = request.POST['ec_ostype']
+    rec.ec_storagectl = request.POST['ec_storagectl']
+    rec.ec_waishe_para = request.POST['ec_waishe_para']
+    rec.save()
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -256,7 +271,21 @@ def create_ostypes(request):
     response = {}
     data = []
 
-    response['Records'] = data
+    rec = ecOSTypes(
+        ec_ostype = request.POST['ec_ostype'],
+        ec_storagectl = request.POST['ec_storagectl'],
+        ec_waishe_para = request.POST['ec_waishe_para']
+    )
+    rec.save()
+
+    jrec = {}
+    jrec['id'] = rec.id
+    jrec['ec_ostype'] = rec.ec_ostype
+    jrec['ec_storagectl'] = rec.ec_storagectl
+    jrec['ec_waishe_para'] = rec.ec_waishe_para
+    data.append(jrec)
+
+    response['Record'] = data
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -269,6 +298,15 @@ def list_rbac(request):
     response = {}
     data = []
 
+    recs = ecRBAC.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['ec_authpath_name'] = rec.ec_authpath_name
+        jrec['ec_rbac_name'] = rec.ec_rbac_name
+        jrec['ec_rbac_permision'] = rec.ec_rbac_permision
+        data.append(jrec)
+
     response['Records'] = data
     response['Result'] = 'OK'
 
@@ -277,9 +315,10 @@ def list_rbac(request):
 
 def delete_rbac(request):
     response = {}
-    data = []
 
-    response['Records'] = data
+    rec = ecRBAC.objects.all(id=request.POST['id'])
+    rec.delete()
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -289,7 +328,12 @@ def update_rbac(request):
     response = {}
     data = []
 
-    response['Records'] = data
+    rec = ecRBAC.objects.all(id=request.POST['id'])
+    rec.ec_authpath_name = request.POST['ec_authpath_name']
+    rec.ec_rbac_name = request.POST['ec_rbac_name']
+    rec.ec_rbac_permision = request.POST['ec_rbac_permision']
+    rec.save()
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -299,7 +343,21 @@ def create_rbac(request):
     response = {}
     data = []
 
-    response['Records'] = data
+    rec= ecRBAC(
+        ec_authpath_name = request.POST['ec_authpath_name'],
+        ec_rbac_name = request.POST['ec_rbac_name'],
+        ec_rbac_permision = request.POST['ec_rbac_permision']
+    )
+    rec.save()
+
+    jrec = {}
+    jrec['id'] = rec.id
+    jrec['ec_authpath_name'] = rec.ec_authpath_name
+    jrec['ec_rbac_name'] = rec.ec_rbac_name
+    jrec['ec_rbac_permision'] = rec.ec_rbac_permision
+    data.append(jrec)
+
+    response['Record'] = data
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -311,6 +369,14 @@ def list_serverrole(request):
     response = {}
     data = []
 
+    recs = ecServerRole.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['ec_role_name'] = rec.ec_role_name
+        jrec['ec_role_value'] = rec.ec_role_value
+        data.append(jrec)
+
     response['Records'] = data
     response['Result'] = 'OK'
 
@@ -319,9 +385,10 @@ def list_serverrole(request):
 
 def delete_serverrole(request):
     response = {}
-    data = []
 
-    response['Records'] = data
+    rec = ecServerRole.objects.get(id=request.POST['id'])
+    rec.delete()
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -331,7 +398,11 @@ def update_serverrole(request):
     response = {}
     data = []
 
-    response['Records'] = data
+    rec = ecServerRole.objects.get(id=request.POST['id'])
+    rec.ec_role_name = request.POST['ec_role_name']
+    rec.ec_role_value = request.POST['ec_role_value']
+    rec.save()
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -341,7 +412,19 @@ def create_serverrole(request):
     response = {}
     data = []
 
-    response['Records'] = data
+    rec = ecServerRole (
+        ec_role_name = request.POST['ec_role_name'],
+        ec_role_value = request.POST['ec_role_value']
+    )
+    rec.save()
+
+    jrec = {}
+    jrec['id'] = rec.id
+    jrec['ec_role_name'] = rec.ec_role_name
+    jrec['ec_role_value'] = rec.ec_role_value
+    data.append(jrec)
+
+    response['Record'] = data
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -353,6 +436,15 @@ def list_vmtypes(request):
     response = {}
     data = []
 
+    recs = ecVMTypes.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['name'] = rec.name
+        jrec['memory'] = rec.memory
+        jrec['cpus'] = rec.cpus
+        data.append(jrec)
+
     response['Records'] = data
     response['Result'] = 'OK'
 
@@ -361,9 +453,10 @@ def list_vmtypes(request):
 
 def delete_vmtypes(request):
     response = {}
-    data = []
 
-    response['Records'] = data
+    rec = ecVMTypes.objects.get(id=request.POST['id'])
+    rec.delete()
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -371,9 +464,13 @@ def delete_vmtypes(request):
 
 def update_vmtypes(request):
     response = {}
-    data = []
 
-    response['Records'] = data
+    rec = ecVMTypes.objects.get(id=request.POST['id'])
+    rec.name = request.POST['name']
+    rec.memory = request.POST['memory']
+    rec.cpus = request.POST['cpus']
+    rec.save()
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -383,7 +480,21 @@ def create_vmtypes(request):
     response = {}
     data = []
 
-    response['Records'] = data
+    rec = ecVMTypes(
+        name = request.POST['name'],
+        memory = request.POST['memory'],
+        cpus = request.POST['cpus']
+    )
+    rec.save()
+
+    jrec = {}
+    jrec['id'] = rec.id
+    jrec['name'] = rec.name
+    jrec['memory'] = rec.memory
+    jrec['cpus'] = rec.cpus
+    data.append(jrec)
+
+    response['Record'] = data
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -395,6 +506,13 @@ def list_vmusage(request):
     response = {}
     data = []
 
+    recs = ecVMUsages.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['ec_usage'] = rec.ec_usage
+        data.append(jrec)
+
     response['Records'] = data
     response['Result'] = 'OK'
 
@@ -403,9 +521,10 @@ def list_vmusage(request):
 
 def delete_vmusage(request):
     response = {}
-    data = []
 
-    response['Records'] = data
+    rec = ecVMUsages.objects.get(id=request.POST['id'])
+    rec.delete()
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -413,9 +532,10 @@ def delete_vmusage(request):
 
 def update_vmusage(request):
     response = {}
-    data = []
 
-    response['Records'] = data
+    rec = ecVMUsages.objects.get(id=request.POST['id'])
+    rec.ec_usage = request.POST['ec_usage']
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -425,14 +545,21 @@ def create_vmusage(request):
     response = {}
     data = []
 
-    response['Records'] = data
+    rec = ecVMUsages(
+        ec_usage = request.POST['ec_usage'],
+    )
+    rec.save()
+
+    jrec = {}
+    jrec['id'] = rec.id
+    jrec['ec_usage'] = rec.ec_usage
+    data.append(jrec)
+
+    response['Record'] = data
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
-
-
-
 
 
 # core tables for images
@@ -444,13 +571,13 @@ def list_images(request):
     recs = ecImages.objects.all()
     for rec in recs:
         jrec = {}
+        jrec['id'] = rec.id
         jrec['ec_authpath_name'] = rec.ec_authpath_name
         jrec['ecid'] = rec.ecid
         jrec['name'] = rec.name
         jrec['ostype']=rec.ostype
         jrec['usage'] = rec.usage
         jrec['description'] = rec.description
-        jrec['publish_date'] = str(rec.publish_date)
         jrec['version'] = rec.version
         jrec['size'] = rec.size
         data.append(jrec)
@@ -463,13 +590,39 @@ def list_images(request):
 
 
 def delete_images(request):
-    pass
+    response = {}
+
+    rec = ecImages.objects.get(id=request.POST['id'])
+    rec.delete()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
 
 def update_images(request):
-    pass
+    response = {}
+
+    rec = ecImages.objects.get(id=request.POST['id'])
+    rec.ec_authpath_name = request.POST['ec_authpath_name']
+    rec.ecid = request.POST['ecid']
+    rec.name = request.POST['name']
+    rec.ostype = request.POST['ostype']
+    rec.usage = request.POST['usage']
+    rec.description = request.POST['description']
+    rec.version = request.POST['version']
+    rec.size = request.POST['size']
+    rec.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
 
 def create_images(request):
     response = {}
+    data = []
+
     rec = ecImages(
         ec_authpath_name = request.POST['ec_authpath_name'],
         ecid = request.POST['ecid'],
@@ -483,8 +636,20 @@ def create_images(request):
     )
     rec.save()
 
+    jrec = {}
+    jrec['id'] = rec.id
+    jrec['ec_authpath_name'] = rec.ec_authpath_name
+    jrec['ecid'] = rec.ecid
+    jrec['name'] = rec.name
+    jrec['ostype']=rec.ostype
+    jrec['usage'] = rec.usage
+    jrec['description'] = rec.description
+    jrec['version'] = rec.version
+    jrec['size'] = rec.size
+    data.append(jrec)
+
     response['Result'] = 'OK'
-    response['Records'] = rec
+    response['Record'] = data
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
