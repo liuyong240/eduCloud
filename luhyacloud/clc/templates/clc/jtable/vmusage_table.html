@@ -9,16 +9,16 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'AuthPath List',
+            title: 'VM Usage',
 
             sorting: true, //Enable sorting
             defaultSorting: 'Name ASC', //Set default sorting
 
             actions: {
-                listAction:    '/clc/api/1.0/settings/listauthpath',
-                createAction:  '/clc/api/1.0/settings/createauthpath',
-                updateAction:  '/clc/api/1.0/settings/updateauthpath',
-                deleteAction:  '/clc/api/1.0/settings/deleteauthpath'
+                listAction:    '/clc/api/1.0/settings/listvmusage',
+                createAction:  '/clc/api/1.0/settings/createvmusage',
+                updateAction:  '/clc/api/1.0/settings/updatevmusage',
+                deleteAction:  '/clc/api/1.0/settings/deletevmusage'
             },
 
             fields: {
@@ -26,16 +26,13 @@
                     key: true,
                     list: false,
                     edit: false,
-                    create: false
+                    create: false,
                 },
-                ec_authpath_name: {
-                    title: 'name',
-                    width: '40%'
+                ec_usage: {
+                    title: 'Usage',
+                    width: '100%',
                 },
-                ec_authpath_value: {
-                    title: 'value',
-                    width: '60%'
-                }
+
             }
         });
 

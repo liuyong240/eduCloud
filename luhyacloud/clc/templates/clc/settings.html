@@ -2,15 +2,37 @@
 {% load i18n %}
 
 {% block content %}
-
-<iframe id="myiframe" src="jt/settings" frameborder="0"  width="100%" height="100%"></iframe>
-
+<div class="row">
+   <div class="col-lg-8">
+      <div class="panel panel-default">
+          <iframe class="twofields" src="jt/settings/authpath" frameborder="0"  width="100%" ></iframe>
+      </div>
+      <div class="panel panel-default">
+          <iframe class="threefields" src="jt/settings/rbac" frameborder="0"  width="100%" ></iframe>
+      </div>
+      <div class="panel panel-default">
+          <iframe class="threefields" src="jt/settings/vmtypes" frameborder="0"  width="100%" ></iframe>
+      </div>
+   </div>
+   <div class="col-lg-4">
+      <div class="panel panel-default">
+          <iframe class="threefields" src="jt/settings/ostypes" frameborder="0"  width="100%" ></iframe>
+      </div>
+      <div class="panel panel-default">
+          <iframe class="twofields" src="jt/settings/vmusage" frameborder="0"  width="100%" ></iframe>
+      </div>
+      <div class="panel panel-default">
+          <iframe class="twofields" src="jt/settings/serverrole" frameborder="0"  width="100%" ></iframe>
+      </div>
+   </div>
+</div>
 {% endblock %}
 
 {% block myjs %}
 
 <script type="text/javascript" language="javascript">
-$('#myiframe').css('height', $(window).height()+'px');
+$('.twofields').css('height', $(window).height()/3+'px');
+$('.threefields').css('height', $(window).height()/2+'px');
 </script>
 
 {% endblock %}

@@ -142,13 +142,28 @@ def jtable_images(request):
     return render(request, 'clc/jtable/images_table.html', {})
 
 @login_required
-def jtable_settings(request):
+def jtable_settings_for_authapth(request):
     return render(request, 'clc/jtable/authpath_table.html', {})
 
+@login_required
+def jtable_settings_for_ostypes(request):
+    return render(request, 'clc/jtable/ostypes_table.html', {})
 
+@login_required
+def jtable_settings_for_rbac(request):
+    return render(request, 'clc/jtable/rbac_table.html', {})
 
+@login_required
+def jtable_settings_for_vmusage(request):
+    return render(request, 'clc/jtable/vmusage_table.html', {})
 
+@login_required
+def jtable_settings_for_serverrole(request):
+    return render(request, 'clc/jtable/serverrole_table.html', {})
 
+@login_required
+def jtable_settings_for_vmtypes(request):
+    return render(request, 'clc/jtable/vmtypes_table.html', {})
 
 #################################################################################
 # API Version 1.0 for accessing data model by POST request
@@ -296,6 +311,7 @@ def create_ostypes(request):
 # -----------------------------------
 def list_rbac(request):
     response = {}
+
     data = []
 
     recs = ecRBAC.objects.all()

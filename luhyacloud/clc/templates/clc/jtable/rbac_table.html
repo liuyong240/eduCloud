@@ -9,16 +9,16 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'AuthPath List',
+            title: 'RBAC',
 
             sorting: true, //Enable sorting
             defaultSorting: 'Name ASC', //Set default sorting
 
             actions: {
-                listAction:    '/clc/api/1.0/settings/listauthpath',
-                createAction:  '/clc/api/1.0/settings/createauthpath',
-                updateAction:  '/clc/api/1.0/settings/updateauthpath',
-                deleteAction:  '/clc/api/1.0/settings/deleteauthpath'
+                listAction:    '/clc/api/1.0/settings/listrbac',
+                createAction:  '/clc/api/1.0/settings/createrbac',
+                updateAction:  '/clc/api/1.0/settings/updaterbac',
+                deleteAction:  '/clc/api/1.0/settings/deleterbac'
             },
 
             fields: {
@@ -26,15 +26,19 @@
                     key: true,
                     list: false,
                     edit: false,
-                    create: false
+                    create: false,
+                },
+                ec_rbac_name: {
+                    title: 'Name',
+                    width: '20%',
                 },
                 ec_authpath_name: {
-                    title: 'name',
-                    width: '40%'
+                    title: 'Group',
+                    width: '40%',
                 },
-                ec_authpath_value: {
-                    title: 'value',
-                    width: '60%'
+                ec_rbac_permision: {
+                    title: 'Permision',
+                    width: '40%',
                 }
             }
         });

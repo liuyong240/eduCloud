@@ -27,8 +27,12 @@ urlpatterns = patterns('',
 
     # iframe page
     url(r'^jt/images$',         views.jtable_images,               name='jtable_images_view'),
-    url(r'^jt/settings$',       views.jtable_settings,             name='jtable_settings_view'),
-
+    url(r'^jt/settings/authpath$',  views.jtable_settings_for_authapth,  name='jtable_settings_authpath_view'),
+    url(r'^jt/settings/ostypes$',   views.jtable_settings_for_ostypes,   name='jtable_settings_ostypes_view'),
+    url(r'^jt/settings/rbac$',      views.jtable_settings_for_rbac,      name='jtable_settings_rbac_view'),
+    url(r'^jt/settings/vmusage$',   views.jtable_settings_for_vmusage,   name='jtable_settings_vmusage_view'),
+    url(r'^jt/settings/serverrole', views.jtable_settings_for_serverrole,name='jtable_settings_serverrole_view'),
+    url(r'^jt/settings/vmtypes',    views.jtable_settings_for_vmtypes,   name='jtable_settings_vmtypes_view'),
 
     # API v1.0
     # system setting table ops by POST

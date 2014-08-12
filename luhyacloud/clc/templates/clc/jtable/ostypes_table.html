@@ -1,0 +1,53 @@
+{% extends "clc/jtable/template.html" %}
+{% load i18n %}
+
+{% block myjs %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myjtable').jtable({
+            jqueryuiTheme: true,
+
+            title: 'OS Types',
+
+            sorting: true, //Enable sorting
+            defaultSorting: 'Name ASC', //Set default sorting
+
+            actions: {
+                listAction:    '/clc/api/1.0/settings/listostypes',
+                createAction:  '/clc/api/1.0/settings/createostypes',
+                updateAction:  '/clc/api/1.0/settings/updateostypes',
+                deleteAction:  '/clc/api/1.0/settings/deleteostypes'
+            },
+
+            fields: {
+                id: {
+                    key: true,
+                    list: false,
+                    edit: false,
+                    create: false,
+                },
+                ec_ostype: {
+                    title: 'OS Type',
+                    width: '30%',
+                },
+                ec_storagectl: {
+                    title: 'storageCtrl',
+                    width: '30%',
+                    list: false,
+                },
+                ec_waishe_para: {
+                    title: 'waishe',
+                    width: '30%',
+                    list: false,
+                }
+            }
+        });
+
+        //Load student list from server
+        $('#myjtable').jtable('load');
+    });
+
+</script>
+{% endblock %}
