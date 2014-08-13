@@ -11,6 +11,9 @@
 
             title: 'Images List',
 
+            selecting: true, //Enable selecting
+            //selectingCheckboxes: true, //Show checkboxes on first column
+
             sorting: true, //Enable sorting
             defaultSorting: 'Name ASC', //Set default sorting
 
@@ -18,7 +21,7 @@
                 listAction:   '/clc/api/1.0/images/list',
                 deleteAction: '/clc/api/1.0/images/delete',
                 updateAction: '/clc/api/1.0/images/update',
-                createAction: '/clc/api/1.0/images/create'
+                //createAction: '/clc/api/1.0/images/create'
             },
             fields: {
                 id: {
@@ -42,7 +45,7 @@
                 ostype: {
                     title: 'OSType',
                     width: '10%',
-                    options: { 'xp': 'WinXP', 'win7': 'Win7', 'win2003': 'Windows2003' }
+                    options: { '1': 'WinXP', '2': 'Win7', '3': 'Windows2003' }
                 },
                 usage: {
                     title: 'Usage',
