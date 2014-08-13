@@ -189,6 +189,23 @@ def list_authpath(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
+def authpath_optionlist(request):
+    response = {}
+    data = []
+
+    recs = ecAuthPath.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['DisplayText'] = rec.ec_authpath_name
+        jrec['Value'] = rec.ec_authpath_name
+        data.append(jrec)
+
+    response['Options'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
 def delete_authpath(request):
     response = {}
 
@@ -251,6 +268,23 @@ def list_ostypes(request):
         data.append(jrec)
 
     response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def ostype_optionlist(request):
+    response = {}
+    data = []
+
+    recs = ecOSTypes.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['DisplayText'] = rec.ec_ostype
+        jrec['Value'] = rec.ec_ostype
+        data.append(jrec)
+
+    response['Options'] = data
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -332,7 +366,7 @@ def list_rbac(request):
 def delete_rbac(request):
     response = {}
 
-    rec = ecRBAC.objects.all(id=request.POST['id'])
+    rec = ecRBAC.objects.get(id=request.POST['id'])
     rec.delete()
 
     response['Result'] = 'OK'
@@ -344,7 +378,7 @@ def update_rbac(request):
     response = {}
     data = []
 
-    rec = ecRBAC.objects.all(id=request.POST['id'])
+    rec = ecRBAC.objects.get(id=request.POST['id'])
     rec.ec_authpath_name = request.POST['ec_authpath_name']
     rec.ec_rbac_name = request.POST['ec_rbac_name']
     rec.ec_rbac_permision = request.POST['ec_rbac_permision']
@@ -394,6 +428,23 @@ def list_serverrole(request):
         data.append(jrec)
 
     response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def serverrole_optionlist(request):
+    response = {}
+    data = []
+
+    recs = ecServerRole.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['DisplayText'] = rec.ec_role_name
+        jrec['Value'] = rec.ec_role_name
+        data.append(jrec)
+
+    response['Options'] = data
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -467,6 +518,24 @@ def list_vmtypes(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
+def vmtpye_optionlist(request):
+    response = {}
+    data = []
+
+    recs = ecVMTypes.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['DisplayText'] = rec.name
+        jrec['Value'] = rec.name
+        data.append(jrec)
+
+    response['Options'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+
 def delete_vmtypes(request):
     response = {}
 
@@ -530,6 +599,23 @@ def list_vmusage(request):
         data.append(jrec)
 
     response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def vmusage_optionlist(request):
+    response = {}
+    data = []
+
+    recs = ecVMUsages.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['DisplayText'] = rec.ec_usage
+        jrec['Value'] = rec.ec_usage
+        data.append(jrec)
+
+    response['Options'] = data
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)

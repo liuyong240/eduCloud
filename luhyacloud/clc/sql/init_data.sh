@@ -1,4 +1,5 @@
 #! /bin/bash
+mysql -uroot -proot mysql < ecimages.sql
 mysql -uroot -proot mysql < ecauthpath.sql  
 mysql -uroot -proot mysql < ecostypes.sql  
 mysql -uroot -proot mysql < ecrbac.sql  

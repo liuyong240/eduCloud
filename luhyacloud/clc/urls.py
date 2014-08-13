@@ -36,15 +36,18 @@ urlpatterns = patterns('',
 
     # API v1.0
     # system setting table ops by POST
-    url(r'^api/1.0/settings/listauthpath$',    views.list_authpath,               name='list_authpath_view'),
+    url(r'^api/1.0/settings/listauthpath$',      views.list_authpath,               name='list_authpath_view'),
     url(r'^api/1.0/settings/deleteauthpath$',    views.delete_authpath,             name='delete_authpath_view'),
     url(r'^api/1.0/settings/updateauthpath$',    views.update_authpath,             name='update_authpath_view'),
     url(r'^api/1.0/settings/createauthpath$',    views.create_authpath,             name='create_authpath_view'),
+    url(r'^api/1.0/settings/authpath/option/list$',     views.authpath_optionlist,  name='authpath_optionlist_view'),
+
 
     url(r'^api/1.0/settings/listostypes$',       views.list_ostypes,               name='list_ostypes_view'),
     url(r'^api/1.0/settings/deleteostypes$',     views.delete_ostypes,             name='delete_ostypes_view'),
     url(r'^api/1.0/settings/updateostypes$',     views.update_ostypes,             name='update_ostypes_view'),
     url(r'^api/1.0/settings/createostypes$',     views.create_ostypes,             name='create_ostypes_view'),
+    url(r'^api/1.0/settings/ostype/option/list$',     views.ostype_optionlist,  name='ostype_optionlist_view'),
 
     url(r'^api/1.0/settings/listrbac$',       views.list_rbac,               name='list_rbac_view'),
     url(r'^api/1.0/settings/deleterbac$',     views.delete_rbac,             name='delete_rbac_view'),
@@ -55,16 +58,19 @@ urlpatterns = patterns('',
     url(r'^api/1.0/settings/deleteserverrole$',     views.delete_serverrole,             name='delete_serverrole_view'),
     url(r'^api/1.0/settings/updateserverrole$',     views.update_serverrole,             name='update_serverrole_view'),
     url(r'^api/1.0/settings/createserverrole$',     views.create_serverrole,             name='create_serverrole_view'),
+    url(r'^api/1.0/settings/serverrole/option/list$',     views.serverrole_optionlist,  name='serverrole_optionlist_view'),
 
     url(r'^api/1.0/settings/listvmtypes$',       views.list_vmtypes,               name='list_vmtypes_view'),
     url(r'^api/1.0/settings/deletevmtypes$',     views.delete_vmtypes,             name='delete_vmtypes_view'),
     url(r'^api/1.0/settings/updatevmtypes$',     views.update_vmtypes,             name='update_vmtypes_view'),
     url(r'^api/1.0/settings/createvmtypes$',     views.create_vmtypes,             name='create_vmtypes_view'),
+    url(r'^api/1.0/settings/vmtype/option/list$',     views.vmtpye_optionlist,     name='vmtype_optionlist_view'),
 
     url(r'^api/1.0/settings/listvmusage$',       views.list_vmusage,               name='list_vmusage_view'),
     url(r'^api/1.0/settings/deletevmusage$',     views.delete_vmusage,             name='delete_vmusage_view'),
     url(r'^api/1.0/settings/updatevmusage$',     views.update_vmusage,             name='update_vmusage_view'),
     url(r'^api/1.0/settings/createvmusage$',     views.create_vmusage,             name='create_vmusage_view'),
+    url(r'^api/1.0/settings/vmusage/option/list$',     views.vmusage_optionlist,     name='vmusage_optionlist_view'),
 
     # system core table ops by POST
     url(r'^api/1.0/images/list$',          views.list_images,                 name='list_images_view'),
