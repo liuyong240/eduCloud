@@ -6,10 +6,9 @@
    <div class="col-lg-12">
       <div class="panel panel-default">
         <div class="panel-heading" >
-
-                <button type="button" class="btn btn-default">Create</button>
-                <button type="button" class="btn btn-default">Modify</button>
-
+                <div id="imgid" style="display: none;"></div>
+                <button id="create" type="button" class="btn btn-default" style="display: none;">Create</button>
+                <button id="modify" type="button" class="btn btn-default" style="display: none;">Modify</button>
         </div>
         <div class="panel-body">
             <iframe id="myiframe" src="jt/images" frameborder="0"  width="100%" ></iframe>
@@ -25,4 +24,11 @@
 $('#myiframe').css('height', $(window).height()+'px');
 </script>
 
+<script type="text/javascript" language="javascript">
+$(document).ready(function(){
+    $('#myiframe').bind('selectimage',function(data){
+        $('.btn').css('display', 'block');
+    });
+});
+</script>
 {% endblock %}
