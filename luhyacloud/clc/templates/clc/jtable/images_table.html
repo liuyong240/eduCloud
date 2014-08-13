@@ -30,6 +30,47 @@
                     create: false,
                     list: false,
                 },
+                //CHILD TABLE DEFINITION FOR "EXAMS"
+                mychild: {
+                    title: '',
+                    width: '3%',
+                    sorting: false,
+                    edit: false,
+                    create: false,
+                    display: function (imagesData) {
+                        //Create an image that will be used to open child table
+                        var $img = $('<img src="/static/clc/pics/list_metro.png" />');
+                        //Open child table when user clicks the image
+                        $img.click(function () {
+                            $('#myjtable').jtable('openChildTable',
+                                    $img.closest('tr'), {
+                                    title: 'Image ' + imagesData.record.name + ' Detail Description',
+                                    actions: {
+                                        listAction: function (postData, jtParams) {
+                                                return {
+                                                    "Result": "OK",
+                                                    "Records": [{ "description": imagesData.record.description }],
+                                                    "TotalRecordCount": 1
+                                                };
+                                            }
+                                    },
+                                    fields: {
+                                        description: {
+                                            title: '',
+                                            display: function (data) {
+                                                return '<pre>' + data.record.description + '</pre>';
+                                            }
+                                        },
+
+                                    }
+                                }, function (data) { //opened handler
+                                    data.childTable.jtable('load');
+                                });
+                        });
+                        //Return image to show on the person row
+                        return $img;
+                    }
+                },
                 ecid: {
                     title: 'ecID',
                     width: '10%',
@@ -54,11 +95,6 @@
                     width: '10%',
                     options: '/clc/api/1.0/settings/authpath/option/list'
                 },
-                description: {
-                    title: 'Desc',
-                    type: 'textarea',
-                    list: false
-                },
                 version: {
                     title: "Version",
                     width: '20%',
@@ -68,6 +104,11 @@
                     title: "Size",
                     width: '20%',
                     edit: false,
+                },
+                description: {
+                    title: 'Desc',
+                    type: 'textarea',
+                    list: false
                 },
             }
         });

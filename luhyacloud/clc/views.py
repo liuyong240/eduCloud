@@ -707,13 +707,10 @@ def update_images(request):
 
     rec = ecImages.objects.get(id=request.POST['id'])
     rec.ec_authpath_name = request.POST['ec_authpath_name']
-    rec.ecid = request.POST['ecid']
     rec.name = request.POST['name']
     rec.ostype = request.POST['ostype']
     rec.usage = request.POST['usage']
     rec.description = request.POST['description']
-    rec.version = request.POST['version']
-    rec.size = request.POST['size']
     rec.save()
 
     response['Result'] = 'OK'
