@@ -370,19 +370,23 @@ when ecCloud is installed, the next step is to initialize it with database table
     python manage.py sqlcustom
     it will ooks for the file <appname>/sql/<modelname>.sql to run when "python manage.py syncdb" call "CREATE TABLE".
 
----------------------
-IV  Image management
----------------------
-4.1 rabitmq configuration:  
-- clc has one, and each cc has one.
-- walrus/cc/ use clc's rabitmq
-- nc use cc's rabitmq
+-----------------------------------------------
+IV  WEB Service and Message management
+-----------------------------------------------
+4.1 software components description  
+- clc:    web server, memcache, daemon, rabbitmq(status-queue and its consumer)
+- walrus: web server, daemon, rsync service
+- cc:     web server, daemon, rabbitmq(status-queue and its consumer, cmd-queue)
+- nc:     web server, daemon, cmd-queue's consumer, and task-worker-thread
 
 4.2 queue definition
 rabitmq is used in this system for distributed task initiate and task status report.
-so at each rabitmq, 
-- there is one "command' queue that every one can send request message to it
-- each task will have its own queue
+so at each rabitmq,
+
+4.2.1 CLC
+- a "command' queue and consumer daemon,
+- a "system_status" queue and consumer daemon read data and write to memcache (http request re-direct memcache)
+- each task-related queue,
 
 4.3 scenario description
 
@@ -419,11 +423,6 @@ task definition:
    - upload image to walrus, report status to cc's build task queue
 - cc keep send task's status message to clc's sync task queue 
 
-4 phases: 
-- download (percentage)
-- clone (percentage)
-- edit  {running, stopped}
-- submit (percentage)
 
 
 4.3.2 
