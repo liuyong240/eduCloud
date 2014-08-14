@@ -370,4 +370,61 @@ when ecCloud is installed, the next step is to initialize it with database table
     python manage.py sqlcustom
     it will ooks for the file <appname>/sql/<modelname>.sql to run when "python manage.py syncdb" call "CREATE TABLE".
 
+---------------------
+IV  Image management
+---------------------
+4.1 rabitmq configuration:  
+- clc has one, and each cc has one.
+- walrus/cc/ use clc's rabitmq
+- nc use cc's rabitmq
+
+4.2 queue definition
+rabitmq is used in this system for distributed task initiate and task status report.
+so at each rabitmq, 
+- there is one "command' queue that every one can send request message to it
+- each task will have its own queue
+
+4.3 scenario description
+
+4.3.0 pre-condition
+clc/walrus/cc/nc/sc daemon start and register themselves to clc  : 
+  - /clc/register/cc/ccname
+  - /clc/register/walrus
+  - /clc/register/nc/ccname or /clc/register/nc
+each node has a few conf file :
+walrus: /storage/config/clc.conf
+cc:     /storage/config/clc.conf
+nc:     /storage/config/clc.conf, cc.conf(option)
+
+the content of conf is :  IP='xxx.xxx.xxx.xxx'
+
+4.3.1 image build
+
+task definition:
+- browser call clc web service, update build task db   /clc/imagebuild/oldimgid/dstimgid/taskid
+- clc     call cc  web service                          /cc/imagebuild/oldimgid/dstimgid/taskid
+- cc      call nc  web service daemon                   /nc/imagebuild/oldimgid/dstimgid/taskid
+- nc send message to nc daemon via "cmd" queue          json data = {'imgbuld','srcid','dstid','tid'}
+- nc daemn start a thread to do real work:     
+   - download image from walrus to storage, report status to cc's build task queue
+   - clone it to temp-storage, report status to cc
+   - run it based on vmusage, report status to cc
+   - when running, report acces url to cc
+- cc keep sending task's status message to clc's build task queue
+
+- browser call clc web service to submit build image   /cc/imagesubmit/dstimgid
+- cc      call nc  web service                          nc/imagesubmit/dstimgid
+- nc send message to nc daemon vi "cmd" queue           json data = { 'imgsub', 'dstid', 'tid' }
+- nc daemon start thread to do real work:
+   - upload image to walrus, report status to cc's build task queue
+- cc keep send task's status message to clc's sync task queue 
+
+4 phases: 
+- download (percentage)
+- clone (percentage)
+- edit  {running, stopped}
+- submit (percentage)
+
+
+4.3.2 
 

@@ -166,9 +166,10 @@ class ecImageBuildTask(models.Model):
     oldimgid=models.CharField(max_length=10)
     newimgid=models.CharField(max_length=10, unique=True)
     status=models.CharField(max_length=50) #{cloned, pending, running}
-    port=models.IntegerField(default=0)
-    displayURL=models.TextField()  #rdp://ip:port
-    progress=models.TextField()
+    walrusip=models.GenericIPAddressField()
+    ccip=models.GenericIPAddressField()
+    ncip=models.GenericIPAddressField()
+    acurl=models.CharField(max_length=100)
 
 class ecImageSyncTask(models.Model):
     destip=models.GenericIPAddressField()
