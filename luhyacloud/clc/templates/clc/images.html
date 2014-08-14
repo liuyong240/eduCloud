@@ -7,8 +7,8 @@
       <div class="panel panel-default">
         <div class="panel-heading" >
                 <div id="imgid" style="display: none;"></div>
-                <button id="create" type="button" class="btn btn-default" style="display: none;">Create</button>
-                <button id="modify" type="button" class="btn btn-default" style="display: none;">Modify</button>
+                <button id="create" type="button" class="btn btn-default disabled" >Create</button>
+                <button id="modify" type="button" class="btn btn-default disabled" >Modify</button>
         </div>
         <div class="panel-body">
             <iframe id="myiframe" src="jt/images" frameborder="0"  width="100%" ></iframe>
@@ -21,14 +21,20 @@
 {% block myjs %}
 
 <script type="text/javascript" language="javascript">
-$('#myiframe').css('height', $(window).height()+'px');
+    $('#myiframe').css('height', $(window).height()+'px');
 </script>
 
 <script type="text/javascript" language="javascript">
-$(document).ready(function(){
-    $('#myiframe').bind('selectimage',function(data){
-        $('.btn').css('display', 'block');
-    });
-});
+function imageSelected(imgid){
+    if (imgid == null) {
+        $('#create').addClass('disabled');
+        $('#modify').addClass('disabled');
+        $('#imgid').html(null);
+    } else {
+        $('#create').removeClass('disabled');
+        $('#modify').removeClass('disabled');
+        $('#imgid').html(imgid);
+    }
+}
 </script>
 {% endblock %}

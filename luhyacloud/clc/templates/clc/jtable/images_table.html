@@ -110,7 +110,25 @@
                     type: 'textarea',
                     list: false
                 },
-            }
+            },
+            //Register to selectionChanged event to hanlde events
+            selectionChanged: function () {
+                //Get all selected rows
+                var $selectedRows = $('#myjtable').jtable('selectedRows');
+
+                if ($selectedRows.length > 0) {
+                    $selectedRows.each(function () {
+                        //Show selected rows
+                        var record = $(this).data('record');
+                        window.parent.imageSelected(record.ecid);
+                        //alert("selected image " + record.ecid);
+                    });
+                } else {
+                    //No rows selected
+                    window.parent.imageSelected(null);
+                    //alert("no images selected!");
+                }
+            },
         });
 
         //Load student list from server
