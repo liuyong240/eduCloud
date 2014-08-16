@@ -425,5 +425,63 @@ task definition:
 
 
 
-4.3.2 
+4.3.2 image modify
+
+4.3.3 Vritual server running
+
+4.3.4 Remote virtual desktop running
+
+4.3.5 Local virutal desktop running
+
+
+-----------------------------------------------
+V  Network management
+-----------------------------------------------
+5.1 Pre-condition
+
+- CLC/CCs are in one network, CC/NCs are in one network, they can be two independent network
+- CLC, CCs are configured with public static IP addr
+- NCs are configured with public/private static IP addr (PUBLIC mode vs PRIVATE mode)
+
+5.2 Network Mode
+
+5.2.1 Local Virutal Desktop
+
+- NC has static valid IP addr that is managed by 3rd party
+- VM runs on NC in NAT mode, 
+- user access VM from NC directely
+- VM access internet by NC (NC is able to access internet)
+
+5.2.2 Remote Virtual Desktop
+
+- In PUBLIC mode, each NC has a public IP addr 
+  - VM runs on NC in NAT mode
+  - user access VM by NC.ip:port
+  - VM access internet by NC (NC is able to access internet)
+
+- In PRIVATE mode, each NC has a private IP addr
+  - VM runs on NC in NAT mode
+  - user access VM by CC.ip:port, and iptable forwarding it to NC.ip:port
+  - VM access internet by NC (NC is able to access internet)
+  - CC is responsible to manage port assignment
+    
+5.2.3 Virutal Server
+
+Each VS has a PUBLIC IP assigned for access, and these public IP addr is managed by CC's DHCP 
+
+- In PUBLIC mode, each NC has a public IP addr 
+  - VM runs on NC in bridge mode with assigned Public IP & MAC
+  - user access VM by pubIP:port(80)
+  - VM access internet by NC (NC is able to access internet)
+
+- In PRIVATE mode, each NC has a private IP addr
+  - CC also manage VMs private IP & mac by its DHCP server
+  - VM runs on NC in bridge mode with assigned Private IP & MAC
+  - CC add interface alias with related Public IP addr
+  - user access VM by CC.pubIP:port, and iptable forwarding it to NC.priIP:port
+  - VM access internet by NC (NC is able to access internet)
+
+
+
+
 
