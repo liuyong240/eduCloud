@@ -2,28 +2,15 @@
 
 __version__ = '1.0.0'
 
-import sys, os, Queue, threading
-import logging
-import logging.handlers
-import time
-import datetime
+import Queue
+from cmdConsumerThread import *
+from statusPublisherThread import *
 
-MAX_LOGFILE_BYTE = 10 * 1024 * 1024
+from luhyaapi.educloudLog import *
+from luhyaapi.run4everProcess import *
+
 LOG_FILE = '/var/log/educloud/nc_daemon.log'
-MAX_LOG_COUNT = 10
-
-
-def init_log():
-    logger = logging.getLogger('')
-    ch = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=MAX_LOGFILE_BYTE, backupCount=MAX_LOG_COUNT)
-    formatter = logging.Formatter('<%(asctime)s> <%(levelname)s> <%(module)s:%(lineno)d>\t%(message)s', datefmt='%F %T')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    logger.setLevel(logging.ERROR)
-    return logger
-
-
-logger = init_log()
+logger = init_log(LOG_FILE)
 
 '''
 start a few worker thread
@@ -60,40 +47,6 @@ list of daemon and worker thread
        - download image from CC cache
        - create & run vm
 '''
-class run4everThread(threading.Thread):
-    def __init__(self, bucket):
-        threading.Thread.__init__(self)
-        self.bucket = bucket
-
-    def run4ever(self):
-        pass
-
-    def run(self):
-        try:
-            self.run4ever()
-        except Exception:
-            self.bucket.put(self.__class__.__name__)
-
-class statusConsumerThread(run4everThread):
-    def __init__(self, bucket):
-        run4everThread.__init__(self, bucket)
-
-    def run4ever(self):
-        time.sleep(10)
-        logger.error("status consumer is running.")
-        raise Exception('statusConsumser is failed.')
-
-
-class cmdConsumerThread(run4everThread):
-    def __init__(self, bucket):
-        run4everThread.__init__(self, bucket)
-
-    def run4ever(self):
-        while True:
-            time.sleep(3)
-            logger.error("cmd consumer is running.")
-            # raise Exception('cmdConsumer is failed.')
-
 
 def registerMyselfasNC():
     pass
@@ -103,10 +56,11 @@ def main():
     # read /storage/config/cc.conf to register itself to cc
     registerMyselfasNC()
 
+    # start main loop to start & monitor thread
+    thread_array = ['cmdConsumerThread', 'statusPublisherThread']
     bucket = Queue.Queue()
 
-    mydaemons = ['cmdConsumerThread', 'statusConsumerThread']
-    for daemon in mydaemons:
+    for daemon in thread_array:
         bucket.put(daemon)
 
     while True:
@@ -114,14 +68,13 @@ def main():
             daemon_name = bucket.get(block=True)
             bucket.task_done()
 
-            logger.error("--- %s:" %  (daemon_name))
+            logger.error("restart %s ... ..." % (daemon_name))
 
-            obj = globals()[daemon_name](bucket)
+            obj = globals()[daemon_name](bucket, logger)
             obj.start()
 
         except Exception as e:
             logger.error(e.message)
-
 
 if __name__ == '__main__':
     main()
