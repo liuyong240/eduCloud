@@ -375,9 +375,9 @@ IV  WEB Service and Message management
 -----------------------------------------------
 4.1 software components description  
 - clc:    web server, memcache, daemon, rabbitmq(status-queue and its consumer)
-- walrus: web server, daemon, rsync service
-- cc:     web server, daemon, rabbitmq(status-queue and its consumer, cmd-queue)
-- nc:     web server, daemon, cmd-queue's consumer, and task-worker-thread
+- walrus: web server, daemon, rsyncd
+- cc:     web server, daemon, rabbitmq(status-queue and its consumer, cmd-queue), dhcp, iptales, rsyncd
+- nc:     [web server], daemon, cmd-queue's consumer, and task-worker-thread
 
 4.2 queue definition
 rabitmq is used in this system for distributed task initiate and task status report.
