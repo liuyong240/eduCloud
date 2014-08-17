@@ -2,12 +2,12 @@
 
 __version__ = '1.0.0'
 
-import Queue
-from cmdConsumerThread import *
-from statusPublisherThread import *
-
+import Queue, requests
+from nc_cmdConsumerThread import *
+from nc_statusPublisherThread import *
 from luhyaapi.educloudLog import *
-from luhyaapi.run4everProcess import *
+from luhyaapi.luhyaTools import configuration
+from luhyaapi.hostTools import *
 
 LOG_FILE = '/var/log/educloud/nc_daemon.log'
 logger = init_log(LOG_FILE)
@@ -49,7 +49,31 @@ list of daemon and worker thread
 '''
 
 def registerMyselfasNC():
-    pass
+    conf = configuration('/storage/config/cc.conf')
+    ccip = conf.getvalue('server', 'IP')
+    ccname = conf.getvalue('server', 'ccname')
+
+    hostname, hostcpus, hostmem, hostdisk = getHostAttr()
+    netlist = getHostNetInfo()
+    url = 'http://%s/cc/api/1.0/register/server' % ccip
+    payload = {
+        'role': 'nc',
+        'name': hostname,
+        'cpus': hostcpus,
+        'memory': hostmem,
+        'disk': hostdisk,
+        'ip0': netlist['ip0'],
+        'ip1': netlist['ip1'],
+        'ip2': netlist['ip2'],
+        'ip3': netlist['ip3'],
+        'mac0': netlist['mac0'],
+        'mac1': netlist['mac1'],
+        'mac2': netlist['mac2'],
+        'mac3': netlist['mac3'],
+        'ccname': ccname,
+    }
+    r = requests.post(url, data=payload)
+    return r.content
 
 
 def main():
@@ -57,7 +81,7 @@ def main():
     registerMyselfasNC()
 
     # start main loop to start & monitor thread
-    thread_array = ['cmdConsumerThread', 'statusPublisherThread']
+    thread_array = ['nc_cmdConsumerThread', 'nc_statusPublisherThread']
     bucket = Queue.Queue()
 
     for daemon in thread_array:

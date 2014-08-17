@@ -103,6 +103,10 @@ urlpatterns = patterns('',
     # url(r'^api/1.0/vss/update$',        views.update_vss,               name='update_vss_view'),
     # url(r'^api/1.0/vss/create$',        views.create_vss,               name='create_vss_view'),
 
+    url(r'^api/1.0/imagebuild/(?P<srcid>\w+)/(?P<destid>\w+)/$',        views.image_build,               name='images_build'),
 
+    # this is a POST requtst, all data in POST section
+    url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),
+    url(r'^api/1.0/register/server$',      views.register_server,             name='register_server'),
 
     )

@@ -1,7 +1,7 @@
 from luhyaapi.run4everProcess import *
 import time
 
-class cmdConsumerThread(run4everThread):
+class cc_cmdConsumerThread(run4everThread):
     def __init__(self, bucket, logger):
         run4everThread.__init__(self, bucket, logger)
 

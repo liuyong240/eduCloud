@@ -14,16 +14,14 @@ import logging
 import commands
 from datetime import datetime
 
-from clc.models import *
-from clc import tasks
-from luhyaapi import *
+from models import *
 
-MAX_LOGFILE_BYTE=10*1024*1024
-LOG_FILE='/var/log/eucalyptus/clc.log/'
-MAX_LOG_COUNT=10
+from luhyaapi.educloudLog import *
+from luhyaapi.luhyaTools import configuration
+from luhyaapi.hostTools import *
 
-# Get an instance of a logger
-logger = logging.getLogger(__name__)
+LOG_FILE = '/var/log/educloud/clc.log'
+logger = init_log(LOG_FILE)
 
 def display_login_window(request):
     return render(request, 'clc/login.html', {})
@@ -752,5 +750,92 @@ def create_images(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
+#################################################################################
+# API Version 1.0 for image build & modify
+#################################################################################
+import requests
 
+def image_build(request, srcid, destid):
+    pass
 
+def register_host(request):
+    response = {}
+
+def register_server(request):
+    response = {}
+
+    if request.POST['role'] == 'clc' or request.POST['role'] == 'walrus':
+        try:
+            rec = ecServers.objects.get(role=request.POST['role'])
+            rec.role   = request.POST['role']
+            rec.name   = request.POST['name']
+            rec.cpus   = request.POST['cpus']
+            rec.memory = request.POST['memory']
+            rec.disk   = request.POST['disk']
+            rec.ip0    = request.POST['ip0']
+            rec.ip1    = request.POST['ip1']
+            rec.ip2    = request.POST['ip2']
+            rec.ip3    = request.POST['ip3']
+            rec.mac0   = request.POST['mac0']
+            rec.mac1   = request.POST['mac1']
+            rec.mac2   = request.POST['mac2']
+            rec.mac3   = request.POST['mac3']
+            logger.error("update existing server db")
+        except:
+            rec = ecServers(
+                role   = request.POST['role'],
+                name   = request.POST['name'],
+                cpus   = request.POST['cpus'],
+                memory = request.POST['memory'],
+                disk   = request.POST['disk'],
+                ip0    = request.POST['ip0'],
+                ip1    = request.POST['ip1'],
+                ip2    = request.POST['ip2'],
+                ip3    = request.POST['ip3'],
+                mac0   = request.POST['mac0'],
+                mac1   = request.POST['mac1'],
+                mac2   = request.POST['mac2'],
+                mac3   = request.POST['mac3'],
+            )
+            logger.error("create a new server db")
+        rec.save()
+    else:
+        try:
+            rec = ecServers.objects.get(role=request.POST['role'],
+                                        ip0=request.POST['ip0'])
+            rec.role   = request.POST['role']
+            rec.name   = request.POST['name']
+            rec.cpus   = request.POST['cpus']
+            rec.memory = request.POST['memory']
+            rec.disk   = request.POST['disk']
+            rec.ip0    = request.POST['ip0']
+            rec.ip1    = request.POST['ip1']
+            rec.ip2    = request.POST['ip2']
+            rec.ip3    = request.POST['ip3']
+            rec.mac0   = request.POST['mac0']
+            rec.mac1   = request.POST['mac1']
+            rec.mac2   = request.POST['mac2']
+            rec.mac3   = request.POST['mac3']
+            rec.ccname = request.POST['ccname']
+        except:
+            rec = ecServers(
+                    role   = request.POST['role'],
+                    name   = request.POST['name'],
+                    cpus   = request.POST['cpus'],
+                    memory = request.POST['memory'],
+                    disk   = request.POST['disk'],
+                    ip0    = request.POST['ip0'],
+                    ip1    = request.POST['ip1'],
+                    ip2    = request.POST['ip2'],
+                    ip3    = request.POST['ip3'],
+                    mac0   = request.POST['mac0'],
+                    mac1   = request.POST['mac1'],
+                    mac2   = request.POST['mac2'],
+                    mac3   = request.POST['mac3'],
+                    ccname = request.POST['ccname'],
+                )
+        rec.save()
+
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")

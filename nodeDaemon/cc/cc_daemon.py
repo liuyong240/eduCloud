@@ -2,28 +2,16 @@
 
 __version__ = '1.0.0'
 
-import sys
-import os
-import logging
-import logging.handlers
-import time
-import datetime
+import Queue,requests
+from cc_cmdConsumerThread import *
+from cc_statusPublisherThread import *
+from cc_statusConsumerThread import *
+from luhyaapi.educloudLog import *
+from luhyaapi.luhyaTools import configuration
+from luhyaapi.hostTools import *
 
-MAX_LOGFILE_BYTE=10*1024*1024
-LOG_FILE='/var/log/educlooud/cc_daemon.log'
-MAX_LOG_COUNT=10
-
-def init_log():
-  logger = logging.getLogger('')
-  ch = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=MAX_LOGFILE_BYTE,backupCount=MAX_LOG_COUNT)
-  formatter = logging.Formatter('<%(asctime)s> <%(levelname)s> <%(module)s:%(lineno)d>\t%(message)s' , datefmt='%F %T')
-  ch.setFormatter(formatter)
-  logger.addHandler(ch)
-  logger.setLevel(logging.ERROR)
-  return logger
-
-
-logger = init_log()
+LOG_FILE = '/var/log/educloud/cc_daemon.log'
+logger = init_log(LOG_FILE)
 
 '''
 
@@ -40,13 +28,62 @@ list of daemon and worker thread
 3.2  upload image to walrus
 
 '''
-def main ():
 
 
+def registerMyselfasCC():
+    conf = configuration('/storage/config/clc.conf')
+    clcip = conf.getvalue('server', 'IP')
 
-  while True:
-          time.sleep(100000)
+    conf = configuration('/storage/config/cc.conf')
+    ccname = conf.getvalue('server', 'ccname')
+
+    hostname, hostcpus, hostmem, hostdisk = getHostAttr()
+    netlist = getHostNetInfo()
+    url = 'http://%s/clc/api/1.0/register/server' % clcip
+    payload = {
+        'role': 'cc',
+        'name': hostname,
+        'cpus': hostcpus,
+        'memory': hostmem,
+        'disk': hostdisk,
+        'ip0': netlist['ip0'],
+        'ip1': netlist['ip1'],
+        'ip2': netlist['ip2'],
+        'ip3': netlist['ip3'],
+        'mac0': netlist['mac0'],
+        'mac1': netlist['mac1'],
+        'mac2': netlist['mac2'],
+        'mac3': netlist['mac3'],
+        'ccname': ccname,
+    }
+    r = requests.post(url, data=payload)
+    return r.status_code
+
+
+def main():
+    # read /storage/config/cc.conf to register itself to cc
+    registerMyselfasCC()
+
+    # start main loop to start & monitor thread
+    thread_array = ['cc_statusPublisherThread', 'cc_statusConsumerThread', 'cc_cmdConsumerThread']
+    bucket = Queue.Queue()
+
+    for daemon in thread_array:
+        bucket.put(daemon)
+
+    while True:
+        try:
+            daemon_name = bucket.get(block=True)
+            bucket.task_done()
+
+            logger.error("restart %s ... ..." % (daemon_name))
+
+            obj = globals()[daemon_name](bucket, logger)
+            obj.start()
+
+        except Exception as e:
+            logger.error(e.message)
 
 
 if __name__ == '__main__':
-  main ()
+    main()

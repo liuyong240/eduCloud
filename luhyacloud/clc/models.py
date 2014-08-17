@@ -72,30 +72,40 @@ class ecServers(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
 
     # an array of roles' value, should be json string
-    roles = models.CharField(max_length=100)
+    role = models.CharField(max_length=100)
 
-    ip0 = models.GenericIPAddressField(unique=True)
-    ip1 = models.GenericIPAddressField(unique=True)
-    ip2 = models.GenericIPAddressField(unique=True)
-    ip3 = models.GenericIPAddressField(unique=True)
+    ip0 = models.CharField(max_length=20)
+    ip1 = models.CharField(max_length=20)
+    ip2 = models.CharField(max_length=20)
+    ip3 = models.CharField(max_length=20)
 
     # used for remote LAN-awake, or WAN-awake.
-    mac = models.CharField(max_length=20);
+    mac0 = models.CharField(max_length=20)
+    mac1 = models.CharField(max_length=20)
+    mac2 = models.CharField(max_length=20)
+    mac3 = models.CharField(max_length=20)
 
     name = models.CharField(max_length=20)
     location = models.CharField(max_length=20)
+
+    cpus = models.IntegerField(default=0)
+    memory = models.IntegerField(default=0)
+    disk = models.IntegerField(default=0)
+
+    ccname = models.CharField(max_length=20)
 
 class ecHosts(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
 
-    ip = models.GenericIPAddressField(unique=True)
-    wip = models.GenericIPAddressField(unique=True)
+    ip  = models.CharField(max_length=20)
+    wip = models.CharField(max_length=20)
 
     # used for remote LAN-awake, or WAN-awake.
     mac = models.CharField(max_length=20);
 
     name = models.CharField(max_length=20)
     location = models.CharField(max_length=20)
+
     memory = models.IntegerField(default=0)
     disk = models.IntegerField(default=0)
 
