@@ -1,5 +1,8 @@
 from luhyaapi.run4everProcess import *
+from luhyaapi.educloudLog import *
 import time
+
+logger = getncdaemonlogger()
 
 class nc_statusPublisherThread(run4everThread):
     def __init__(self, bucket, logger):
@@ -7,5 +10,5 @@ class nc_statusPublisherThread(run4everThread):
 
     def run4ever(self):
         time.sleep(10)
-        self.logger.error("status consumer is running.")
+        logger.error("status consumer is running.")
         raise Exception('statusConsumser is failed.')

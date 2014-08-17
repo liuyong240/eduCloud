@@ -104,8 +104,10 @@ class ecHosts(models.Model):
     mac = models.CharField(max_length=20);
 
     name = models.CharField(max_length=20)
+    ccname = models.CharField(max_length=20)
     location = models.CharField(max_length=20)
 
+    cpus = models.IntegerField(default=0)
     memory = models.IntegerField(default=0)
     disk = models.IntegerField(default=0)
 

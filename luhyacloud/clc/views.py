@@ -753,13 +753,37 @@ def create_images(request):
 #################################################################################
 # API Version 1.0 for image build & modify
 #################################################################################
-import requests
+import requests, memcache
+
+# this is simple algorith, just find the first cc in db
+def findLazyCC():
+    ccs = ecServers.objects.filter(role='cc')
+    return ccs[0].ip0
 
 def image_build(request, srcid, destid):
-    pass
+    ccip = findLazyCC()
+
+    url = 'http://%s/cc/api/1.0/imagebuild/%s/%s/' % (ccip, srcid, destid)
+    r = requests.post(url)
+    return HttpResponse(r.content, mimetype="application/json")
 
 def register_host(request):
     response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def list_ncs(request):
+    ncs = ecServers.objects.filter(role='cc', ccname=request.POST['ccname'])
+    ncsips = []
+    for nc in ncs:
+        ncsips.append(nc.ip0)
+
+    response = {}
+    response['Result'] = 'OK'
+    response['ncs'] = ncsips
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
 
 def register_server(request):
     response = {}

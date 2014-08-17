@@ -31,11 +31,8 @@ list of daemon and worker thread
 
 
 def registerMyselfasCC():
-    conf = configuration('/storage/config/clc.conf')
-    clcip = conf.getvalue('server', 'IP')
-
-    conf = configuration('/storage/config/cc.conf')
-    ccname = conf.getvalue('server', 'ccname')
+    clcip = getclcipbyconf()
+    ccname = getccnamebyconf()
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()

@@ -9,8 +9,7 @@ from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 
-LOG_FILE = '/var/log/educloud/nc_daemon.log'
-logger = init_log(LOG_FILE)
+logger = getncdaemonlogger()
 
 '''
 start a few worker thread
@@ -49,9 +48,8 @@ list of daemon and worker thread
 '''
 
 def registerMyselfasNC():
-    conf = configuration('/storage/config/cc.conf')
-    ccip = conf.getvalue('server', 'IP')
-    ccname = conf.getvalue('server', 'ccname')
+    ccip = getccipbyconf()
+    ccname = getccnamebyconf()
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()
@@ -94,7 +92,7 @@ def main():
 
             logger.error("restart %s ... ..." % (daemon_name))
 
-            obj = globals()[daemon_name](bucket, logger)
+            obj = globals()[daemon_name](bucket)
             obj.start()
 
         except Exception as e:

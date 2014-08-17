@@ -21,8 +21,7 @@ list of daemon and worker thread
 
 '''
 def registerMyselfasWALRUS():
-    conf = configuration('/storage/config/clc.conf')
-    clcip = conf.getvalue('server', 'IP')
+    clcip = getclcipbyconf()
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()

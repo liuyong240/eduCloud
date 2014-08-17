@@ -1,10 +1,9 @@
 import threading, Queue
 
 class run4everThread(threading.Thread):
-    def __init__(self, bucket, logger):
+    def __init__(self, bucket):
         threading.Thread.__init__(self)
         self.bucket = bucket
-        self.logger = logger
 
     def run4ever(self):
         # override this function

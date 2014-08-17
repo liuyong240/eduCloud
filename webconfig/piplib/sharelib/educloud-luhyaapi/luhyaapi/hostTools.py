@@ -1,5 +1,20 @@
 import socket, psutil, netinfo
+from luhyaTools import configuration
 
+def getccnamebyconf():
+    conf = configuration('/storage/config/cc.conf')
+    ccname = conf.getvalue('server', 'ccname')
+    return ccname
+
+def getccipbyconf():
+    conf = configuration('/storage/config/cc.conf')
+    ccip = conf.getvalue('server', 'IP')
+    return ccip
+
+def getclcipbyconf():
+    conf = configuration('/storage/config/clc.conf')
+    clcip = conf.getvalue('server', 'IP')
+    return clcip
 
 def getHostAttr():
     name   = socket.gethostname()
