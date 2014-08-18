@@ -19,8 +19,8 @@ from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 from luhyaapi.rabbitmqWrapper import *
 
-LOG_FILE = '/var/log/educloud/cc.log'
-logger = init_log(LOG_FILE)
+
+logger = getcclogger()
 
 # Create your views here.
 #################################################################################

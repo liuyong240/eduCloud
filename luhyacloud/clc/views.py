@@ -20,8 +20,7 @@ from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 
-LOG_FILE = '/var/log/educloud/clc.log'
-logger = init_log(LOG_FILE)
+logger = getclclogger()
 
 def display_login_window(request):
     return render(request, 'clc/login.html', {})

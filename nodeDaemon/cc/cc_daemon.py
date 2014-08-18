@@ -10,8 +10,7 @@ from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 
-LOG_FILE = '/var/log/educloud/cc_daemon.log'
-logger = init_log(LOG_FILE)
+logger = getccdaemonlogger()
 
 '''
 
