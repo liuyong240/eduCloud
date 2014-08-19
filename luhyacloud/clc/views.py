@@ -21,7 +21,14 @@ from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 
+import requests, memcache
+
 logger = getclclogger()
+
+# this is simple algorith, just find the first cc in db
+def findLazyCC():
+    ccs = ecServers.objects.filter(role='cc')
+    return ccs[0].ip0
 
 def display_login_window(request):
     return render(request, 'clc/login.html', {})
@@ -128,6 +135,60 @@ def tasks_view(request):
     }
 
     return render(request, 'clc/tasks.html', context)
+
+###############################################ti##################################
+# create a new images & modify existing image
+#################################################################################
+
+def image_create_task(request, srcid):
+    _ccip = findLazyCC()
+
+    # create ectaskTransation Record
+    _srcimgid        = srcid
+    _dstimageid      = 'img-' + genHexRandom()
+    _instanceid      = 'ins-' + genHexRandom()
+    _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
+
+    # rec = ectaskTransaction(
+    #     tid         = _tid,
+    #     srcimgid    = _srcimgid,
+    #     dstimgid    = _instanceid,
+    #     user        = request.user,
+    #     phase       = 'downloading',
+    #     progress    = 0,
+    #     ccip        = _ccip,
+    # )
+    # rec.save()
+    #
+    # # send request to CC to work
+    # url = 'http://%s/cc/api/1.0/image/create' % _ccip
+    # payload = {
+    #     'tid': _tid
+    # }
+    # r = requests.post(url, data=payload)
+    # response = json.loads(r.content)
+
+    # open a window to monitor work progress
+    context = {
+        'pagetitle' : "image create",
+        'tid'       : _tid,
+        'srcid'     : _srcimgid,
+        'dstid'     : _dstimageid,
+        "insid"     : _instanceid
+    }
+
+    return render(request, 'clc/wizard/image_create_wizard.html', context)
+
+def image_modify_task(request, srcid):
+    ccip = findLazyCC()
+
+    url = 'http://%s/cc/api/1.0/image/modify' % ccip
+    payload = {
+        'ccname': getccnamebyconf()
+    }
+    r = requests.post(url, data=payload)
+    return HttpResponse(r.content, mimetype="application/json")
+
 
 
 
@@ -672,7 +733,7 @@ def autoFindNewAddImage():
     imageList = ecImages.objects.only("ecid")
     server_images = []
     for imgobj in imageList:
-        server_images.append(imgobj.imgfile_id)
+        server_images.append(imgobj.ecid)
 
     for local_image in local_images:
         if local_image in server_images:
@@ -781,20 +842,6 @@ def create_images(request):
 #################################################################################
 # API Version 1.0 for image build & modify
 #################################################################################
-import requests, memcache
-
-# this is simple algorith, just find the first cc in db
-def findLazyCC():
-    ccs = ecServers.objects.filter(role='cc')
-    return ccs[0].ip0
-
-def image_build(request, srcid, destid):
-    ccip = findLazyCC()
-
-    url = 'http://%s/cc/api/1.0/imagebuild/%s/%s/' % (ccip, srcid, destid)
-    r = requests.post(url)
-    return HttpResponse(r.content, mimetype="application/json")
-
 def register_host(request):
     response = {}
     response['Result'] = 'OK'

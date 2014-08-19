@@ -168,7 +168,7 @@ class ecVDS(models.Model):
 #==============================================
 # Run-time table definition
 #==============================================
-class taskTransaction(models.Model):
+class ectaskTransaction(models.Model):
     tid         = models.CharField(max_length=100, unique=True)
     srcimgid    = models.CharField(max_length=20)
     dstimgid    = models.CharField(max_length=20)

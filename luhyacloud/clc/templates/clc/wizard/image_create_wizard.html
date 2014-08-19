@@ -1,0 +1,47 @@
+{% extends "clc/wizard/wizard.html" %}
+{% load i18n %}
+
+{% block myjavascript %}
+<script>
+$(document).ready(function () {
+        $("#wizard").jWizard({
+            title: true,
+            menu: true,
+            progress: {
+                label: "count",
+                append: ""
+            },
+            cancel: function () {
+                window.close();
+            },
+            finish: function () {
+                window.close();
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% block mywizard %}
+    <div id="tid"   style="display: none;">{{   tid }}</div>
+    <div id="srcid" style="display: none;">{{ srcid }}</div>
+    <div id="dstid" style="display: none;">{{ dstid }}</div>
+    <div id="insid" style="display: none;">{{ insid }}</div>
+
+    <form id="wizard">
+        <fieldset>
+            <legend>{% trans "Prepare Image." %}</legend>
+            <p id="erromsg"></p>
+        </fieldset>
+
+        <fieldset>
+            <legend>{% trans "run/edit Image." %}</legend>
+            <p> </p>
+            <div><a href="/static/luhyaAdmin/plugin.zip">{% trans "plugin for Cloud Desktop Connection" %}</a></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>{% trans "submit Image" %}</legend>
+        </fieldset>
+    </form>
+{% endblock %}

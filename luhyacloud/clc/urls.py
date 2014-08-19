@@ -24,6 +24,9 @@ urlpatterns = patterns('',
     url(r'^lvds$',          views.lvds_view,                          name='lvds_view'),
     url(r'^tasks$',         views.tasks_view,                         name='tasks_view'),
 
+    # image create and modify URL
+    url(r'^image/create/(?P<srcid>\w+)$',        views.image_create_task,               name='images_create_task'),
+    url(r'^image/modify/(?P<srcid>\w+)$',        views.image_modify_task,               name='images_modify_task'),
 
     # iframe page
     url(r'^jt/images$',             views.jtable_images,                 name='jtable_images_view'),
@@ -103,7 +106,7 @@ urlpatterns = patterns('',
     # url(r'^api/1.0/vss/update$',        views.update_vss,               name='update_vss_view'),
     # url(r'^api/1.0/vss/create$',        views.create_vss,               name='create_vss_view'),
 
-    url(r'^api/1.0/imagebuild/(?P<srcid>\w+)/(?P<destid>\w+)/$',        views.image_build,               name='images_build'),
+
 
     # this is a POST requtst, all data in POST section
     url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),

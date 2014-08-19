@@ -45,3 +45,9 @@ def getHostNetInfo():
             index = index + 1
     return hostnetinfo
 
+import random
+def genHexRandom():
+    ret = "%8x" % random.randint(0x0, 0xFFFFFFFF)
+    return ret
+
+
