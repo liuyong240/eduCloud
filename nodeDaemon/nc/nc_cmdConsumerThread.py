@@ -1,38 +1,71 @@
 from luhyaapi.run4everProcess import *
 from luhyaapi.hostTools import *
 from luhyaapi.educloudLog import *
+from luhyaapi.rabbitmqWrapper import *
 import pika, json, time
 
 logger = getncdaemonlogger()
 
-def nc_imagebuild_handle(srcid, destid):
-    time.sleep(100)
+class prepareImageTaskThread(threading.Thread):
+    def __init__(self, tid):
+        threading.Thread.__init__(self)
+        retval = tid.split(':')
+        self.tid      = tid
+        self.srcimgid = retval[0]
+        self.dstimgid = retval[1]
+        self.ccip     = getccipbyconf()
 
-def nc_imagemodify_handle(srcid, destid):
+    # RPC call to ask CC download image from walrus
+    def downloadFromWalrus2CC(self):
+        download_rpc = RpcClient(logger, self.ccip, 'cc_status_queue')
+        response = download_rpc.call(cmd="image/download", paras=self.tid)
+        return response
+
+    def downloadFromCC2NC(self):
+        return "OK"
+
+    def cloneImage(self):
+        if self.srcimgid != self.dstimgid:
+            # call clone cmd
+            return "OK"
+
+    def run(self):
+        if self.downloadFromWalrus2CC() == "OK":
+            if self.downloadFromCC2NC() == "OK":
+                self.cloneImage()
+
+def nc_image_create_handle(tid):
+    worker = prepareImageTaskThread(tid)
+    worker.start()
+    return worker
+
+def nc_image_modify_handle(tid):
     time.sleep(100)
 
 nc_cmd_handlers = {
-    'imagebuild'    : nc_imagebuild_handle,
-    'imagemodify'   : nc_imagemodify_handle,
+    'image/create'      : nc_image_create_handle,
+    'image/modify'      : nc_image_modify_handle,
 }
-
 
 class nc_cmdConsumerThread(run4everThread):
     def __init__(self, bucket, logger):
         run4everThread.__init__(self, bucket)
-
-
+        self.ccip = getccipbyconf()
 
     def cmdHandle(self, ch, method, properties, body):
         logger.error(" [x] %r:%r" % (method.routing_key, body))
         message = json.loads(body)
-        nc_cmd_handlers[message['op']](message['paras'])
+        if  nc_cmd_handlers[message['op']] != None:
+            nc_cmd_handlers[message['op']](message['paras'])
+        else:
+            logger.error("unknow cmd : %s", message['op'])
+
 
     def run4ever(self):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=ccip))
         channel = connection.channel()
 
-        channel.exchange_declare(exchange='cc_cmd',
+        channel.exchange_declare(exchange='nc_cmd',
                                  type='direct')
 
         result = channel.queue_declare(exclusive=True)
@@ -40,7 +73,7 @@ class nc_cmdConsumerThread(run4everThread):
 
         ip0 = getHostNetInfo()['ip0']
 
-        channel.queue_bind(exchange='cc_cmd',
+        channel.queue_bind(exchange='nc_cmd',
                            queue=queue_name,
                            routing_key=ip0)
 

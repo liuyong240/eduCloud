@@ -111,6 +111,10 @@ urlpatterns = patterns('',
     # this is a POST requtst, all data in POST section
     url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),
     url(r'^api/1.0/register/server$',      views.register_server,             name='register_server'),
-    url(r'^api/1.0/list/nc$',              views.list_ncs,                    name='list_ncs'),
+    url(r'^api/1.0/list/ncs$',             views.list_ncs,                    name='list_ncs'),
+
+    # common api interface
+    url(r'^api/1.0/getwalrusinfo$',                     views.get_walrus_info,             name='get_walrus_info'),
+    url(r'^api/1.0/getimageinfo/(?P<imgid>\w+)$',       views.get_image_info,              name='get_image_info'),
 
     )

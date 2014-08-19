@@ -6,7 +6,7 @@ urlpatterns = patterns('',
 
     # API 1.0
     # this is a POST requtst, all data in POST section
-    url(r'^api/1.0/imagebuild/(?P<srcid>\w+)/(?P<destid>\w+)/$', views.image_build,               name='images_build'),
+    url(r'^api/1.0/image/create$',         views.image_create_task,           name='images_create_task'),
     url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),
     url(r'^api/1.0/register/server$',      views.register_server,             name='register_server'),
 

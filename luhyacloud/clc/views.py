@@ -149,16 +149,16 @@ def image_create_task(request, srcid):
     _instanceid      = 'ins-' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
-    rec = ectaskTransaction(
-        tid         = _tid,
-        srcimgid    = _srcimgid,
-        dstimgid    = _instanceid,
-        user        = request.user,
-        phase       = 'downloading',
-        progress    = 0,
-        ccip        = _ccip,
-    )
-    rec.save()
+    # rec = ectaskTransaction(
+    #     tid         = _tid,
+    #     srcimgid    = _srcimgid,
+    #     dstimgid    = _instanceid,
+    #     user        = request.user,
+    #     phase       = 'downloading',
+    #     progress    = 0,
+    #     ccip        = _ccip,
+    # )
+    # rec.save()
 
     # # send request to CC to work
     url = 'http://%s/cc/api/1.0/image/create' % _ccip
@@ -849,7 +849,7 @@ def register_host(request):
     return HttpResponse(retvalue, mimetype="application/json")
 
 def list_ncs(request):
-    ncs = ecServers.objects.filter(role='cc', ccname=request.POST['ccname'])
+    ncs = ecServers.objects.filter(role='nc', ccname=request.POST['ccname'])
     ncsips = []
     for nc in ncs:
         ncsips.append(nc.ip0)

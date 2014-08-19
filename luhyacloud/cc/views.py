@@ -37,16 +37,16 @@ def findLazyNC():
     r = requests.post(url, data=payload)
     return json.loads(r.content)['ncs'][0]
 
-def image_build(request, srcid, destid):
-    # send cmd to nc which are consuming the cmd_queue
+def image_create_task(request):
+    ncip = findLazyNC()
+
     message = {}
-    paras = " %s %s " % (srcid, destid)
     message['type'] = "cmd"
-    message['op']   = 'imagebuild'
-    message['paras']= paras
+    message['op']   = 'image/create'
+    message['paras']= request.POST['tid']
     message = json.dumps(message)
 
-    routing_send(logger, 'localhost', 'cc_cmd', message, findLazyNC())
+    routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
 
     # return http response
     response = {}

@@ -9,6 +9,4 @@ class nc_statusPublisherThread(run4everThread):
         run4everThread.__init__(self, bucket, logger)
 
     def run4ever(self):
-        time.sleep(10)
-        logger.error("status consumer is running.")
-        raise Exception('statusConsumser is failed.')
+        pass
