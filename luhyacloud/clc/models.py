@@ -117,7 +117,7 @@ class ecHosts(models.Model):
 class ecImages(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
 
-    ecid = models.CharField(max_length=10, unique=True)
+    ecid = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=20)
 
     ostype = models.CharField(max_length=20)
@@ -127,7 +127,7 @@ class ecImages(models.Model):
 
     description = models.TextField()
     version = models.CharField(max_length=10)
-    size = models.IntegerField(default=0)
+    size = models.DecimalField(max_digits=8,decimal_places=2)
 
 class ecVAPP(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
@@ -150,9 +150,6 @@ class ecVSS(models.Model):
 
     description = models.TextField()
 
-    def getDisplayInstanceRuntimeOption(self):
-        pass
-
 class ecVDS(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
 
@@ -171,21 +168,34 @@ class ecVDS(models.Model):
 #==============================================
 # Run-time table definition
 #==============================================
+class taskTransaction(models.Model):
+    tid         = models.CharField(max_length=100, unique=True)
+    srcimgid    = models.CharField(max_length=20)
+    dstimgid    = models.CharField(max_length=20)
+    insid       = models.CharField(max_length=20)
+    user        = models.CharField(max_length=100)
+    phase       = models.CharField(max_length=100)
+    progress    = models.IntegerField(default=0)
+    accessURL   = models.CharField(max_length=100)
+    ccip        = models.CharField(max_length=100)
+    ncip        = models.CharField(max_length=100)
+    message     = models.TextField()
+    completed   = models.BooleanField(default=False)
 
-class ecImageBuildTask(models.Model):
-    # /tmp/ImageBuildTask/type/oldid/newid/id
-    type=models.CharField(max_length=10) #{new_build, modify_build}
-    oldimgid=models.CharField(max_length=10)
-    newimgid=models.CharField(max_length=10, unique=True)
-    status=models.CharField(max_length=50) #{cloned, pending, running}
-    walrusip=models.GenericIPAddressField()
-    ccip=models.GenericIPAddressField()
-    ncip=models.GenericIPAddressField()
-    acurl=models.CharField(max_length=100)
-
-class ecImageSyncTask(models.Model):
-    destip=models.GenericIPAddressField()
-    destid=models.CharField(max_length=10)
-    srcfile=models.TextField()
-    destfile=models.TextField()
-    status=models.CharField(max_length=10)
+# class ecImageBuildTask(models.Model):
+#     # /tmp/ImageBuildTask/type/oldid/newid/id
+#     type=models.CharField(max_length=10) #{new_build, modify_build}
+#     oldimgid=models.CharField(max_length=10)
+#     newimgid=models.CharField(max_length=10, unique=True)
+#     status=models.CharField(max_length=50) #{cloned, pending, running}
+#     walrusip=models.GenericIPAddressField()
+#     ccip=models.GenericIPAddressField()
+#     ncip=models.GenericIPAddressField()
+#     acurl=models.CharField(max_length=100)
+#
+# class ecImageSyncTask(models.Model):
+#     destip=models.GenericIPAddressField()
+#     destid=models.CharField(max_length=10)
+#     srcfile=models.TextField()
+#     destfile=models.TextField()
+#     status=models.CharField(max_length=10)

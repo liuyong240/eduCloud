@@ -1,5 +1,6 @@
 # coding=UTF-8
 
+from __future__ import division
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
@@ -660,10 +661,38 @@ def create_vmusage(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
+def get_immediate_subdirectories(dir):
+    return [name for name in os.listdir(dir)
+            if os.path.isdir(os.path.join(dir, name))]
+
+def autoFindNewAddImage():
+
+    local_images = get_immediate_subdirectories('/storage/images/')
+
+    imageList = ecImages.objects.only("ecid")
+    server_images = []
+    for imgobj in imageList:
+        server_images.append(imgobj.imgfile_id)
+
+    for local_image in local_images:
+        if local_image in server_images:
+            pass
+        else:
+            imgfile_path = '/storage/images/' + local_image + "/machine"
+            imgfile_size = os.path.getsize(imgfile_path)/(1024*1024*1024)
+            rec = ecImages(
+                ecid = local_image,
+                name = local_image,
+                size = imgfile_size
+            )
+            rec.save()
+
 
 # core tables for images
 # ------------------------------------
 def list_images(request):
+    autoFindNewAddImage()
+
     response = {}
     data = []
 

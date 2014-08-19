@@ -404,24 +404,69 @@ the content of conf is :  IP='xxx.xxx.xxx.xxx'
 
 4.3.1 image build
 
-task definition:
-- browser call clc web service, update build task db   /clc/imagebuild/oldimgid/dstimgid/taskid
-- clc     call cc  web service                          /cc/imagebuild/oldimgid/dstimgid/taskid
-- cc      call nc  web service daemon                   /nc/imagebuild/oldimgid/dstimgid/taskid
-- nc send message to nc daemon via "cmd" queue          json data = {'imgbuld','srcid','dstid','tid'}
-- nc daemn start a thread to do real work:     
-   - download image from walrus to storage, report status to cc's build task queue
-   - clone it to temp-storage, report status to cc
-   - run it based on vmusage, report status to cc
-   - when running, report acces url to cc
-- cc keep sending task's status message to clc's build task queue
-
-- browser call clc web service to submit build image   /cc/imagesubmit/dstimgid
-- cc      call nc  web service                          nc/imagesubmit/dstimgid
-- nc send message to nc daemon vi "cmd" queue           json data = { 'imgsub', 'dstid', 'tid' }
-- nc daemon start thread to do real work:
-   - upload image to walrus, report status to cc's build task queue
-- cc keep send task's status message to clc's sync task queue 
+task definition: 
+# all op & status belongs to one transaction ID
+  transaction ID = 'srcid:destid:instanceid' example : img-37eefa34:img-29aeffee:ins-abcdefa5
+  memcache data struct:  
+     - key   = transaction ID
+     - value = {
+        'phase'     : 'downloading', 'cloning', 'pending', 'running', 'stop', 'stopped', 'submit', 'submitting', 'submitted'
+        'progress'  : integer, 
+        'aURL'      : ip:port
+        'message'   :  
+        'ccip'      :
+        'ncip'      :
+       }
+  status_queue message data struct:
+     - 'tid'     :
+     - 'phase'   :
+     - 'progress':
+     - 'aURL'    : 
+     - 'message' :
+  cmd_queue message data struct:
+     - 'op' : { 'image_build', 'image_modify', 'run_vs', 'run_rvd', 'run_lvd' } 
+     - 'tid : 
+  
+  each CC server should be set a property as "run vs", or "run lvd" or "run rvd"
+  when create instance, it also has a property as 'vs', or 'lvd', or 'rvd'  
+  each instance can be assigend ccname, but it is optional
+  imagebuild & imagemodify instance belongs to either vs or rvd, based on image usage
+  
+- clc.view get the request, 
+  - send request to cc, 
+  - and return a wizard page, this page is divided into 3 phase
+    - preparing phase : only display the status (by getting status data from memcache/db)
+    - running & editing phase : provide run & stop button (by getting the status data from memcache/db)
+    - submitting phase: provide submit button and display the status ( by getting status data from memcache/db) 
+- cc.view get the request,
+  - send cmd to cmd_queue
+  - and return back "OK"
+- nc daemon get the cmd message from cmd_queue
+  - perform download phase:
+    CC download phase
+    - ask CC to download image from walrus by RPC
+    - get the status data from anonymouse reply queue, and send it to cc's status queue, until completed
+    - send a cmd to cmd_queue to start NC download phase
+    NC download phase
+    - start thread to download image from CC,
+    - report status date to CC's status queue, until completed
+    - send a cmd to cmd_queue to start NC clone phase
+  - perform NC clone phase
+    - start to clone a new image
+    - report status date to CC's status queue until completed
+  
+  - perform run instance operation:
+    - report status data to CC's status queue until VM is running
+  - perform stop instance operation:
+    - report status data to CC's status queue until VM is stopped
+  - perform submit instance operation:
+    NC upload phase:
+    - start thread to upload image to CC
+    - report upload progress to CC's status queue until completed
+    - send a cmd to cmd_queue to start CC upload phase
+    CC upload phase:
+    - ask CC to upload image to walrus by RPC
+    - get the status data from anonymouse reply queue, and send it to cc's status queue until completed
 
 
 
