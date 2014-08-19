@@ -149,24 +149,24 @@ def image_create_task(request, srcid):
     _instanceid      = 'ins-' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
-    # rec = ectaskTransaction(
-    #     tid         = _tid,
-    #     srcimgid    = _srcimgid,
-    #     dstimgid    = _instanceid,
-    #     user        = request.user,
-    #     phase       = 'downloading',
-    #     progress    = 0,
-    #     ccip        = _ccip,
-    # )
-    # rec.save()
-    #
+    rec = ectaskTransaction(
+        tid         = _tid,
+        srcimgid    = _srcimgid,
+        dstimgid    = _instanceid,
+        user        = request.user,
+        phase       = 'downloading',
+        progress    = 0,
+        ccip        = _ccip,
+    )
+    rec.save()
+
     # # send request to CC to work
-    # url = 'http://%s/cc/api/1.0/image/create' % _ccip
-    # payload = {
-    #     'tid': _tid
-    # }
-    # r = requests.post(url, data=payload)
-    # response = json.loads(r.content)
+    url = 'http://%s/cc/api/1.0/image/create' % _ccip
+    payload = {
+        'tid': _tid
+    }
+    r = requests.post(url, data=payload)
+    logger.error(url + ":" + r.content)
 
     # open a window to monitor work progress
     context = {
@@ -740,7 +740,7 @@ def autoFindNewAddImage():
             pass
         else:
             imgfile_path = '/storage/images/' + local_image + "/machine"
-            imgfile_size = os.path.getsize(imgfile_path)/(1024*1024*1024)
+            imgfile_size = os.path.getsize(imgfile_path)
             rec = ecImages(
                 ecid = local_image,
                 name = local_image,
@@ -936,5 +936,44 @@ def register_server(request):
         rec.save()
 
     response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+#################################################################################
+# some common APIs
+#################################################################################
+def get_walrus_info(request):
+    rec = ecServers.objects.get(role='walrus')
+    payload = {
+        'role':   rec.role,
+        'name':   rec.name,
+        'cpus':   rec.cpus,
+        'memory': rec.memory,
+        'disk':   rec.disk,
+        'ip0':    rec.ip0,
+        'ip1':    rec.ip1,
+        'ip2':    rec.ip2,
+        'ip3':    rec.ip3,
+    }
+    response = {}
+    response['Result'] = "OK"
+    response['data'] = payload
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def get_image_info(imgid):
+    rec = ecImages.objects.get(ecid=imgid)
+    payload = {
+        'ecid':     rec.ecid,
+        'name':     rec.name,
+        'ostype':   rec.ostype,
+        'usage':    rec.usage,
+        'description': rec.description,
+        'version':     rec.version,
+        'size':        rec.size
+    }
+    response = {}
+    response['Result'] = "OK"
+    response['data'] = payload
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")

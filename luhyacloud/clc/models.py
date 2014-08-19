@@ -127,7 +127,7 @@ class ecImages(models.Model):
 
     description = models.TextField()
     version = models.CharField(max_length=10)
-    size = models.DecimalField(max_digits=8,decimal_places=2)
+    size = models.IntegerField(default=0)
 
 class ecVAPP(models.Model):
     ec_authpath_name = models.CharField(max_length=100)

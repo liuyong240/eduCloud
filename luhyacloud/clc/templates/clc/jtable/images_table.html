@@ -104,6 +104,9 @@
                     title: "Size(G)",
                     width: '20%',
                     edit: false,
+                    display: function (data) {
+                        return (data.record.size/(1024*1024*1024)).toFixed(2);
+                    }
                 },
                 description: {
                     title: 'Desc',
