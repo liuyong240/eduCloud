@@ -76,7 +76,7 @@ def registerMyselfasNC():
 
 def main():
     # read /storage/config/cc.conf to register itself to cc
-    registerMyselfasNC()
+    # registerMyselfasNC()
 
     # start main loop to start & monitor thread
     thread_array = ['nc_cmdConsumerThread']
@@ -93,6 +93,7 @@ def main():
             logger.error("restart %s ... ..." % (daemon_name))
 
             obj = globals()[daemon_name](bucket)
+            obj.daemon = True
             obj.start()
 
         except Exception as e:

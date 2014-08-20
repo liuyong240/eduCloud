@@ -1,8 +1,11 @@
 import logging
 import logging.handlers
+from settings import *
+
 
 MAX_LOGFILE_BYTE = 10 * 1024 * 1024
 MAX_LOG_COUNT = 10
+
 
 def init_log(logfile, loggername):
     logger = logging.getLogger(loggername)
@@ -12,6 +15,10 @@ def init_log(logfile, loggername):
     logger.addHandler(ch)
     logger.setLevel(logging.ERROR)
     return logger
+
+
+DEBUG_LOG_FILE = '/var/log/educloud/luhya-debug.log'
+luhya_debug_logger = init_log(DEBUG_LOG_FILE, 'luhya_debug')
 
 CLC_DAEMON_LOG_FILE = '/var/log/educloud/clc_daemon.log'
 clc_daemon_logger = init_log(CLC_DAEMON_LOG_FILE, 'clc_daemon')
@@ -25,17 +32,34 @@ cc_daemon_logger = init_log(CC_DAEMON_LOG_FILE, 'cc_daemon')
 NC_DAEMON_LOG_FILE = '/var/log/educloud/nc_daemon.log'
 nc_daemon_logger = init_log(NC_DAEMON_LOG_FILE, 'nc_daemon')
 
+
 def getclcdaemonlogger():
-    return clc_daemon_logger
+    if DAEMON_DEBUG:
+        return luhya_debug_logger
+    else:
+        return clc_daemon_logger
+
 
 def getwalrusdaemonlogger():
-    return walrus_daemon_logger
+    if DAEMON_DEBUG:
+        return luhya_debug_logger
+    else:
+        return walrus_daemon_logger
+
 
 def getccdaemonlogger():
-    return cc_daemon_logger
+    if DAEMON_DEBUG:
+        return luhya_debug_logger
+    else:
+        return cc_daemon_logger
+
 
 def getncdaemonlogger():
-    return nc_daemon_logger
+    if DAEMON_DEBUG:
+        return luhya_debug_logger
+    else:
+        return nc_daemon_logger
+
 
 CLC_LOG_FILE = '/var/log/educloud/clc.log'
 clc_logger = init_log(CLC_LOG_FILE, 'clc')
@@ -49,14 +73,30 @@ cc_logger = init_log(CC_LOG_FILE, 'cc')
 NC_LOG_FILE = '/var/log/educloud/nc.log'
 nc_logger = init_log(NC_LOG_FILE, 'nc')
 
+
 def getclclogger():
-    return clc_logger
+    if DAEMON_DEBUG:
+        return luhya_debug_logger
+    else:
+        return clc_logger
+
 
 def getwalruslogger():
-    return walrus_logger
+    if DAEMON_DEBUG:
+        return luhya_debug_logger
+    else:
+        return walrus_logger
+
 
 def getcclogger():
-    return cc_logger
+    if DAEMON_DEBUG:
+        return luhya_debug_logger
+    else:
+        return cc_logger
+
 
 def getnclogger():
-    return nc_logger
+    if DAEMON_DEBUG:
+        return luhya_debug_logger
+    else:
+        return nc_logger

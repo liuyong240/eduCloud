@@ -3,9 +3,12 @@
 __version__ = '1.0.0'
 
 import Queue,requests
+
 from cc_cmdConsumerThread import *
 from cc_statusPublisherThread import *
 from cc_statusConsumerThread import *
+from cc_rpcServerThread import *
+
 from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
@@ -58,10 +61,11 @@ def registerMyselfasCC():
 
 def main():
     # read /storage/config/cc.conf to register itself to cc
-    registerMyselfasCC()
+    #  registerMyselfasCC()
 
     # start main loop to start & monitor thread
-    thread_array = ['cc_statusPublisherThread', 'cc_statusConsumerThread', 'cc_rpcServerThread']
+    # thread_array = ['cc_statusPublisherThread', 'cc_statusConsumerThread', 'cc_rpcServerThread']
+    thread_array = ['cc_rpcServerThread']
     bucket = Queue.Queue()
 
     for daemon in thread_array:
@@ -74,7 +78,8 @@ def main():
 
             logger.error("restart %s ... ..." % (daemon_name))
 
-            obj = globals()[daemon_name](bucket, logger)
+            obj = globals()[daemon_name](bucket)
+            obj.daemon = True
             obj.start()
 
         except Exception as e:

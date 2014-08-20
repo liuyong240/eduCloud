@@ -34,7 +34,10 @@ class RpcClient(object):
         self.serverIP = serverIP
         self.server_status_queue = server_status_queue
 
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=serverIP))
+        credentials = pika.PlainCredentials('luhya', 'luhya')
+        cpara = pika.ConnectionParameters(host=serverIP, credentials=credentials)
+        self.connection = pika.BlockingConnection(cpara)
+
         self.channel = self.connection.channel()
         result = self.channel.queue_declare(exclusive=True)
         self.callback_queue = result.method.queue
@@ -47,7 +50,7 @@ class RpcClient(object):
 
     def call(self, cmd, paras, timeout=0):
         self.response = None
-        self.corr_id = str(uuid.uuid4()),
+        self.corr_id = str(uuid.uuid4())
 
         payload = {
             'type'  :   'cmd',
@@ -69,9 +72,11 @@ class RpcClient(object):
                 result = json.loads(self.response)
                 # send status to CC's status queue
                 if result['progress'] >= 100:
+                    self.logger.error("arrive 100% completed.")
                     break
                 else:
-                    simple_send(self.logger, self.serverIP, self.server_status_queue, self.response)
+                    # simple_send(self.logger, self.serverIP, self.server_status_queue, self.response)
+                    self.logger.error("forward message to clc : %s" % self.response)
 
 
         return "OK"

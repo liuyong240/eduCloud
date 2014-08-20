@@ -20,6 +20,7 @@ class downloadWorkerThread(threading.Thread):
         self.srcimgid = retval[0]
 
     def run(self):
+        logger.error("enter into downloadWorkerThread run()")
         index = 0
         while True:
             time.sleep(1)
@@ -29,22 +30,26 @@ class downloadWorkerThread(threading.Thread):
                 'progress'  : index,
                 'tid'   :  self.tid
             }
-
-            self.ch.basic_publish(exchange='',
+            payload = json.dumps(payload)
+            self.ch.basic_publish(
+                     exchange='',
                      routing_key=self.props.reply_to,
                      properties=pika.BasicProperties(correlation_id = self.props.correlation_id),
-                                                     body=json.dumps(payload))
+                     body=payload)
             self.ch.basic_ack(delivery_tag = self.method.delivery_tag)
             index = index + 1
+            logger.error("progress is %s" % index)
             if index > 100:
                 break
 
 
 def cc_rpc_handle_imagedownload(ch, method, props, tid):
     clcip = getclcipbyconf()
-    walrusIP = getWalrusInfo(clcip)
+    # walrusIP = getWalrusInfo(clcip)
+    walrusIP = clcip
     worker = downloadWorkerThread(ch, method, props, walrusIP, tid)
     worker.start()
+    logger.error("start downloadWorkerThread")
     return worker
 
 cc_rpc_handlers = {
@@ -52,7 +57,9 @@ cc_rpc_handlers = {
 }
 
 def on_request(ch, method, props, body):
+    logger.error(body)
     message = json.loads(body)
+
     if cc_rpc_handlers[message['op']] != None:
         cc_rpc_handlers[message['op']](ch, method, props, message['paras'])
     else:

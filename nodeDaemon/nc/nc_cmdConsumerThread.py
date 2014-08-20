@@ -48,7 +48,7 @@ nc_cmd_handlers = {
 }
 
 class nc_cmdConsumerThread(run4everThread):
-    def __init__(self, bucket, logger):
+    def __init__(self, bucket):
         run4everThread.__init__(self, bucket)
         self.ccip = getccipbyconf()
 
@@ -60,9 +60,10 @@ class nc_cmdConsumerThread(run4everThread):
         else:
             logger.error("unknow cmd : %s", message['op'])
 
-
     def run4ever(self):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host=ccip))
+        credentials = pika.PlainCredentials('luhya', 'luhya')
+        cpara = pika.ConnectionParameters(host=self.ccip, credentials=credentials)
+        connection = pika.BlockingConnection(cpara)
         channel = connection.channel()
 
         channel.exchange_declare(exchange='nc_cmd',
