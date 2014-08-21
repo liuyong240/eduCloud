@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
 import json
-from celery.result import AsyncResult
 import random, pickle, pexpect, os, base64, shutil, time, datetime
 import logging
 import commands
