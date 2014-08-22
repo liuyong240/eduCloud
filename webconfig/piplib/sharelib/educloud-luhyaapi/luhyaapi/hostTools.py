@@ -1,5 +1,6 @@
 import socket, psutil, netinfo
 from luhyaTools import configuration
+from settings import *
 
 def getccnamebyconf():
     conf = configuration('/storage/config/cc.conf')
@@ -9,12 +10,18 @@ def getccnamebyconf():
 def getccipbyconf():
     conf = configuration('/storage/config/cc.conf')
     ccip = conf.getvalue('server', 'IP')
-    return ccip
+    if DAEMON_DEBUG:
+        return ccip + ":8000"
+    else:
+        return ccip
 
 def getclcipbyconf():
     conf = configuration('/storage/config/clc.conf')
     clcip = conf.getvalue('server', 'IP')
-    return clcip
+    if DAEMON_DEBUG:
+        return clcip + ":8000"
+    else:
+        return clcip
 
 def getHostAttr():
     name   = socket.gethostname()
