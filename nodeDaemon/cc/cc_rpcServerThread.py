@@ -54,14 +54,14 @@ class cc_rpcServerThread(run4everThread):
         logger.error(body)
         message = json.loads(body)
 
-        if self.cc_rpc_handlers[message['op']] != None:
+        if message['op'] in self.cc_rpc_handlers and self.cc_rpc_handlers[message['op']] != None:
             self.cc_rpc_handlers[message['op']](ch, method, props, message['paras'])
         else:
             logger.error("unknow cmd : %s", message['op'])
 
 
     def cc_rpc_handle_imagedownload(self, ch, method, props, tid):
-        if self.tasks_status[tid]:
+        if tid in self.tasks_status and self.tasks_status[tid] != None:
             worker = self.tasks_status[tid]
             progress = worker.getprogress()
         else:
@@ -86,5 +86,8 @@ class cc_rpcServerThread(run4everThread):
                  properties=pika.BasicProperties(correlation_id = props.correlation_id),
                  body=payload)
         ch.basic_ack(delivery_tag = method.delivery_tag)
+
+        if progress >= 100:
+            del self.tasks_status[tid]
 
 
