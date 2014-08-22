@@ -10,7 +10,7 @@ def getccnamebyconf():
 def getccipbyconf(mydebug=False):
     conf = configuration('/storage/config/cc.conf')
     ccip = conf.getvalue('server', 'IP')
-    if debug:
+    if mydebug:
         return "%s:8000" % ccip
     else:
         return ccip
@@ -18,7 +18,7 @@ def getccipbyconf(mydebug=False):
 def getclcipbyconf(mydebug=False):
     conf = configuration('/storage/config/clc.conf')
     clcip = conf.getvalue('server', 'IP')
-    if debug:
+    if mydebug:
         return "%s:8000" % clcip
     else:
         return clcip
