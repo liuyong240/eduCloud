@@ -28,7 +28,7 @@ logger = getcclogger()
 import requests, memcache
 
 def findLazyNC():
-    clcip = getclcipbyconf()
+    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
     url = 'http://%s/clc/api/1.0/list/ncs' % clcip
     payload = {
         'ccname': getccnamebyconf()
@@ -54,7 +54,7 @@ def image_create_task(request):
     return HttpResponse(retvalue, mimetype="application/json")
 
 def register_host(request):
-    clcip = getclcipbyconf()
+    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
     url = 'http://%s/clc/api/1.0/register/host' % clcip
     payload = {
@@ -64,7 +64,7 @@ def register_host(request):
     return HttpResponse(r.content, mimetype="application/json")
 
 def register_server(request):
-    clcip = getclcipbyconf()
+    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
     url = 'http://%s/clc/api/1.0/register/server' % clcip
     payload = {

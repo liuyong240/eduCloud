@@ -48,7 +48,7 @@ list of daemon and worker thread
 '''
 
 def registerMyselfasNC():
-    ccip = getccipbyconf()
+    ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
     ccname = getccnamebyconf()
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()

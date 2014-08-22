@@ -33,7 +33,7 @@ list of daemon and worker thread
 
 
 def registerMyselfasCC():
-    clcip = getclcipbyconf()
+    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
     ccname = getccnamebyconf()
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()

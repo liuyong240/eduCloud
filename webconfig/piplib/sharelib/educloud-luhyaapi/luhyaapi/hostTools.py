@@ -7,18 +7,18 @@ def getccnamebyconf():
     ccname = conf.getvalue('server', 'ccname')
     return ccname
 
-def getccipbyconf():
+def getccipbyconf(mydebug=False):
     conf = configuration('/storage/config/cc.conf')
     ccip = conf.getvalue('server', 'IP')
-    if DAEMON_DEBUG:
+    if debug:
         return "%s:8000" % ccip
     else:
         return ccip
 
-def getclcipbyconf():
+def getclcipbyconf(mydebug=False):
     conf = configuration('/storage/config/clc.conf')
     clcip = conf.getvalue('server', 'IP')
-    if DAEMON_DEBUG:
+    if debug:
         return "%s:8000" % clcip
     else:
         return clcip

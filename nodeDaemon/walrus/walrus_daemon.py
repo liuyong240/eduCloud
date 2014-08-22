@@ -20,7 +20,7 @@ list of daemon and worker thread
 
 '''
 def registerMyselfasWALRUS():
-    clcip = getclcipbyconf()
+    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()
