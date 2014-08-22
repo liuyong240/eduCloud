@@ -34,7 +34,7 @@ def registerMyselfasCLC():
         'cpus': hostcpus,
         'memory': hostmem,
         'disk': hostdisk,
-        'ip0': "%s:8000" % netlist['ip0'],
+        'ip0': netlist['ip0'],
         'ip1': netlist['ip1'],
         'ip2': netlist['ip2'],
         'ip3': netlist['ip3'],

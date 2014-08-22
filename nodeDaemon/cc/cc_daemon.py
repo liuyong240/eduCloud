@@ -45,7 +45,7 @@ def registerMyselfasCC():
         'cpus': hostcpus,
         'memory': hostmem,
         'disk': hostdisk,
-        'ip0': "%s:8000" % netlist['ip0'],
+        'ip0': netlist['ip0'],
         'ip1': netlist['ip1'],
         'ip2': netlist['ip2'],
         'ip3': netlist['ip3'],
@@ -61,7 +61,7 @@ def registerMyselfasCC():
 
 def main():
     # read /storage/config/cc.conf to register itself to cc
-    #  registerMyselfasCC()
+    registerMyselfasCC()
 
     # start main loop to start & monitor thread
     # thread_array = ['cc_statusPublisherThread', 'cc_statusConsumerThread', 'cc_rpcServerThread']
