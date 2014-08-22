@@ -76,7 +76,7 @@ def registerMyselfasNC():
 
 def main():
     # read /storage/config/cc.conf to register itself to cc
-    registerMyselfasNC()
+    # registerMyselfasNC()
 
     # start main loop to start & monitor thread
     thread_array = ['nc_cmdConsumerThread']

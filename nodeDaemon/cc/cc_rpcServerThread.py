@@ -8,62 +8,27 @@ import time, pika, json
 logger = getccdaemonlogger()
 
 class downloadWorkerThread(threading.Thread):
-    def __init__(self, ch, method, props,  dstip, tid):
+    def __init__(self, dstip, tid):
         threading.Thread.__init__(self)
-        self.ch = ch
-        self.props = props
-        self.method = method
 
         self.dstip    = dstip
         self.tid      = tid
         retval = tid.split(':')
         self.srcimgid = retval[0]
+        self.progress = 0
+
+    def getprogress(self):
+        return self.progress
 
     def run(self):
         logger.error("enter into downloadWorkerThread run()")
-        index = 0
+        self.progress = 0
         while True:
             time.sleep(1)
-            payload = {
-                'type'  : 'taskstatus',
-                'phase' : "downloading",
-                'progress'  : index,
-                'tid'   :  self.tid
-            }
-            payload = json.dumps(payload)
-            self.ch.basic_publish(
-                     exchange='',
-                     routing_key=self.props.reply_to,
-                     properties=pika.BasicProperties(correlation_id = self.props.correlation_id),
-                     body=payload)
-            self.ch.basic_ack(delivery_tag = self.method.delivery_tag)
-            index = index + 1
-            logger.error("progress is %s" % index)
-            if index > 100:
+            self.progress = self.progress + 1
+            logger.error("progress is %s" % self.progress)
+            if self.progress > 100:
                 break
-
-
-def cc_rpc_handle_imagedownload(ch, method, props, tid):
-    clcip = getclcipbyconf()
-    # walrusIP = getWalrusInfo(clcip)
-    walrusIP = clcip
-    worker = downloadWorkerThread(ch, method, props, walrusIP, tid)
-    worker.start()
-    logger.error("start downloadWorkerThread")
-    return worker
-
-cc_rpc_handlers = {
-    'image/download'    : cc_rpc_handle_imagedownload,
-}
-
-def on_request(ch, method, props, body):
-    logger.error(body)
-    message = json.loads(body)
-
-    if cc_rpc_handlers[message['op']] != None:
-        cc_rpc_handlers[message['op']](ch, method, props, message['paras'])
-    else:
-        logger.error("unknow cmd : %s", message['op'])
 
 
 class cc_rpcServerThread(run4everThread):
@@ -75,10 +40,51 @@ class cc_rpcServerThread(run4everThread):
         self.channel.queue_declare(queue='rpc_queue')
         self.channel.basic_qos(prefetch_count=1)
 
+        self.cc_rpc_handlers = {
+            'image/download'    : self.cc_rpc_handle_imagedownload,
+        }
+
+        self.tasks_status = {}
+
     def run4ever(self):
-        self.channel.basic_consume(on_request, queue='rpc_queue')
+        self.channel.basic_consume(self.on_request, queue='rpc_queue')
         self.channel.start_consuming()
 
+    def on_request(self, ch, method, props, body):
+        logger.error(body)
+        message = json.loads(body)
 
+        if self.cc_rpc_handlers[message['op']] != None:
+            self.cc_rpc_handlers[message['op']](ch, method, props, message['paras'])
+        else:
+            logger.error("unknow cmd : %s", message['op'])
+
+
+    def cc_rpc_handle_imagedownload(self, ch, method, props, tid):
+        if self.tasks_status[tid]:
+            worker = self.tasks_status[tid]
+            progress = worker.getprogress()
+        else:
+            progress = 0
+            clcip = getclcipbyconf()
+            # walrusIP = getWalrusInfo(clcip)
+            walrusIP = clcip
+            worker = downloadWorkerThread(walrusIP, tid)
+            worker.start()
+            self.tasks_status[tid] = worker
+
+        payload = {
+                'type'      : 'taskstatus',
+                'phase'     : "downloading",
+                'progress'  : progress,
+                'tid'       : tid
+        }
+        payload = json.dumps(payload)
+        ch.basic_publish(
+                 exchange='',
+                 routing_key=props.reply_to,
+                 properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                 body=payload)
+        ch.basic_ack(delivery_tag = method.delivery_tag)
 
 

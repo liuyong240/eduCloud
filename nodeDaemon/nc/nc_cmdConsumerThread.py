@@ -17,9 +17,21 @@ class prepareImageTaskThread(threading.Thread):
 
     # RPC call to ask CC download image from walrus
     def downloadFromWalrus2CC(self):
-        download_rpc = RpcClient(logger, self.ccip, 'cc_status_queue')
-        response = download_rpc.call(cmd="image/download", paras=self.tid)
-        return response
+        while True:
+            download_rpc = RpcClient(logger, self.ccip, 'cc_status_queue')
+            response = download_rpc.call(cmd="image/download", paras=self.tid)
+            logger.error("rpc call return value: %s-%s" % (response['tid'], response['progress']))
+            self.forwardTaskStatus2CLC(response)
+            if response['progress'] >= 100:
+                break
+            else:
+                time.sleep(2)
+
+        return 'OK'
+
+    def forwardTaskStatus2CLC(self, response):
+        pass
+
 
     def downloadFromCC2NC(self):
         return "OK"

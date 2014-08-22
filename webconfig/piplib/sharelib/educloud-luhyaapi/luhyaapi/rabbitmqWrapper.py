@@ -1,4 +1,4 @@
-import pika, uuid, json
+import pika, uuid, json, time
 
 def simple_send(logger, serverIP, queue_name, message):
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='serverIP'))
@@ -65,18 +65,10 @@ class RpcClient(object):
                                          correlation_id = self.corr_id,
                                          ),
                                    body=payload)
-        while True:
-            if self.response is None:
-                self.connection.process_data_events()
-            else:
-                result = json.loads(self.response)
-                # send status to CC's status queue
-                if result['progress'] >= 100:
-                    self.logger.error("arrive 100% completed.")
-                    break
-                else:
-                    # simple_send(self.logger, self.serverIP, self.server_status_queue, self.response)
-                    self.logger.error("forward message to clc : %s" % self.response)
 
+        while self.response is None:
+            self.connection.process_data_events()
 
-        return "OK"
+        result = json.loads(self.response)
+        # send status to CC's status queue
+        return result
