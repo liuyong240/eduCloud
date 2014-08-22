@@ -25,7 +25,7 @@ class prepareImageTaskThread(threading.Thread):
             if response['progress'] >= 100:
                 break
             else:
-                time.sleep(2)
+                time.sleep(1)
 
         return 'OK'
 
@@ -67,7 +67,7 @@ class nc_cmdConsumerThread(run4everThread):
     def cmdHandle(self, ch, method, properties, body):
         logger.error(" [x] %r:%r" % (method.routing_key, body))
         message = json.loads(body)
-        if  nc_cmd_handlers[message['op']] != None:
+        if  message['op'] in  nc_cmd_handlers and nc_cmd_handlers[message['op']] != None:
             nc_cmd_handlers[message['op']](message['paras'])
         else:
             logger.error("unknow cmd : %s", message['op'])
