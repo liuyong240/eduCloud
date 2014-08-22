@@ -19,6 +19,7 @@ from models import *
 from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
+from luhyaapi.settings import *
 
 import requests, memcache
 
@@ -27,7 +28,10 @@ logger = getclclogger()
 # this is simple algorith, just find the first cc in db
 def findLazyCC():
     ccs = ecServers.objects.filter(role='cc')
-    return ccs[0].ip0
+    if DAEMON_DEBUG:
+        return "%s:8000" % ccs[0].ip0
+    else:
+        return ccs[0].ip0
 
 def display_login_window(request):
     return render(request, 'clc/login.html', {})
