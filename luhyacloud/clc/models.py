@@ -14,7 +14,7 @@ class ecAuthPath(models.Model):
 # namely, group definition
 class ecRBAC(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
-    ec_rbac_name = models.CharField(max_length=20)
+    ec_rbac_name = models.CharField(max_length=100)
 
     # None, {read | write | execute | create | delete }, Full
     # 1 or 0 represent enable/disable at different position
@@ -23,7 +23,7 @@ class ecRBAC(models.Model):
     # Read+Execute 101000
     # Read+Create+Delete 100110
     # full   000001 or xxxxx1
-    ec_rbac_permision = models.CharField(max_length=6)
+    ec_rbac_permision = models.CharField(max_length=10)
 
 # possible values for imgfile_ostype are :
 # Windows:  Windows XP, Windows 7, Windows 2003, Windows 2008, Windows 2012
@@ -35,8 +35,8 @@ class ecOSTypes(models.Model):
     # Linux:    Ubuntu, Ubuntu_64
     # ostype already include 32/64bit information
     ec_ostype = models.CharField(max_length=20)
-    ec_storagectl = models.CharField(max_length=100)
-    ec_waishe_para = models.CharField(max_length=100)
+    ec_storagectl = models.CharField(max_length=500)
+    ec_waishe_para = models.CharField(max_length=500)
 
 # currently only 2 value: Server and Desktop
 class ecVMUsages(models.Model):
@@ -61,7 +61,7 @@ class ecVMTypes(models.Model):
     # vdmedium  m=4G, cpu=1
     # vdlarge   m=4G, cpu=1
     # vdxlarege m=4G, cpu=2
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
     memory = models.IntegerField(default=1)
     cpus = models.IntegerField(default=1)
 
@@ -85,14 +85,14 @@ class ecServers(models.Model):
     mac2 = models.CharField(max_length=20)
     mac3 = models.CharField(max_length=20)
 
-    name = models.CharField(max_length=20)
-    location = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)
 
     cpus = models.IntegerField(default=0)
     memory = models.IntegerField(default=0)
     disk = models.IntegerField(default=0)
 
-    ccname = models.CharField(max_length=20)
+    ccname = models.CharField(max_length=100)
 
 class ecHosts(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
@@ -103,9 +103,9 @@ class ecHosts(models.Model):
     # used for remote LAN-awake, or WAN-awake.
     mac = models.CharField(max_length=20);
 
-    name = models.CharField(max_length=20)
-    ccname = models.CharField(max_length=20)
-    location = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
+    ccname = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)
 
     cpus = models.IntegerField(default=0)
     memory = models.IntegerField(default=0)
@@ -118,7 +118,7 @@ class ecImages(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
 
     ecid = models.CharField(max_length=20, unique=True)
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
 
     ostype = models.CharField(max_length=20)
 
@@ -138,7 +138,7 @@ class ecVSS(models.Model):
 
     ecid = models.CharField(max_length=10, unique=True)
     imageid = models.CharField(max_length=10)
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
 
     vmtypename = models.CharField(max_length=20)
 
@@ -155,7 +155,7 @@ class ecVDS(models.Model):
 
     ecid = models.CharField(max_length=10, unique=True)
     imageid = models.CharField(max_length=10)
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
 
     vmtypename = models.CharField(max_length=20)
     # host server(IP or any), access mode/para,  persistent/temperary,
@@ -176,7 +176,7 @@ class ectaskTransaction(models.Model):
     user        = models.CharField(max_length=100)
     phase       = models.CharField(max_length=100)
     progress    = models.IntegerField(default=0)
-    accessURL   = models.CharField(max_length=100)
+    accessURL   = models.CharField(max_length=500)
     ccip        = models.CharField(max_length=100)
     ncip        = models.CharField(max_length=100)
     message     = models.TextField()

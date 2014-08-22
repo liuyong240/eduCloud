@@ -4,3 +4,9 @@ cd /storage
 sudo mkdir images VMs config
 # copy image to /storage/images
 # create /storage/config/clc.conf, cc.conf
+# make rabbitmq accept connection from outside
+0. sudo rabbitmqctl add_user luhya luhya
+1. /usr/lib/rabbitmq/lib/rabbitmq_server-3.2.4/sbin/rabbitmq-plugins list
+2. sudo /usr/lib/rabbitmq/lib/rabbitmq_server-3.2.4/sbin/rabbitmq-plugins enable rabbitmq_management
+3. sudo service rabbitmq-server restart
+4. http://localhost:55672
