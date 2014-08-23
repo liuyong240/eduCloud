@@ -10,12 +10,9 @@ import pexpect
 #    2.  server initiate copying file from server to client
 #        rsync -r -P /var/www/images/imageID  rsync://clientIP/luhya/
 class rsyncWrapper():
-    def __init__(self, source, destination, imageID, rootdir):
-        self._imageid = imageID
-        self._imagename = imageID
+    def __init__(self, source, destination):
         self._src = source
         self._dest = destination
-        self._tool = luhyaTools(imageID, rootdir)
         self._whole = " -r -P -p "
 
     def startRsync(self, ):
@@ -29,19 +26,24 @@ class rsyncWrapper():
     def getExitStatus(self):
         return self._proc.status
 
+    def returnZeroProgress(self):
+        return "0", "0%", "0.00kB/s", "0:00:00"
+
     def getProgress(self, ):
         try:
             if self.isRsyncLive():
                 progress = self._proc.readline()
+
                 progs = progress.split()
-                if progs[0] == "luhya":
+                if 'luhya' in progs[0]:
                     #      161696          4%  233.21MB/s    0:01:03
                     return progs[1], progs[2], progs[3],     progs[4]
                 else:
                     #       0    0%    0.00kB/s    0:00:00
-                    return "0", "0%", "0.00kB/s", "0:00:00"
+                    return self.returnZeroProgress()
+
             else:
-                return "0", "0%", "0.00kB/s", "0:00:00"
+                return self.returnZeroProgress()
         except:
-            return "0", "0%", "0.00kB/s", "0:00:00"
+            return self.returnZeroProgress()
 

@@ -67,9 +67,8 @@ class cc_rpcServerThread(run4everThread):
         else:
             progress = 0
             clcip = getclcipbyconf()
-            # walrusIP = getWalrusInfo(clcip)
-            walrusIP = clcip
-            worker = downloadWorkerThread(walrusIP, tid)
+            walrusinfo = getWalrusInfo(clcip)
+            worker = downloadWorkerThread(walrusinfo['ip0'], tid)
             worker.start()
             self.tasks_status[tid] = worker
 
