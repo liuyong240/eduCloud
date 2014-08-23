@@ -2,6 +2,7 @@ from luhyaapi.run4everProcess import *
 from luhyaapi.educloudLog import *
 from luhyaapi.clcAPIWrapper import *
 from luhyaapi.hostTools import *
+from luhyaapi.rsyncWrapper import *
 
 import time, pika, json
 
@@ -23,13 +24,19 @@ class downloadWorkerThread(threading.Thread):
     def run(self):
         logger.error("enter into downloadWorkerThread run()")
         self.progress = 0
-        while True:
-            time.sleep(1)
-            self.progress = self.progress + 1
-            logger.error("progress is %s" % self.progress)
-            if self.progress > 100:
-                break
 
+        source = "rsync://%s/luhya/%s" % (self.dstip, self.srcimgid)
+        destination = "/storage/images/"
+        rsync = rsyncWrapper(source, destination)
+        rsync.startRsync()
+
+        while rsync.isRsyncLive():
+            tmpfilesize, pct, bitrate, remain = rsync.getProgress()
+            msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
+            logger.error(msg)
+            self.progress = int(pct.split('%')[0])
+        exit_code = rsync.getExitStatus()
+        logger.error("%s: download thread exit with code=%s", self.tid, exit_code)
 
 class cc_rpcServerThread(run4everThread):
     def __init__(self, bucket):

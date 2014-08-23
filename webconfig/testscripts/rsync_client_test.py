@@ -1,7 +1,7 @@
 from luhyaapi.rsyncWrapper import *
 
 # second to sync to server
-source = "rsync://192.168.56.101/luhya/"
+source = "rsync://192.168.56.101/luhya/xp"
 destination = "/storage/images/"
 rsync = rsyncWrapper(source, destination)
 rsync.startRsync()
