@@ -152,16 +152,16 @@ def image_create_task(request, srcid):
     _instanceid      = 'ins-' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
-    # rec = ectaskTransaction(
-    #     tid         = _tid,
-    #     srcimgid    = _srcimgid,
-    #     dstimgid    = _instanceid,
-    #     user        = request.user,
-    #     phase       = 'downloading',
-    #     progress    = 0,
-    #     ccip        = _ccip,
-    # )
-    # rec.save()
+    rec = ectaskTransaction(
+        tid         = _tid,
+        srcimgid    = _srcimgid,
+        dstimgid    = _instanceid,
+        user        = request.user,
+        phase       = 'downloading',
+        progress    = 0,
+        ccip        = _ccip,
+    )
+    rec.save()
 
     # # send request to CC to work
     url = 'http://%s/cc/api/1.0/image/create' % _ccip
@@ -172,12 +172,14 @@ def image_create_task(request, srcid):
     logger.error(url + ":" + r.content)
 
     # open a window to monitor work progress
+    imgobj = ecImages.objects.get(ecid = srcid)
     context = {
         'pagetitle' : "image create",
         'tid'       : _tid,
         'srcid'     : _srcimgid,
         'dstid'     : _dstimageid,
-        "insid"     : _instanceid
+        "insid"     : _instanceid,
+        'imgobj'    : imgobj
     }
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)

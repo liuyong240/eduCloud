@@ -2,6 +2,44 @@
 {% load i18n %}
 
 {% block myjavascript %}
+<style type="text/css">
+        #progressbar, #submit_progressbar {
+            height: 18px;
+            width: 80%;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            vertical-align: middle;
+        }
+
+        #prlabel, #submit_prlabel {
+            float: left;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            vertical-align: middle;
+        }
+
+        #erromsg {
+            color: red
+        }
+
+        #luhyaVM a:link, #luhyaVM a:visited {
+            font-weight: bold;
+            font-size: 14px;
+            color: #FFFFFF;
+            background-color: #bf37a8;
+            width: 120px;
+            text-align: center;
+            padding: 4px;
+            text-decoration: none;
+        }
+
+        #luhyaVM a:hover, #luhyaVM a:active {
+            background-color: #4c4399;
+        }
+</style>
+
 <script>
 $(document).ready(function () {
         $("#wizard").jWizard({
@@ -31,17 +69,55 @@ $(document).ready(function () {
     <form id="wizard">
         <fieldset>
             <legend>{% trans "Prepare Image." %}</legend>
-            <p id="erromsg"></p>
+            <p id="desclabel">{% trans "start to prepare image, please wait ... ..." %}</p>
+            <div id="progressbar">
+                <div id='prlabel'>{% trans "Cloning ... ..." %}</div>
+            </div>
         </fieldset>
 
         <fieldset>
             <legend>{% trans "run/edit Image." %}</legend>
+            <p id="erromsg"></p>
+            <div class="opontable">
+                <button id="btn_run"    type="button" class="btn btn-default">{% trans "Run" %}</button>
+                <button id="btn_stop"   type="button" class="btn btn-default">{% trans "Stop" %}</button>
+                <div id="luhyaVM" style="display: none;">
+                    <a href="luhyavm://abcdefg" target="_blank">{% trans "Connect to Cloud Desktop" %}</a>
+                </div>
+            </div>
             <p> </p>
-            <div><a href="/static/luhyaAdmin/plugin.zip">{% trans "plugin for Cloud Desktop Connection" %}</a></div>
+            <p> </p>
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th width="5">{% trans "Image Template Name" %}</th>
+                    <th width="5">{% trans "New Image Status" %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ imgobj.name }}</td>
+                    <td id="runningstatus">{% trans "Stopped" %}</td>
+                </tr>
+                </tbody>
+            </table>
+            <p> </p>
+            <p> </p>
+            <div><a href="/static/luhyaAdmin/plugin.zip">{% trans "Download plugin for Cloud Desktop Connection" %}</a></div>
         </fieldset>
 
         <fieldset>
             <legend>{% trans "submit Image" %}</legend>
+            <p id="submit_erromsg"></p>
+            <button id="btn_submit" type="button" class="btn btn-default">{% trans "Submit" %}</button>
+            <p> </p>
+            <p> </p>
+            <div id="submit_section">
+                <p id="submit_laber">{% trans "Now we will start to submit a new image, pglease wait ... ..." %}</p>
+                <div id="submit_progressbar">
+                    <div id='submit_prlabel'>{% trans "Submitting ... ..." %}</div>
+                </div>
+            </div>
         </fieldset>
     </form>
 {% endblock %}
