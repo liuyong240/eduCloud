@@ -2,6 +2,7 @@ from luhyaapi.run4everProcess import *
 from luhyaapi.hostTools import *
 from luhyaapi.educloudLog import *
 from luhyaapi.rabbitmqWrapper import *
+from luhyaapi.rsyncWrapper import *
 import pika, json, time
 
 logger = getncdaemonlogger()
@@ -18,10 +19,12 @@ class prepareImageTaskThread(threading.Thread):
     # RPC call to ask CC download image from walrus
     def downloadFromWalrus2CC(self):
         while True:
-            download_rpc = RpcClient(logger, self.ccip, 'cc_status_queue')
+            download_rpc = RpcClient(logger, self.ccip)
             response = download_rpc.call(cmd="image/download", paras=self.tid)
+            self.forwardTaskStatus2CC(response)
+
+            response = json.loads(response)
             logger.error("rpc call return value: %s-%s" % (response['tid'], response['progress']))
-            self.forwardTaskStatus2CLC(response)
             if response['progress'] >= 100:
                 break
             else:
@@ -29,16 +32,42 @@ class prepareImageTaskThread(threading.Thread):
 
         return 'OK'
 
-    def forwardTaskStatus2CLC(self, response):
-        pass
-
+    def forwardTaskStatus2CC(self, response):
+        simple_send(logger, self.ccip, 'cc_status_queue', response)
 
     def downloadFromCC2NC(self):
+        source = "rsync://%s/luhya/%s" % (self.ccip, self.srcimgid)
+        destination = "/storage/images/"
+        rsync = rsyncWrapper(source, destination)
+        rsync.startRsync()
+
+        payload = {
+                'type'      : 'taskstatus',
+                'phase'     : "downloading",
+                'progress'  : 0,
+                'tid'       : self.tid
+        }
+
+        while rsync.isRsyncLive():
+            tmpfilesize, pct, bitrate, remain = rsync.getProgress()
+            msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
+            logger.error(msg)
+            self.progress = int(pct.split('%')[0])
+
+            payload['progress'] = self.progress
+            message = json.dumps(payload)
+            self.forwardTaskStatus2CC(message)
+
+
+        exit_code = rsync.getExitStatus()
+        logger.error("%s: download thread exit with code=%s", self.tid, exit_code)
+
         return "OK"
 
     def cloneImage(self):
         if self.srcimgid != self.dstimgid:
             # call clone cmd
+
             return "OK"
 
     def run(self):
@@ -73,9 +102,7 @@ class nc_cmdConsumerThread(run4everThread):
             logger.error("unknow cmd : %s", message['op'])
 
     def run4ever(self):
-        credentials = pika.PlainCredentials('luhya', 'luhya')
-        cpara = pika.ConnectionParameters(host=self.ccip, credentials=credentials)
-        connection = pika.BlockingConnection(cpara)
+        connection = getConnection(self.ccip)
         channel = connection.channel()
 
         channel.exchange_declare(exchange='nc_cmd',

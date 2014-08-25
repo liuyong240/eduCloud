@@ -65,7 +65,7 @@ def main():
 
             logger.error("restart %s ... ..." % (daemon_name))
 
-            obj = globals()[daemon_name](bucket, logger)
+            obj = globals()[daemon_name](bucket)
             obj.daemon = True
             obj.start()
 

@@ -1,7 +1,14 @@
 import pika, uuid, json, time
 
+def getConnection(serverIP):
+    credentials = pika.PlainCredentials('luhya', 'luhya')
+    cpara = pika.ConnectionParameters(host=serverIP, credentials=credentials)
+    connection = pika.BlockingConnection(cpara)
+    return connection
+
 def simple_send(logger, serverIP, queue_name, message):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='serverIP'))
+    connection = getConnection(serverIP)
+
     channel = connection.channel()
     channel.queue_declare(queue=queue_name)
     channel.basic_publish(exchange='',
@@ -11,7 +18,8 @@ def simple_send(logger, serverIP, queue_name, message):
     logger.error("send message %s to %s", (message, queue_name))
 
 def routing_send(logger, serverIP, exchangeName,  message, routingKey):
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=serverIP))
+    connection = getConnection(serverIP)
+
     channel = connection.channel()
     channel.exchange_declare(exchange=exchangeName,
                              type='direct')
@@ -29,14 +37,11 @@ def routing_send(logger, serverIP, exchangeName,  message, routingKey):
 # 2. get the job status and send to serverIP's server_status_queue
 # 3. until job finished, return OK
 class RpcClient(object):
-    def __init__(self, logger, serverIP, server_status_queue):
+    def __init__(self, logger, serverIP):
         self.logger = logger
         self.serverIP = serverIP
-        self.server_status_queue = server_status_queue
 
-        credentials = pika.PlainCredentials('luhya', 'luhya')
-        cpara = pika.ConnectionParameters(host=serverIP, credentials=credentials)
-        self.connection = pika.BlockingConnection(cpara)
+        self.connection = getConnection(serverIP)
 
         self.channel = self.connection.channel()
         result = self.channel.queue_declare(exclusive=True)

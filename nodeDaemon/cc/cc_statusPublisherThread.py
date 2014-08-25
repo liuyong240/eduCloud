@@ -3,7 +3,7 @@ import time
 
 class cc_statusPublisherThread(run4everThread):
     def __init__(self, bucket, logger):
-        run4everThread.__init__(self, bucket, logger)
+        run4everThread.__init__(self, bucket)
 
     def run4ever(self):
         while True:
