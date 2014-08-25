@@ -144,7 +144,6 @@ def tasks_view(request):
 #################################################################################
 
 def image_create_task(request, srcid):
-    _ccip = findLazyCC()
 
     # create ectaskTransation Record
     _srcimgid        = srcid
@@ -152,24 +151,27 @@ def image_create_task(request, srcid):
     _instanceid      = 'ins-' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
-    rec = ectaskTransaction(
-        tid         = _tid,
-        srcimgid    = _srcimgid,
-        dstimgid    = _instanceid,
-        user        = request.user,
-        phase       = 'downloading',
-        progress    = 0,
-        ccip        = _ccip,
-    )
-    rec.save()
-
-    # # send request to CC to work
-    url = 'http://%s/cc/api/1.0/image/create' % _ccip
-    payload = {
-        'tid': _tid
-    }
-    r = requests.post(url, data=payload)
-    logger.error(url + ":" + r.content)
+    # _ccip = findLazyCC()
+    #
+    #
+    # rec = ectaskTransaction(
+    #     tid         = _tid,
+    #     srcimgid    = _srcimgid,
+    #     dstimgid    = _instanceid,
+    #     user        = request.user,
+    #     phase       = 'downloading',
+    #     progress    = 0,
+    #     ccip        = _ccip,
+    # )
+    # rec.save()
+    #
+    # # # send request to CC to work
+    # url = 'http://%s/cc/api/1.0/image/create' % _ccip
+    # payload = {
+    #     'tid': _tid
+    # }
+    # r = requests.post(url, data=payload)
+    # logger.error(url + ":" + r.content)
 
     # open a window to monitor work progress
     imgobj = ecImages.objects.get(ecid = srcid)
