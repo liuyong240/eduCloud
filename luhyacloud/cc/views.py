@@ -36,7 +36,7 @@ def findLazyNC():
     r = requests.post(url, data=payload)
     return json.loads(r.content)['ncs'][0]
 
-def image_create_task(request):
+def prepare_image_create_task(request):
     ncip = findLazyNC()
 
     message = {}
@@ -50,8 +50,23 @@ def image_create_task(request):
     # return http response
     response = {}
     response['Result'] = 'OK'
+    response['tid'] = request.POST['tid']
+    response['ncip'] = ncip
+
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
+
+def prepare_image_create_task(request):
+    pass
+
+def run_image_create_task(request):
+    pass
+
+def stop_image_create_task(request):
+    pass
+
+def submit_image_create_task(request):
+    pass
 
 def register_host(request):
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)

@@ -25,7 +25,13 @@ urlpatterns = patterns('',
     url(r'^tasks$',         views.tasks_view,                         name='tasks_view'),
 
     # image create and modify URL
-    url(r'^image/create/(?P<srcid>\w+)$',        views.image_create_task,               name='images_create_task'),
+    url(r'^image/create/task/begin/(?P<srcid>\w+)$',                                    views.start_image_create_task,            name='start_image_create_task'),
+    url(r'^image/create/task/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',    views.prepare_image_create_task,          name='prepare_image_create_task'),
+    url(r'^image/create/task/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',        views.run_image_create_task,              name='run_image_create_task'),
+    url(r'^image/create/task/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',       views.stop_image_create_task,             name='stop_image_create_task'),
+    url(r'^image/create/task/submit/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',     views.submit_image_create_task,           name='submit_image_create_task'),
+    url(r'^image/create/task/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',views.image_create_task_getprogress,           name='image_create_task_getprogress'),
+
     url(r'^image/modify/(?P<srcid>\w+)$',        views.image_modify_task,               name='images_modify_task'),
 
     # iframe page

@@ -143,17 +143,18 @@ def tasks_view(request):
 # create a new images & modify existing image
 #################################################################################
 
-def image_create_task(request, srcid):
+def start_image_create_task(request, srcid):
 
     # create ectaskTransation Record
     _srcimgid        = srcid
-    _dstimageid      = 'img-' + genHexRandom()
-    _instanceid      = 'ins-' + genHexRandom()
+    _dstimageid      = 'IMG' + genHexRandom()
+    _instanceid      = 'INS' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
-    # _ccip = findLazyCC()
-    #
-    #
+    _dstimageid = "IMGabcd"
+    _instanceid = "INS1234"
+    _tid = "xp:IMGabcd:INS1234"
+
     # rec = ectaskTransaction(
     #     tid         = _tid,
     #     srcimgid    = _srcimgid,
@@ -161,17 +162,8 @@ def image_create_task(request, srcid):
     #     user        = request.user,
     #     phase       = 'downloading',
     #     progress    = 0,
-    #     ccip        = _ccip,
     # )
     # rec.save()
-    #
-    # # # send request to CC to work
-    # url = 'http://%s/cc/api/1.0/image/create' % _ccip
-    # payload = {
-    #     'tid': _tid
-    # }
-    # r = requests.post(url, data=payload)
-    # logger.error(url + ":" + r.content)
 
     # open a window to monitor work progress
     imgobj = ecImages.objects.get(ecid = srcid)
@@ -185,6 +177,57 @@ def image_create_task(request, srcid):
     }
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)
+
+def prepare_image_create_task(request, srcid, dstid, insid):
+    tid = "%s:%s:%s" % (srcid, dstid, insid)
+    _ccip = findLazyCC()
+
+    # # send request to CC to work
+    url = 'http://%s/cc/api/1.0/image/create/task/prepare' % _ccip
+    payload = {
+        'tid': tid
+    }
+    r = requests.post(url, data=payload)
+    logger.error(url + ":" + r.content)
+
+    response = json.loads(r.content)
+    rec = ectaskTransaction.objects.get(tid=tid)
+    rec.ccip = _ccip
+    rec.ncip = response['ncip']
+    rec.save()
+
+    return HttpResponse(r.content, mimetype="application/json")
+
+def run_image_create_task(request, srcid, dstid, insid):
+    tid = "%s:%s:%s" % (srcid, dstid, insid)
+    pass
+
+def stop_image_create_task(request, srcid, dstid, insid):
+    tid = "%s:%s:%s" % (srcid, dstid, insid)
+    pass
+
+def submit_image_create_task(request, srcid, dstid, insid):
+    tid = "%s:%s:%s" % (srcid, dstid, insid)
+    pass
+
+def image_create_task_getprogress(request, srcid, dstid, insid):
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    tid = "%s:%s:%s" % (srcid, dstid, insid)
+    try:
+        payload = mc.get(str(tid))
+    except Exception as e:
+        payload = {
+            'type': 'taskstatus',
+            'phase': "downloading",
+            'progress': 0,
+            'tid': tid
+        }
+
+    # if (payload['progress'] < 0 ):
+    #     mc.delete(tid)
+
+    response = json.dumps(payload)
+    return HttpResponse(response, mimetype="application/json")
 
 def image_modify_task(request, srcid):
     ccip = findLazyCC()

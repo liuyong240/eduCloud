@@ -41,22 +41,108 @@
 </style>
 
 <script>
-$(document).ready(function () {
-        $("#wizard").jWizard({
-            title: true,
-            menu: true,
-            progress: {
-                label: "count",
-                append: ""
-            },
-            cancel: function () {
-                window.close();
-            },
-            finish: function () {
-                window.close();
-            }
+var progress = 0;
+var progressbar;
+var srcid;
+var dstid;
+var insid;
+
+var retrytimes = 0;
+var maxRetryTimes = 100;
+var timer_interval = 1000;
+
+function getPrepareProgress() {
+    url = "/clc/image/create/task/getprogress/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
         });
+
+        phase = items['phase'];
+        progress = items['progress'];
+        console.log("phase is " + phase);
+        console.log("progress is" + progress);
+
+        if (progress >= 0) {
+            $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
+            setTimeout(getPrepareProgress, timer_interval);
+        } else {
+            if (progress == -100) {
+                progress = 100;
+                $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
+                $(".jw-button-next").removeAttr("disabled");
+                $("#btn_prepare").addClass("disabled")
+                $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
+            } else {
+                $("#desclabel").text("{% trans "Sorry, Prepare Image failed. please click 'Prepare' button and try again." %}");
+            }
+        }
+    }).error(function () {
+        setTimeout(getPrepareProgress, timer_interval);
     });
+}
+
+$(document).ready(function () {
+
+    srcid = $("#srcid").text();
+    dstid = $("#dstid").text();
+    insid = $("#insid").text();
+    tid   = $("#tid").text();
+
+    progressbar = $("#progressbar").progressbar({
+        max: 100
+    });
+
+    submit_progressbar = $("#submit_progressbar").progressbar({
+        max: 100
+    });
+
+    $("#wizard").jWizard({
+        title: true,
+        menu: true,
+        progress: {
+            label: "count",
+            append: ""
+        },
+        cancel: function () {
+            window.close();
+        },
+        finish: function () {
+            window.close();
+        }
+    });
+
+    $("#btn_prepare").click(function () {
+        $(".jw-button-next").attr("disabled", true);
+
+        /*
+        url = "/clc/image/create/task/prepare/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+        $.getJSON(url,function (data) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+
+        });
+        */
+
+        setTimeout(getPrepareProgress, timer_interval);
+    });
+
+    $("#btn_run").click(function () {
+        runImages();
+    });
+
+    $("#btn_stop").click(function () {
+        stopImage();
+    });
+
+    $("#btn_submit").click(function () {
+        submitImage();
+    });
+
+});
 </script>
 {% endblock %}
 
@@ -69,6 +155,9 @@ $(document).ready(function () {
     <form id="wizard">
         <fieldset>
             <legend>{% trans "Prepare Image." %}</legend>
+            <button id="btn_prepare"    type="button" class="btn btn-default">{% trans "Prepare" %}</button>
+            <p> </p>
+            <p> </p>
             <p id="desclabel">{% trans "start to prepare image, please wait ... ..." %}</p>
             <div id="progressbar">
                 <div id='prlabel'>{% trans "Cloning ... ..." %}</div>

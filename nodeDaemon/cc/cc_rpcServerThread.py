@@ -35,7 +35,12 @@ class downloadWorkerThread(threading.Thread):
             msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
             logger.error(msg)
             self.progress = int(pct.split('%')[0])
+
         exit_code = rsync.getExitStatus()
+        if exit_code == 0:
+            self.progress = -100
+        else:
+            self.progress = exit_code
         logger.error("%s: download thread exit with code=%s", self.tid, exit_code)
 
 class cc_rpcServerThread(run4everThread):
