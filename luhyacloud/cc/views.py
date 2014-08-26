@@ -56,9 +56,6 @@ def prepare_image_create_task(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
-def prepare_image_create_task(request):
-    pass
-
 def run_image_create_task(request):
     pass
 

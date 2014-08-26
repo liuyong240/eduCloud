@@ -3,6 +3,7 @@ from luhyaapi.educloudLog import *
 from luhyaapi.clcAPIWrapper import *
 from luhyaapi.hostTools import *
 from luhyaapi.rsyncWrapper import *
+from luhyaapi.rabbitmqWrapper import *
 
 import time, pika, json
 
@@ -47,7 +48,7 @@ class cc_rpcServerThread(run4everThread):
     def __init__(self, bucket):
         run4everThread.__init__(self, bucket)
 
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        self.connection = getConnection("localhost")
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue='rpc_queue')
         self.channel.basic_qos(prefetch_count=1)
@@ -63,7 +64,7 @@ class cc_rpcServerThread(run4everThread):
         self.channel.start_consuming()
 
     def on_request(self, ch, method, props, body):
-        logger.error(body)
+        logger.error("get rpc cmd = %s" % body)
         message = json.loads(body)
 
         if message['op'] in self.cc_rpc_handlers and self.cc_rpc_handlers[message['op']] != None:
@@ -78,7 +79,7 @@ class cc_rpcServerThread(run4everThread):
             progress = worker.getprogress()
         else:
             progress = 0
-            clcip = getclcipbyconf()
+            clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
             walrusinfo = getWalrusInfo(clcip)
             worker = downloadWorkerThread(walrusinfo['ip0'], tid)
             worker.start()
@@ -98,7 +99,7 @@ class cc_rpcServerThread(run4everThread):
                  body=payload)
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
-        if progress >= 100:
+        if progress < 0:
             del self.tasks_status[tid]
 
 
