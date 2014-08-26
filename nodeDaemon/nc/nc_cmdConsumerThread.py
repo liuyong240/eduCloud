@@ -25,7 +25,7 @@ class prepareImageTaskThread(threading.Thread):
 
             response = json.loads(response)
             logger.error("rpc call return value: %s-%s" % (response['tid'], response['progress']))
-            if response['progress'] >= 100:
+            if response['progress'] < 0:
                 break
             else:
                 time.sleep(1)
@@ -67,7 +67,6 @@ class prepareImageTaskThread(threading.Thread):
     def cloneImage(self):
         if self.srcimgid != self.dstimgid:
             # call clone cmd
-
             return "OK"
 
     def run(self):
@@ -94,7 +93,7 @@ class nc_cmdConsumerThread(run4everThread):
         self.ccip = getccipbyconf()
 
     def cmdHandle(self, ch, method, properties, body):
-        logger.error(" [x] %r:%r" % (method.routing_key, body))
+        logger.error(" get coommand = %s" %  body)
         message = json.loads(body)
         if  message['op'] in  nc_cmd_handlers and nc_cmd_handlers[message['op']] != None:
             nc_cmd_handlers[message['op']](message['paras'])
