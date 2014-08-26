@@ -154,6 +154,8 @@ def start_image_create_task(request, srcid):
     _dstimageid = "IMGabcd"
     _instanceid = "INS1234"
     _tid = "xp:IMGabcd:INS1234"
+    logger.error("tid=%s" % _tid)
+
 
     # rec = ectaskTransaction(
     #     tid         = _tid,
@@ -181,6 +183,8 @@ def start_image_create_task(request, srcid):
 def prepare_image_create_task(request, srcid, dstid, insid):
     tid = "%s:%s:%s" % (srcid, dstid, insid)
     _ccip = findLazyCC()
+
+    logger.error(" findLazyCC return : %s" % _ccip)
 
     # # send request to CC to work
     url = 'http://%s/cc/api/1.0/image/create/task/prepare' % _ccip
@@ -215,6 +219,13 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
     tid = "%s:%s:%s" % (srcid, dstid, insid)
     try:
         payload = mc.get(str(tid))
+        if payload == None:
+            payload = {
+                'type': 'taskstatus',
+                'phase': "downloading",
+                'progress': 0,
+                'tid': tid
+            }
     except Exception as e:
         payload = {
             'type': 'taskstatus',

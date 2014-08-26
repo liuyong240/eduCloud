@@ -116,7 +116,6 @@ $(document).ready(function () {
     $("#btn_prepare").click(function () {
         $(".jw-button-next").attr("disabled", true);
 
-        /*
         url = "/clc/image/create/task/prepare/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
         $.getJSON(url,function (data) {
             var items = [];
@@ -125,9 +124,8 @@ $(document).ready(function () {
             });
 
         });
-        */
 
-        setTimeout(getPrepareProgress, timer_interval);
+        // setTimeout(getPrepareProgress, timer_interval);
     });
 
     $("#btn_run").click(function () {

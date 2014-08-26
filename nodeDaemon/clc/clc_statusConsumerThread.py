@@ -16,12 +16,13 @@ class clc_statusConsumerThread(run4everThread):
         json_msg = json.loads(message)
         tid = json_msg['tid']
         self.mc.set(tid, json_msg)
+        logger.error("add to memcaceh: %s" % message)
 
     def statusMessageHandle(self, ch, method, properties, body):
         self.forwardMessage2Memcache(body)
 
     def run4ever(self):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        connection = getConnection("localhost")
         channel = connection.channel()
         channel.queue_declare(queue='clc_status_queue')
         channel.basic_consume(self.statusMessageHandle,
