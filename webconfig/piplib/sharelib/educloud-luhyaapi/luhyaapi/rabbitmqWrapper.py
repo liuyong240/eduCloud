@@ -15,7 +15,7 @@ def simple_send(logger, serverIP, queue_name, message):
                           routing_key=queue_name,
                           body=message)
     connection.close()
-    logger.error("send message %s to %s", (message, queue_name))
+    logger.error("send message %s to %s" % (message, queue_name)
 
 def routing_send(logger, serverIP, exchangeName,  message, routingKey):
     connection = getConnection(serverIP)
@@ -74,6 +74,5 @@ class RpcClient(object):
         while self.response is None:
             self.connection.process_data_events()
 
-        result = json.loads(self.response)
         # send status to CC's status queue
-        return result
+        return self.response
