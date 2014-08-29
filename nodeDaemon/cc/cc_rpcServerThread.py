@@ -81,7 +81,8 @@ class cc_rpcServerThread(run4everThread):
             progress = 0
             clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
             walrusinfo = getWalrusInfo(clcip)
-            worker = downloadWorkerThread(walrusinfo['ip0'], tid)
+            serverIP = walrusinfo['data']['ip0']
+            worker = downloadWorkerThread(serverIP, tid)
             worker.start()
             self.tasks_status[tid] = worker
 
