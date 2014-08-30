@@ -153,12 +153,12 @@ $(document).ready(function () {
     <form id="wizard">
         <fieldset>
             <legend>{% trans "Prepare Image." %}</legend>
-            <button id="btn_prepare"    type="button" class="btn btn-default">{% trans "Prepare" %}</button>
+            <button id="btn_prepare"    type="button" class="btn btn-primary">{% trans "Prepare" %}</button>
             <p> </p>
             <p> </p>
             <p id="desclabel">{% trans "start to prepare image, please wait ... ..." %}</p>
             <div id="progressbar">
-                <div id='prlabel'>{% trans "Cloning ... ..." %}</div>
+                <div id='prlabel'>{% trans "downloading ... ..." %}</div>
             </div>
         </fieldset>
 
@@ -166,8 +166,8 @@ $(document).ready(function () {
             <legend>{% trans "run/edit Image." %}</legend>
             <p id="erromsg"></p>
             <div class="opontable">
-                <button id="btn_run"    type="button" class="btn btn-default">{% trans "Run" %}</button>
-                <button id="btn_stop"   type="button" class="btn btn-default">{% trans "Stop" %}</button>
+                <button id="btn_run"    type="button" class="btn btn-primary">{% trans "Run" %}</button>
+                <button id="btn_stop"   type="button" class="btn btn-primary disabled">{% trans "Stop" %}</button>
                 <div id="luhyaVM" style="display: none;">
                     <a href="luhyavm://abcdefg" target="_blank">{% trans "Connect to Cloud Desktop" %}</a>
                 </div>
@@ -196,7 +196,7 @@ $(document).ready(function () {
         <fieldset>
             <legend>{% trans "submit Image" %}</legend>
             <p id="submit_erromsg"></p>
-            <button id="btn_submit" type="button" class="btn btn-default">{% trans "Submit" %}</button>
+            <button id="btn_submit" type="button" class="btn btn-primary">{% trans "Submit" %}</button>
             <p> </p>
             <p> </p>
             <div id="submit_section">

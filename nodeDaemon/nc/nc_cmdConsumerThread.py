@@ -3,7 +3,7 @@ from luhyaapi.hostTools import *
 from luhyaapi.educloudLog import *
 from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.rsyncWrapper import *
-import pika, json, time
+import pika, json, time, shutil, os
 
 logger = getncdaemonlogger()
 
@@ -111,16 +111,45 @@ class prepareImageTaskThread(threading.Thread):
     def cloneImage(self):
         payload = {
             'type'      : 'taskstatus',
-            'phase'     : "downloading",
+            'phase'     : "cloning",
             'progress'  : 90,
             'tid'       : self.tid
         }
 
         if self.srcimgid != self.dstimgid:
             # call clone cmd
-            time.sleep(5)
-            payload['progress'] = 100
-            self.forwardTaskStatus2CC(json.dumps(payload))
+            srcfile  = "/storage/images/"    + self.srcimgid + "/machine"
+            dstfile = "/storage/tmp/images"  + self.dstimgid + "/machine"
+
+            if os.path.exists(dstfile):
+                shutil.rmtree("/storage/tmp/images/" + self.dstimgid)
+
+            dest_size = 0
+            src_size = os.path.getsize(srcfile)
+
+            cmd = "vboxmanage clonehd" + " " + srcfile + " " + dstfile
+            logger.info("cmd line = %s", cmd)
+            ratio = 0
+            procid = pexpect.spawn(cmd)
+
+            while procid.isalive():
+                time.sleep(1)
+                try:
+                    dst_size = os.path.getsize(dstfile)
+                except:
+                    dst_size = 0
+
+                ratio = int(dst_size * 100.0 / src_size)
+                logger.info('current clone percentage is %d' % ratio)
+                payload['progress'] = ratio / 10.0 + 90
+                self.forwardTaskStatus2CC(json.dumps(payload))
+
+            if procid.status == 0:
+                payload['progress'] = 100
+                self.forwardTaskStatus2CC(json.dumps(payload))
+            else:
+                payload['progress'] = procid.status
+                self.forwardTaskStatus2CC(json.dumps(payload))
         else:
             payload['progress'] = 100
             self.forwardTaskStatus2CC(json.dumps(payload))
@@ -140,7 +169,9 @@ def nc_image_create_handle(tid):
     return worker
 
 def nc_image_modify_handle(tid):
-    time.sleep(100)
+    worker = prepareImageTaskThread(tid)
+    worker.start()
+    return worker
 
 nc_cmd_handlers = {
     'image/create'      : nc_image_create_handle,
