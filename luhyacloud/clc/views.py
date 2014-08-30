@@ -194,11 +194,11 @@ def prepare_image_create_task(request, srcid, dstid, insid):
     r = requests.post(url, data=payload)
     logger.error(url + ":" + r.content)
 
-    response = json.loads(r.content)
-    rec = ectaskTransaction.objects.get(tid=tid)
-    rec.ccip = _ccip
-    rec.ncip = response['ncip']
-    rec.save()
+    # response = json.loads(r.content)
+    # rec = ectaskTransaction.objects.get(tid=tid)
+    # rec.ccip = _ccip
+    # rec.ncip = response['ncip']
+    # rec.save()
 
     return HttpResponse(r.content, mimetype="application/json")
 
@@ -226,6 +226,12 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
                 'progress': 0,
                 'tid': tid
             }
+            response = json.dumps(payload)
+        else:
+            response = payload
+            payload = json.loads(payload)
+            if payload['progress'] < 0 :
+                mc.delete(str(tid))
     except Exception as e:
         payload = {
             'type': 'taskstatus',
@@ -233,11 +239,9 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
             'progress': 0,
             'tid': tid
         }
+        response = json.dumps(payload)
 
-    # if (payload['progress'] < 0 ):
-    #     mc.delete(tid)
-
-    response = json.dumps(payload)
+    logger.error("lkf: get progress = %s", response)
     return HttpResponse(response, mimetype="application/json")
 
 def image_modify_task(request, srcid):

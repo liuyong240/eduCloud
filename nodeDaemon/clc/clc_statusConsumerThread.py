@@ -15,8 +15,11 @@ class clc_statusConsumerThread(run4everThread):
     def forwardMessage2Memcache(self, message):
         json_msg = json.loads(message)
         tid = json_msg['tid']
-        self.mc.set(tid, json_msg)
-        logger.error("add to memcaceh: %s" % message)
+        try:
+            self.mc.set(str(tid), message)
+            logger.error("add to memcaceh: %s" % message)
+        except Exception as e:
+            logger.errro(e.message)
 
     def statusMessageHandle(self, ch, method, properties, body):
         self.forwardMessage2Memcache(body)
