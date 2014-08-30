@@ -7,6 +7,41 @@ import pika, json, time
 
 logger = getncdaemonlogger()
 
+class downloadWorkerThread(threading.Thread):
+    def __init__(self, dstip, tid):
+        threading.Thread.__init__(self)
+
+        self.dstip    = dstip
+        self.tid      = tid
+        retval = tid.split(':')
+        self.srcimgid = retval[0]
+        self.progress = 0
+
+    def getprogress(self):
+        return self.progress
+
+    def run(self):
+        logger.error("enter into downloadWorkerThread run()")
+        self.progress = 0
+
+        source = "rsync://%s/luhya/%s" % (self.dstip, self.srcimgid)
+        destination = "/storage/images/"
+        rsync = rsyncWrapper(source, destination)
+        rsync.startRsync()
+
+        while rsync.isRsyncLive():
+            tmpfilesize, pct, bitrate, remain = rsync.getProgress()
+            msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
+            logger.error(msg)
+            self.progress = int(pct.split('%')[0])
+
+        exit_code = rsync.getExitStatus()
+        if exit_code == 0:
+            self.progress = -100
+        else:
+            self.progress = exit_code
+        logger.error("%s: download thread exit with code=%s", self.tid, exit_code)
+
 class prepareImageTaskThread(threading.Thread):
     def __init__(self, tid):
         threading.Thread.__init__(self)
@@ -18,56 +53,81 @@ class prepareImageTaskThread(threading.Thread):
 
     # RPC call to ask CC download image from walrus
     def downloadFromWalrus2CC(self):
+        retvalue = "OK"
+
         while True:
             download_rpc = RpcClient(logger, self.ccip)
             response = download_rpc.call(cmd="image/download", paras=self.tid)
-            self.forwardTaskStatus2CC(response)
-
             response = json.loads(response)
-            logger.error("rpc call return value: %s-%s" % (response['tid'], response['progress']))
             if response['progress'] < 0:
+                if response['progress'] == -100:
+                    response['progress'] = 50
+                    self.forwardTaskStatus2CC(json.dumps(response))
+                else:
+                    retvalue = "FALURE"
                 break
             else:
+                response['progress'] = response['progress']/2.0
+                self.forwardTaskStatus2CC(json.dumps(response))
+                logger.error("downlaod from walrus: %s", response['progress'])
                 time.sleep(1)
 
-        return 'OK'
+        return retvalue
 
     def forwardTaskStatus2CC(self, response):
         simple_send(logger, self.ccip, 'cc_status_queue', response)
 
     def downloadFromCC2NC(self):
-        source = "rsync://%s/luhya/%s" % (self.ccip, self.srcimgid)
-        destination = "/storage/images/"
-        rsync = rsyncWrapper(source, destination)
-        rsync.startRsync()
+        worker = downloadWorkerThread(self.ccip, self.tid)
+        worker.start()
 
         payload = {
                 'type'      : 'taskstatus',
                 'phase'     : "downloading",
                 'progress'  : 0,
-                'tid'       : self.tid
+                'tid'       : self.tid,
+                'errormsg'  : "",
         }
 
-        while rsync.isRsyncLive():
-            tmpfilesize, pct, bitrate, remain = rsync.getProgress()
-            msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
-            logger.error(msg)
-            self.progress = int(pct.split('%')[0])
-
-            payload['progress'] = self.progress
-            message = json.dumps(payload)
-            self.forwardTaskStatus2CC(message)
-
-
-        exit_code = rsync.getExitStatus()
-        logger.error("%s: download thread exit with code=%s", self.tid, exit_code)
+        while True:
+            progress = worker.getprogress()
+            if progress > 0:
+                progress = 50 + progress / 2.5
+                payload['progress'] = progress
+                self.forwardTaskStatus2CC(json.dumps(payload))
+                time.sleep(2)
+            else:
+                if progress < 0:
+                    if progress == -100:
+                        progress = 90
+                        payload['progress'] = progress
+                        self.forwardTaskStatus2CC(json.dumps(payload))
+                    else:
+                        logger.error("download from CC failed with error code = %s", progress)
+                break;
 
         return "OK"
 
     def cloneImage(self):
+        payload = {
+            'type'      : 'taskstatus',
+            'phase'     : "downloading",
+            'progress'  : 90,
+            'tid'       : self.tid
+        }
+
         if self.srcimgid != self.dstimgid:
             # call clone cmd
-            return "OK"
+            time.sleep(5)
+            payload['progress'] = 100
+            self.forwardTaskStatus2CC(json.dumps(payload))
+        else:
+            payload['progress'] = 100
+            self.forwardTaskStatus2CC(json.dumps(payload))
+
+        payload['progress'] = -100
+        self.forwardTaskStatus2CC(json.dumps(payload))
+        return "OK"
 
     def run(self):
         if self.downloadFromWalrus2CC() == "OK":
