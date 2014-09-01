@@ -10,7 +10,7 @@ class runImageTaskThread():
         self.dstimgid = retval[1]
         self.insid    = retval[2]
         self.runtime_option = json.loads(runtime_option)
-        self.idelist = ['WindowsXP', 'Windows7', 'Windows7_64', 'Windows2003', 'Windows2003_64']
+        self.idelist = ['WindowsXP', 'Windows2003', 'Windows2003_64']
 
     def createvm(self):
         flag = False
@@ -44,8 +44,8 @@ class runImageTaskThread():
                         ret, err = vboxmgr.take_snapshot(snapshot_name)
                         
                     if self.runtime_option['usage'] == "desktop":
-                        if "Windows" in ostype_value:
-                            ret, err = vboxmgr.attachHDD_shared_d()
+                        # if "Windows" in ostype_value:
+                            ret, err = vboxmgr.attachHDD_shared_d(storageCtl = self.runtime_option['storagectltype'])
                         
                     # in server side, the SharedFolder is by default
                     ret, err = vboxmgr.attachSharedFolder(path="/storage/data")
@@ -81,14 +81,13 @@ runtime_option = {}
 # runtime_option['waishe_para'] = " --audio coreaudio --audiocontroller ac97 "
 
 # for win7
-runtime_option['usage']   = "desktop"
-runtime_option['memory']  = 2048
-runtime_option['cpus']    = 1
-runtime_option['ostype']  = "Windows7"
-runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82540EM "
-runtime_option['storagectltype'] =  "IDE"
-runtime_option['storagectl'] = " --name IDE --add ides"
-runtime_option['waishe_para'] = "--audio coreaudio --audiocontroller hda"
+# runtime_option['usage']   = "desktop"
+# runtime_option['memory']  = 2048
+# runtime_option['cpus']    = 1
+# runtime_option['ostype']  = "Windows7"
+# runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82540EM "
+# runtime_option['storagectltype'] =  "SATA"
+# runtime_option['waishe_para'] = "--audio coreaudio --audiocontroller hda"
 
 # for ubuntu
 # runtime_option['usage']   = "desktop"
@@ -97,9 +96,62 @@ runtime_option['waishe_para'] = "--audio coreaudio --audiocontroller hda"
 # runtime_option['ostype']  = "Ubuntu_64"
 # runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82540EM "
 # runtime_option['storagectltype'] =  "SATA"
-# runtime_option['storagectl'] = " --name SATA --add sata "
 # runtime_option['waishe_para'] = " --audio coreaudio --audiocontroller ac97  "
 
+# for win8
+# runtime_option['usage']   = "desktop"
+# runtime_option['memory']  = 4096
+# runtime_option['cpus']    = 1
+# runtime_option['ostype']  = "Windows8"
+# runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82540EM "
+# runtime_option['storagectltype'] =  "SATA"
+# runtime_option['waishe_para'] = " --audio coreaudio --audiocontroller hda "
 
-obj = runImageTaskThread("imgtest:win7:TMPINS1234", json.dumps(runtime_option))
+# for win2003
+# runtime_option['usage']   = "desktop"
+# runtime_option['memory']  = 4096
+# runtime_option['cpus']    = 1
+# runtime_option['ostype']  = "Windows2003"
+# runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82545EM "
+# runtime_option['storagectltype'] =  "IDE"
+# runtime_option['waishe_para'] = " --audio coreaudio --audiocontroller ac97 "
+
+# for win2003_64
+runtime_option['usage']   = "desktop"
+runtime_option['memory']  = 4096
+runtime_option['cpus']    = 1
+runtime_option['ostype']  = "Windows2003_64"
+runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82545EM "
+runtime_option['storagectltype'] =  "IDE"
+runtime_option['waishe_para'] = " --audio coreaudio --audiocontroller ac97 "
+
+# # for win2008
+# runtime_option['usage']   = "desktop"
+# runtime_option['memory']  = 4096
+# runtime_option['cpus']    = 1
+# runtime_option['ostype']  = "Windows2008"
+# runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82545EM "
+# runtime_option['storagectltype'] =  "SATA"
+# runtime_option['waishe_para'] = " --audio coreaudio --audiocontroller hda "
+#
+# # for win2008_64
+# runtime_option['usage']   = "desktop"
+# runtime_option['memory']  = 4096
+# runtime_option['cpus']    = 1
+# runtime_option['ostype']  = "Windows2008_64"
+# runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82545EM "
+# runtime_option['storagectltype'] =  "SATA"
+# runtime_option['waishe_para'] = " --audio coreaudio --audiocontroller hda "
+#
+# # for win2012_64
+# runtime_option['usage']   = "desktop"
+# runtime_option['memory']  = 4096
+# runtime_option['cpus']    = 1
+# runtime_option['ostype']  = "Windows2012_64"
+# runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82545EM "
+# runtime_option['storagectltype'] =  "SATA"
+# runtime_option['waishe_para'] = " --audio coreaudio --audiocontroller hda "
+
+
+obj = runImageTaskThread("imgtest:win2003:TMPINS1234", json.dumps(runtime_option))
 obj.createvm()

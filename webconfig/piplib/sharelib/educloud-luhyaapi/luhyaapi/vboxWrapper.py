@@ -253,7 +253,7 @@ class vboxWrapper():
 
         if os.path.exists(dest_diskd):
             port, device = self.portDeviceNumberAdd(storageCtl)
-            cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', 'IDE', '--port', str(port), '--device',
+            cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device',
                         str(device), '--type', 'hdd', '--medium', dest_diskd, '--mtype', mtype]
             ret, err = self._tool.runCMDline(cmd_line, False)
         else:
