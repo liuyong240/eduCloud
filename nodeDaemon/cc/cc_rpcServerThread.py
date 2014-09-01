@@ -54,7 +54,7 @@ class cc_rpcServerThread(run4everThread):
         self.channel.basic_qos(prefetch_count=1)
 
         self.cc_rpc_handlers = {
-            'image/download'    : self.cc_rpc_handle_imagedownload,
+            'image/prepare'    : self.cc_rpc_handle_imageprepare,
         }
 
         self.tasks_status = {}
@@ -73,7 +73,7 @@ class cc_rpcServerThread(run4everThread):
             logger.error("unknow cmd : %s", message['op'])
 
 
-    def cc_rpc_handle_imagedownload(self, ch, method, props, tid):
+    def cc_rpc_handle_imageprepare(self, ch, method, props, tid):
         if tid in self.tasks_status and self.tasks_status[tid] != None:
             worker = self.tasks_status[tid]
             progress = worker.getprogress()
@@ -90,7 +90,8 @@ class cc_rpcServerThread(run4everThread):
                 'type'      : 'taskstatus',
                 'phase'     : "downloading",
                 'progress'  : progress,
-                'tid'       : tid
+                'tid'       : tid,
+                'errormsg'  : '',
         }
         payload = json.dumps(payload)
         ch.basic_publish(

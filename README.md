@@ -526,7 +526,53 @@ Each VS has a PUBLIC IP assigned for access, and these public IP addr is managed
   - user access VM by CC.pubIP:port, and iptable forwarding it to NC.priIP:port
   - VM access internet by NC (NC is able to access internet)
 
+VI Data structure
+6.1 cmd definition
 
+6.1.1 cmd from cc to nc
 
+{
+    'type'  : 'cmd',
+    'op'    : 'image/create', 'image/modify', 'image/run', 'image/stop', 'image/submit',
+    'paras' :  tid
+}
 
+6.1.2 (RPC)
+cmd from nc to cc
+{
+    'type'  : 'cmd',
+    'op'    : 'image/prepare', 'image/run', 'image/stop', 'image/submit',
+    'paras' :  tid
+}
+result from cc to nc
+{
+    'type'      : 'taskstatus',
+    'phase'     : "downloading", "editing", "submitting"
+    'progress'  : progress,
+    'vmstatus'  : 'init', 'running', 'stopping', 'stopped'
+    'tid'       : tid
+    'errormsg'  : ''
+}
 
+6.1.3 status report message (from nc to cc, from cc to nc)
+{
+    'type'      : 'taskstatus',
+    'phase'     : "downloading", "editing", "submitting"
+    'progress'  : progress,
+    'vmstatus'  : 'init', 'running', 'stopping', 'stopped'
+    'tid'       : tid
+}
+{
+    'type'      : 'nodestatus',
+    'ip'        :
+    'role'      :
+
+}
+{
+    'type'      : 'hoststatus',
+
+}
+{
+    'type'      : 'insstatus',
+
+}

@@ -148,24 +148,27 @@ def start_image_create_task(request, srcid):
     # create ectaskTransation Record
     _srcimgid        = srcid
     _dstimageid      = 'IMG' + genHexRandom()
-    _instanceid      = 'INS' + genHexRandom()
+    _instanceid      = 'TMPINS' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
-    _dstimageid = "IMGabcd"
-    _instanceid = "INS1234"
-    _tid = "xp:IMGabcd:INS1234"
+    #_dstimageid = "IMGabcd"
+    #_instanceid = "INS1234"
+    #_tid = "xp:IMGabcd:TMPINS1234"
     logger.error("tid=%s" % _tid)
 
-
-    # rec = ectaskTransaction(
-    #     tid         = _tid,
-    #     srcimgid    = _srcimgid,
-    #     dstimgid    = _instanceid,
-    #     user        = request.user,
-    #     phase       = 'downloading',
-    #     progress    = 0,
-    # )
-    # rec.save()
+    rec = ectaskTransaction(
+         tid         = _tid,
+         srcimgid    = _srcimgid,
+         dstimgid    = _dstimageid,
+         insid       = _instanceid,
+         user        = request.user,
+         phase       = 'preparing',
+         vmstatus    = "",
+         progress    = 0,
+         ccip        = "",
+         ncip        = "",
+    )
+    rec.save()
 
     # open a window to monitor work progress
     imgobj = ecImages.objects.get(ecid = srcid)
@@ -181,38 +184,95 @@ def start_image_create_task(request, srcid):
     return render(request, 'clc/wizard/image_create_wizard.html', context)
 
 def prepare_image_create_task(request, srcid, dstid, insid):
-    tid = "%s:%s:%s" % (srcid, dstid, insid)
-    _ccip = findLazyCC()
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    rec = ectaskTransaction.objects.get(tid=_tid)
 
-    logger.error(" findLazyCC return : %s" % _ccip)
+    if rec.ccip == "":
+        rec.ccip = findLazyCC()
+
+    logger.error(" findLazyCC return : %s" % rec.ccip)
 
     # # send request to CC to work
-    url = 'http://%s/cc/api/1.0/image/create/task/prepare' % _ccip
+    url = 'http://%s/cc/api/1.0/image/create/task/prepare' % rec.ccip
     payload = {
-        'tid': tid
+        'tid': _tid
     }
     r = requests.post(url, data=payload)
     logger.error(url + ":" + r.content)
 
-    # response = json.loads(r.content)
-    # rec = ectaskTransaction.objects.get(tid=tid)
-    # rec.ccip = _ccip
-    # rec.ncip = response['ncip']
-    # rec.save()
+    response = json.loads(r.content)
+    rec.ncip = response['ncip']
+    rec.phase = "preparing"
+    rec.progress = 0
+    rec.save()
 
     return HttpResponse(r.content, mimetype="application/json")
 
 def run_image_create_task(request, srcid, dstid, insid):
-    tid = "%s:%s:%s" % (srcid, dstid, insid)
-    pass
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    rec = ectaskTransaction.objects.get(tid=_tid)
+    rec.phase = "editing"
+    rec.vmstatus = 'init'
+    rec.save()
+
+    # prepare runtime option
+    img_info = ecImages.objects.get(ecid = srcid)
+    ostype = img_info.ostype
+    usage  = img_info.usage
+
+    runtime_option = {}
+    runtime_option['ostype'] = ostype
+    runtime_option['usage']  = usage
+
+    if usage == "desktop":
+        vmtype = "vdmedium"
+        network = " --nic1 nat "
+    else:
+        vmtype = "vssmall"
+        network = " --nic1 bridged "
+
+    runtime_option['network'] = network
+
+    vmtype_info = ecVMTypes.objects.get(name=vmtype)
+    runtime_option['memory'] = vmtype_info.memory
+    runtime_option['cpus']   = vmtype_info.cpus
+
+    ostype_info = ecOSTypes.object.get(ec_ostype = ostype)
+    runtime_option['storagectl'] = ostype_info.ec_storagectl
+    runtime_option['waishe_para'] = ostype_info.ec_waishe_para
+
+    url = 'http://%s/cc/api/1.0/image/create/task/run' % rec.ccip
+    payload = {
+        'tid'  : _tid,
+        'ncip' : rec.ncip,
+        'runtime_option' : json.dumps(runtime_option),
+    }
+    r = requests.post(url, data=payload)
+    return HttpResponse(r.content, mimetype="application/json")
 
 def stop_image_create_task(request, srcid, dstid, insid):
-    tid = "%s:%s:%s" % (srcid, dstid, insid)
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    rec = ectaskTransaction.objects.get(tid=_tid)
+    rec.phase = "editing"
+    rec.vmstatus = 'stopping'
+    rec.save()
+
+    url = 'http://%s/cc/api/1.0/image/create/task/stop' % rec.ccip
+    payload = {
+        'tid': _tid,
+        'ncip' : rec.ncip,
+    }
+    r = requests.post(url, data=payload)
+    return HttpResponse(r.content, mimetype="application/json")
+
+def image_create_task_getvmstatus(request, srcid, dstid, insid):
     pass
 
 def submit_image_create_task(request, srcid, dstid, insid):
-    tid = "%s:%s:%s" % (srcid, dstid, insid)
-    pass
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    rec = ectaskTransaction.objects.get(tid=_tid)
+    rec.phase = "submitting"
+    rec.progress = 0
 
 def image_create_task_getprogress(request, srcid, dstid, insid):
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)

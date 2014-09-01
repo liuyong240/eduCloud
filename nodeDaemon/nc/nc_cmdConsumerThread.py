@@ -3,6 +3,7 @@ from luhyaapi.hostTools import *
 from luhyaapi.educloudLog import *
 from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.rsyncWrapper import *
+from luhyaapi.vboxWrapper import *
 import pika, json, time, shutil, os
 
 logger = getncdaemonlogger()
@@ -57,7 +58,7 @@ class prepareImageTaskThread(threading.Thread):
 
         while True:
             download_rpc = RpcClient(logger, self.ccip)
-            response = download_rpc.call(cmd="image/download", paras=self.tid)
+            response = download_rpc.call(cmd="image/prepare", paras=self.tid)
             response = json.loads(response)
             if response['progress'] < 0:
                 if response['progress'] == -100:
@@ -83,7 +84,7 @@ class prepareImageTaskThread(threading.Thread):
 
         payload = {
                 'type'      : 'taskstatus',
-                'phase'     : "downloading",
+                'phase'     : "prepare",
                 'progress'  : 0,
                 'tid'       : self.tid,
                 'errormsg'  : "",
@@ -163,19 +164,62 @@ class prepareImageTaskThread(threading.Thread):
             if self.downloadFromCC2NC() == "OK":
                 self.cloneImage()
 
-def nc_image_create_handle(tid):
+def nc_image_prepare_handle(tid):
     worker = prepareImageTaskThread(tid)
     worker.start()
     return worker
 
-def nc_image_modify_handle(tid):
-    worker = prepareImageTaskThread(tid)
+'''
+runtime_options
+{
+    ostype:
+    usage:
+    network: "NAT", "bridge"
+    memory:
+    cpus:
+    storagectl:
+    waishe_para:
+}
+'''
+class runImageTaskThread(threading.Thread):
+    def __init__(self, tid, runtime_option):
+        threading.Thread.__init__(self)
+        retval = tid.split(':')
+        self.tid      = tid
+        self.srcimgid = retval[0]
+        self.dstimgid = retval[1]
+        self.insid    = retval[2]
+        self.ccip     = getccipbyconf()
+        self.runtime_option = json.loads(runtime_option)
+
+    def createvm(self):
+        pass
+
+    def runvm(self):
+        pass
+
+    def run(self):
+        if self.createvm():
+            self.runvm()
+
+
+def nc_image_run_handle(tid, runtime_option):
+    worker = runImageTaskThread(tid, runtime_option)
     worker.start()
-    return worker
+    pass
+
+def nc_image_stop_handle(tid):
+    pass
+
+def nc_image_submit_handle(tid):
+    pass
+
 
 nc_cmd_handlers = {
-    'image/create'      : nc_image_create_handle,
-    'image/modify'      : nc_image_modify_handle,
+    'image/prepare'     : nc_image_prepare_handle,
+    'image/run'         : nc_image_run_handle,
+    'image/stop'        : nc_image_stop_handle,
+    'image/submit'      : nc_image_submit_handle,
 }
 
 class nc_cmdConsumerThread(run4everThread):
@@ -184,10 +228,13 @@ class nc_cmdConsumerThread(run4everThread):
         self.ccip = getccipbyconf()
 
     def cmdHandle(self, ch, method, properties, body):
-        logger.error(" get coommand = %s" %  body)
+        logger.error(" get command = %s" %  body)
         message = json.loads(body)
         if  message['op'] in  nc_cmd_handlers and nc_cmd_handlers[message['op']] != None:
-            nc_cmd_handlers[message['op']](message['paras'])
+            if message['op'] == "image/run":
+                nc_image_run_handle(message['paras'], message['runtime_option'])
+            else:
+                nc_cmd_handlers[message['op']](message['paras'])
         else:
             logger.error("unknow cmd : %s", message['op'])
 

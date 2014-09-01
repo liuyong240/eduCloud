@@ -129,11 +129,36 @@ $(document).ready(function () {
     });
 
     $("#btn_run").click(function () {
-        runImages();
+        $(".jw-button-next").attr("disabled", true);
+        $('#btn_run').addClass('disabled');
+        $('#btn_stop').removeClass('disabled');
+
+        url = "/clc/image/create/task/run/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+        $.getJSON(url,function (data) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+
+        });
+
+        setTimeout(getVMStatus, timer_interval);
     });
 
     $("#btn_stop").click(function () {
-        stopImage();
+        $('#btn_run').removeClass('disabled');
+        $('#btn_stop').addClass('disabled');
+
+        url = "/clc/image/create/task/stop/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+        $.getJSON(url,function (data) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+
+        });
+
+        setTimeout(getVMStatus, timer_interval);
     });
 
     $("#btn_submit").click(function () {

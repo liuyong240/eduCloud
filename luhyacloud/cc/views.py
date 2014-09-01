@@ -41,7 +41,7 @@ def prepare_image_create_task(request):
 
     message = {}
     message['type'] = "cmd"
-    message['op']   = 'image/create'
+    message['op']   = 'image/prepare'
     message['paras']= request.POST['tid']
     message = json.dumps(message)
 
@@ -57,13 +57,63 @@ def prepare_image_create_task(request):
     return HttpResponse(retvalue, mimetype="application/json")
 
 def run_image_create_task(request):
-    pass
+    ncip = request.POST['ncip']
+
+    message = {}
+    message['type'] = "cmd"
+    message['op']   = 'image/run'
+    message['paras']= request.POST['tid']
+    message['runtime_option'] = request.POST['runtime_option']
+    message = json.dumps(message)
+
+    routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
+
+    # return http response
+    response = {}
+    response['Result'] = 'OK'
+    response['tid'] = request.POST['tid']
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
 
 def stop_image_create_task(request):
-    pass
+    ncip = request.POST['ncip']
+
+    message = {}
+    message['type'] = "cmd"
+    message['op']   = 'image/stop'
+    message['paras']= request.POST['tid']
+    message = json.dumps(message)
+
+    routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
+
+    # return http response
+    response = {}
+    response['Result'] = 'OK'
+    response['tid'] = request.POST['tid']
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
 
 def submit_image_create_task(request):
-    pass
+    ncip = request.POST['ncip']
+
+    message = {}
+    message['type'] = "cmd"
+    message['op']   = 'image/submit'
+    message['paras']= request.POST['tid']
+    message = json.dumps(message)
+
+    routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
+
+    # return http response
+    response = {}
+    response['Result'] = 'OK'
+    response['tid'] = request.POST['tid']
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
 
 def register_host(request):
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)

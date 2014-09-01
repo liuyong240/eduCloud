@@ -175,7 +175,8 @@ class ectaskTransaction(models.Model):
     insid       = models.CharField(max_length=20)
     user        = models.CharField(max_length=100)
     phase       = models.CharField(max_length=100)
-    progress    = models.IntegerField(default=0)
+    vmstatus    = models.CharField(max_length=100) # init, running, stopped(default)
+    progress    = models.IntegerField(default=0)   # 0(default)-100, -100, <0
     accessURL   = models.CharField(max_length=500)
     ccip        = models.CharField(max_length=100)
     ncip        = models.CharField(max_length=100)
