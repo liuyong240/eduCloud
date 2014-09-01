@@ -1,6 +1,7 @@
 from luhyaapi.vboxWrapper import *
 import  json, time, shutil, os
 
+
 class runImageTaskThread():
     def __init__(self, tid, runtime_option):
         retval = tid.split(':')
@@ -9,6 +10,7 @@ class runImageTaskThread():
         self.dstimgid = retval[1]
         self.insid    = retval[2]
         self.runtime_option = json.loads(runtime_option)
+        self.idelist = ['WindowsXP', 'Windows7', 'Windows7_64', 'Windows2003', 'Windows2003_64']
 
     def createvm(self):
         flag = False
@@ -29,11 +31,12 @@ class runImageTaskThread():
                     ostype_value = self.runtime_option['ostype']
                     ret, err = vboxmgr.createVM(ostype=ostype_value)
                     ret, err = vboxmgr.registerVM()
-                    if "WindowsXP" in ostype_value or "Windows2003" in ostype_value:
+                    if ostype_value in self.idelist:
                         ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
                     else:
-                        ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
                         ret, err = vboxmgr.addCtrl(" --name SATA --add sata ")
+                        ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
+
                     ret, err = vboxmgr.attachHDD_c(storageCtl = self.runtime_option['storagectltype'])
 
                     snapshot_name = "thomas"
@@ -83,8 +86,8 @@ runtime_option['memory']  = 2048
 runtime_option['cpus']    = 1
 runtime_option['ostype']  = "Windows7"
 runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82540EM "
-runtime_option['storagectltype'] =  "SATA"
-runtime_option['storagectl'] = " --name SATA --add sata"
+runtime_option['storagectltype'] =  "IDE"
+runtime_option['storagectl'] = " --name IDE --add ides"
 runtime_option['waishe_para'] = "--audio coreaudio --audiocontroller hda"
 
 # for ubuntu
