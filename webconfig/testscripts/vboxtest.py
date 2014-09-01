@@ -29,15 +29,20 @@ class runImageTaskThread():
                     ostype_value = self.runtime_option['ostype']
                     ret, err = vboxmgr.createVM(ostype=ostype_value)
                     ret, err = vboxmgr.registerVM()
-                    ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
-                    ret, err = vboxmgr.addCtrl(" --name SATA --add sata ")
+                    if "WindowsXP" in ostype_value or "Windows2003" in ostype_value:
+                        ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
+                    else:
+                        ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
+                        ret, err = vboxmgr.addCtrl(" --name SATA --add sata ")
                     ret, err = vboxmgr.attachHDD_c(storageCtl = self.runtime_option['storagectltype'])
+
                     snapshot_name = "thomas"
                     if not vboxmgr.isSnapshotExist(snapshot_name):
                         ret, err = vboxmgr.take_snapshot(snapshot_name)
                         
                     if self.runtime_option['usage'] == "desktop":
-                        ret, err = vboxmgr.attachHDD_shared_d()
+                        if "Windows" in ostype_value:
+                            ret, err = vboxmgr.attachHDD_shared_d()
                         
                     # in server side, the SharedFolder is by default
                     ret, err = vboxmgr.attachSharedFolder(path="/storage/data")
@@ -63,34 +68,34 @@ class runImageTaskThread():
 
 runtime_option = {}
 
-# for xp
-#runtime_option['usage']   = "desktop"
-#runtime_option['memory']  = 4096
-#runtime_option['cpus']    = 1
-#runtime_option['ostype']  = "WindowsXP"
-#runtime_option['network'] = " --nic1 nat "
-#runtime_option['storagectltype'] =  "IDE"
-#runtime_option['storagectl'] =  " --name IDE --add ide "
-#runtime_option['waishe_para'] = " --audio alsa --audiocontroller ac97  --nictype1 Am79C973 "
+# for xp,and w2003, only on CTRL
+# runtime_option['usage']   = "desktop"
+# runtime_option['memory']  = 2048
+# runtime_option['cpus']    = 1
+# runtime_option['ostype']  = "WindowsXP"
+# runtime_option['network'] = " --nic1 nat  --nictype1 Am79C973 "
+# runtime_option['storagectltype'] =  "IDE"
+# runtime_option['waishe_para'] = " --audio coreaudio --audiocontroller ac97 "
 
 # for win7
 runtime_option['usage']   = "desktop"
-runtime_option['memory']  = 4096
+runtime_option['memory']  = 2048
 runtime_option['cpus']    = 1
 runtime_option['ostype']  = "Windows7"
-runtime_option['network'] = " --nic1 bridged "
-runtime_option['storagectltype'] =  "IDE"
-runtime_option['storagectl'] = " --name IDE --add ide"
-runtime_option['waishe_para'] = "--audio alsa --audiocontroller hda  --nictype1 82540EM"
+runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82540EM "
+runtime_option['storagectltype'] =  "SATA"
+runtime_option['storagectl'] = " --name SATA --add sata"
+runtime_option['waishe_para'] = "--audio coreaudio --audiocontroller hda"
 
 # for ubuntu
-#runtime_option['memory']  = 4096 
-#runtime_option['cpus']    = 1 
-#runtime_option['ostype']  = "Ubuntu"
-#runtime_option['network'] = " --nic1 nat "  
-#runtime_option['storagectltype'] =  "SATA"
-#runtime_option['storagectl'] = " --name SATA --add sata "
-#runtime_option['waishe_para'] = " --audio alsa --audiocontroller ac97 --nictype1 82540EM "
+# runtime_option['usage']   = "desktop"
+# runtime_option['memory']  = 2048
+# runtime_option['cpus']    = 1
+# runtime_option['ostype']  = "Ubuntu_64"
+# runtime_option['network'] = " --nic1 bridged --bridgeadapter1 en0 --nictype1 82540EM "
+# runtime_option['storagectltype'] =  "SATA"
+# runtime_option['storagectl'] = " --name SATA --add sata "
+# runtime_option['waishe_para'] = " --audio coreaudio --audiocontroller ac97  "
 
 
 obj = runImageTaskThread("imgtest:win7:TMPINS1234", json.dumps(runtime_option))

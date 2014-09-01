@@ -164,7 +164,10 @@ class vboxWrapper():
 
         memstr = " --memory " + str(mem)
         vramstr = " --vram " + str(vram)
-        dstr = " --accelerate2dvideo on "
+        if "Windows" in self._ostype:
+            dstr = " --accelerate2dvideo on "
+        else:
+            dstr = " "
         bioslogfade = " --bioslogofadein off --bioslogofadeout off "
         bioslogimgpath = " --bioslogoimagepath " + os.path.join(self._rootdir, "bin", "res", "BiosLogo.bmp")
         bootorder = " --boot1 disk "
