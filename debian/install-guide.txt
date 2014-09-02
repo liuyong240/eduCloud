@@ -13,3 +13,24 @@ sudo mkdir images VMs config
    sudo /usr/lib/rabbitmq/lib/rabbitmq_server-3.2.4/sbin/rabbitmq-plugins enable rabbitmq_management
    sudo service rabbitmq-server restart
    http://localhost:55672
+
+#######################################
+# Install GUI desktop on Ubuntu server
+#######################################
+1. for Gnome Desktop
+sudo apt-get install ubuntu-desktop
+
+# without installing Evolution & OpenOffice
+sudo aptitude install --without-recommends ubuntu-desktop
+
+2. for XFCE Desktop
+sudo apt-get install xubuntu-desktop
+
+3. for KDE Desktop
+sudo apt-get install kubuntu-desktop
+
+4. for lubuntu
+sudo apt-get install lubuntu-desktop
+
+5. for lxde (default)
+sudo apt-get install lxde
