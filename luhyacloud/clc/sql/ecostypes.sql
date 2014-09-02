@@ -1,18 +1,16 @@
 alter table clc_ecostypes convert to character set utf8;
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("WindowsXP",       " --name IDE --add ide ",   " --audio alsa --audiocontroller ac97 --nic1 nat --nictype1 Am79C973 ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows7",        " --name IDE --add ide ",   " --audio alsa --audiocontroller hda  --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows7_64",     " --name IDE --add ide ",   " --audio alsa --audiocontroller hda  --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows8",        " --name IDE --add ide ",   " --audio alsa --audiocontroller hda  --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows8_64",     " --name IDE --add ide ",   " --audio alsa --audiocontroller hda  --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows81",       " --name IDE --add ide ",   " --audio alsa --audiocontroller hda  --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows81_64",    " --name IDE --add ide ",   " --audio alsa --audiocontroller hda  --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows2003",     " --name IDE --add ide ",   " --audio alsa --audiocontroller ac97 --nic1 nat --nictype1 Am79C973 ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows2003_64",  " --name IDE --add ide ",   " --audio alsa --audiocontroller ac97 --nic1 nat --nictype1 Am79C973 ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows2008",     " --name IDE --add ide ",   " --audio alsa --audiocontroller hda  --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows2008_64",  " --name IDE --add ide ",   " --audio alsa --audiocontroller hda  --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows2012",     " --name IDE --add ide ",   " --audio alsa --audiocontroller hda  --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Windows2012_64",  " --name IDE --add ide ",   " --audio alsa --audiocontroller hda  --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Ubuntu",          " --name SATA --add sata ", " --audio alsa --audiocontroller ac97 --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("Ubuntu_64",       " --name SATA --add sata ", " --audio alsa --audiocontroller ac97 --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("RedHat",          " --name SATA --add sata ", " --audio alsa --audiocontroller ac97 --nic1 nat --nictype1 82540EM  ");
-INSERT INTO clc_ecostypes (`ec_ostype`, `ec_storagectl`, `ec_waishe_para`) VALUES ("RedHat_64",       " --name SATA --add sata ", " --audio alsa --audiocontroller ac97 --nic1 nat --nictype1 82540EM  ");
+INSERT INTO clc_ecostypes (`ec_ostype`, `ec_disk_type`, `ec_nic_type`, `ec_audio_para`) VALUES ("WindowsXP",       "IDE",   "Am79C973",  " --audio pulse --audiocontroller ac97 ");
+INSERT INTO clc_ecostypes (`ec_ostype`, `ec_disk_type`, `ec_nic_type`, `ec_audio_para`) VALUES ("Windows7",        "SATA",  "82540EM",   " --audio pulse --audiocontroller hda ");
+INSERT INTO clc_ecostypes (`ec_ostype`, `ec_disk_type`, `ec_nic_type`, `ec_audio_para`) VALUES ("Ubuntu_64",       "SATA",  "82540EM",   " --audio pulse --audiocontroller ac97 ");
+INSERT INTO clc_ecostypes (`ec_ostype`, `ec_disk_type`, `ec_nic_type`, `ec_audio_para`) VALUES ("Windows8",        "SATA",  "82540EM",   " --audio pulse --audiocontroller hda ");
+INSERT INTO clc_ecostypes (`ec_ostype`, `ec_disk_type`, `ec_nic_type`, `ec_audio_para`) VALUES ("Windows2003",     "IDE",   "82545EM",   " --audio pulse --audiocontroller ac97 ");
+INSERT INTO clc_ecostypes (`ec_ostype`, `ec_disk_type`, `ec_nic_type`, `ec_audio_para`) VALUES ("Windows2003_64",  "IDE",   "82545EM",   " --audio pulse --audiocontroller ac97 ");
+INSERT INTO clc_ecostypes (`ec_ostype`, `ec_disk_type`, `ec_nic_type`, `ec_audio_para`) VALUES ("Windows2008",     "SATA",  "82545EM",   " --audio pulse --audiocontroller hda ");
+INSERT INTO clc_ecostypes (`ec_ostype`, `ec_disk_type`, `ec_nic_type`, `ec_audio_para`) VALUES ("Windows2008_64",  "SATA",  "82545EM",   " --audio pulse --audiocontroller hda ");
+INSERT INTO clc_ecostypes (`ec_ostype`, `ec_disk_type`, `ec_nic_type`, `ec_audio_para`) VALUES ("Windows2012_64",  "SATA",  "82545EM",   " --audio pulse --audiocontroller hda ");
+
+
+
+
+
+

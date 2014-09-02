@@ -497,7 +497,7 @@ V  Network management
 - user access VM from NC directely
 - VM access internet by NC (NC is able to access internet)
 
-5.2.2 Remote Virtual Desktop
+5.2.2 Remote Virtual Desktop(only need port resource allocation)
 
 - In PUBLIC mode, each NC has a public IP addr 
   - VM runs on NC in NAT mode
@@ -514,19 +514,29 @@ V  Network management
 
 Each VS has a PUBLIC IP assigned for access, and these public IP addr is managed by CC's DHCP 
 
-- In PUBLIC mode, each NC has a public IP addr 
+- In PUBLIC mode, each NC has a public IP addr
+  (need public IP pool for VM service, itself, managed by CC DHCP )
+  (need port resouce for VM management)
   - VM runs on NC in bridge mode with assigned Public IP & MAC
   - user access VM by pubIP:port(80)
   - VM access internet by NC (NC is able to access internet)
 
+
 - In PRIVATE mode, each NC has a private IP addr
+  sudo ifconfig eth0:1 10.0.0.100 broadcast 10.0.0.255 netmask 255.255.255.0
+  (need public IP pool for VM service, assigned to CC by IP alias cmd above )
+  (need private IP pool for VM service, managed by CC DHCP)
+  (need port resouce for VM management)
   - CC also manage VMs private IP & mac by its DHCP server
   - VM runs on NC in bridge mode with assigned Private IP & MAC
   - CC add interface alias with related Public IP addr
   - user access VM by CC.pubIP:port, and iptable forwarding it to NC.priIP:port
   - VM access internet by NC (NC is able to access internet)
 
+==========================
 VI Data structure
+==========================
+
 6.1 cmd definition
 
 6.1.1 cmd from cc to nc
@@ -576,3 +586,36 @@ result from cc to nc
     'type'      : 'insstatus',
 
 }
+
+VII CC's resource
+
+  Ubuntu RDP client : remmina
+
+7.0 CC network mode
+    PUBLIC  Mode: NC can be accessed from outside
+    PRIVATE Mode: NC can NOT be accessed from outside, need CC as bridge
+
+7.1 VM Network resource
+
+# VD only need this
+7.1.1 RDP Port pool
+  CC PUBLIC  Mode:  accessURL = NCIP:port
+  CC PRIVATE Mode:  accessURL = CCIP:port, and forward to NCIP:port
+
+# below are only for VS
+7.1.2 Public IP address pool
+7.1.3 Private IP address pool (managed by CC DHCP server)
+7.1.4 MAC addr pool (managed by CC DHCP server)
+
+  CC PUBLIC  Mode:
+    PUBLIC IPs = PRIVATE IPS
+    MAC addr assigned to VM, and get IP from DHCP server's private IP pool by MAC
+    accessURL = PUBLICIP:rdp_port|80
+
+  CC PRIVATE Mode:  accessURL = CCIP:port, and forward to NCIP:port
+    PUBLIC IPs = PRIVATE IPS
+    MAC addr assigned to VM, and get IP from DHCP server's private IP pool by MAC
+    add Public IP to cc as IP alias
+    add iptable rule as PUBLICip:port => PRIVATEIP:port
+    accessURL = PUBLICIP:rdp_port|80
+

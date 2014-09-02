@@ -174,26 +174,88 @@ runtime_options
 {
     ostype:
     usage:
-    network: "NAT", "bridge"
     memory:
     cpus:
-    storagectl:
-    waishe_para:
+    nic_type:
+    disk_type:
+    audio_para:
+
+    portNum:
+    publicIP:
+    privateIP:
+    mac:
 }
 '''
 class runImageTaskThread(threading.Thread):
     def __init__(self, tid, runtime_option):
         threading.Thread.__init__(self)
+
+        self.ccip     = getccipbyconf()
+
         retval = tid.split(':')
         self.tid      = tid
         self.srcimgid = retval[0]
         self.dstimgid = retval[1]
         self.insid    = retval[2]
-        self.ccip     = getccipbyconf()
         self.runtime_option = json.loads(runtime_option)
 
     def createvm(self):
-        pass
+        flag = False
+        if self.srcimgid != self.dstimgid:
+            rootdir = "/storage/tmp"
+        else:
+            rootdir = "/storage"
+
+        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, rootdir)
+        vboxmgr = self.vboxmgr
+
+        # register VM
+        if not vboxmgr.isVMRegistered():
+            if vboxmgr.isVMRegisteredBefore():
+                ret, err = vboxmgr.registerVM()
+            else:
+                try:
+                    ostype_value = self.runtime_option['ostype']
+                    ret, err = vboxmgr.createVM(ostype=ostype_value)
+                    ret, err = vboxmgr.registerVM()
+                    if self.runtime_option['disk_type'] == 'IDE':
+                        ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
+                    else:
+                        ret, err = vboxmgr.addCtrl(" --name SATA --add sata ")
+                        ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
+
+                    ret, err = vboxmgr.attachHDD_c(storageCtl = self.runtime_option['disk_type'])
+
+                    snapshot_name = "thomas"
+                    if not vboxmgr.isSnapshotExist(snapshot_name):
+                        ret, err = vboxmgr.take_snapshot(snapshot_name)
+
+                    if self.runtime_option['usage'] == "desktop":
+                        ret, err = vboxmgr.attachHDD_shared_d(storageCtl = self.runtime_option['disk_type'])
+
+                    # in server side, the SharedFolder is by default
+                    ret, err = vboxmgr.attachSharedFolder(path="/storage/data")
+
+                    # in servere side, each VM has 4G mem
+                    _cpus    = self.runtime_option['cpus']
+                    _memory  = self.runtime_option['memory']
+                    if self.runtime_option['usage'] == 'desktop':
+                        _network_para = " --nic1 nat  --nictype1 %s " % self.runtime_option['nic_type']
+                    else:
+                        _network_para = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 %s " % self.runtime_option['nic_type']
+                    ostypepara_value = _network_para +  self.runtime_option['audio_para']
+                    ret, err = vboxmgr.modifyVM(osTypeparam=ostypepara_value, cpus = _cpus, mem=_memory, )
+
+                    # in server side, configure headless property
+                    portNum = self.runtime_option['portNum']
+                    ret, err = vboxmgr.addHeadlessProperty(port=portNum)
+                except:
+                    ret, err = vboxmgr.unregisterVM()
+                    vboxmgr.deleteVMConfigFile()
+                    return
+
+                ret, err = vboxmgr.unregisterVM()
+                ret, err = vboxmgr.registerVM()
 
     def runvm(self):
         pass

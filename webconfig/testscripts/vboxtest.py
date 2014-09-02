@@ -75,92 +75,92 @@ runtime_option = {}
 # audio for Ubuntu is pulse
 
 # for xp
-#runtime_option['usage']   = "desktop"
-#runtime_option['memory']  = 2048
-#runtime_option['cpus']    = 1
-#runtime_option['ostype']  = "WindowsXP"
-#runtime_option['network'] = " --nic1 nat  --nictype1 Am79C973 "
-#runtime_option['storagectltype'] =  "IDE"
-#runtime_option['waishe_para'] = " --audio pulse --audiocontroller ac97 "
-#obj = runImageTaskThread("imgtest:xp:TMPINS1234", json.dumps(runtime_option))
-#obj.createvm()
+runtime_option['usage']   = "desktop"
+runtime_option['memory']  = 2048
+runtime_option['cpus']    = 1
+runtime_option['ostype']  = "WindowsXP"
+runtime_option['network'] = " --nic1 nat  --nictype1 Am79C973 "
+runtime_option['storagectltype'] =  "IDE"
+runtime_option['waishe_para'] = " --audio pulse --audiocontroller ac97 "
+obj = runImageTaskThread("imgtest:xp:TMPINS1234", json.dumps(runtime_option))
+obj.createvm()
 
 # for win7
-#runtime_option['usage']   = "desktop"
-#runtime_option['memory']  = 2048
-#runtime_option['cpus']    = 1
-#runtime_option['ostype']  = "Windows7"
-#runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82540EM "
-#runtime_option['storagectltype'] =  "SATA"
-#runtime_option['waishe_para'] = "--audio pulse --audiocontroller hda"
-#obj = runImageTaskThread("imgtest:win7:TMPINS1234", json.dumps(runtime_option))
-#obj.createvm()
+runtime_option['usage']   = "desktop"
+runtime_option['memory']  = 2048
+runtime_option['cpus']    = 1
+runtime_option['ostype']  = "Windows7"
+runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82540EM "
+runtime_option['storagectltype'] =  "SATA"
+runtime_option['waishe_para'] = "--audio pulse --audiocontroller hda"
+obj = runImageTaskThread("imgtest:win7:TMPINS1234", json.dumps(runtime_option))
+obj.createvm()
 
 # for ubuntu
-#runtime_option['usage']   = "desktop"
-#runtime_option['memory']  = 2048
-#runtime_option['cpus']    = 1
-#runtime_option['ostype']  = "Ubuntu_64"
-#runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82540EM "
-#runtime_option['storagectltype'] =  "SATA"
-#runtime_option['waishe_para'] = " --audio pulse --audiocontroller ac97  "
-#obj = runImageTaskThread("imgtest:ubuntu:TMPINS1234", json.dumps(runtime_option))
-#obj.createvm()
+runtime_option['usage']   = "desktop"
+runtime_option['memory']  = 2048
+runtime_option['cpus']    = 1
+runtime_option['ostype']  = "Ubuntu_64"
+runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82540EM "
+runtime_option['storagectltype'] =  "SATA"
+runtime_option['waishe_para'] = " --audio pulse --audiocontroller ac97  "
+obj = runImageTaskThread("imgtest:ubuntu:TMPINS1234", json.dumps(runtime_option))
+obj.createvm()
 
 # for win8
-#runtime_option['usage']   = "desktop"
-#runtime_option['memory']  = 4096
-#runtime_option['cpus']    = 1
-#runtime_option['ostype']  = "Windows8"
-#runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82540EM "
-#runtime_option['storagectltype'] =  "SATA"
-#runtime_option['waishe_para'] = " --audio pulse --audiocontroller hda "
-#obj = runImageTaskThread("imgtest:win8:TMPINS1234", json.dumps(runtime_option))
-#obj.createvm()
+runtime_option['usage']   = "desktop"
+runtime_option['memory']  = 4096
+runtime_option['cpus']    = 1
+runtime_option['ostype']  = "Windows8"
+runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82540EM "
+runtime_option['storagectltype'] =  "SATA"
+runtime_option['waishe_para'] = " --audio pulse --audiocontroller hda "
+obj = runImageTaskThread("imgtest:win8:TMPINS1234", json.dumps(runtime_option))
+obj.createvm()
 
 # for win2003
-#runtime_option['usage']   = "desktop"
-#runtime_option['memory']  = 4096
-#runtime_option['cpus']    = 1
-#runtime_option['ostype']  = "Windows2003"
-#runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82545EM "
-#runtime_option['storagectltype'] =  "IDE"
-#runtime_option['waishe_para'] = " --audio pulse --audiocontroller ac97 "
-#obj = runImageTaskThread("imgtest:win2003:TMPINS1234", json.dumps(runtime_option))
-#obj.createvm()
+runtime_option['usage']   = "desktop"
+runtime_option['memory']  = 4096
+runtime_option['cpus']    = 1
+runtime_option['ostype']  = "Windows2003"
+runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82545EM "
+runtime_option['storagectltype'] =  "IDE"
+runtime_option['waishe_para'] = " --audio pulse --audiocontroller ac97 "
+obj = runImageTaskThread("imgtest:win2003:TMPINS1234", json.dumps(runtime_option))
+obj.createvm()
 
 # for win2003_64
-#runtime_option['usage']   = "desktop"
-#runtime_option['memory']  = 4096
-#runtime_option['cpus']    = 1
-#runtime_option['ostype']  = "Windows2003_64"
-#runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82545EM "
-#runtime_option['storagectltype'] =  "IDE"
-#runtime_option['waishe_para'] = " --audio pulse --audiocontroller ac97 "
-#obj = runImageTaskThread("imgtest:win2003_64:TMPINS1234", json.dumps(runtime_option))
-#obj.createvm()
+runtime_option['usage']   = "desktop"
+runtime_option['memory']  = 4096
+runtime_option['cpus']    = 1
+runtime_option['ostype']  = "Windows2003_64"
+runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82545EM "
+runtime_option['storagectltype'] =  "IDE"
+runtime_option['waishe_para'] = " --audio pulse --audiocontroller ac97 "
+obj = runImageTaskThread("imgtest:win2003_64:TMPINS1234", json.dumps(runtime_option))
+obj.createvm()
 
 # # for win2008
-#runtime_option['usage']   = "desktop"
-#runtime_option['memory']  = 4096
-#runtime_option['cpus']    = 1
-#runtime_option['ostype']  = "Windows2008"
-#runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82545EM "
-#runtime_option['storagectltype'] =  "SATA"
-#runtime_option['waishe_para'] = " --audio pulse --audiocontroller hda "
-#obj = runImageTaskThread("imgtest:win2008:TMPINS1234", json.dumps(runtime_option))
-#obj.createvm()
+runtime_option['usage']   = "desktop"
+runtime_option['memory']  = 4096
+runtime_option['cpus']    = 1
+runtime_option['ostype']  = "Windows2008"
+runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82545EM "
+runtime_option['storagectltype'] =  "SATA"
+runtime_option['waishe_para'] = " --audio pulse --audiocontroller hda "
+obj = runImageTaskThread("imgtest:win2008:TMPINS1234", json.dumps(runtime_option))
+obj.createvm()
 
 # # for win2008_64
-#runtime_option['usage']   = "desktop"
-#runtime_option['memory']  = 4096
-#runtime_option['cpus']    = 1
-#runtime_option['ostype']  = "Windows2008_64"
-#runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82545EM "
-#runtime_option['storagectltype'] =  "SATA"
-#runtime_option['waishe_para'] = " --audio pulse --audiocontroller hda "
-#obj = runImageTaskThread("imgtest:win2008_64:TMPINS1234", json.dumps(runtime_option))
-#obj.createvm()
+runtime_option['usage']   = "desktop"
+runtime_option['memory']  = 4096
+runtime_option['cpus']    = 1
+runtime_option['ostype']  = "Windows2008_64"
+runtime_option['network'] = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 82545EM "
+runtime_option['storagectltype'] =  "SATA"
+runtime_option['waishe_para'] = " --audio pulse --audiocontroller hda "
+obj = runImageTaskThread("imgtest:win2008_64:TMPINS1234", json.dumps(runtime_option))
+obj.createvm()
 
 # # for win2012_64
 runtime_option['usage']   = "desktop"

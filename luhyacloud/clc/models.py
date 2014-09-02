@@ -34,9 +34,10 @@ class ecOSTypes(models.Model):
     # Windows:  Windows XP, Windows 7, Windows 2003, Windows 2008, Windows 2012
     # Linux:    Ubuntu, Ubuntu_64
     # ostype already include 32/64bit information
-    ec_ostype = models.CharField(max_length=20)
-    ec_storagectl = models.CharField(max_length=500)
-    ec_waishe_para = models.CharField(max_length=500)
+    ec_ostype      = models.CharField(max_length=20)
+    ec_disk_type   = models.CharField(max_length=100)
+    ec_nic_type    = models.CharField(max_length=100)
+    ec_audio_para  = models.CharField(max_length=100)
 
 # currently only 2 value: Server and Desktop
 class ecVMUsages(models.Model):

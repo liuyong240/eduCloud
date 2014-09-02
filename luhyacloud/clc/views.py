@@ -215,32 +215,44 @@ def run_image_create_task(request, srcid, dstid, insid):
     rec.vmstatus = 'init'
     rec.save()
 
+    runtime_option = {}
+
     # prepare runtime option
     img_info = ecImages.objects.get(ecid = srcid)
-    ostype = img_info.ostype
-    usage  = img_info.usage
-
-    runtime_option = {}
-    runtime_option['ostype'] = ostype
-    runtime_option['usage']  = usage
+    runtime_option['ostype'] = img_info.ostype
+    runtime_option['usage']  = img_info.usage
 
     if usage == "desktop":
-        vmtype = "vdmedium"
-        network = " --nic1 nat "
+        vmtype = 'vdmedium'
     else:
-        vmtype = "vssmall"
-        network = " --nic1 bridged "
-
-    runtime_option['network'] = network
+        vmtype = 'vssmall'
 
     vmtype_info = ecVMTypes.objects.get(name=vmtype)
     runtime_option['memory'] = vmtype_info.memory
     runtime_option['cpus']   = vmtype_info.cpus
 
-    ostype_info = ecOSTypes.object.get(ec_ostype = ostype)
-    runtime_option['storagectl'] = ostype_info.ec_storagectl
-    runtime_option['waishe_para'] = ostype_info.ec_waishe_para
+    ostype_info = ecOSTypes.object.get(ec_ostype = img_info.ostype)
+    runtime_option['nic_type']   = ostype_info.ec_nic_type
+    runtime_option['disk_type']  = ostype_info.ec_disk_type
+    runtime_option['audio_para'] = ostype_info.ec_audio_para
 
+    # ask CC to return back unUsed resource,
+    # RDP Port, Public IP
+    # if usage is server, and CC is managed network mode, also need return private & MAC
+    url = 'http://%s/cc/api/1.0/get/unused/resource' % rec.ccip
+    payload = {
+        'tid'  : _tid,
+        'usage': img_info.usage
+    }
+    r = requests.post(url, data=payload)
+    result = json.loads(r.content)
+    runtime_option['portNum'] = result['portNum']
+    if img_info.usage == 'server':
+        runtime_option['publicIP'] = result['publicIP']
+        runtime_option['privateIP'] = result['privateIP']
+        runtime_option['mac'] = result['mac']
+
+    # now everything is ready, start to run instance
     url = 'http://%s/cc/api/1.0/image/create/task/run' % rec.ccip
     payload = {
         'tid'  : _tid,
