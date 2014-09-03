@@ -34,3 +34,10 @@ sudo apt-get install lubuntu-desktop
 
 5. for lxde (default)
 sudo apt-get install lxde
+
+######################################
+some usefull python package
+######################################
+1. https://github.com/hercules-team/python-augeas
+2. http://pydoc.net/Python/salt/2014.1.4/
+
