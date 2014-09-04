@@ -584,7 +584,6 @@ result from cc to nc
 }
 {
     'type'      : 'insstatus',
-
 }
 
 VII CC's resource

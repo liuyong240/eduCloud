@@ -95,6 +95,22 @@ class ecServers(models.Model):
 
     ccname = models.CharField(max_length=100)
 
+class ecCCResources(models.Model):
+    ccip           = models.CharField(max_length=20)
+    ccname         = models.CharField(max_length=100)
+    portRange      = models.CharField(max_length=100)
+    publicIPRange  = models.CharField(max_length=100)
+    privateIPRange = models.CharField(max_length=100)
+    # Array {
+    #   'port'     :
+    #   'publicIP' :
+    #   'privateIP':
+    #   'mac'      :
+    # }
+    availableRes   = models.TextField()
+    usedRes        = models.TextField()
+
+# for all NCs that support LVD
 class ecHosts(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
 
@@ -112,9 +128,16 @@ class ecHosts(models.Model):
     memory = models.IntegerField(default=0)
     disk = models.IntegerField(default=0)
 
-    # value as json formate, display value by a function
+    # auto_sync = 1,
+    # auto_poweroff=1
+    # offline_enabled=1
+    # is_pad=0
+    # auto_guest_attr_update=0
     runtime_option = models.TextField()
 
+#
+# Images
+#
 class ecImages(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
 
@@ -130,6 +153,9 @@ class ecImages(models.Model):
     version = models.CharField(max_length=10)
     size = models.IntegerField(default=0)
 
+#
+# Instance and VMs
+#
 class ecVAPP(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
 
@@ -137,40 +163,73 @@ class ecVAPP(models.Model):
 class ecVSS(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
 
-    ecid = models.CharField(max_length=10, unique=True)
-    imageid = models.CharField(max_length=10)
-    name = models.CharField(max_length=100)
-
-    vmtypename = models.CharField(max_length=20)
-
-    # host server(IP or any), access mode/para,  persistent/temperary,
-    # network(manage IP, access IP, internal IP, etc)
-    # rdp port
-    # should be a json string
-    runtime_option = models.TextField()
-
+    insid       = models.CharField(max_length=10, unique=True)
+    imageid     = models.CharField(max_length=20)
+    name        = models.CharField(max_length=100)
     description = models.TextField()
+
+    creator     = models.CharField(max_length=100)
+    run_user    = models.CharField(max_length=100)
+
+    phase       = models.CharField(max_length=100)
+    vmstatus    = models.CharField(max_length=100) # init, running, stopped(default)
+    progress    = models.IntegerField(default=0)   # 0(default)-100, -100, <0
+    message     = models.TextField()
+
+    user_accessURL  = models.CharField(max_length=500)
+    mgr_accessURL   = models.CharField(max_length=500)
+
+    defined_ccname = models.CharField(max_length=100)
+    defined_ncip   = models.CharField(max_length=100)
+    runtime_ccname = models.CharField(max_length=100)
+    runtime_ncip   = models.CharField(max_length=100)
+
+    # access mode/para,  persistent/temperary,
+    # network(public IP, private IP, MAC port, etc)
+    # hardware para(cpus, memory, disktype, nictype, audio_para)
+    # iptable forward rule( )
+    # fullscreen = 1, minitoolbar = 0 auto_unregister
+    runtime_option = models.TextField()
 
 class ecVDS(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
 
-    ecid = models.CharField(max_length=10, unique=True)
-    imageid = models.CharField(max_length=10)
-    name = models.CharField(max_length=100)
+    insid       = models.CharField(max_length=10, unique=True)
+    imageid     = models.CharField(max_length=20)
+    name        = models.CharField(max_length=100)
+    description = models.TextField()
 
-    vmtypename = models.CharField(max_length=20)
-    # host server(IP or any), access mode/para,  persistent/temperary,
-    # network(manage IP, access IP, internal IP, etc)
-    # should be a json string
+    creator     = models.CharField(max_length=100)
+    run_user    = models.CharField(max_length=100)
+
+    phase       = models.CharField(max_length=100)
+    vmstatus    = models.CharField(max_length=100) # init, running, stopped(default)
+    progress    = models.IntegerField(default=0)   # 0(default)-100, -100, <0
+    message     = models.TextField()
+
+    accessURL   = models.CharField(max_length=500)
+
+    defined_ccname = models.CharField(max_length=100)
+    defined_ncip   = models.CharField(max_length=100)
+    runtime_ccname = models.CharField(max_length=100)
+    runtime_ncip   = models.CharField(max_length=100)
+
+    # access mode/para,  persistent/temperary,
+    # network(public IP, private IP, MAC port, etc)
+    # hardware para(cpus, memory, disktype, nictype, audio_para)
+    # iptable forward rule( )
+    # fullscreen = 1, minitoolbar = 0 auto_unregister
     runtime_option = models.TextField()
 
-    description = models.TextField()
+class ecLVDS(models.Model):
+
 
 #==============================================
 # Run-time table definition
 #==============================================
 class ectaskTransaction(models.Model):
     tid         = models.CharField(max_length=100, unique=True)
+
     srcimgid    = models.CharField(max_length=20)
     dstimgid    = models.CharField(max_length=20)
     insid       = models.CharField(max_length=20)
@@ -201,3 +260,4 @@ class ectaskTransaction(models.Model):
 #     srcfile=models.TextField()
 #     destfile=models.TextField()
 #     status=models.CharField(max_length=10)
+
