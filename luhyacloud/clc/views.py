@@ -864,6 +864,8 @@ def create_vmusage(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
+
+
 def get_immediate_subdirectories(dir):
     return [name for name in os.listdir(dir)
             if os.path.isdir(os.path.join(dir, name))]
@@ -890,6 +892,203 @@ def autoFindNewAddImage():
             )
             rec.save()
 
+# core table function for ecClusterNetMode
+def list_cc_resource_by_cc(request):
+    response = {}
+    data = []
+
+    recs = ecCCResources.objects.filter(ccip=request.POST['ccip'], ccname=request.POST['ccname'])
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['ccip'] = rec.ccip
+        jrec['ccname'] = rec.ccname
+        jrec['network_mode'] = rec.network_mode
+        jrec['portRange']=rec.portRange
+        jrec['publicIPRange'] = rec.publicIPRange
+        jrec['privateIPRange'] = rec.privateIPRange
+        jrec['available_Resource'] = rec.available_Resource
+        jrec['used_Resource'] = rec.used_Resource
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def list_cc_resorce(request):
+    response = {}
+    data = []
+
+    recs = ecCCResources.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['ccip'] = rec.ccip
+        jrec['ccname'] = rec.ccname
+        jrec['network_mode'] = rec.network_mode
+        jrec['portRange']=rec.portRange
+        jrec['publicIPRange'] = rec.publicIPRange
+        jrec['privateIPRange'] = rec.privateIPRange
+        jrec['available_Resource'] = rec.available_Resource
+        jrec['used_Resource'] = rec.used_Resource
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+
+def delete_cc_resorce(request):
+    response = {}
+
+    rec = ecCCResources.objects.get(id=request.POST['id'])
+    rec.delete()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+# auto generate available resource for CC
+def udate_cc_resource_available_resource(id):
+    pass
+
+def update_cc_resorce(request):
+    response = {}
+
+    rec = ecCCResources.objects.get(id=request.POST['id'])
+    rec.ccip = request.POST['ccip']
+    rec.ccname = request.POST['ccname']
+    rec.network_mode = request.POST['network_mode']
+    rec.portRange = request.POST['portRange']
+    rec.publicIPRange = request.POST['publicIPRange']
+    rec.privateIPRange = request.POST['privateIPRange']
+    rec.save()
+
+    udate_cc_resource_available_resource(request.POST['id'])
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def create_cc_resorce(request):
+    pass
+
+# core table functions for ecServers
+def list_servers_by_cc(reqeust):
+    response = {}
+    data = []
+
+    recs = ecServers.objects.filter(role='cc')
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['ec_authpath_name'] = rec.ec_authpath_name
+        jrec['role'] = rec.role
+        jrec['ip0'] = rec.ip0
+        jrec['ip1']=rec.ip1
+        jrec['ip2'] = rec.ip2
+        jrec['ip3'] = rec.ip3
+        jrec['mac0'] = rec.mac0
+        jrec['mac1']=rec.mac1
+        jrec['mac2'] = rec.mac2
+        jrec['mac3'] = rec.mac3
+        jrec['name'] = rec.name
+        jrec['location'] = rec.location
+        jrec['cpus'] = rec.cpus
+        jrec['memory'] = rec.memory
+        jrec['disk'] = rec.disk
+        jrec['ccname'] = rec.ccname
+
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def list_servers(request):
+    response = {}
+    data = []
+
+    recs = ecServers.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['ec_authpath_name'] = rec.ec_authpath_name
+        jrec['role'] = rec.role
+        jrec['ip0'] = rec.ip0
+        jrec['ip1']=rec.ip1
+        jrec['ip2'] = rec.ip2
+        jrec['ip3'] = rec.ip3
+        jrec['mac0'] = rec.mac0
+        jrec['mac1']=rec.mac1
+        jrec['mac2'] = rec.mac2
+        jrec['mac3'] = rec.mac3
+        jrec['name'] = rec.name
+        jrec['location'] = rec.location
+        jrec['cpus'] = rec.cpus
+        jrec['memory'] = rec.memory
+        jrec['disk'] = rec.disk
+        jrec['ccname'] = rec.ccname
+
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_servers(request):
+    response = {}
+
+    rec = ecServers.objects.get(id=request.POST['id'])
+    rec.delete()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_servers(request):
+    response = {}
+
+    rec = ecServers.objects.get(id=request.POST['id'])
+    rec.ec_authpath_name = request.POST['ec_authpath_name']
+    rec.role = request.POST['role']
+    rec.ip0 = request.POST['ip0']
+    rec.ip1 = request.POST['ip1']
+    rec.ip2 = request.POST['ip2']
+    rec.ip3 = request.POST['ip3']
+    rec.mac0 = request.POST['mac0']
+    rec.mac1 = request.POST['mac1']
+    rec.mac2 = request.POST['mac2']
+    rec.mac3 = request.POST['mac3']
+    rec.name = request.POST['name']
+    rec.location = request.POST['location']
+    rec.cpus = request.POST['cpus']
+    rec.memory = request.POST['memory']
+    rec.disk = request.POST['disk']
+    rec.ccname = request.POST['ccname']
+
+    rec.save()
+
+    udate_cc_resource_available_resource(request.POST['id'])
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def create_servers(request):
+    pass
 
 # core tables for images
 # ------------------------------------
