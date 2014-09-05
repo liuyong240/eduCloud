@@ -3,10 +3,10 @@
 
 {% block content %}
             <div class="row">
-                <div class="col-lg-8">
+                <div class="col-lg-12">
                     <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <i class="fa fa-bar-chart-o fa-fw"></i> hosts Overview
+                        <!--<div class="panel-heading">
+                            <i class="fa fa-bar-chart-o fa-fw"></i> Computers Overview
                             <div class="pull-right">
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
@@ -26,10 +26,51 @@
                                     </ul>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                         <!-- /.panel-heading -->
-                        <div class="panel-body">
+<!--                        <div class="panel-body">
                             <div id="morris-area-chart"></div>
+                        </div>-->
+                        <div class="panel-body">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-pills">
+                                <li class=""><a href="#clc" data-toggle="tab">Cloud Controller</a>
+                                </li>
+                                <li class=""><a href="#walrus" data-toggle="tab">Cloud Walrus</a>
+                                </li>
+                                <li class="active"><a href="#cc" data-toggle="tab">Cloud Cluster</a>
+                                </li>
+                                <li class=""><a href="#nc" data-toggle="tab">Cloud Node</a>
+                                </li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div class="tab-pane fade" id="clc">
+                                    <h4>Cloud Controller</h4>
+                                    <p>Cloud Controller is the core and brain of the whole eCloud system.</p>
+                                </div>
+                                <div class="tab-pane fade" id="walrus">
+                                    <h4>Cloud Walrus</h4>
+                                    <p>Cloud Walrus is responsible for image storage and download.</p>
+                                </div>
+                                <div class="tab-pane fade active in" id="cc">
+                                    <h4>Cloud Cluster</h4>
+                                    <p>Cloud cluster is responsible to manage cloud node.</p>
+                                    <button id="cc_create" type="button" class="btn btn-default">Create</button>
+                                    <button id="cc_modify" type="button" class="btn btn-default disabled">Modify</button>
+
+                                        <iframe id="myiframe" src="jt/images" frameborder="0" width="100%"></iframe>
+
+                                </div>
+                                <div class="tab-pane fade" id="nc">
+                                    <h4>Cloud Node</h4>
+                                    <button id="nc_create" type="button" class="btn btn-default">Create</button>
+                                    <button id="nc_modify" type="button" class="btn btn-default disabled">Modify</button>
+                                    <p>Cloud node is responsible to run Virtual Machine.</p>
+
+                                </div>
+                            </div>
                         </div>
                         <!-- /.panel-body -->
                     </div>

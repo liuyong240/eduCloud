@@ -95,20 +95,27 @@ class ecServers(models.Model):
 
     ccname = models.CharField(max_length=100)
 
+class ecClusterNetMode(models.Model):
+    network_mode   = models.CharField(max_length=20)
+
 class ecCCResources(models.Model):
     ccip           = models.CharField(max_length=20)
     ccname         = models.CharField(max_length=100)
+
+    network_mode   = models.CharField(max_length=20)
+
     portRange      = models.CharField(max_length=100)
     publicIPRange  = models.CharField(max_length=100)
     privateIPRange = models.CharField(max_length=100)
+
     # Array {
     #   'port'     :
     #   'publicIP' :
     #   'privateIP':
     #   'mac'      :
     # }
-    availableRes   = models.TextField()
-    usedRes        = models.TextField()
+    available_Resource   = models.TextField()
+    used_Resource        = models.TextField()
 
 # for all NCs that support LVD
 class ecHosts(models.Model):
@@ -220,7 +227,8 @@ class ecVDS(models.Model):
     # fullscreen = 1, minitoolbar = 0 auto_unregister
     runtime_option = models.TextField()
 
-class ecLVDS(models.Model):
+# class ecLVDS(models.Model):
+
 
 
 #==============================================

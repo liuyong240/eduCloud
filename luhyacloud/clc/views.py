@@ -91,7 +91,7 @@ def images_view(request):
 def hosts_view(request):
     context = {
         'loginname': request.user,
-        'dashboard' : "Hosts Management",
+        'dashboard' : "Computer Management",
     }
     return render(request, 'clc/hosts.html', context)
 
@@ -459,8 +459,9 @@ def list_ostypes(request):
         jrec = {}
         jrec['id'] = rec.id
         jrec['ec_ostype'] = rec.ec_ostype
-        jrec['ec_storagectl'] = rec.ec_storagectl
-        jrec['ec_waishe_para'] = rec.ec_waishe_para
+        jrec['ec_disk_type'] = rec.ec_disk_type
+        jrec['ec_nic_type'] = rec.ec_nic_type
+        jrec['ec_audio_para'] = rec.ec_audio_para
         data.append(jrec)
 
     response['Records'] = data
@@ -503,8 +504,9 @@ def update_ostypes(request):
 
     rec = ecOSTypes.objects.get(id=request.POST['id']);
     rec.ec_ostype = request.POST['ec_ostype']
-    rec.ec_storagectl = request.POST['ec_storagectl']
-    rec.ec_waishe_para = request.POST['ec_waishe_para']
+    rec.ec_disk_type = request.POST['ec_disk_type']
+    rec.ec_nic_type = request.POST['ec_nic_type']
+    rec.ec_audio_para = request.POST['ec_audio_para']
     rec.save()
 
     response['Result'] = 'OK'
@@ -518,16 +520,19 @@ def create_ostypes(request):
 
     rec = ecOSTypes(
         ec_ostype = request.POST['ec_ostype'],
-        ec_storagectl = request.POST['ec_storagectl'],
-        ec_waishe_para = request.POST['ec_waishe_para']
+        ec_disk_type = request.POST['ec_disk_type'],
+        ec_nic_type = request.POST['ec_nic_type'],
+        ec_audio_para = request.POST['ec_audio_para'],
     )
     rec.save()
 
     jrec = {}
     jrec['id'] = rec.id
     jrec['ec_ostype'] = rec.ec_ostype
-    jrec['ec_storagectl'] = rec.ec_storagectl
-    jrec['ec_waishe_para'] = rec.ec_waishe_para
+    jrec['ec_disk_type'] = rec.ec_disk_type
+    jrec['ec_nic_type'] = rec.ec_nic_type
+    jrec['ec_audio_para'] = rec.ec_audio_para
+
     data.append(jrec)
 
     response['Record'] = data
@@ -1071,6 +1076,18 @@ def register_server(request):
                     ccname = request.POST['ccname'],
                 )
         rec.save()
+
+        if request.POST['role'] == 'cc':
+            try:
+                ccresource = ecClusterNetMode.objects.get(ccip=request.POST['ip0'], ccname=request.POST['ccname'])
+                pass
+            except:
+                rec = ecClusterNetMode(
+                    ccip=request.POST['ip0'],
+                    ccname=request.POST['ccname'],
+                    network_mode = 'PUBLIC',
+                )
+                rec.save()
 
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
