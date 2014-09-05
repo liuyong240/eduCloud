@@ -184,7 +184,6 @@ class ecVSS(models.Model):
     runtime_ccname = models.CharField(max_length=100)
     runtime_ncip   = models.CharField(max_length=100)
 
-    # access mode/para,  persistent/temperary,
     # network(public IP, private IP, MAC port, etc)
     # hardware para(cpus, memory, disktype, nictype, audio_para)
     # iptable forward rule( )

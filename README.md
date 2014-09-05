@@ -586,6 +586,38 @@ result from cc to nc
     'type'      : 'insstatus',
 }
 
+6.1.3 VM runtime options
+{
+    # general
+    'ostype'            :
+    'usage'             :
+    # hardware
+    'memeory'           :
+    'cpus'              :
+    'disk_type'         :
+    'audio_para'        :
+    # network
+    'netwowrkcards'     :
+    [
+        { 'nic_type': "", 'nic_mac': "" , 'ip': ""},
+        { 'nic_type': "", 'nic_mac': "" , 'ip': ""},
+        { 'nic_type': "", 'nic_mac': "" , 'ip': ""},
+        ... ...
+    ]
+    'publicIP'          :
+    'privateIP'         :
+    'ports'             : [ RDP_port, HTTP_port, ... ...]
+    'accessURL'         :
+    'mgr_accessURL'     :
+    'run_with_snapshot' : 1, 0
+    'iptable_rules'     :
+    [
+        'rule1',
+        'rule2',
+        ... ...
+    ]
+}
+
 VII CC's resource
 
   Ubuntu RDP client : remmina
@@ -618,3 +650,42 @@ VII CC's resource
     add iptable rule as PUBLICip:port => PRIVATEIP:port
     accessURL = PUBLICIP:rdp_port|80
 
+VIII. What happens when you run a vm ?
+
+8.1 when you create/modify a new image
+- select a image, click "create"/"modify" button
+- browser will send request /clc/image/create/task/begin/(?P<srcid>\w+) to clc
+- clc will do below things
+  - generate tid
+  - add a new record to ectaskTransaction
+  - display clc/wizard/image_create_wizard.html
+- then user click "prepare" button on wizard page
+  - send request /clc/image/create/task/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$ to clc
+  - clc pick a cc, and send request /cc/api/1.0/image/create/task/prepare to it with tid.
+  - cc response with picked nc ip, and clc save ccip & ncip into ectaskTransaction
+  - cc work together with nc to download from walrus to cc and then to nc
+    - during this time, nc will report progress status to cc, and cc forward to clc
+    - user can access status info by request /clc/image/create/task/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$
+- then user click "run" button on wizard page
+  - send request /clc/image/create/task/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$ to clc
+  - clc update ectaskTransaction records with new phase
+  - clc prepare the runtime_option and POST request /cc/api/1.0/image/create/task/run to cc
+    POST DATA = {tid, ncip, runtime_opiton}
+  - cc then do below things
+    - send 'image/run' command to nc with message {runtime_option}
+    - add iptable rules if there are
+  - nc get 'image/run' command
+    - downlaod image and report progress
+    - run image and report status
+
+
+
+8.2 when you define a new instance
+8.2.1 define VS
+8.2.2 define VD
+8.2.3 define LVD
+
+8.3 when you run a new instance
+8.3.1 run VS
+8.3.2 run VD
+8.3.3 run LVD

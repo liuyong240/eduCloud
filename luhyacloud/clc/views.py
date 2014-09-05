@@ -222,7 +222,7 @@ def run_image_create_task(request, srcid, dstid, insid):
     runtime_option['ostype'] = img_info.ostype
     runtime_option['usage']  = img_info.usage
 
-    if usage == "desktop":
+    if img_info.ostype == "desktop":
         vmtype = 'vdmedium'
     else:
         vmtype = 'vssmall'
