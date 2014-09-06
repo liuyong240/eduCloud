@@ -17,7 +17,8 @@ urlpatterns = patterns('',
     url(r'^index$',         views.index_view,                         name='index_view'),
     url(r'^accounts$',      views.accounts_view,                      name='accounts_view'),
     url(r'^images$',        views.images_view,                        name='images_view'),
-    url(r'^hosts$',         views.hosts_view,                         name='images_view'),
+    url(r'^computers$',     views.computers_view,                     name='computers_view'),
+    url(r'^hosts$',         views.hosts_view,                         name='hosts_view'),
     url(r'^settings$',      views.settings_view,                      name='settings_view'),
     url(r'^vss$',           views.vss_view,                           name='vss_view'),
     url(r'^rvds$',          views.rvds_view,                          name='rvds_view'),
@@ -37,6 +38,9 @@ urlpatterns = patterns('',
 
     url(r'^image/modify/(?P<srcid>\w+)$',        views.image_modify_task,               name='images_modify_task'),
 
+    # form URLs
+    url(r'^cc/modify/resources/(?P<cc_name>\w+)$',     views.cc_modify_resources,            name='cc_modify_resources'),
+
     # iframe page
     url(r'^jt/images$',             views.jtable_images,                 name='jtable_images_view'),
     url(r'^jt/settings/authpath$',  views.jtable_settings_for_authapth,  name='jtable_settings_authpath_view'),
@@ -45,6 +49,10 @@ urlpatterns = patterns('',
     url(r'^jt/settings/vmusage$',   views.jtable_settings_for_vmusage,   name='jtable_settings_vmusage_view'),
     url(r'^jt/settings/serverrole', views.jtable_settings_for_serverrole,name='jtable_settings_serverrole_view'),
     url(r'^jt/settings/vmtypes',    views.jtable_settings_for_vmtypes,   name='jtable_settings_vmtypes_view'),
+
+    url(r'^jt/servers/cc$',             views.jtable_servers_cc,                 name='jtable_servers_cc_view'),
+    url(r'^jt/servers/nc$',             views.jtable_servers_nc,                 name='jtable_servers_nc_view'),
+    url(r'^jt/servers/lnc$',            views.jtable_servers_lnc,                name='jtable_servers_lnc_view'),
 
     # API v1.0
     # system setting table ops by POST
@@ -95,10 +103,17 @@ urlpatterns = patterns('',
     # url(r'^api/1.0/hosts/update$',        views.update_hosts,               name='update_hosts_view'),
     # url(r'^api/1.0/hosts/create$',        views.create_hosts,               name='create_hosts_view'),
     #
-    url(r'^api/1.0/servers/list$',          views.list_servers,                 name='list_servers_view'),
+    url(r'^api/1.0/servers/list$',                      views.list_servers,             name='list_servers_view'),
+    url(r'^api/1.0/servers/list/(?P<roletype>\w+)$',    views.list_servers_by_role,     name='list_servers_by_role'),
     url(r'^api/1.0/servers/delete$',        views.delete_servers,               name='delete_servers_view'),
     url(r'^api/1.0/servers/update$',        views.update_servers,               name='update_servers_view'),
     url(r'^api/1.0/servers/create$',        views.create_servers,               name='create_servers_view'),
+
+    url(r'^api/1.0/ccresource/list$',                   views.list_cc_resource,                 name='list_cc_resource_view'),
+    url(r'^api/1.0/ccresource/list/(?P<recid>\w+)$',    views.list_cc_resource_by_id,           name='list_cc_resource_by_id_view'),
+    url(r'^api/1.0/ccresource/delete$',        views.delete_cc_resource,               name='delete_cc_resource_view'),
+    url(r'^api/1.0/ccresource/update$',        views.update_cc_resource,               name='update_cc_resource_view'),
+    url(r'^api/1.0/ccresource/create$',        views.create_cc_resource,               name='create_cc_resource_view'),
     #
     # url(r'^api/1.0/vapp/list$',          views.list_vapp,                 name='list_vapp_view'),
     # url(r'^api/1.0/vapp/delete$',        views.delete_vapp,               name='delete_vapp_view'),

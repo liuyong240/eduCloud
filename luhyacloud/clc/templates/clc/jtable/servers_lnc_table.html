@@ -1,0 +1,142 @@
+{% extends "clc/jtable/template.html" %}
+{% load i18n %}
+
+{% block myjs %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myjtable').jtable({
+            jqueryuiTheme: true,
+
+            title: 'Images List',
+
+            selecting: true, //Enable selecting
+            //selectingCheckboxes: true, //Show checkboxes on first column
+
+            sorting: true, //Enable sorting
+            defaultSorting: 'Name ASC', //Set default sorting
+
+            actions: {
+                listAction:   '/clc/api/1.0/images/list',
+                deleteAction: '/clc/api/1.0/images/delete',
+                updateAction: '/clc/api/1.0/images/update',
+                //createAction: '/clc/api/1.0/images/create'
+            },
+            fields: {
+                id: {
+                    key: true,
+                    edit: false,
+                    create: false,
+                    list: false,
+                },
+                //CHILD TABLE DEFINITION FOR "EXAMS"
+                mychild: {
+                    title: '',
+                    width: '3%',
+                    sorting: false,
+                    edit: false,
+                    create: false,
+                    display: function (imagesData) {
+                        //Create an image that will be used to open child table
+                        var $img = $('<img src="/static/clc/pics/list_metro.png" />');
+                        //Open child table when user clicks the image
+                        $img.click(function () {
+                            $('#myjtable').jtable('openChildTable',
+                                    $img.closest('tr'), {
+                                    title: 'Image ' + imagesData.record.name + ' Detail Description',
+                                    actions: {
+                                        listAction: function (postData, jtParams) {
+                                                return {
+                                                    "Result": "OK",
+                                                    "Records": [{ "description": imagesData.record.description }],
+                                                    "TotalRecordCount": 1
+                                                };
+                                            }
+                                    },
+                                    fields: {
+                                        description: {
+                                            title: '',
+                                            display: function (data) {
+                                                return '<pre>' + data.record.description + '</pre>';
+                                            }
+                                        },
+
+                                    }
+                                }, function (data) { //opened handler
+                                    data.childTable.jtable('load');
+                                });
+                        });
+                        //Return image to show on the person row
+                        return $img;
+                    }
+                },
+                ecid: {
+                    title: 'ecID',
+                    width: '10%',
+                    edit: false,
+                },
+                name: {
+                    title: 'Name',
+                    width: '10%'
+                },
+                ostype: {
+                    title: 'OSType',
+                    width: '10%',
+                    options: '/clc/api/1.0/settings/ostype/option/list'
+                },
+                usage: {
+                    title: 'Usage',
+                    width: '10%',
+                    options: '/clc/api/1.0/settings/vmusage/option/list'
+                },
+                ec_authpath_name: {
+                    title: 'Group',
+                    width: '10%',
+                    options: '/clc/api/1.0/settings/authpath/option/list'
+                },
+                version: {
+                    title: "Version",
+                    width: '20%',
+                    edit: false,
+                },
+                size: {
+                    title: "Size(G)",
+                    width: '20%',
+                    edit: false,
+                    display: function (data) {
+                        return (data.record.size/(1024*1024*1024)).toFixed(2);
+                    }
+                },
+                description: {
+                    title: 'Desc',
+                    type: 'textarea',
+                    list: false
+                },
+            },
+            //Register to selectionChanged event to hanlde events
+            selectionChanged: function () {
+                //Get all selected rows
+                var $selectedRows = $('#myjtable').jtable('selectedRows');
+
+                if ($selectedRows.length > 0) {
+                    $selectedRows.each(function () {
+                        //Show selected rows
+                        var record = $(this).data('record');
+                        window.parent.imageSelected(record.ecid);
+                        //alert("selected image " + record.ecid);
+                    });
+                } else {
+                    //No rows selected
+                    window.parent.imageSelected(null);
+                    //alert("no images selected!");
+                }
+            },
+        });
+
+        //Load student list from server
+        $('#myjtable').jtable('load');
+    });
+
+</script>
+{% endblock %}

@@ -88,10 +88,19 @@ def images_view(request):
     return render(request, 'clc/images.html', context)
 
 @login_required
-def hosts_view(request):
+def computers_view(request):
     context = {
         'loginname': request.user,
         'dashboard' : "Computer Management",
+    }
+    return render(request, 'clc/computers.html', context)
+
+
+@login_required
+def hosts_view(request):
+    context = {
+        'loginname': request.user,
+        'dashboard' : "Hosts Management",
     }
     return render(request, 'clc/hosts.html', context)
 
@@ -139,10 +148,23 @@ def tasks_view(request):
 
     return render(request, 'clc/tasks.html', context)
 
+###################################################################################
+# Form
+###################################################################################
+@login_required
+def cc_modify_resources(request, cc_name):
+    rec = ecCCResources.objects.get(ccname=cc_name)
+    context = {
+        'pagetitle' : "configure CC Network Resources",
+        'ccres' : rec
+    }
+
+    return render(request, 'clc/form/cc_modify_resource.html', context)
+
 ###############################################ti##################################
 # create a new images & modify existing image
-#################################################################################
-
+###################################################################################
+@login_required
 def start_image_create_task(request, srcid):
 
     # create ectaskTransation Record
@@ -360,6 +382,18 @@ def jtable_settings_for_serverrole(request):
 @login_required
 def jtable_settings_for_vmtypes(request):
     return render(request, 'clc/jtable/vmtypes_table.html', {})
+
+@login_required
+def jtable_servers_cc(request):
+    return render(request, 'clc/jtable/servers_cc_table.html', {})
+
+@login_required
+def jtable_servers_nc(request):
+    return render(request, 'clc/jtable/servers_nc_table.html', {})
+
+@login_required
+def jtable_servers_lnc(request):
+    return render(request, 'clc/jtable/servers_lnc_table.html', {})
 
 #################################################################################
 # API Version 1.0 for accessing data model by POST request
@@ -893,23 +927,23 @@ def autoFindNewAddImage():
             rec.save()
 
 # core table function for ecClusterNetMode
-def list_cc_resource_by_cc(request):
+def list_cc_resource_by_id(request, recid):
     response = {}
     data = []
 
-    recs = ecCCResources.objects.filter(ccip=request.POST['ccip'], ccname=request.POST['ccname'])
-    for rec in recs:
-        jrec = {}
-        jrec['id'] = rec.id
-        jrec['ccip'] = rec.ccip
-        jrec['ccname'] = rec.ccname
-        jrec['network_mode'] = rec.network_mode
-        jrec['portRange']=rec.portRange
-        jrec['publicIPRange'] = rec.publicIPRange
-        jrec['privateIPRange'] = rec.privateIPRange
-        jrec['available_Resource'] = rec.available_Resource
-        jrec['used_Resource'] = rec.used_Resource
-        data.append(jrec)
+    rec = ecCCResources.objects.get(id=recid)
+
+    jrec = {}
+    jrec['id'] = rec.id
+    jrec['ccip'] = rec.ccip
+    jrec['ccname'] = rec.ccname
+    jrec['network_mode'] = rec.network_mode
+    jrec['portRange']=rec.portRange
+    jrec['publicIPRange'] = rec.publicIPRange
+    jrec['privateIPRange'] = rec.privateIPRange
+    jrec['available_Resource'] = rec.available_Resource
+    jrec['used_Resource'] = rec.used_Resource
+    data.append(jrec)
 
     response['Records'] = data
     response['Result'] = 'OK'
@@ -917,7 +951,7 @@ def list_cc_resource_by_cc(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
-def list_cc_resorce(request):
+def list_cc_resource(request):
     response = {}
     data = []
 
@@ -942,7 +976,7 @@ def list_cc_resorce(request):
     return HttpResponse(retvalue, mimetype="application/json")
 
 
-def delete_cc_resorce(request):
+def delete_cc_resource(request):
     response = {}
 
     rec = ecCCResources.objects.get(id=request.POST['id'])
@@ -957,7 +991,7 @@ def delete_cc_resorce(request):
 def udate_cc_resource_available_resource(id):
     pass
 
-def update_cc_resorce(request):
+def update_cc_resource(request):
     response = {}
 
     rec = ecCCResources.objects.get(id=request.POST['id'])
@@ -976,15 +1010,15 @@ def update_cc_resorce(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
-def create_cc_resorce(request):
+def create_cc_resource(request):
     pass
 
 # core table functions for ecServers
-def list_servers_by_cc(reqeust):
+def list_servers_by_role(reqeust, roletype):
     response = {}
     data = []
 
-    recs = ecServers.objects.filter(role='cc')
+    recs = ecServers.objects.filter(role=roletype)
     for rec in recs:
         jrec = {}
         jrec['id'] = rec.id
@@ -1004,6 +1038,7 @@ def list_servers_by_cc(reqeust):
         jrec['memory'] = rec.memory
         jrec['disk'] = rec.disk
         jrec['ccname'] = rec.ccname
+        jrec['location'] = rec.location
 
         data.append(jrec)
 
@@ -1037,6 +1072,7 @@ def list_servers(request):
         jrec['memory'] = rec.memory
         jrec['disk'] = rec.disk
         jrec['ccname'] = rec.ccname
+        jrec['location'] = rec.location
 
         data.append(jrec)
 
@@ -1062,21 +1098,8 @@ def update_servers(request):
 
     rec = ecServers.objects.get(id=request.POST['id'])
     rec.ec_authpath_name = request.POST['ec_authpath_name']
-    rec.role = request.POST['role']
-    rec.ip0 = request.POST['ip0']
-    rec.ip1 = request.POST['ip1']
-    rec.ip2 = request.POST['ip2']
-    rec.ip3 = request.POST['ip3']
-    rec.mac0 = request.POST['mac0']
-    rec.mac1 = request.POST['mac1']
-    rec.mac2 = request.POST['mac2']
-    rec.mac3 = request.POST['mac3']
     rec.name = request.POST['name']
     rec.location = request.POST['location']
-    rec.cpus = request.POST['cpus']
-    rec.memory = request.POST['memory']
-    rec.disk = request.POST['disk']
-    rec.ccname = request.POST['ccname']
 
     rec.save()
 
@@ -1278,10 +1301,10 @@ def register_server(request):
 
         if request.POST['role'] == 'cc':
             try:
-                ccresource = ecClusterNetMode.objects.get(ccip=request.POST['ip0'], ccname=request.POST['ccname'])
+                ccresource = ecCCResources.objects.get(ccip=request.POST['ip0'], ccname=request.POST['ccname'])
                 pass
             except:
-                rec = ecClusterNetMode(
+                rec = ecCCResources(
                     ccip=request.POST['ip0'],
                     ccname=request.POST['ccname'],
                     network_mode = 'PUBLIC',
