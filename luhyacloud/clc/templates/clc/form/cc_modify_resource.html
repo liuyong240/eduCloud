@@ -10,60 +10,65 @@
     var pubip_range;
     var prvip_range;
 
-    function enterLVDandPubMode() {
+    function enterLVDMode() {
         $('#port_config').css("display","none");
         $('#pubip_config').css("display","none");
         $('#prvip_config').css("display","none");
+        $('#service_port_config').css("display","none");
+        $('#network_mode_config').css("display","none");
     }
 
-    function enterRVDandPubMode() {
+    function enterRVDMode() {
         $('#port_config').css("display","block");
-        $('#pubip_config').css("display","block");
+        $('#pubip_config').css("display","none");
         $('#prvip_config').css("display","none");
-    }
-
-    function enterRVDandPrvMode() {
-        $('#port_config').css("display","block");
-        $('#pubip_config').css("display","block");
-        $('#prvip_config').css("display","block");
+        $('#service_port_config').css("display","none");
+        $('#network_mode_config').css("display","none");
     }
 
     function enterVSandPubMode() {
         $('#port_config').css("display","block");
         $('#pubip_config').css("display","block");
         $('#prvip_config').css("display","none");
+        $('#service_port_config').css("display","none");
     }
 
     function enterVSandPrvMode() {
         $('#port_config').css("display","block");
         $('#pubip_config').css("display","block");
         $('#prvip_config').css("display","block");
+        $('#service_port_config').css("display","block");
+    }
+
+    function enterVSandManMode() {
+        $('#port_config').css("display","block");
+        $('#pubip_config').css("display","none");
+        $('#prvip_config').css("display","none");
+        $('#service_port_config').css("display","none");
     }
 
     $(document).ready(function () {
-
-
         $("#network_mode").change(function(){
             $("#cluster_usage").trigger("change");
         });
 
         $("#cluster_usage").change(function(){
             if ($(this).val() == "lvd" ) {
-                $("#network_mode").val("PUBLIC");
-                enterLVDandPubMode();
+                enterLVDMode();
             }
             if ($(this).val() == "rvd" ) {
-                if ($("#network_mode").val() == "PUBLIC") {
-                    enterRVDandPubMode();
-                } else {
-                    enterRVDandPrvMode();
-                }
+                enterRVDMode();
             }
             if ($(this).val() == "vs" ) {
+                $('#network_mode_config').css("display","block");
                 if ($("#network_mode").val() == "PUBLIC") {
                     enterVSandPubMode();
-                } else {
+                }
+                if ($("#network_mode").val() == "PRIVATE") {
                     enterVSandPrvMode();
+                }
+                if ($("#network_mode").val() == "MANUAL") {
+                    enterVSandManMode();
                 }
             }
         });
@@ -74,7 +79,7 @@
 
         cc_port_range = $('#port_init_value').text().split('-');
         $('#port_start').val(cc_port_range[0]);
-        $('#port_end').val(cc_port_range[0]);
+        $('#port_end').val(cc_port_range[1]);
 
         cc_pubip_range = $('#pubip_init_value').text();
         if ( cc_pubip_range != "") {
@@ -135,15 +140,6 @@
                     </fieldset>
 
                     <div class="form-group">
-                        <div id="network_mode_init_value" style="display: none">{{ ccres.network_mode }}</div>
-                        <label>Network Mode</label>
-                        <select id="network_mode" class="form-control">
-                            <option value="PUBLIC">Public</option>
-                            <option value="PRIVATE">Private</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
                         <div id="usage_init_value" style="display: none">{{ ccres.usage }}</div>
                         <label>Cluster Usage</label>
                         <select id="cluster_usage" class="form-control">
@@ -151,6 +147,18 @@
                             <option value="rvd">Remote Cloud Desktop</option>
                             <option value="vs" >Cloud App Server</option>
                         </select>
+                    </div>
+
+                    <div id="network_mode_config" style="display: none">
+                    <div class="form-group">
+                        <div id="network_mode_init_value" style="display: none">{{ ccres.network_mode }}</div>
+                        <label>Network Mode</label>
+                        <select id="network_mode" class="form-control">
+                            <option value="MANUAL">Manual</option>
+                            <option value="PUBLIC">Public DHCP</option>
+                            <option value="PRIVATE">Private DHCP</option>
+                        </select>
+                    </div>
                     </div>
 
                     <div id="port_config" style="display: none">
@@ -191,6 +199,21 @@
                         <label class="input-inline"> - </label>
                         <label class="input-inline">
                             <input id="prvip_end" class="form-control" placeholder="0.0.0.0">
+                        </label>
+                    </div>
+                    </div>
+
+                    <div id="service_port_config" style="display: none">
+                    <label>Service Port</label>
+                    <div class="form-group">
+                        <label class="checkbox-inline">
+                            <input type="checkbox">HTTP
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox">FTP
+                        </label>
+                        <label class="checkbox-inline">
+                            <input id="extra_service_ports" class="form-control" placeholder="8080, 22">
                         </label>
                     </div>
                     </div>

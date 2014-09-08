@@ -692,14 +692,25 @@ VIII. What happens when you run a vm ?
 
 
 lvd cluster - public
+
 rvd cluster
   - public
-    prot range
+    prot range = ncip:port
 
   - private
-    public IP + private IP + port
+    public IP + private IP + port = ccip:port => ncip:port
+
 vs cluster
-  - public
-    public IP + port
-  - private
+  - manual
+    => manual => vm public IP
+    => RDP URL : ncip:port
+    => server URL: vm publicIP:port
+
+  - public dhcp
+    public IP + port  =>
+    => vm mac => dhcp => vm public IP
+    => RDP URL : ncip:port
+    => server URL: publicIP:server port
+
+  - private dhcp
     public IP + private IP + port
