@@ -151,15 +151,28 @@ def tasks_view(request):
 ###################################################################################
 # Form
 ###################################################################################
+def generateAvailableResourceforCC(publicIPRage, PrivateIPRange):
+    return ""
+
 @login_required
 def cc_modify_resources(request, cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
-    context = {
-        'pagetitle' : "configure CC Network Resources",
-        'ccres' : rec
-    }
+    if request.method == 'POST':
+        rec.network_mode        = request.POST['network_mode']
+        rec.portRange           = request.POST['portRange']
+        rec.publicIPRange       = request.POST['publicIPRange']
+        rec.privateIPRange      = request.POST['privateIPRange']
+        rec.available_Resource  = generateAvailableResourceforCC(rec.publicIPRange,rec.privateIPRange )
+        rec.save()
+        return HttpResponse(_("Successfully update the Network Configuration for Cloud cluster!"))
+    else:
+        context = {
+            'pagetitle' : "Configure CC Network Resources",
+            'ccres' : rec,
+            'ccname': rec.ccname,
+        }
 
-    return render(request, 'clc/form/cc_modify_resource.html', context)
+        return render(request, 'clc/form/cc_modify_resource.html', context)
 
 ###############################################ti##################################
 # create a new images & modify existing image
