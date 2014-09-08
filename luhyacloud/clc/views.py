@@ -1312,7 +1312,7 @@ def register_server(request):
                     ccip        = request.POST['ip0'],
                     ccname      = request.POST['ccname'],
                     usage       = "lvd",
-                    network_mode= 'PUBLIC',
+                    network_mode= '',
                     portRange   = "3389-4389",
                 )
                 rec.save()
