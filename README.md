@@ -689,3 +689,17 @@ VIII. What happens when you run a vm ?
 8.3.1 run VS
 8.3.2 run VD
 8.3.3 run LVD
+
+
+lvd cluster - public
+rvd cluster
+  - public
+    prot range
+
+  - private
+    public IP + private IP + port
+vs cluster
+  - public
+    public IP + port
+  - private
+    public IP + private IP + port

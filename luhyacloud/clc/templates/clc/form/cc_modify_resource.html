@@ -3,7 +3,109 @@
 
 {% block myjavascript %}
 
+<script type="text/javascript">
+    var cc_network_mode;
+    var cc_usage;
+    var cc_port_range;
+    var pubip_range;
+    var prvip_range;
 
+    function enterLVDandPubMode() {
+        $('#port_config').css("display","none");
+        $('#pubip_config').css("display","none");
+        $('#prvip_config').css("display","none");
+    }
+
+    function enterRVDandPubMode() {
+        $('#port_config').css("display","block");
+        $('#pubip_config').css("display","block");
+        $('#prvip_config').css("display","none");
+    }
+
+    function enterRVDandPrvMode() {
+        $('#port_config').css("display","block");
+        $('#pubip_config').css("display","block");
+        $('#prvip_config').css("display","block");
+    }
+
+    function enterVSandPubMode() {
+        $('#port_config').css("display","block");
+        $('#pubip_config').css("display","block");
+        $('#prvip_config').css("display","none");
+    }
+
+    function enterVSandPrvMode() {
+        $('#port_config').css("display","block");
+        $('#pubip_config').css("display","block");
+        $('#prvip_config').css("display","block");
+    }
+
+    $(document).ready(function () {
+
+
+        $("#network_mode").change(function(){
+            $("#cluster_usage").trigger("change");
+        });
+
+        $("#cluster_usage").change(function(){
+            if ($(this).val() == "lvd" ) {
+                $("#network_mode").val("PUBLIC");
+                enterLVDandPubMode();
+            }
+            if ($(this).val() == "rvd" ) {
+                if ($("#network_mode").val() == "PUBLIC") {
+                    enterRVDandPubMode();
+                } else {
+                    enterRVDandPrvMode();
+                }
+            }
+            if ($(this).val() == "vs" ) {
+                if ($("#network_mode").val() == "PUBLIC") {
+                    enterVSandPubMode();
+                } else {
+                    enterVSandPrvMode();
+                }
+            }
+        });
+
+        $("#mysubmit").click(function(){
+
+        });
+
+        cc_port_range = $('#port_init_value').text().split('-');
+        $('#port_start').val(cc_port_range[0]);
+        $('#port_end').val(cc_port_range[0]);
+
+        cc_pubip_range = $('#pubip_init_value').text();
+        if ( cc_pubip_range != "") {
+            cc_pubip_range = cc_pubip_range.split('-');
+            $('#pubip_start').val(cc_pubip_range[0]);
+            $('#pubip_end').val(cc_pubip_range[1]);
+        } else {
+            $('#pubip_start').val("0.0.0.0");
+            $('#pubip_end').val("0.0.0.0");
+        }
+
+        cc_prvip_range = $('#prvip_init_value').text();
+        if ( cc_prvip_range != "") {
+            cc_prvip_range = cc_prvip_range.split('-');
+            $('#prvip_start').val(cc_prvip_range[0]);
+            $('#prvip_end').val(cc_prvip_range[1]);
+        } else {
+            $('#prvip_start').val("0.0.0.0");
+            $('#prvip_end').val("0.0.0.0");
+        }
+
+        cc_nework_mode = $('#network_mode_init_value').text();
+        $('#network_mode').val(cc_nework_mode);
+
+        cc_usage = $('#usage_init_value').text();
+        $('#cluser_usage').val(cc_usage);
+
+
+    });
+
+</script>
 
 {% endblock %}
 
@@ -13,7 +115,7 @@
 <div class="col-lg-12">
 <div class="panel panel-default">
 <div class="panel-heading">
-    <h2>Cluster Network Resource Configuration</h2>
+    <h2>Cluster Network Configuration</h2>
 </div>
 <div class="panel-body">
     <div class="row">
@@ -33,51 +135,69 @@
                     </fieldset>
 
                     <div class="form-group">
+                        <div id="network_mode_init_value" style="display: none">{{ ccres.network_mode }}</div>
                         <label>Network Mode</label>
                         <select id="network_mode" class="form-control">
-                            <option>PUBLIC</option>
-                            <option>PRIVATE</option>
+                            <option value="PUBLIC">Public</option>
+                            <option value="PRIVATE">Private</option>
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <div id="usage_init_value" style="display: none">{{ ccres.usage }}</div>
+                        <label>Cluster Usage</label>
+                        <select id="cluster_usage" class="form-control">
+                            <option value="lvd">Local Cloud Desktop</option>
+                            <option value="rvd">Remote Cloud Desktop</option>
+                            <option value="vs" >Cloud App Server</option>
+                        </select>
+                    </div>
+
+                    <div id="port_config" style="display: none">
                     <label>RDP Port Range</label>
                     <div class="form-group">
+                        <div id="port_init_value" style="display: none">{{ ccres.portRange }}</div>
                         <label class="input-inline">
-                            <input class="form-control" placeholder="3389">
+                            <input id="port_start" class="form-control" placeholder="3389">
                         </label>
                         <label class="input-inline"> - </label>
                         <label class="input-inline">
-                            <input class="form-control" placeholder="4389">
+                            <input id="port_end" class="form-control" placeholder="4389">
                         </label>
                     </div>
+                    </div>
 
+                    <div id="pubip_config" style="display: none">
                     <label>Public IP address Range</label>
                     <div class="form-group">
+                        <div id="pubip_init_value" style="display: none">{{ ccres.publicIPRange }}</div>
                         <label class="input-inline">
-                            <input class="form-control" placeholder="0.0.0.0">
+                            <input id="pubip_start" class="form-control" placeholder="0.0.0.0">
                         </label>
                         <label class="input-inline"> - </label>
                         <label class="input-inline">
-                            <input class="form-control" placeholder="0.0.0.0">
+                            <input id="pubip_end" class="form-control" placeholder="0.0.0.0">
                         </label>
                     </div>
+                    </div>
 
+                    <div id="prvip_config" style="display: none">
                     <label>Private IP address Range</label>
                     <div class="form-group">
+                        <div id="prvip_init_value" style="display: none">{{ ccres.privateIPRange }}</div>
                         <label class="input-inline" >
-                            <input class="form-control" placeholder="0.0.0.0">
+                            <input id="prvip_start" class="form-control" placeholder="0.0.0.0">
                         </label>
                         <label class="input-inline"> - </label>
                         <label class="input-inline">
-                            <input class="form-control" placeholder="0.0.0.0">
+                            <input id="prvip_end" class="form-control" placeholder="0.0.0.0">
                         </label>
                     </div>
+                    </div>
 
-                    <button type="submit" class="btn btn-primary">Submit Button</button>
-                    <button type="reset"  class="btn btn-default">Reset Button</button>
-
+                    <button id="mysubmit" type="submit" class="btn btn-primary">Submit Button</button>
+                    <button id="myreset" type="reset"  class="btn btn-default">Reset Button</button>
                 </form>
-
         </div>
         <!-- /.col-lg-6 (nested) -->
     </div>

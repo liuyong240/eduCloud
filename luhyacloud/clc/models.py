@@ -101,7 +101,7 @@ class ecClusterNetMode(models.Model):
 class ecCCResources(models.Model):
     ccip           = models.CharField(max_length=20)
     ccname         = models.CharField(max_length=100)
-
+    usage          = models.CharField(max_length=20) #lvd, rvd, vss, app
     network_mode   = models.CharField(max_length=20)
 
     portRange      = models.CharField(max_length=100)
