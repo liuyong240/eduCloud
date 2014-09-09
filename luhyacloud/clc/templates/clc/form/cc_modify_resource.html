@@ -9,6 +9,9 @@
     var cc_port_range;
     var pubip_range;
     var prvip_range;
+    var service_ports;
+    var ccip;
+    var ccname;
 
     function enterLVDMode() {
         $('#port_config').css("display","none");
@@ -47,40 +50,7 @@
         $('#service_port_config').css("display","none");
     }
 
-    function display_page() {
-        if ($("#cluster_usage").val() == "lvd" ) {
-            enterLVDMode();
-        }
-        if ($("#cluster_usage").val() == "rvd" ) {
-            enterRVDMode();
-        }
-        if ($("#cluster_usage").val() == "vs" ) {
-            $('#network_mode_config').css("display","block");
-            if ($("#network_mode").val() == "PUBLIC") {
-                enterVSandPubMode();
-            }
-            if ($("#network_mode").val() == "PRIVATE") {
-                enterVSandPrvMode();
-            }
-            if ($("#network_mode").val() == "MANUAL") {
-                enterVSandManMode();
-            }
-        }
-    }
-
-    $(document).ready(function () {
-        $("#network_mode").change(function(){
-            $("#cluster_usage").trigger("change");
-        });
-
-        $("#cluster_usage").change(function(){
-            display_page();
-        });
-
-        $("#mysubmit").click(function(){
-
-        });
-
+    function init_data() {
         cc_port_range = $('#port_init_value').text().split('-');
         $('#port_start').val(cc_port_range[0]);
         $('#port_end').val(cc_port_range[1]);
@@ -105,12 +75,117 @@
             $('#prvip_end').val("0.0.0.0");
         }
 
+        service_ports = $('#sports_init_value').text();
+
+        jQuery.removeFromArray = function(value, arr) {
+            return jQuery.grep(arr, function(elem, index) {
+                return elem !== value;
+            });
+        };
+
+        if ( service_ports != "") {
+            service_ports = service_ports.split(',');
+            for (index=0; index < service_ports.length; index++) {
+                service_ports[index]=service_ports[index].trim();
+            }
+            if ($.inArray('80', service_ports) == 0) {
+                $('#http').attr('checked', true);
+                service_ports.splice($.inArray('80', service_ports), 1);
+            }
+            if ($.inArray('21', service_ports) == 0) {
+                $('#ftp').attr('checked', true);
+                service_ports.splice($.inArray('21', service_ports), 1);
+            }
+            ports_str = service_ports.join();
+            $('#others').val(ports_str)
+        }
+
         cc_nework_mode = $('#network_mode_init_value').text();
         $('#network_mode').val(cc_nework_mode);
 
         cc_usage = $('#usage_init_value').text();
         $('#cluster_usage').val(cc_usage);
         // $('#cluster_usage option[value=cc_usage]').attr('selected',true);
+    }
+
+    function display_page() {
+        if ($("#cluster_usage").val() == "lvd" ) {
+            enterLVDMode();
+        }
+        if ($("#cluster_usage").val() == "rvd" ) {
+            enterRVDMode();
+        }
+        if ($("#cluster_usage").val() == "vs" ) {
+            $('#network_mode_config').css("display","block");
+            if ($("#network_mode").val() == "PUBLIC") {
+                enterVSandPubMode();
+            }
+            if ($("#network_mode").val() == "PRIVATE") {
+                enterVSandPrvMode();
+            }
+            if ($("#network_mode").val() == "MANUAL") {
+                enterVSandManMode();
+            }
+        }
+    }
+
+    function submit_resources() {
+        ccip = $("#ccip").val();
+        ccname = $("#ccname").val();
+        cc_network_mode = $("#network_mode").val();
+        cc_usage = $("#cluster_usage").val();
+        cc_port_range = $('#port_start').val() + "-" + $('#port_start').val();
+        cc_pubip_range = $('#pubip_start').val() + "-" + $('#pubip_end').val();
+        cc_prvip_range = $('#prvip_start').val() + "-" + $('#prvip_end').val();
+        others_port = $('#others').val();
+
+        sport_array = [];
+        if ($("#http").prop('checked') == true) {
+           sport_array.push('80');
+        }
+        if ($("#ftp").prop('checked') == true) {
+           sport_array.push('21');
+        }
+
+        cc_sport_port = sport_array.join() + "," + others_port
+        url = "cc/modify/resources/" + ccname;
+        data = {
+            usage:        cc_usage,
+            network_mode: cc_network_mode,
+            port_range:   cc_port_range,
+            pubip_range: cc_pubip_range,
+            prvip_range: cc_prvip_range,
+            sport_port:cc_sport_port,
+        };
+        $.post(url, data, function(data)) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val
+            });
+            if (item['Result'] = "OK") {
+
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $("#network_mode").change(function(){
+            $("#cluster_usage").trigger("change");
+        });
+
+        $("#cluster_usage").change(function(){
+            display_page();
+        });
+
+        $("#mysubmit").click(function(){
+            submit_resources();
+        });
+
+        $("#myreset").click(function(){
+            location.reload();
+        });
+
+        init_data();
         display_page();
 
     });
@@ -136,11 +211,11 @@
                     <fieldset disabled="">
                         <div class="form-group">
                             <label>Cluster IP Address</label>
-                            <input class="form-control" type="text" placeholder="{{ ccres.ccip }}" disabled="">
+                            <input id="ccip" class="form-control" type="text" placeholder="{{ ccres.ccip }}" disabled="">
                         </div>
                         <div class="form-group">
                             <label>Cluster Name</label>
-                            <input class="form-control" type="text" placeholder="{{ ccres.ccname }}" disabled="">
+                            <input id="ccname" class="form-control" type="text" placeholder="{{ ccres.ccname }}" disabled="">
                         </div>
                     </fieldset>
 
@@ -211,20 +286,21 @@
                     <div id="service_port_config" style="display: none">
                     <label>Service Port</label>
                     <div class="form-group">
+                        <div id="sports_init_value" style="display: none">{{ ccres.service_ports }}</div>
                         <label class="checkbox-inline">
-                            <input type="checkbox">HTTP
+                            <input id='http' type="checkbox">HTTP
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox">FTP
+                            <input id='ftp' type="checkbox">FTP
                         </label>
                         <label class="checkbox-inline">
-                            <input id="extra_service_ports" class="form-control" placeholder="8080, 22">
+                            <input id="others" class="form-control" placeholder="8080, 22">
                         </label>
                     </div>
                     </div>
 
                     <button id="mysubmit" type="submit" class="btn btn-primary">Submit Button</button>
-                    <button id="myreset" type="reset"  class="btn btn-default">Reset Button</button>
+                    <button id="myreset"  type="reset" class="btn btn-default">Reset Button</button>
                 </form>
         </div>
         <!-- /.col-lg-6 (nested) -->
@@ -241,6 +317,7 @@
 
 
 <!--
+
 
                 <form role="form">
                     <div class="form-group">

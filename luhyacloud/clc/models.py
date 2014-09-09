@@ -107,6 +107,7 @@ class ecCCResources(models.Model):
     portRange      = models.CharField(max_length=100)
     publicIPRange  = models.CharField(max_length=100)
     privateIPRange = models.CharField(max_length=100)
+    service_ports  = models.CharField(max_length=100) # 80,21, 8080, 22
 
     # Array {
     #   'port'     :

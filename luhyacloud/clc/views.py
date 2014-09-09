@@ -157,13 +157,18 @@ def generateAvailableResourceforCC(publicIPRage, PrivateIPRange):
 @login_required
 def cc_modify_resources(request, cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
+    if request.method == 'POST':
+        pass
+    else:
+        rec.usage = 'vs'
+        rec.network_mode = 'PRIVATE'
+        rec.service_ports = "80, 21, 8080, 22, 4444, 9999"
+        context = {
+            'pagetitle' : "Configure CC Network Resources",
+            'ccres' : rec,
+        }
 
-    context = {
-        'pagetitle' : "Configure CC Network Resources",
-        'ccres' : rec,
-    }
-
-    return render(request, 'clc/form/cc_modify_resource.html', context)
+        return render(request, 'clc/form/cc_modify_resource.html', context)
 
 ###############################################ti##################################
 # create a new images & modify existing image

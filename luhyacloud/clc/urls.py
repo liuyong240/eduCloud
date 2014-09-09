@@ -39,7 +39,7 @@ urlpatterns = patterns('',
     url(r'^image/modify/(?P<srcid>\w+)$',        views.image_modify_task,               name='images_modify_task'),
 
     # form URLs
-    url(r'^cc/modify/resources/(?P<cc_name>\w+)$',     views.cc_modify_resources,            name='cc_modify_resources'),
+    url(r'^cc/modify/resources/(?P<cc_name>\w+)$',      views.cc_modify_resources,                   name='cc_modify_resources'),
 
     # iframe page
     url(r'^jt/images$',             views.jtable_images,                 name='jtable_images_view'),
