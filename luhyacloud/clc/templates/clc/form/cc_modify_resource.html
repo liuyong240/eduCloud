@@ -130,11 +130,11 @@
     }
 
     function submit_resources() {
-        ccip = $("#ccip").val();
-        ccname = $("#ccname").val();
+        ccip = $("#ccip").attr('placeholder');
+        ccname = $("#ccname").attr('placeholder');
         cc_network_mode = $("#network_mode").val();
         cc_usage = $("#cluster_usage").val();
-        cc_port_range = $('#port_start').val() + "-" + $('#port_start').val();
+        cc_port_range = $('#port_start').val() + "-" + $('#port_end').val();
         cc_pubip_range = $('#pubip_start').val() + "-" + $('#pubip_end').val();
         cc_prvip_range = $('#prvip_start').val() + "-" + $('#prvip_end').val();
         others_port = $('#others').val();
@@ -148,22 +148,28 @@
         }
 
         cc_sport_port = sport_array.join() + "," + others_port
-        url = "cc/modify/resources/" + ccname;
-        data = {
+        url = "/clc/cc/modify/resources/" + ccname;
+        postdata = {
             usage:        cc_usage,
             network_mode: cc_network_mode,
             port_range:   cc_port_range,
-            pubip_range: cc_pubip_range,
-            prvip_range: cc_prvip_range,
-            sport_port:cc_sport_port,
-        };
-        $.post(url, data, function(data)) {
+            pubip_range:  cc_pubip_range,
+            prvip_range:  cc_prvip_range,
+            sport_port:   cc_sport_port,
+        }
+
+        $.post(url, postdata, function(data) {
             var items = [];
             $.each(data, function (key, val) {
-                items[key] = val
+                items[key] = val;
             });
-            if (item['Result'] = "OK") {
-
+            if (items['Result'] == "OK") {
+                $('.alert-success').css('display', 'block');
+                $('.alert-danger').css( 'display', 'none');
+                $('.btn').addClass('disabled');
+            } else {
+                $('.alert-success').css('display', 'none');
+                $('.alert-danger').css( 'display', 'block');
             }
         });
     }
@@ -207,7 +213,7 @@
         <div class="col-lg-6">
             <!-- /.col-lg-6 (nested) -->
             <div class="col-lg-6">
-                <form role="form">
+                <div role="form">
                     <fieldset disabled="">
                         <div class="form-group">
                             <label>Cluster IP Address</label>
@@ -301,7 +307,15 @@
 
                     <button id="mysubmit" type="submit" class="btn btn-primary">Submit Button</button>
                     <button id="myreset"  type="reset" class="btn btn-default">Reset Button</button>
-                </form>
+                </div>
+                <p></p>
+                <div class="alert alert-success" style="display: none">
+                      Update Network Resource Successfully.
+                </div>
+                <div class="alert alert-danger" style="display: none">
+                      Update Network Resource Failed, try again.
+                </div>
+
         </div>
         <!-- /.col-lg-6 (nested) -->
     </div>

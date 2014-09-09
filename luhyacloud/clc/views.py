@@ -151,18 +151,30 @@ def tasks_view(request):
 ###################################################################################
 # Form
 ###################################################################################
-def generateAvailableResourceforCC(publicIPRage, PrivateIPRange):
+def generateAvailableResourceforCC(cc_name):
+    rec = ecCCResources.objects.get(ccname=cc_name)
     return ""
 
 @login_required
 def cc_modify_resources(request, cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
     if request.method == 'POST':
-        pass
+        rec.usage           = request.POST['usage']
+        rec.network_mode    = request.POST['network_mode']
+        rec.portRange       = request.POST['port_range']
+        rec.publicIPRange   = request.POST['pubip_range']
+        rec.privateIPRange  = request.POST['prvip_range']
+        rec.service_ports   = request.POST['sport_port']
+        rec.save()
+
+        if rec.usage == "vs" and rec.network_mode != "MANUAL":
+            generateAvailableResourceforCC(cc_name)
+
+        response = {}
+        response['Result'] = 'OK'
+
+        return HttpResponse(json.dumps(response), mimetype="application/json")
     else:
-        rec.usage = 'vs'
-        rec.network_mode = 'PRIVATE'
-        rec.service_ports = "80, 21, 8080, 22, 4444, 9999"
         context = {
             'pagetitle' : "Configure CC Network Resources",
             'ccres' : rec,
