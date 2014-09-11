@@ -599,14 +599,15 @@ result from cc to nc
     # network
     'netwowrkcards'     :
     [
-        { 'nic_type': "", 'nic_mac': "" , 'ip': ""},
-        { 'nic_type': "", 'nic_mac': "" , 'ip': ""},
-        { 'nic_type': "", 'nic_mac': "" , 'ip': ""},
+        { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+        { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+        { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
         ... ...
     ]
     'publicIP'          :
     'privateIP'         :
-    'ports'             : [ RDP_port, HTTP_port, ... ...]
+    'rdp_port'          :
+    'services_ports'    : [ ... ...]
     'accessURL'         :
     'mgr_accessURL'     :
     'run_with_snapshot' : 1, 0
@@ -714,3 +715,5 @@ vs cluster
 
   - private dhcp
     public IP + private IP + port
+
+

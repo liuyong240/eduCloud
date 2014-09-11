@@ -27,17 +27,7 @@ logger = getcclogger()
 #################################################################################
 import requests, memcache
 
-def findLazyNC():
-    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
-    url = 'http://%s/clc/api/1.0/list/ncs' % clcip
-    payload = {
-        'ccname': getccnamebyconf()
-    }
-    r = requests.post(url, data=payload)
-    return json.loads(r.content)['ncs'][0]
-
 def prepare_image_create_task(request):
-    ncip = findLazyNC()
 
     message = {}
     message['type'] = "cmd"
@@ -45,13 +35,12 @@ def prepare_image_create_task(request):
     message['paras']= request.POST['tid']
     message = json.dumps(message)
 
-    routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
+    routing_send(logger, 'localhost', 'nc_cmd', message, request.POST['ncip'])
 
     # return http response
     response = {}
     response['Result'] = 'OK'
     response['tid'] = request.POST['tid']
-    response['ncip'] = ncip
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")

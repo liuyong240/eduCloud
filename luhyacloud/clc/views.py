@@ -25,13 +25,20 @@ import requests, memcache
 
 logger = getclclogger()
 
+def findLazyNC(cc_name):
+    ncs = ecServers.objects.filter(ccname=cc_name)
+    return ncs[0].ip0
+
 # this is simple algorith, just find the first cc in db
-def findLazyCC():
-    ccs = ecServers.objects.filter(role='cc')
-    if DAEMON_DEBUG:
-        return "%s:8000" % ccs[0].ip0
+def findLazyCC(srcid):
+    rec = ecImages.objects.get(ecid=srcid)
+    if rec.usage == "server":
+        filter = 'vs'
     else:
-        return ccs[0].ip0
+        filter = 'rvd'
+
+    ccs = ecCCResources.objects.filter(usage=filter)
+    return ccs[0].ccip, ccs[0].ccname
 
 def display_login_window(request):
     return render(request, 'clc/login.html', {})
@@ -153,7 +160,122 @@ def tasks_view(request):
 ###################################################################################
 def generateAvailableResourceforCC(cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
-    return ""
+
+    if rec.usage == 'lvd':
+        rec.network_mode    = ''
+        rec.portRange       = ''
+        rec.publicIPRange   = ''
+        rec.privateIPRange  = ''
+        rec.service_ports   = ''
+        rec.available_Resource = ''
+        rec.used_Resource      = ''
+
+    # rvd cluster
+    #     prot range = ncip:port
+    #     { 'rdp_port': 'xxx', 'pubip': '', 'prvip': '', 'mac': '' }
+    #
+    elif rec.usage == 'rvd': # only need port range
+        rec.publicIPRange   = ''
+        rec.privateIPRange  = ''
+        rec.service_ports   = ''
+        rec.available_Resource = ''
+        rec.used_Resource      = ''
+
+        portrange = rec.portRange.split('-')
+        portrange = range(int(portrange[0]), int(portrange[1]))
+
+        avaliable_res = []
+        for port in portrange:
+            res = {}
+            res['rdp_port'] = port
+            res['pubip']    = ''
+            res['prvip']    = ''
+            res['mac']      = ''
+            avaliable_res.append(res)
+        rec.available_Resource = json.dumps(avaliable_res)
+
+# vs cluster
+#   - manual
+#     => manual => vm public IP
+#     => RDP URL : ncip:port
+#     => server URL: vm publicIP:port
+#
+#   - public dhcp
+#     public IP + port  =>
+#     => vm mac => dhcp => vm public IP
+#     => RDP URL : ncip:port
+#     => server URL: publicIP:server port
+#
+#   - private dhcp
+#     public IP + private IP + port
+    elif rec.usage == 'vs':
+        rec.available_Resource = ''
+        rec.used_Resource      = ''
+
+        if rec.network_mode == "MANUAL":
+            rec.publicIPRange   = ''
+            rec.privateIPRange  = ''
+            rec.service_ports   = ''
+
+            portrange = rec.portRange.split('-')
+            portrange = range(int(portrange[0]), int(portrange[1]))
+
+            avaliable_res = []
+            for port in portrange:
+                res = {}
+                res['rdp_port'] = port
+                res['pubip']    = ''
+                res['prvip']    = ''
+                res['mac']      = ''
+                avaliable_res.append(res)
+            rec.available_Resource = json.dumps(avaliable_res)
+
+        elif rec.network_mode == "PUBLIC":
+            rec.privateIPRange  = ''
+
+            portrange = rec.portRange.split('-')
+            portrange = range(int(portrange[0]), int(portrange[1]))
+
+            iplist    = rec.publicIPRange.split('-')
+            iplist    = ipRange(int(iplist[0]), int(iplist[1]))
+
+            lenght    = min(len(portrange), len(iplist))
+
+            avaliable_res = []
+
+            for index in range(0, lenght):
+                res = {}
+                res['rdp_port'] = portrange[index]
+                res['pubip']    = iplist[index]
+                res['prvip']    = ''
+                res['mac']      = randomMAC()
+                avaliable_res.append(res)
+            rec.available_Resource = json.dumps(avaliable_res)
+
+        elif rec.network_mode == "PRIVATE":
+            portrange = rec.portRange.split('-')
+            portrange = range(int(portrange[0]), int(portrange[1]))
+
+            pubiplist    = rec.publicIPRange.split('-')
+            pubiplist    = ipRange(int(pubiplist[0]), int(pubiplist[1]))
+
+            prviplist    = rec.privateIPRange.split('-')
+            prviplist    = ipRange(int(prviplist[0]), int(prviplist[1]))
+
+            lenght    = min(len(portrange), len(pubiplist), len(prviplist))
+
+            avaliable_res = []
+
+            for index in range(0, lenght):
+                res = {}
+                res['rdp_port'] = portrange[index]
+                res['pubip']    = pubiplist[index]
+                res['prvip']    = prviplist[index]
+                res['mac']      = randomMAC()
+                avaliable_res.append(res)
+            rec.available_Resource = json.dumps(avaliable_res)
+
+    rec.save()
 
 @login_required
 def cc_modify_resources(request, cc_name):
@@ -199,6 +321,9 @@ def start_image_create_task(request, srcid):
     #_tid = "xp:IMGabcd:TMPINS1234"
     logger.error("tid=%s" % _tid)
 
+    _ccip, _ccname = findLazyCC(srcid)
+    _ncip = findLazyNC(_ccname)
+
     rec = ectaskTransaction(
          tid         = _tid,
          srcimgid    = _srcimgid,
@@ -208,8 +333,8 @@ def start_image_create_task(request, srcid):
          phase       = 'preparing',
          vmstatus    = "",
          progress    = 0,
-         ccip        = "",
-         ncip        = "",
+         ccip        = _ccip,
+         ncip        = _ncip,
     )
     rec.save()
 
@@ -228,31 +353,26 @@ def start_image_create_task(request, srcid):
 
 def prepare_image_create_task(request, srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
+
     rec = ectaskTransaction.objects.get(tid=_tid)
-
-    if rec.ccip == "":
-        rec.ccip = findLazyCC()
-
-    logger.error(" findLazyCC return : %s" % rec.ccip)
+    rec.phase = "preparing"
+    rec.progress = 0
+    rec.save()
 
     # # send request to CC to work
     url = 'http://%s/cc/api/1.0/image/create/task/prepare' % rec.ccip
     payload = {
-        'tid': _tid
+        'tid': _tid,
+        'ncip': rec.ncip
     }
     r = requests.post(url, data=payload)
     logger.error(url + ":" + r.content)
-
-    response = json.loads(r.content)
-    rec.ncip = response['ncip']
-    rec.phase = "preparing"
-    rec.progress = 0
-    rec.save()
 
     return HttpResponse(r.content, mimetype="application/json")
 
 def run_image_create_task(request, srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
+
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "editing"
     rec.vmstatus = 'init'
@@ -275,9 +395,19 @@ def run_image_create_task(request, srcid, dstid, insid):
     runtime_option['cpus']   = vmtype_info.cpus
 
     ostype_info = ecOSTypes.object.get(ec_ostype = img_info.ostype)
-    runtime_option['nic_type']   = ostype_info.ec_nic_type
     runtime_option['disk_type']  = ostype_info.ec_disk_type
     runtime_option['audio_para'] = ostype_info.ec_audio_para
+
+    ccres    = ecCCResources.objects.get(ccname=rec.ccname)
+
+    nic_type = ostype_info.ec_nic_type
+    netwowrkcards = []
+    netcard = {}
+    netcard['nic_type'] = nic_type
+    netcard['nic_mac']  =
+    netcard['nic_ip']   =
+    runtime_option['netwowrkcards']
+
 
     # ask CC to return back unUsed resource,
     # RDP Port, Public IP

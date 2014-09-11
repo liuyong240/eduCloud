@@ -1,6 +1,31 @@
 import socket, psutil, netinfo
 from luhyaTools import configuration
 from settings import *
+import random
+
+def randomMAC():
+	mac = [ 0x00, 0x16, 0x3e,
+		random.randint(0x00, 0x7f),
+		random.randint(0x00, 0xff),
+		random.randint(0x00, 0xff) ]
+	return ':'.join(map(lambda x: "%02x" % x, mac))
+
+def ipRange(start_ip, end_ip):
+   start = list(map(int, start_ip.split(".")))
+   end = list(map(int, end_ip.split(".")))
+   temp = start
+   ip_range = []
+
+   ip_range.append(start_ip)
+   while temp != end:
+      start[3] += 1
+      for i in (3, 2, 1):
+         if temp[i] == 256:
+            temp[i] = 0
+            temp[i-1] += 1
+      ip_range.append(".".join(map(str, temp)))
+
+   return ip_range
 
 def getccnamebyconf():
     conf = configuration('/storage/config/cc.conf')
