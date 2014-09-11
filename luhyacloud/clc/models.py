@@ -102,21 +102,17 @@ class ecCCResources(models.Model):
     ccip           = models.CharField(max_length=20)
     ccname         = models.CharField(max_length=100)
     usage          = models.CharField(max_length=20) #lvd, rvd, vss, app
-    network_mode   = models.CharField(max_length=20)
+    network_mode   = models.CharField(max_length=20) # manual, public, private
 
-    portRange      = models.CharField(max_length=100)
-    publicIPRange  = models.CharField(max_length=100)
-    privateIPRange = models.CharField(max_length=100)
-    service_ports  = models.CharField(max_length=100) # 80,21, 8080, 22
+    portRange      = models.CharField(max_length=100) # port1-port2
+    publicIPRange  = models.CharField(max_length=100) # ip1-ip2
+    privateIPRange = models.CharField(max_length=100) # ip1-ip2
+    service_ports  = models.CharField(max_length=100) # [80,21, 8080, 22]
 
-    # Array {
-    #   'port'     :
-    #   'publicIP' :
-    #   'privateIP':
-    #   'mac'      :
-    # }
-    available_Resource   = models.TextField()
-    used_Resource        = models.TextField()
+    available_rdp_ports        = models.TextField()  # [port1, port2, port3, ... ... ]
+    used_rdp_ports             = models.TextField()  # [port1, port2, ports, ... ... ]
+    available_ips_macs         = models.TextField()  # [{pubip1, prvip1, mac1}, {pubip2, prvip2, mac2},{pubip3, prvip3, mac3}, ... ... ]
+    used_ips_macs              = models.TextField()  # [{pubip1, prvip1, mac1}, {pubip2, prvip2, mac2},{pubip3, prvip3, mac3}, ... ... ]
 
 # for all NCs that support LVD
 class ecHosts(models.Model):
@@ -248,6 +244,7 @@ class ectaskTransaction(models.Model):
     accessURL   = models.CharField(max_length=500)
     ccip        = models.CharField(max_length=100)
     ncip        = models.CharField(max_length=100)
+    runtime_option = models.TextField()
     message     = models.TextField()
     completed   = models.BooleanField(default=False)
 

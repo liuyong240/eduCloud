@@ -167,114 +167,68 @@ def generateAvailableResourceforCC(cc_name):
         rec.publicIPRange   = ''
         rec.privateIPRange  = ''
         rec.service_ports   = ''
-        rec.available_Resource = ''
-        rec.used_Resource      = ''
+        rec.available_rdp_ports = ''
+        rec.used_rdp_ports      = ''
+        rec.available_ips_macs = ''
+        rec.used_ips_macs      = ''
 
-    # rvd cluster
-    #     prot range = ncip:port
-    #     { 'rdp_port': 'xxx', 'pubip': '', 'prvip': '', 'mac': '' }
-    #
     elif rec.usage == 'rvd': # only need port range
         rec.publicIPRange   = ''
         rec.privateIPRange  = ''
         rec.service_ports   = ''
-        rec.available_Resource = ''
-        rec.used_Resource      = ''
+        rec.available_ips_macs = ''
+        rec.used_ips_macs      = ''
 
         portrange = rec.portRange.split('-')
         portrange = range(int(portrange[0]), int(portrange[1]))
+        rec.available_rdp_ports = json.dumps(portrange)
+        rec.used_rdp_ports = ""
 
-        avaliable_res = []
-        for port in portrange:
-            res = {}
-            res['rdp_port'] = port
-            res['pubip']    = ''
-            res['prvip']    = ''
-            res['mac']      = ''
-            avaliable_res.append(res)
-        rec.available_Resource = json.dumps(avaliable_res)
-
-# vs cluster
-#   - manual
-#     => manual => vm public IP
-#     => RDP URL : ncip:port
-#     => server URL: vm publicIP:port
-#
-#   - public dhcp
-#     public IP + port  =>
-#     => vm mac => dhcp => vm public IP
-#     => RDP URL : ncip:port
-#     => server URL: publicIP:server port
-#
-#   - private dhcp
-#     public IP + private IP + port
     elif rec.usage == 'vs':
-        rec.available_Resource = ''
-        rec.used_Resource      = ''
+        portrange = rec.portRange.split('-')
+        portrange = range(int(portrange[0]), int(portrange[1]))
+        rec.available_Resource = json.dumps(portrange)
+        rec.used_rdp_ports = ""
 
         if rec.network_mode == "MANUAL":
             rec.publicIPRange   = ''
             rec.privateIPRange  = ''
             rec.service_ports   = ''
-
-            portrange = rec.portRange.split('-')
-            portrange = range(int(portrange[0]), int(portrange[1]))
-
-            avaliable_res = []
-            for port in portrange:
-                res = {}
-                res['rdp_port'] = port
-                res['pubip']    = ''
-                res['prvip']    = ''
-                res['mac']      = ''
-                avaliable_res.append(res)
-            rec.available_Resource = json.dumps(avaliable_res)
-
         elif rec.network_mode == "PUBLIC":
             rec.privateIPRange  = ''
-
-            portrange = rec.portRange.split('-')
-            portrange = range(int(portrange[0]), int(portrange[1]))
-
             iplist    = rec.publicIPRange.split('-')
             iplist    = ipRange(int(iplist[0]), int(iplist[1]))
+            lenght    = len(iplist)
 
-            lenght    = min(len(portrange), len(iplist))
-
-            avaliable_res = []
+            avaliable_ips_macs = []
 
             for index in range(0, lenght):
                 res = {}
-                res['rdp_port'] = portrange[index]
                 res['pubip']    = iplist[index]
                 res['prvip']    = ''
                 res['mac']      = randomMAC()
-                avaliable_res.append(res)
-            rec.available_Resource = json.dumps(avaliable_res)
-
+                avaliable_ips_macs.append(res)
+            rec.available_ips_macs = json.dumps(avaliable_ips_macs)
+            rec.used_ips_macs      = ""
         elif rec.network_mode == "PRIVATE":
-            portrange = rec.portRange.split('-')
-            portrange = range(int(portrange[0]), int(portrange[1]))
-
             pubiplist    = rec.publicIPRange.split('-')
             pubiplist    = ipRange(int(pubiplist[0]), int(pubiplist[1]))
 
             prviplist    = rec.privateIPRange.split('-')
             prviplist    = ipRange(int(prviplist[0]), int(prviplist[1]))
 
-            lenght    = min(len(portrange), len(pubiplist), len(prviplist))
+            lenght    = min(len(pubiplist), len(prviplist))
 
-            avaliable_res = []
+            avaliable_ips_macs = []
 
             for index in range(0, lenght):
                 res = {}
-                res['rdp_port'] = portrange[index]
                 res['pubip']    = pubiplist[index]
                 res['prvip']    = prviplist[index]
                 res['mac']      = randomMAC()
-                avaliable_res.append(res)
-            rec.available_Resource = json.dumps(avaliable_res)
-
+                avaliable_ips_macs.append(res)
+            rec.avaliable_ips_macs = json.dumps(avaliable_ips_macs)
+            rec.used_ips_macs      = ""
     rec.save()
 
 @login_required
@@ -307,6 +261,141 @@ def cc_modify_resources(request, cc_name):
 ###############################################ti##################################
 # create a new images & modify existing image
 ###################################################################################
+
+# {
+#     # general
+#     'ostype'            :
+#     'usage'             :
+#     # hardware
+#     'memeory'           :
+#     'cpus'              :
+#     'disk_type'         :
+#     'audio_para'        :
+#     # network
+#     'netwowrkcards'     :
+#     [
+#         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+#         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+#         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+#         ... ...
+#     ]
+#     'publicIP'          :
+#     'privateIP'         :
+#     'rdp_port'          :
+#     'services_ports'    : [ ... ...]
+#     'accessURL'         :
+#     'mgr_accessURL'     :
+#     'run_with_snapshot' : 1, 0
+#     'iptable_rules'     :
+#     [
+#         'rule1',
+#         'rule2',
+#         ... ...
+#     ]
+# }
+
+def getUnuserdRes(cc_ip):
+    rec = ecCCResources.object.get(ccip = cc_ip)
+    available_Resource = json.loads(rec.available_Resource)
+    used_Resource      = json.loads(rec.used_Resource)
+
+# output:   { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+# input:    available_Resource, used_Resource
+#
+def genNetworkInfo(nic_type, cc_ip):
+    pass
+
+def genPortforwordRule(from_ip_port, to_ip_port):
+    pass
+
+def genRuntimeOptionForImageBuild(transid):
+    tidrec = ectaskTransaction(tid=transid)
+
+    runtime_option = {}
+    runtime_option['iptable_rules'] = []
+    runtime_option['netwowrkcards'] = []
+
+    # prepare runtime option
+    img_info = ecImages.objects.get(ecid = tidrec.srcimgid)
+    runtime_option['ostype']     = img_info.ostype
+    runtime_option['usage']      = img_info.usage
+    if img_info.ostype == "desktop":
+        vmtype = 'vdmedium'
+    else:
+        vmtype = 'vssmall'
+    vmtype_info = ecVMTypes.objects.get(name=vmtype)
+    runtime_option['memory']     = vmtype_info.memory
+    runtime_option['cpus']       = vmtype_info.cpus
+    ostype_info = ecOSTypes.object.get(ec_ostype = img_info.ostype)
+    nic_type                     = ostype_info.ec_nic_type
+    runtime_option['disk_type']  = ostype_info.ec_disk_type
+    runtime_option['audio_para'] = ostype_info.ec_audio_para
+
+    #
+    # now allocate network resource
+    #
+
+    ccres_info = ecCCResources.object.get(ccip = tidrec.ccip)
+
+    # 1. allocate rpd port
+
+    available_rpd_port = json.loads(ccres_info.available_rdp_ports)
+    used_rdp_ports     = ccres_info.used_rdp_ports
+    if used_rdp_ports != '':
+        used_rdp_ports = json.loads(used_rdp_ports)
+    else:
+        used_rdp_ports = []
+
+    newport = available_rpd_port[0]
+    available_rpd_port.remove(newport)
+    used_rdp_ports.append(newport)
+    runtime_option['rdp_port'] = newport
+
+    ccres_info.available_rdp_ports = json.dumps(available_rpd_port)
+    ccres_info.used_rdp_ports      = json.dumps(used_rdp_ports)
+    ccres_info.save()
+
+    # 2. allocate ips, macs
+    if ccres_info.usage == 'rvd':
+        networkcards = []
+        netcard = {}
+        netcard['nic_type'] = nic_type
+        netcard['nic_mac']  = ''
+        netcard['nic_ip']   = ''
+        networkcards.append(netcard)
+        runtime_option['networkcards'] = json.dumps(networkcards)
+
+    elif ccres_info.usage != 'vs':
+        available_ips_macs = ccres_info.available_ips_macs
+        used_ips_macs      = ccres_info.used_ips_macs
+
+    if ccres_info.usage == "rvd":
+        if ccres_info.network_mode == "PUBLIC":
+            runtime_option['publicIP']  = tidrec.ncip
+            runtime_option['privateIP'] = tidrec.ncip
+        elif ccres_info.network_mode == "PRIVATE":
+            runtime_option['publicIP']  = tidrec.ccip
+            runtime_option['privateIP'] = tidrec.ncip
+            runtime_option['iptable_rules'].append(genPortforwordRule(from_ip_port, to_ip_port))
+    elif ccres_info.usage == 'vs':
+        if   ccres_info.network_mode == "MANUAL":
+            runtime_option['publicIP']  = ""
+            runtime_option['privateIP'] = ""
+        elif ccres_info.network_mode == "PUBLIC":
+            runtime_option['publicIP']  = tidrec.ncip
+            runtime_option['privateIP'] = tidrec.ncip
+        elif ccres_info.network_mode == "PRIVATE":
+            runtime_option['publicIP']  = tidrec.ccip
+            runtime_option['privateIP'] = tidrec.ncip
+
+
+    runtime_option['portNum'] = result['portNum']
+    if img_info.usage == 'server':
+        runtime_option['publicIP'] = result['publicIP']
+        runtime_option['privateIP'] = result['privateIP']
+        runtime_option['mac'] = result['mac']
+
+
 @login_required
 def start_image_create_task(request, srcid):
 
@@ -334,8 +423,11 @@ def start_image_create_task(request, srcid):
          vmstatus    = "",
          progress    = 0,
          ccip        = _ccip,
-         ncip        = _ncip,
+         ncip        = _ncip
     )
+    rec.save()
+
+    rec.runtime_option = genRuntimeOptionForImageBuild(_tid)
     rec.save()
 
     # open a window to monitor work progress
@@ -378,59 +470,12 @@ def run_image_create_task(request, srcid, dstid, insid):
     rec.vmstatus = 'init'
     rec.save()
 
-    runtime_option = {}
-
-    # prepare runtime option
-    img_info = ecImages.objects.get(ecid = srcid)
-    runtime_option['ostype'] = img_info.ostype
-    runtime_option['usage']  = img_info.usage
-
-    if img_info.ostype == "desktop":
-        vmtype = 'vdmedium'
-    else:
-        vmtype = 'vssmall'
-
-    vmtype_info = ecVMTypes.objects.get(name=vmtype)
-    runtime_option['memory'] = vmtype_info.memory
-    runtime_option['cpus']   = vmtype_info.cpus
-
-    ostype_info = ecOSTypes.object.get(ec_ostype = img_info.ostype)
-    runtime_option['disk_type']  = ostype_info.ec_disk_type
-    runtime_option['audio_para'] = ostype_info.ec_audio_para
-
-    ccres    = ecCCResources.objects.get(ccname=rec.ccname)
-
-    nic_type = ostype_info.ec_nic_type
-    netwowrkcards = []
-    netcard = {}
-    netcard['nic_type'] = nic_type
-    netcard['nic_mac']  =
-    netcard['nic_ip']   =
-    runtime_option['netwowrkcards']
-
-
-    # ask CC to return back unUsed resource,
-    # RDP Port, Public IP
-    # if usage is server, and CC is managed network mode, also need return private & MAC
-    url = 'http://%s/cc/api/1.0/get/unused/resource' % rec.ccip
-    payload = {
-        'tid'  : _tid,
-        'usage': img_info.usage
-    }
-    r = requests.post(url, data=payload)
-    result = json.loads(r.content)
-    runtime_option['portNum'] = result['portNum']
-    if img_info.usage == 'server':
-        runtime_option['publicIP'] = result['publicIP']
-        runtime_option['privateIP'] = result['privateIP']
-        runtime_option['mac'] = result['mac']
-
     # now everything is ready, start to run instance
     url = 'http://%s/cc/api/1.0/image/create/task/run' % rec.ccip
     payload = {
         'tid'  : _tid,
         'ncip' : rec.ncip,
-        'runtime_option' : json.dumps(runtime_option),
+        'runtime_option' : rec.runtime_option,
     }
     r = requests.post(url, data=payload)
     return HttpResponse(r.content, mimetype="application/json")
