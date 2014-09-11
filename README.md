@@ -608,7 +608,7 @@ result from cc to nc
     'privateIP'         :
     'rdp_port'          :
     'services_ports'    : [ ... ...]
-    'accessURL'         :
+    'accessURL'         : []
     'mgr_accessURL'     :
     'run_with_snapshot' : 1, 0
     'iptable_rules'     :

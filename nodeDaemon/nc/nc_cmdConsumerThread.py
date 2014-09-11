@@ -226,28 +226,29 @@ class runImageTaskThread(threading.Thread):
 
                     ret, err = vboxmgr.attachHDD_c(storageCtl = self.runtime_option['disk_type'])
 
-                    snapshot_name = "thomas"
-                    if not vboxmgr.isSnapshotExist(snapshot_name):
-                        ret, err = vboxmgr.take_snapshot(snapshot_name)
+                    if self.runtime_option['run_with_snapshot'] == 1:
+                        snapshot_name = "thomas"
+                        if not vboxmgr.isSnapshotExist(snapshot_name):
+                            ret, err = vboxmgr.take_snapshot(snapshot_name)
 
-                    if self.runtime_option['usage'] == "desktop":
-                        ret, err = vboxmgr.attachHDD_shared_d(storageCtl = self.runtime_option['disk_type'])
+                    ret, err = vboxmgr.attachHDD_shared_d(storageCtl = self.runtime_option['disk_type'])
 
                     # in server side, the SharedFolder is by default
+                    # need to mount cc's /storage/data to each NC
                     ret, err = vboxmgr.attachSharedFolder(path="/storage/data")
 
                     # in servere side, each VM has 4G mem
                     _cpus    = self.runtime_option['cpus']
                     _memory  = self.runtime_option['memory']
                     if self.runtime_option['usage'] == 'desktop':
-                        _network_para = " --nic1 nat  --nictype1 %s " % self.runtime_option['nic_type']
+                        _network_para = " --nic1 nat  --nictype1 %s " % self.runtime_option['netwowrkcards'][0]['nic_type']
                     else:
-                        _network_para = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 %s " % self.runtime_option['nic_type']
+                        _network_para = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 %s " % self.runtime_option['netwowrkcards'][0]['nic_type']
                     ostypepara_value = _network_para +  self.runtime_option['audio_para']
                     ret, err = vboxmgr.modifyVM(osTypeparam=ostypepara_value, cpus = _cpus, mem=_memory, )
 
                     # in server side, configure headless property
-                    portNum = self.runtime_option['portNum']
+                    portNum = self.runtime_option['rdp_port']
                     ret, err = vboxmgr.addHeadlessProperty(port=portNum)
                 except:
                     ret, err = vboxmgr.unregisterVM()

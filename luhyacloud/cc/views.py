@@ -45,6 +45,9 @@ def prepare_image_create_task(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
+def setupIPtableRules(ipt):
+    pass
+
 def run_image_create_task(request):
     ncip = request.POST['ncip']
 
@@ -56,6 +59,12 @@ def run_image_create_task(request):
     message = json.dumps(message)
 
     routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
+
+    # check for runtime_option for cc's side work
+    runtime_option = json.loads(message['runtime_option'])
+    if len(runtime_option['iptable_rules']) > 0:
+        for ipt in runtime_option['iptable_rules']:
+            setupIPtableRules(ipt)
 
     # return http response
     response = {}

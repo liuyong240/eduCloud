@@ -166,34 +166,36 @@ def generateAvailableResourceforCC(cc_name):
         rec.portRange       = ''
         rec.publicIPRange   = ''
         rec.privateIPRange  = ''
-        rec.service_ports   = ''
-        rec.available_rdp_ports = ''
-        rec.used_rdp_ports      = ''
-        rec.available_ips_macs = ''
-        rec.used_ips_macs      = ''
+        rec.service_ports   = []
+        rec.available_rdp_ports = []
+        rec.used_rdp_ports      = []
+        rec.available_ips_macs = []
+        rec.used_ips_macs      = []
 
     elif rec.usage == 'rvd': # only need port range
         rec.publicIPRange   = ''
         rec.privateIPRange  = ''
-        rec.service_ports   = ''
-        rec.available_ips_macs = ''
-        rec.used_ips_macs      = ''
+        rec.service_ports   = []
+        rec.available_ips_macs = []
+        rec.used_ips_macs      = []
 
         portrange = rec.portRange.split('-')
         portrange = range(int(portrange[0]), int(portrange[1]))
         rec.available_rdp_ports = json.dumps(portrange)
-        rec.used_rdp_ports = ""
+        rec.used_rdp_ports = []
 
     elif rec.usage == 'vs':
         portrange = rec.portRange.split('-')
         portrange = range(int(portrange[0]), int(portrange[1]))
-        rec.available_Resource = json.dumps(portrange)
-        rec.used_rdp_ports = ""
+        rec.available_rdp_ports = json.dumps(portrange)
+        rec.used_rdp_ports = []
 
         if rec.network_mode == "MANUAL":
             rec.publicIPRange   = ''
             rec.privateIPRange  = ''
-            rec.service_ports   = ''
+            rec.service_ports   = []
+            rec.available_ips_macs = []
+            rec.used_ips_macs      = []
         elif rec.network_mode == "PUBLIC":
             rec.privateIPRange  = ''
             iplist    = rec.publicIPRange.split('-')
@@ -205,11 +207,11 @@ def generateAvailableResourceforCC(cc_name):
             for index in range(0, lenght):
                 res = {}
                 res['pubip']    = iplist[index]
-                res['prvip']    = ''
+                res['prvip']    = iplist[index]
                 res['mac']      = randomMAC()
                 avaliable_ips_macs.append(res)
             rec.available_ips_macs = json.dumps(avaliable_ips_macs)
-            rec.used_ips_macs      = ""
+            rec.used_ips_macs      = []
         elif rec.network_mode == "PRIVATE":
             pubiplist    = rec.publicIPRange.split('-')
             pubiplist    = ipRange(int(pubiplist[0]), int(pubiplist[1]))
@@ -228,7 +230,7 @@ def generateAvailableResourceforCC(cc_name):
                 res['mac']      = randomMAC()
                 avaliable_ips_macs.append(res)
             rec.avaliable_ips_macs = json.dumps(avaliable_ips_macs)
-            rec.used_ips_macs      = ""
+            rec.used_ips_macs      = []
     rec.save()
 
 @login_required
@@ -274,9 +276,7 @@ def cc_modify_resources(request, cc_name):
 #     # network
 #     'netwowrkcards'     :
 #     [
-#         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
-#         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
-#         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+#         { 'nic_type': "", 'nic_mac': "" , 'nic_pubip': "", 'nic_prvip'},
 #         ... ...
 #     ]
 #     'publicIP'          :
@@ -294,19 +294,6 @@ def cc_modify_resources(request, cc_name):
 #     ]
 # }
 
-def getUnuserdRes(cc_ip):
-    rec = ecCCResources.object.get(ccip = cc_ip)
-    available_Resource = json.loads(rec.available_Resource)
-    used_Resource      = json.loads(rec.used_Resource)
-
-# output:   { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
-# input:    available_Resource, used_Resource
-#
-def genNetworkInfo(nic_type, cc_ip):
-    pass
-
-def genPortforwordRule(from_ip_port, to_ip_port):
-    pass
 
 def genRuntimeOptionForImageBuild(transid):
     tidrec = ectaskTransaction(tid=transid)
@@ -331,70 +318,99 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['disk_type']  = ostype_info.ec_disk_type
     runtime_option['audio_para'] = ostype_info.ec_audio_para
 
-    #
+    #################################
     # now allocate network resource
-    #
+    #################################
 
     ccres_info = ecCCResources.object.get(ccip = tidrec.ccip)
 
+    ###########################
     # 1. allocate rpd port
 
     available_rpd_port = json.loads(ccres_info.available_rdp_ports)
-    used_rdp_ports     = ccres_info.used_rdp_ports
-    if used_rdp_ports != '':
-        used_rdp_ports = json.loads(used_rdp_ports)
+    used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
+
+    if len(available_rpd_port) > 0:
+        newport = available_rpd_port[0]
+        available_rpd_port.remove(newport)
+        used_rdp_ports.append(newport)
+        runtime_option['rdp_port'] = newport
+
+        ccres_info.available_rdp_ports = json.dumps(available_rpd_port)
+        ccres_info.used_rdp_ports      = json.dumps(used_rdp_ports)
+        ccres_info.save()
     else:
-        used_rdp_ports = []
+        runtime_option['rdp_port'] = ''
 
-    newport = available_rpd_port[0]
-    available_rpd_port.remove(newport)
-    used_rdp_ports.append(newport)
-    runtime_option['rdp_port'] = newport
-
-    ccres_info.available_rdp_ports = json.dumps(available_rpd_port)
-    ccres_info.used_rdp_ports      = json.dumps(used_rdp_ports)
-    ccres_info.save()
-
+    ############################
     # 2. allocate ips, macs
     if ccres_info.usage == 'rvd':
         networkcards = []
         netcard = {}
         netcard['nic_type'] = nic_type
         netcard['nic_mac']  = ''
-        netcard['nic_ip']   = ''
+        netcard['nic_pubip']   = ''
+        netcard['nic_prvip']   = ''
         networkcards.append(netcard)
-        runtime_option['networkcards'] = json.dumps(networkcards)
+        runtime_option['networkcards'] = networkcards
 
-    elif ccres_info.usage != 'vs':
-        available_ips_macs = ccres_info.available_ips_macs
-        used_ips_macs      = ccres_info.used_ips_macs
-
-    if ccres_info.usage == "rvd":
-        if ccres_info.network_mode == "PUBLIC":
-            runtime_option['publicIP']  = tidrec.ncip
-            runtime_option['privateIP'] = tidrec.ncip
-        elif ccres_info.network_mode == "PRIVATE":
-            runtime_option['publicIP']  = tidrec.ccip
-            runtime_option['privateIP'] = tidrec.ncip
-            runtime_option['iptable_rules'].append(genPortforwordRule(from_ip_port, to_ip_port))
     elif ccres_info.usage == 'vs':
-        if   ccres_info.network_mode == "MANUAL":
-            runtime_option['publicIP']  = ""
-            runtime_option['privateIP'] = ""
-        elif ccres_info.network_mode == "PUBLIC":
-            runtime_option['publicIP']  = tidrec.ncip
-            runtime_option['privateIP'] = tidrec.ncip
-        elif ccres_info.network_mode == "PRIVATE":
-            runtime_option['publicIP']  = tidrec.ccip
-            runtime_option['privateIP'] = tidrec.ncip
+        available_ips_macs = json.loads(ccres_info.available_ips_macs)
+        used_ips_macs      = json.loads(ccres_info.used_ips_macs)
+        network_mode       = ccres_info.network_mode
 
+        if len(available_ips_macs) > 0:
+            new_ips_macs = available_ips_macs[0]
+            available_ips_macs.remove(new_ips_macs)
+            used_ips_macs.append(new_ips_macs)
 
-    runtime_option['portNum'] = result['portNum']
-    if img_info.usage == 'server':
-        runtime_option['publicIP'] = result['publicIP']
-        runtime_option['privateIP'] = result['privateIP']
-        runtime_option['mac'] = result['mac']
+            networkcards = []
+            netcard = {}
+            netcard['nic_type']     = nic_type
+            netcard['nic_mac']      = new_ips_macs['mac']
+            netcard['nic_pubip']    = new_ips_macs['pubip']
+            netcard['nic_privip']   = new_ips_macs['prvip']
+            networkcards.append(netcard)
+            runtime_option['networkcards'] = networkcards
 
+            ccres_info.available_ips_macs = json.dumps(available_ips_macs)
+            ccres_info.used_ips_macs      = json.dumps(used_ips_macs)
+            ccres_info.save()
+        else:
+            runtime_option['networkcards'] = ''
+
+        runtime_option['publicIP']  = new_ips_macs['pubip']
+        runtime_option['privateIP'] = new_ips_macs['prvip']
+
+        service_ports = ccres_info.service_ports
+        if service_ports != '':
+            runtime_option['services_ports'] = json.loads(service_ports)
+        else:
+            runtime_option['services_ports'] = ''
+
+        runtime_option['accessURL'] ''
+        runtime_option['mgr_accessURL'] = runtime_option['publicIP'] + ':' + runtime_option['rdp_port']
+        runtime_option['run_with_snapshot'] = 0
+
+        if network_mode == "MANUAL":
+            runtime_option['iptable_rules'] = []
+        elif network_mode == "PUBLIC":
+            runtime_option['iptable_rules'] = []
+        elif network_mode == "PRIVATE":
+            iptables = []
+            # generate rdp port iptable
+            ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], runtime_option['rdp_port'])
+            iptables.append(ipt)
+
+            # generate service port iptable
+            if len(runtime_option['services_ports']) > 0:
+                for sport in runtime_option['services_ports']:
+                    ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], sport)
+                    iptables.append(ipt)
+            runtime_option['iptable_rules'] = iptables
+
+def genIPTablesRule(fromip, toip, port):
+    return {}
 
 @login_required
 def start_image_create_task(request, srcid):
@@ -427,7 +443,7 @@ def start_image_create_task(request, srcid):
     )
     rec.save()
 
-    rec.runtime_option = genRuntimeOptionForImageBuild(_tid)
+    rec.runtime_option = json.dumps(genRuntimeOptionForImageBuild(_tid))
     rec.save()
 
     # open a window to monitor work progress
