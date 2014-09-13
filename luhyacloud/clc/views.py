@@ -160,77 +160,79 @@ def tasks_view(request):
 ###################################################################################
 def generateAvailableResourceforCC(cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
+    emptyarray = []
 
     if rec.usage == 'lvd':
+
         rec.network_mode    = ''
         rec.portRange       = ''
         rec.publicIPRange   = ''
         rec.privateIPRange  = ''
-        rec.service_ports   = []
-        rec.available_rdp_ports = []
-        rec.used_rdp_ports      = []
-        rec.available_ips_macs = []
-        rec.used_ips_macs      = []
+        rec.service_ports       = json.dumps(emptyarray)
+        rec.available_rdp_ports = json.dumps(emptyarray)
+        rec.used_rdp_ports      = json.dumps(emptyarray)
+        rec.available_ips_macs  = json.dumps(emptyarray)
+        rec.used_ips_macs       = json.dumps(emptyarray)
 
     elif rec.usage == 'rvd': # only need port range
         rec.publicIPRange   = ''
         rec.privateIPRange  = ''
-        rec.service_ports   = []
-        rec.available_ips_macs = []
-        rec.used_ips_macs      = []
+        rec.service_ports      = json.dumps(emptyarray)
+        rec.available_ips_macs = json.dumps(emptyarray)
+        rec.used_ips_macs      = json.dumps(emptyarray)
 
         portrange = rec.portRange.split('-')
         portrange = range(int(portrange[0]), int(portrange[1]))
         rec.available_rdp_ports = json.dumps(portrange)
-        rec.used_rdp_ports = []
+        rec.used_rdp_ports = json.dumps(emptyarray)
 
     elif rec.usage == 'vs':
         portrange = rec.portRange.split('-')
         portrange = range(int(portrange[0]), int(portrange[1]))
         rec.available_rdp_ports = json.dumps(portrange)
-        rec.used_rdp_ports = []
+        rec.used_rdp_ports = json.dumps(emptyarray)
 
         if rec.network_mode == "MANUAL":
             rec.publicIPRange   = ''
             rec.privateIPRange  = ''
-            rec.service_ports   = []
-            rec.available_ips_macs = []
-            rec.used_ips_macs      = []
+            rec.service_ports      = json.dumps(emptyarray)
+            rec.available_ips_macs = json.dumps(emptyarray)
+            rec.used_ips_macs      = json.dumps(emptyarray)
         elif rec.network_mode == "PUBLIC":
             rec.privateIPRange  = ''
             iplist    = rec.publicIPRange.split('-')
-            iplist    = ipRange(int(iplist[0]), int(iplist[1]))
+            iplist    = ipRange(iplist[0], iplist[1])
             lenght    = len(iplist)
 
-            avaliable_ips_macs = []
+            available_ips_macs = []
 
             for index in range(0, lenght):
                 res = {}
                 res['pubip']    = iplist[index]
                 res['prvip']    = iplist[index]
                 res['mac']      = randomMAC()
-                avaliable_ips_macs.append(res)
-            rec.available_ips_macs = json.dumps(avaliable_ips_macs)
-            rec.used_ips_macs      = []
+                available_ips_macs.append(res)
+            rec.available_ips_macs = json.dumps(available_ips_macs)
+            rec.used_ips_macs      = json.dumps(emptyarray)
         elif rec.network_mode == "PRIVATE":
             pubiplist    = rec.publicIPRange.split('-')
-            pubiplist    = ipRange(int(pubiplist[0]), int(pubiplist[1]))
+            pubiplist    = ipRange(pubiplist[0], pubiplist[1])
 
             prviplist    = rec.privateIPRange.split('-')
-            prviplist    = ipRange(int(prviplist[0]), int(prviplist[1]))
+            prviplist    = ipRange(prviplist[0], prviplist[1])
 
             lenght    = min(len(pubiplist), len(prviplist))
 
-            avaliable_ips_macs = []
+            available_ips_macs = []
 
             for index in range(0, lenght):
                 res = {}
                 res['pubip']    = pubiplist[index]
                 res['prvip']    = prviplist[index]
                 res['mac']      = randomMAC()
-                avaliable_ips_macs.append(res)
-            rec.avaliable_ips_macs = json.dumps(avaliable_ips_macs)
-            rec.used_ips_macs      = []
+                available_ips_macs.append(res)
+            rec.available_ips_macs = json.dumps(available_ips_macs)
+            rec.used_ips_macs      = json.dumps(emptyarray)
     rec.save()
 
 @login_required
@@ -245,8 +247,7 @@ def cc_modify_resources(request, cc_name):
         rec.service_ports   = request.POST['sport_port']
         rec.save()
 
-        if rec.usage == "vs" and rec.network_mode != "MANUAL":
-            generateAvailableResourceforCC(cc_name)
+        generateAvailableResourceforCC(cc_name)
 
         response = {}
         response['Result'] = 'OK'
@@ -388,7 +389,6 @@ def genRuntimeOptionForImageBuild(transid):
         else:
             runtime_option['services_ports'] = ''
 
-        runtime_option['accessURL'] ''
         runtime_option['mgr_accessURL'] = runtime_option['publicIP'] + ':' + runtime_option['rdp_port']
         runtime_option['run_with_snapshot'] = 0
 
