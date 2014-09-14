@@ -67,9 +67,12 @@ function getPrepareProgress() {
 
         if (failed == 1) {
             $("#desclabel").text("{% trans "Sorry, Prepare Image failed. please click 'Prepare' button and try again." %}");
+            $("#desclabel").css('color', 'red')
         } else {
             if (progress >= 0) {
                 $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
+                $("#desclabel").text("{% trans "start to prepare image, please wait ... ..." %}");
+                $("#desclabel").css('color', 'black')
                 setTimeout(getPrepareProgress, timer_interval);
             } else {
                 if (progress == -100) {
@@ -78,8 +81,10 @@ function getPrepareProgress() {
                     $(".jw-button-next").removeAttr("disabled");
                     $("#btn_prepare").addClass("disabled")
                     $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
+                    $("#desclabel").css('color', 'green')
                 } else {
                     $("#desclabel").text("{% trans "Sorry, Prepare Image failed. please click 'Prepare' button and try again." %}");
+                    $("#desclabel").css('color', 'red')
                 }
             }
         }
