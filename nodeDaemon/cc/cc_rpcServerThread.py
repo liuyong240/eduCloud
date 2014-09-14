@@ -81,6 +81,8 @@ class cc_rpcServerThread(run4everThread):
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid):
         if tid in self.tasks_status and self.tasks_status[tid] != None:
             worker = self.tasks_status[tid]
+            if worker.isFailed():
+                worker.start()
             progress = worker.getprogress()
         else:
             progress = 0
