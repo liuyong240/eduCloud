@@ -38,7 +38,8 @@ def findLazyCC(srcid):
         filter = 'rvd'
 
     ccs = ecCCResources.objects.filter(usage=filter)
-    return ccs[0].ccip, ccs[0].ccname
+    ccip = ccs[0].ccip
+    return ccip, ccs[0].ccname
 
 def display_login_window(request):
     return render(request, 'clc/login.html', {})
@@ -468,7 +469,10 @@ def prepare_image_create_task(request, srcid, dstid, insid):
     rec.save()
 
     # # send request to CC to work
-    url = 'http://%s/cc/api/1.0/image/create/task/prepare' % rec.ccip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/image/create/task/prepare' % rec.ccip
+    else:
+        url = 'http://%s/cc/api/1.0/image/create/task/prepare' % rec.ccip
     payload = {
         'tid': _tid,
         'ncip': rec.ncip
@@ -487,7 +491,10 @@ def run_image_create_task(request, srcid, dstid, insid):
     rec.save()
 
     # now everything is ready, start to run instance
-    url = 'http://%s/cc/api/1.0/image/create/task/run' % rec.ccip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/image/create/task/run' % rec.ccip
+    else:
+        url = 'http://%s/cc/api/1.0/image/create/task/run' % rec.ccip
     payload = {
         'tid'  : _tid,
         'ncip' : rec.ncip,
@@ -503,7 +510,10 @@ def stop_image_create_task(request, srcid, dstid, insid):
     rec.vmstatus = 'stopping'
     rec.save()
 
-    url = 'http://%s/cc/api/1.0/image/create/task/stop' % rec.ccip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/image/create/task/stop' % rec.ccip
+    else:
+        url = 'http://%s/cc/api/1.0/image/create/task/stop' % rec.ccip
     payload = {
         'tid': _tid,
         'ncip' : rec.ncip,
@@ -553,7 +563,10 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
 def image_modify_task(request, srcid):
     ccip = findLazyCC()
 
-    url = 'http://%s/cc/api/1.0/image/modify' % ccip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/image/modify' % ccip
+    else:
+        url = 'http://%s/cc/api/1.0/image/modify' % ccip
     payload = {
         'ccname': getccnamebyconf()
     }
@@ -563,8 +576,8 @@ def image_modify_task(request, srcid):
 def image_create_task_view(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
     _srcimgid        = srcid
-    _dstimageid      = 'IMG' + genHexRandom()
-    _instanceid      = 'TMPINS' + genHexRandom()
+    _dstimageid      = dstid
+    _instanceid      = insid
 
     rec = ectaskTransaction.objects.get(tid=_tid)
     phase_array = ['preparing', 'editing', 'submitting']
