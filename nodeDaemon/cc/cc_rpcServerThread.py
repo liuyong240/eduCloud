@@ -18,6 +18,10 @@ class downloadWorkerThread(threading.Thread):
         retval = tid.split(':')
         self.srcimgid = retval[0]
         self.progress = 0
+        self.failed = 0
+
+    def isFailed(self):
+        return self.failed
 
     def getprogress(self):
         return self.progress
@@ -42,6 +46,7 @@ class downloadWorkerThread(threading.Thread):
             self.progress = -100
         else:
             self.progress = exit_code
+            self.failed   = 1
         logger.error("%s: download thread exit with code=%s", self.tid, exit_code)
 
 class cc_rpcServerThread(run4everThread):
@@ -92,6 +97,7 @@ class cc_rpcServerThread(run4everThread):
                 'progress'  : progress,
                 'tid'       : tid,
                 'errormsg'  : '',
+                'failed'    : worker.isFailed()
         }
         payload = json.dumps(payload)
         ch.basic_publish(
