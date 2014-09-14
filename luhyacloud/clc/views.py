@@ -26,7 +26,7 @@ import requests, memcache
 logger = getclclogger()
 
 def findLazyNC(cc_name):
-    ncs = ecServers.objects.filter(ccname=cc_name)
+    ncs = ecServers.objects.filter(ccname=cc_name, role='nc')
     return ncs[0].ip0
 
 # this is simple algorith, just find the first cc in db
@@ -297,24 +297,24 @@ def cc_modify_resources(request, cc_name):
 
 
 def genRuntimeOptionForImageBuild(transid):
-    tidrec = ectaskTransaction(tid=transid)
+    tidrec = ectaskTransaction.objects.get(tid=transid)
 
     runtime_option = {}
     runtime_option['iptable_rules'] = []
-    runtime_option['netwowrkcards'] = []
+    runtime_option['networkcards']  = []
 
     # prepare runtime option
     img_info = ecImages.objects.get(ecid = tidrec.srcimgid)
     runtime_option['ostype']     = img_info.ostype
     runtime_option['usage']      = img_info.usage
-    if img_info.ostype == "desktop":
+    if img_info.usage == "desktop":
         vmtype = 'vdmedium'
     else:
         vmtype = 'vssmall'
     vmtype_info = ecVMTypes.objects.get(name=vmtype)
     runtime_option['memory']     = vmtype_info.memory
     runtime_option['cpus']       = vmtype_info.cpus
-    ostype_info = ecOSTypes.object.get(ec_ostype = img_info.ostype)
+    ostype_info = ecOSTypes.objects.get(ec_ostype = img_info.ostype)
     nic_type                     = ostype_info.ec_nic_type
     runtime_option['disk_type']  = ostype_info.ec_disk_type
     runtime_option['audio_para'] = ostype_info.ec_audio_para
@@ -323,7 +323,7 @@ def genRuntimeOptionForImageBuild(transid):
     # now allocate network resource
     #################################
 
-    ccres_info = ecCCResources.object.get(ccip = tidrec.ccip)
+    ccres_info = ecCCResources.objects.get(ccip = tidrec.ccip)
 
     ###########################
     # 1. allocate rpd port
@@ -409,6 +409,8 @@ def genRuntimeOptionForImageBuild(transid):
                     iptables.append(ipt)
             runtime_option['iptable_rules'] = iptables
 
+    return runtime_option
+
 def genIPTablesRule(fromip, toip, port):
     return {}
 
@@ -421,9 +423,6 @@ def start_image_create_task(request, srcid):
     _instanceid      = 'TMPINS' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
-    #_dstimageid = "IMGabcd"
-    #_instanceid = "INS1234"
-    #_tid = "xp:IMGabcd:TMPINS1234"
     logger.error("tid=%s" % _tid)
 
     _ccip, _ccname = findLazyCC(srcid)
@@ -434,7 +433,7 @@ def start_image_create_task(request, srcid):
          srcimgid    = _srcimgid,
          dstimgid    = _dstimageid,
          insid       = _instanceid,
-         user        = request.user,
+         user        = request.user.username,
          phase       = 'preparing',
          vmstatus    = "",
          progress    = 0,
@@ -454,7 +453,8 @@ def start_image_create_task(request, srcid):
         'srcid'     : _srcimgid,
         'dstid'     : _dstimageid,
         "insid"     : _instanceid,
-        'imgobj'    : imgobj
+        'imgobj'    : imgobj,
+        'steps'     : 0,
     }
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -560,6 +560,28 @@ def image_modify_task(request, srcid):
     r = requests.post(url, data=payload)
     return HttpResponse(r.content, mimetype="application/json")
 
+def image_create_task_view(request,  srcid, dstid, insid):
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    _srcimgid        = srcid
+    _dstimageid      = 'IMG' + genHexRandom()
+    _instanceid      = 'TMPINS' + genHexRandom()
+
+    rec = ectaskTransaction.objects.get(tid=_tid)
+    phase_array = ['preparing', 'editing', 'submitting']
+    steps = phase_array.index(rec.phase)
+
+    imgobj = ecImages.objects.get(ecid = srcid)
+    context = {
+        'pagetitle' : "image create",
+        'tid'       : _tid,
+        'srcid'     : _srcimgid,
+        'dstid'     : _dstimageid,
+        "insid"     : _instanceid,
+        'imgobj'    : imgobj,
+        'steps'     : steps,
+    }
+
+    return render(request, 'clc/wizard/image_create_wizard.html', context)
 
 
 
@@ -570,6 +592,10 @@ def image_modify_task(request, srcid):
 @login_required
 def jtable_images(request):
     return render(request, 'clc/jtable/images_table.html', {})
+
+@login_required
+def jtable_tasks(request):
+    return render(request, 'clc/jtable/tasks_table.html', {})
 
 @login_required
 def jtable_settings_for_authapth(request):
@@ -1324,6 +1350,45 @@ def update_servers(request):
 
 def create_servers(request):
     pass
+
+# core tables for tasks
+# ------------------------------------
+def list_tasks(request):
+    response = {}
+    data = []
+
+    recs = ectaskTransaction.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['id']       = rec.id
+        jrec['tid']      = rec.tid
+        jrec['srcimgid'] = rec.srcimgid
+        jrec['dstimgid'] = rec.dstimgid
+        jrec['insid']    = rec.insid
+        jrec['user']     = rec.user
+        jrec['phase']    = rec.phase
+        jrec['vmstatus'] = rec.vmstatus
+        jrec['completed']= rec.completed
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+
+def delete_tasks(request):
+    response = {}
+
+    rec = ectaskTransaction.objects.get(id=request.POST['id'])
+    rec.delete()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
 
 # core tables for images
 # ------------------------------------

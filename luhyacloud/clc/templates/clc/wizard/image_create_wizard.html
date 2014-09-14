@@ -176,18 +176,21 @@ $(document).ready(function () {
     <div id="insid" style="display: none;">{{ insid }}</div>
 
     <form id="wizard">
-        <fieldset>
-            <legend>{% trans "Prepare Image." %}</legend>
-            <button id="btn_prepare"    type="button" class="btn btn-primary">{% trans "Prepare" %}</button>
-            <p> </p>
-            <p> </p>
-            <p id="desclabel">{% trans "start to prepare image, please wait ... ..." %}</p>
-            <div id="progressbar">
-                <div id='prlabel'>{% trans "downloading ... ..." %}</div>
-            </div>
-        </fieldset>
+        {% if steps <= 0 %}
+            <fieldset>
+                <legend>{% trans "Prepare Image." %}</legend>
+                <button id="btn_prepare"    type="button" class="btn btn-primary">{% trans "Prepare" %}</button>
+                <p> </p>
+                <p> </p>
+                <p id="desclabel">{% trans "start to prepare image, please wait ... ..." %}</p>
+                <div id="progressbar">
+                    <div id='prlabel'>{% trans "downloading ... ..." %}</div>
+                </div>
+            </fieldset>
+        {% endif %}
 
-        <fieldset>
+        {% if steps <= 1 %}
+            <fieldset>
             <legend>{% trans "run/edit Image." %}</legend>
             <p id="erromsg"></p>
             <div class="opontable">
@@ -217,8 +220,10 @@ $(document).ready(function () {
             <p> </p>
             <div><a href="/static/luhyaAdmin/plugin.zip">{% trans "Download plugin for Cloud Desktop Connection" %}</a></div>
         </fieldset>
+        {% endif %}
 
-        <fieldset>
+        {% if steps <= 2 %}
+            <fieldset>
             <legend>{% trans "submit Image" %}</legend>
             <p id="submit_erromsg"></p>
             <button id="btn_submit" type="button" class="btn btn-primary">{% trans "Submit" %}</button>
@@ -231,5 +236,6 @@ $(document).ready(function () {
                 </div>
             </div>
         </fieldset>
+        {% endif %}
     </form>
 {% endblock %}

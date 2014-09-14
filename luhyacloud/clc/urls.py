@@ -36,6 +36,9 @@ urlpatterns = patterns('',
     url(r'^image/create/task/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',       views.stop_image_create_task,             name='stop_image_create_task'),
     url(r'^image/create/task/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',views.image_create_task_getvmstatus,      name='stop_image_create_task'),
 
+    url(r'^images/create/task/view/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.image_create_task_view,      name='view_image_create_task'),
+
+
     url(r'^image/modify/(?P<srcid>\w+)$',        views.image_modify_task,               name='images_modify_task'),
 
     # form URLs
@@ -43,6 +46,9 @@ urlpatterns = patterns('',
 
     # iframe page
     url(r'^jt/images$',             views.jtable_images,                 name='jtable_images_view'),
+    url(r'^jt/tasks$',              views.jtable_tasks,                  name='jtable_tasks_view'),
+
+
     url(r'^jt/settings/authpath$',  views.jtable_settings_for_authapth,  name='jtable_settings_authpath_view'),
     url(r'^jt/settings/ostypes$',   views.jtable_settings_for_ostypes,   name='jtable_settings_ostypes_view'),
     url(r'^jt/settings/rbac$',      views.jtable_settings_for_rbac,      name='jtable_settings_rbac_view'),
@@ -97,6 +103,9 @@ urlpatterns = patterns('',
     url(r'^api/1.0/images/delete$',        views.delete_images,               name='delete_images_view'),
     url(r'^api/1.0/images/update$',        views.update_images,               name='update_images_view'),
     url(r'^api/1.0/images/create$',        views.create_images,               name='create_images_view'),
+
+    url(r'^api/1.0/tasks/list$',          views.list_tasks,                 name='list_tasks_view'),
+    url(r'^api/1.0/tasks/delete$',        views.delete_tasks,               name='delete_tasks_view'),
 
     # url(r'^api/1.0/hosts/list$',          views.list_hosts,                 name='list_hosts_view'),
     # url(r'^api/1.0/hosts/delete$',        views.delete_hosts,               name='delete_hosts_view'),
