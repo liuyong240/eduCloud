@@ -61,21 +61,26 @@ function getPrepareProgress() {
 
         phase = items['phase'];
         progress = items['progress'];
+        failed   = items['failed'];
         console.log("phase is " + phase);
         console.log("progress is" + progress);
 
-        if (progress >= 0) {
-            $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
-            setTimeout(getPrepareProgress, timer_interval);
+        if (failed == 1) {
+            $("#desclabel").text("{% trans "Sorry, Prepare Image failed. please click 'Prepare' button and try again." %}");
         } else {
-            if (progress == -100) {
-                progress = 100;
+            if (progress >= 0) {
                 $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
-                $(".jw-button-next").removeAttr("disabled");
-                $("#btn_prepare").addClass("disabled")
-                $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
+                setTimeout(getPrepareProgress, timer_interval);
             } else {
-                $("#desclabel").text("{% trans "Sorry, Prepare Image failed. please click 'Prepare' button and try again." %}");
+                if (progress == -100) {
+                    progress = 100;
+                    $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
+                    $(".jw-button-next").removeAttr("disabled");
+                    $("#btn_prepare").addClass("disabled")
+                    $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
+                } else {
+                    $("#desclabel").text("{% trans "Sorry, Prepare Image failed. please click 'Prepare' button and try again." %}");
+                }
             }
         }
     }).error(function () {

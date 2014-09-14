@@ -60,18 +60,23 @@ class prepareImageTaskThread(threading.Thread):
             download_rpc = RpcClient(logger, self.ccip)
             response = download_rpc.call(cmd="image/prepare", paras=self.tid)
             response = json.loads(response)
-            if response['progress'] < 0:
-                if response['progress'] == -100:
-                    response['progress'] = 50
-                    self.forwardTaskStatus2CC(json.dumps(response))
-                else:
-                    retvalue = "FALURE"
+            if response['failed'] == 1:
+                retvalue = "FALURE"
+                self.forwardTaskStatus2CC(json.dumps(response))
                 break
             else:
-                response['progress'] = response['progress']/2.0
-                self.forwardTaskStatus2CC(json.dumps(response))
-                logger.error("downlaod from walrus: %s", response['progress'])
-                time.sleep(1)
+                if response['progress'] < 0:
+                    if response['progress'] == -100:
+                        response['progress'] = 50
+                        self.forwardTaskStatus2CC(json.dumps(response))
+                    else:
+                        retvalue = "FALURE"
+                    break
+                else:
+                    response['progress'] = response['progress']/2.0
+                    self.forwardTaskStatus2CC(json.dumps(response))
+                    logger.error("downlaod from walrus: %s", response['progress'])
+                    time.sleep(1)
 
         return retvalue
 

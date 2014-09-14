@@ -540,7 +540,8 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
                 'type': 'taskstatus',
                 'phase': "downloading",
                 'progress': 0,
-                'tid': tid
+                'tid': tid,
+                'failed' : False
             }
             response = json.dumps(payload)
         else:
@@ -553,7 +554,8 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
             'type': 'taskstatus',
             'phase': "downloading",
             'progress': 0,
-            'tid': tid
+            'tid': tid,
+            'failed' : False
         }
         response = json.dumps(payload)
 
