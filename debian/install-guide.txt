@@ -27,30 +27,24 @@ sudo mkdir images VMs config
 0. install modified version of rsyncd into CC and NC
 1. start rsyncd daemon
 
-#######################################
-# Install GUI desktop on Ubuntu server
-#######################################
-1. for Gnome Desktop
-sudo apt-get install ubuntu-desktop
 
-# without installing Evolution & OpenOffice
-sudo aptitude install --without-recommends ubuntu-desktop
 
-2. for XFCE Desktop
-sudo apt-get install xubuntu-desktop
 
-3. for KDE Desktop
-sudo apt-get install kubuntu-desktop
 
-4. for lubuntu
-sudo apt-get install lubuntu-desktop
-
-5. for lxde (default)
-sudo apt-get install lxde
-
-######################################
-some usefull python package
-######################################
-1. https://github.com/hercules-team/python-augeas
-2. http://pydoc.net/Python/salt/2014.1.4/
-
+-------------------------------------
+incoming coding work
+-------------------------------------
+1. debug VM run/stop at different network configuration
+   - rvd
+   - vs { manual, public, private }
+2. add image version management, for pre-process of image download & submit
+3. add lvd, rvd, vss instance creation wizard, one by one and batch creation
+   - and modify & delete instance
+4. add logic on both walrus, cc, nc to check
+   - is it stay wither others ?
+   - for pre-process of image download & submit
+5. add account management , and support chinese
+6. add auth management 
+7. add machine & vm status report & display
+8. delete tasks
+9. support iptable & dhcp automatically for new instance
