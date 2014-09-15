@@ -15,6 +15,9 @@ urlpatterns = patterns('',
     url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),
     url(r'^api/1.0/register/server$',      views.register_server,             name='register_server'),
 
+    url(r'^api/1.0/getimageversion/(?P<imgid>\w+)$',      views.get_images_version,          name='get_images_version'),
+
+
     # Web Page
 
     )

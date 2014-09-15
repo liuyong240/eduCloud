@@ -4,6 +4,7 @@ from luhyaapi.educloudLog import *
 from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.rsyncWrapper import *
 from luhyaapi.vboxWrapper import *
+from luhyaapi.clcAPIWrapper import *
 import pika, json, time, shutil, os
 
 logger = getncdaemonlogger()
@@ -25,28 +26,49 @@ class downloadWorkerThread(threading.Thread):
     def getprogress(self):
         return self.progress
 
+    def isSameImageVersionAsServers(self):
+        cc_ver  = ReadImageVersionFile(self.srcimgid)
+        imginfo = getImageVersionFromCC(self.dstip, self.srcimgid)
+        clc_ver = imginfo['data']['version']
+
+        return clc_ver == cc_ver
+
+    def needDownload(self):
+        flag = True
+        # if machine not exists, download
+        # if machine exist,
+            #  version is same as that in server, DON'T download
+            #  not same as, download
+        imgfilepath ="/storage/images/" + self.srcimgid + "/machine"
+        if os.path.exists(imgfilepath) and self.isSameImageVersionAsServers():
+            flag = False
+
     def run(self):
         logger.error("enter into downloadWorkerThread run()")
         self.progress = 0
 
         source = "rsync://%s/luhya/%s" % (self.dstip, self.srcimgid)
         destination = "/storage/images/"
-        rsync = rsyncWrapper(source, destination)
-        rsync.startRsync()
 
-        while rsync.isRsyncLive():
-            tmpfilesize, pct, bitrate, remain = rsync.getProgress()
-            msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
-            logger.error(msg)
-            self.progress = int(pct.split('%')[0])
+        if self.needDownload():
+            rsync = rsyncWrapper(source, destination)
+            rsync.startRsync()
 
-        exit_code = rsync.getExitStatus()
-        if exit_code == 0:
-            self.progress = -100
+            while rsync.isRsyncLive():
+                tmpfilesize, pct, bitrate, remain = rsync.getProgress()
+                msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
+                logger.error(msg)
+                self.progress = int(pct.split('%')[0])
+
+            exit_code = rsync.getExitStatus()
+            if exit_code == 0:
+                self.progress = -100
+            else:
+                self.progress = exit_code
+                self.failed   = 1
+            logger.error("%s: download thread exit with code=%s", self.tid, exit_code)
         else:
-            self.progress = exit_code
-            self.failed   = 1
-        logger.error("%s: download thread exit with code=%s", self.tid, exit_code)
+            self.progress = -100
 
 class prepareImageTaskThread(threading.Thread):
     def __init__(self, tid):

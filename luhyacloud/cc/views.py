@@ -145,3 +145,21 @@ def register_server(request):
     }
     r = requests.post(url, data=payload)
     return HttpResponse(r.content, mimetype="application/json")
+
+
+def get_images_version(request, imgid):
+    version = ReadImageVersionFile(imgid)
+
+    path = '/storage/images/' + imgid + "/machine"
+    size = os.path.getsize(path)
+
+    payload = {
+        'imgid':             imgid,
+        'version':           version,
+        'size':              size,
+    }
+    response = {}
+    response['Result'] = "OK"
+    response['data'] = payload
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
