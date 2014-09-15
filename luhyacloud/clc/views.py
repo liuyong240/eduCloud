@@ -1175,9 +1175,12 @@ def autoFindNewAddImage():
             rec = ecImages(
                 ecid = local_image,
                 name = local_image,
-                size = imgfile_size
+                size = imgfile_size,
             )
             rec.save()
+
+            # create version file for this image
+            WriteImageVersionFile(local_image, '1.0.0')
 
 # core table function for ecClusterNetMode
 def list_cc_resource_by_id(request, recid):
@@ -1423,7 +1426,7 @@ def list_images(request):
         jrec['ostype']=rec.ostype
         jrec['usage'] = rec.usage
         jrec['description'] = rec.description
-        jrec['version'] = rec.version
+        jrec['version'] = ReadImageVersionFile(rec.ecid)
         jrec['size'] = rec.size
         data.append(jrec)
 

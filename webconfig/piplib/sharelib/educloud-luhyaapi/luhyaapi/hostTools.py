@@ -1,7 +1,24 @@
 import socket, psutil, netinfo
 from luhyaTools import configuration
 from settings import *
-import random
+import random, os
+
+def WriteImageVersionFile(imgid, versionStr):
+    filepath = "/storage/images/" + imgid + "/version"
+
+    text_file = open (filepath, "w")
+    text_file.writelines(versionStr)
+    text_file.close()
+
+def ReadImageVersionFile(imgid):
+    filepath = "/storage/images/" + imgid + "/version"
+    if os.path.exists(filepath):
+        text_file = open (filepath, "r")
+        versionStr = text_file.readline()
+        text_file.close()
+        return versionStr
+    else:
+        return '0.0.0'
 
 def randomMAC():
 	mac = [ 0x00, 0x16, 0x3e,
