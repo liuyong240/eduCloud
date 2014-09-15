@@ -17,6 +17,10 @@ class downloadWorkerThread(threading.Thread):
         retval = tid.split(':')
         self.srcimgid = retval[0]
         self.progress = 0
+        self.failed   = 0
+
+    def isFailed(self):
+        return self.failed
 
     def getprogress(self):
         return self.progress
@@ -41,6 +45,7 @@ class downloadWorkerThread(threading.Thread):
             self.progress = -100
         else:
             self.progress = exit_code
+            self.failed   = 1
         logger.error("%s: download thread exit with code=%s", self.tid, exit_code)
 
 class prepareImageTaskThread(threading.Thread):
@@ -76,7 +81,7 @@ class prepareImageTaskThread(threading.Thread):
                     response['progress'] = response['progress']/2.0
                     self.forwardTaskStatus2CC(json.dumps(response))
                     logger.error("downlaod from walrus: %s", response['progress'])
-                    time.sleep(1)
+                    time.sleep(2)
 
         return retvalue
 
@@ -84,6 +89,8 @@ class prepareImageTaskThread(threading.Thread):
         simple_send(logger, self.ccip, 'cc_status_queue', response)
 
     def downloadFromCC2NC(self):
+        retvalue = "OK"
+
         worker = downloadWorkerThread(self.ccip, self.tid)
         worker.start()
 
@@ -93,15 +100,16 @@ class prepareImageTaskThread(threading.Thread):
                 'progress'  : 0,
                 'tid'       : self.tid,
                 'errormsg'  : "",
+                'failed'    : 0
         }
 
         while True:
             progress = worker.getprogress()
-            if progress > 0:
-                progress = 50 + progress / 2.5
-                payload['progress'] = progress
+            payload['failed']   = worker.isFailed()
+            if worker.isFailed():
                 self.forwardTaskStatus2CC(json.dumps(payload))
-                time.sleep(2)
+                retvalue = "FALURE"
+                break
             else:
                 if progress < 0:
                     if progress == -100:
@@ -109,10 +117,16 @@ class prepareImageTaskThread(threading.Thread):
                         payload['progress'] = progress
                         self.forwardTaskStatus2CC(json.dumps(payload))
                     else:
-                        logger.error("download from CC failed with error code = %s", progress)
-                break;
+                        retvalue = "FALURE"
+                    break;
+                else:
+                    progress = 50 + progress / 2.5
+                    payload['progress'] = progress
+                    self.forwardTaskStatus2CC(json.dumps(payload))
+                    logger.error("downlaod from cc: %s", payload['progress'])
+                    time.sleep(2)
 
-        return "OK"
+        return retvalue
 
     def cloneImage(self):
         payload = {
@@ -124,8 +138,8 @@ class prepareImageTaskThread(threading.Thread):
 
         if self.srcimgid != self.dstimgid:
             # call clone cmd
-            srcfile  = "/storage/images/"    + self.srcimgid + "/machine"
-            dstfile = "/storage/tmp/images"  + self.dstimgid + "/machine"
+            srcfile  = "/storage/images/"      + self.srcimgid + "/machine"
+            dstfile  = "/storage/tmp/images/"  + self.dstimgid + "/machine"
 
             if os.path.exists(dstfile):
                 shutil.rmtree("/storage/tmp/images/" + self.dstimgid)
