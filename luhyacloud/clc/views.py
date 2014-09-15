@@ -1634,16 +1634,17 @@ def get_walrus_info(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
-def get_image_info(imgid):
+def get_image_info(request, imgid):
     rec = ecImages.objects.get(ecid=imgid)
     payload = {
-        'ecid':     rec.ecid,
-        'name':     rec.name,
-        'ostype':   rec.ostype,
-        'usage':    rec.usage,
-        'description': rec.description,
-        'version':     rec.version,
-        'size':        rec.size
+        'ecid':              rec.ecid,
+        'ec_authpath_name' : rec.ec_authpath_name,
+        'name':              rec.name,
+        'ostype':            rec.ostype,
+        'usage':             rec.usage,
+        'description':       rec.description,
+        'version':           ReadImageVersionFile(rec.ecid),
+        'size':              rec.size
     }
     response = {}
     response['Result'] = "OK"

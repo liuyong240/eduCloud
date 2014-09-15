@@ -52,18 +52,12 @@ def getccnamebyconf():
 def getccipbyconf(mydebug=False):
     conf = configuration('/storage/config/cc.conf')
     ccip = conf.getvalue('server', 'IP')
-    if mydebug:
-        return "%s:8000" % ccip
-    else:
-        return ccip
+    return ccip
 
 def getclcipbyconf(mydebug=False):
     conf = configuration('/storage/config/clc.conf')
     clcip = conf.getvalue('server', 'IP')
-    if mydebug:
-        return "%s:8000" % clcip
-    else:
-        return clcip
+    return clcip
 
 def getHostAttr():
     name   = socket.gethostname()
