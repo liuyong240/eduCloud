@@ -547,7 +547,7 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
         else:
             response = payload
             payload = json.loads(payload)
-            if payload['progress'] < 0 :
+            if payload['progress'] < 0 or payload['failed'] == 1:
                 mc.delete(str(tid))
     except Exception as e:
         payload = {

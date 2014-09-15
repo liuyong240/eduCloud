@@ -24,7 +24,8 @@ sudo mkdir images VMs config
 ############################
 # 3. prepare rsync
 ############################
-
+0. install modified version of rsyncd
+1. start rsyncd daemon
 
 #######################################
 # Install GUI desktop on Ubuntu server
