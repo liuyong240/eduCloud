@@ -301,6 +301,7 @@ def genRuntimeOptionForImageBuild(transid):
     tidrec = ectaskTransaction.objects.get(tid=transid)
 
     runtime_option = {}
+    runtime_option['run_with_snapshot'] = 1
     runtime_option['iptable_rules'] = []
     runtime_option['networkcards']  = []
 
