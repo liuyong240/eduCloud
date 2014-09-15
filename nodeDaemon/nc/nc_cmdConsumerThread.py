@@ -153,7 +153,6 @@ class prepareImageTaskThread(threading.Thread):
         return retvalue
 
     def cloneImage(self):
-
         payload = {
                 'type'      : 'taskstatus',
                 'phase'     : "cloning",
@@ -203,6 +202,8 @@ class prepareImageTaskThread(threading.Thread):
 
         payload['progress'] = -100
         self.forwardTaskStatus2CC(json.dumps(payload))
+
+
         return "OK"
 
     def run(self):
@@ -215,23 +216,6 @@ def nc_image_prepare_handle(tid):
     worker.start()
     return worker
 
-'''
-runtime_options
-{
-    ostype:
-    usage:
-    memory:
-    cpus:
-    nic_type:
-    disk_type:
-    audio_para:
-
-    portNum:
-    publicIP:
-    privateIP:
-    mac:
-}
-'''
 class runImageTaskThread(threading.Thread):
     def __init__(self, tid, runtime_option):
         threading.Thread.__init__(self)
@@ -246,7 +230,8 @@ class runImageTaskThread(threading.Thread):
         self.runtime_option = json.loads(runtime_option)
 
     def createvm(self):
-        flag = False
+        flag = True
+
         if self.srcimgid != self.dstimgid:
             rootdir = "/storage/tmp"
         else:
@@ -285,11 +270,11 @@ class runImageTaskThread(threading.Thread):
 
                     # in servere side, each VM has 4G mem
                     _cpus    = self.runtime_option['cpus']
-                    _memory  = self.runtime_option['memory']
+                    _memory  = self.runtime_option['memory'] * 1024
                     if self.runtime_option['usage'] == 'desktop':
-                        _network_para = " --nic1 nat  --nictype1 %s " % self.runtime_option['netwowrkcards'][0]['nic_type']
+                        _network_para = " --nic1 nat  --nictype1 %s " % self.runtime_option['networkcards'][0]['nic_type']
                     else:
-                        _network_para = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 %s " % self.runtime_option['netwowrkcards'][0]['nic_type']
+                        _network_para = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 %s " % self.runtime_option['networkcards'][0]['nic_type']
                     ostypepara_value = _network_para +  self.runtime_option['audio_para']
                     ret, err = vboxmgr.modifyVM(osTypeparam=ostypepara_value, cpus = _cpus, mem=_memory, )
 
@@ -299,13 +284,17 @@ class runImageTaskThread(threading.Thread):
                 except:
                     ret, err = vboxmgr.unregisterVM()
                     vboxmgr.deleteVMConfigFile()
-                    return
+                    flag = False
 
                 ret, err = vboxmgr.unregisterVM()
                 ret, err = vboxmgr.registerVM()
 
+        return flag
+
     def runvm(self):
-        pass
+        vboxmgr = self.vboxmgr
+        if not vboxmgr.isVMRunning():
+            ret, err = vboxmgr.runVM(headless=True)
 
     def run(self):
         if self.createvm():
