@@ -43,6 +43,8 @@ class downloadWorkerThread(threading.Thread):
         if os.path.exists(imgfilepath) and self.isSameImageVersionAsServers():
             flag = False
 
+        return flag
+
     def run(self):
         logger.error("enter into downloadWorkerThread run()")
         self.progress = 0
@@ -151,11 +153,14 @@ class prepareImageTaskThread(threading.Thread):
         return retvalue
 
     def cloneImage(self):
+
         payload = {
-            'type'      : 'taskstatus',
-            'phase'     : "cloning",
-            'progress'  : 90,
-            'tid'       : self.tid
+                'type'      : 'taskstatus',
+                'phase'     : "cloning",
+                'progress'  : 0,
+                'tid'       : self.tid,
+                'errormsg'  : "",
+                'failed'    : 0,
         }
 
         if self.srcimgid != self.dstimgid:
@@ -190,7 +195,7 @@ class prepareImageTaskThread(threading.Thread):
                 payload['progress'] = 100
                 self.forwardTaskStatus2CC(json.dumps(payload))
             else:
-                payload['progress'] = procid.status
+                payload['progress'] = 100
                 self.forwardTaskStatus2CC(json.dumps(payload))
         else:
             payload['progress'] = 100
