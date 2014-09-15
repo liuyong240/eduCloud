@@ -24,7 +24,7 @@ sudo mkdir images VMs config
 ############################
 # 3. prepare rsync
 ############################
-0. install modified version of rsyncd
+0. install modified version of rsyncd into CC and NC
 1. start rsyncd daemon
 
 #######################################
