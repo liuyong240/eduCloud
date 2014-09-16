@@ -120,7 +120,7 @@ class prepareImageTaskThread(threading.Thread):
 
         payload = {
                 'type'      : 'taskstatus',
-                'phase'     : "prepare",
+                'phase'     : "preparing",
                 'progress'  : 0,
                 'tid'       : self.tid,
                 'errormsg'  : "",
@@ -233,10 +233,10 @@ class runImageTaskThread(threading.Thread):
         flag = True
         payload = {
             'type'      : 'taskstatus',
-            'phase'     : "edit",
+            'phase'     : "editing",
             'tid'       : self.tid,
             'errormsg'  : '',
-            'vmstatus'  : '',
+            'vmstatus'  : 'init',
             'failed'    : 0
         }
 
@@ -306,7 +306,7 @@ class runImageTaskThread(threading.Thread):
     def runvm(self):
         payload = {
             'type'      : 'taskstatus',
-            'phase'     : "edit",
+            'phase'     : "editing",
             'tid'       : self.tid,
             'errormsg'  : '',
             'vmstatus'  : 'running',
@@ -350,7 +350,7 @@ def nc_image_stop_handle(tid):
 
     payload = {
             'type'      : 'taskstatus',
-            'phase'     : "edit",
+            'phase'     : "editing",
             'progress'  : 0,
             'tid'       : tid,
             'errormsg'  : '',

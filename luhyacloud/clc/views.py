@@ -523,7 +523,38 @@ def stop_image_create_task(request, srcid, dstid, insid):
     return HttpResponse(r.content, mimetype="application/json")
 
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
-    pass
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+
+    try:
+        payload = mc.get(str(_tid))
+        if payload == None:
+            payload = {
+                'type': 'taskstatus',
+                'phase': "editing",
+                'vmstatus': 'init',
+                'tid': _tid,
+                'failed' : 0
+            }
+            response = json.dumps(payload)
+        else:
+            response = payload
+            payload = json.loads(payload)
+            if payload['progress'] < 0 or payload['failed'] == 1:
+                mc.delete(str(tid))
+    except Exception as e:
+        payload = {
+            'type': 'taskstatus',
+            'phase': "downloading",
+            'progress': 0,
+            'tid': tid,
+            'failed' : False
+        }
+        response = json.dumps(payload)
+
+    logger.error("lkf: get progress = %s", response)
+    return HttpResponse(response, mimetype="application/json")
+
 
 def submit_image_create_task(request, srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
