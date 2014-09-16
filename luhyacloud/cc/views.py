@@ -82,9 +82,9 @@ def stop_image_create_task(request):
     message['type'] = "cmd"
     message['op']   = 'image/stop'
     message['paras']= request.POST['tid']
-    message = json.dumps(message)
 
-    routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
+    _message = json.dumps(message)
+    routing_send(logger, 'localhost', 'nc_cmd', _message, ncip)
 
     # return http response
     response = {}

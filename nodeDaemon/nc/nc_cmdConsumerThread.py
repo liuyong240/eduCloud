@@ -5,7 +5,7 @@ from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.rsyncWrapper import *
 from luhyaapi.vboxWrapper import *
 from luhyaapi.clcAPIWrapper import *
-import pika, json, time, shutil, os
+import pika, json, time, shutil, os, commands
 
 logger = getncdaemonlogger()
 
@@ -231,6 +231,14 @@ class runImageTaskThread(threading.Thread):
 
     def createvm(self):
         flag = True
+        payload = {
+            'type'      : 'taskstatus',
+            'phase'     : "edit",
+            'tid'       : self.tid,
+            'errormsg'  : '',
+            'vmstatus'  : '',
+            'failed'    : 0
+        }
 
         if self.srcimgid != self.dstimgid:
             rootdir = "/storage/tmp"
@@ -281,10 +289,14 @@ class runImageTaskThread(threading.Thread):
                     # in server side, configure headless property
                     portNum = self.runtime_option['rdp_port']
                     ret, err = vboxmgr.addHeadlessProperty(port=portNum)
-                except:
+                except Exception as e:
                     ret, err = vboxmgr.unregisterVM()
                     vboxmgr.deleteVMConfigFile()
                     flag = False
+                    payload['failed'] = 1
+                    payload['errormsg'] = e.message
+                    simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
+
 
                 ret, err = vboxmgr.unregisterVM()
                 ret, err = vboxmgr.registerVM()
@@ -292,22 +304,62 @@ class runImageTaskThread(threading.Thread):
         return flag
 
     def runvm(self):
+        payload = {
+            'type'      : 'taskstatus',
+            'phase'     : "edit",
+            'tid'       : self.tid,
+            'errormsg'  : '',
+            'vmstatus'  : 'running',
+            'failed'    : 0
+        }
+
         vboxmgr = self.vboxmgr
-        if not vboxmgr.isVMRunning():
-            ret, err = vboxmgr.runVM(headless=True)
+        try:
+            if not vboxmgr.isVMRunning():
+                ret, err = vboxmgr.runVM(headless=True)
+                if err != "":
+                    payload['failed'] = 1
+                    payload['errormsg'] = err
+        except Exception as e:
+            payload['failed'] = 1
+            payload['errormsg'] = e.message
+
+        simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
+
 
     def run(self):
         if self.createvm():
             self.runvm()
-
 
 def nc_image_run_handle(tid, runtime_option):
     worker = runImageTaskThread(tid, runtime_option)
     worker.start()
     pass
 
+def PoweroffVM(insID):
+    cmd = "vboxmanage controlvm %s poweroff" % insID
+    out = commands.getoutput(cmd)
+
 def nc_image_stop_handle(tid):
-    pass
+
+    retval   = tid.split(':')
+    srcimgid = retval[0]
+    dstimgid = retval[1]
+    insid    = retval[2]
+    PoweroffVM(insid)
+
+    payload = {
+            'type'      : 'taskstatus',
+            'phase'     : "edit",
+            'progress'  : 0,
+            'tid'       : tid,
+            'errormsg'  : '',
+            'vmstatus'  : 'stopped',
+            'failed'    : 0
+    }
+
+    ccip = getccipbyconf()
+    simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
 
 def nc_image_submit_handle(tid):
     pass

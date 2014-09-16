@@ -51,6 +51,10 @@ var retrytimes = 0;
 var maxRetryTimes = 100;
 var timer_interval = 1000;
 
+function getVMStatus() {
+
+}
+
 function getPrepareProgress() {
     url = "/clc/image/create/task/getprogress/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
     $.getJSON(url,function (data) {
