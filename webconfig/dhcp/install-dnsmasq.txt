@@ -1,0 +1,16 @@
+1. disable network-manager's dnsmasq
+   $ sudo cp /etc/NetworkManager/NetworkManager.conf /etc/NetworkManager/NetworkManager.conf.pkg
+   $ sudo cat /etc/NetworkManager/NetworkManager.conf | sed -e 's/dns=dnsmasq/#dns=dnsmasq/' > /etc/NetworkManager/NetworkManager.conf
+   $ sudo restart network-manager
+
+2. install dnsmasq
+   $ sudo apt-get install dnsmasq
+   $ sudo echo "conf-file=/etc/dnsmasq.intranet.conf" >> /etc/dnsmasq.conf
+
+3. prepare statci DHCP IP assignment
+   3.1 add dhcp-host item into dnsmasq.intranet.conf
+   3.2 enable read-ethers to read /etc/ethers file
+ 
+4. dhcp log
+   $ tail -f /var/log/syslog
+     
