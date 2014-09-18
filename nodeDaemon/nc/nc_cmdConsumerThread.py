@@ -237,7 +237,8 @@ class runImageTaskThread(threading.Thread):
             'tid'       : self.tid,
             'errormsg'  : '',
             'vmstatus'  : 'init',
-            'failed'    : 0
+            'failed'    : 0,
+            'url'       : '',
         }
 
         if self.srcimgid != self.dstimgid:
@@ -310,7 +311,8 @@ class runImageTaskThread(threading.Thread):
             'tid'       : self.tid,
             'errormsg'  : '',
             'vmstatus'  : 'running',
-            'failed'    : 0
+            'failed'    : 0,
+            'url'       : '',
         }
 
         vboxmgr = self.vboxmgr
@@ -320,8 +322,10 @@ class runImageTaskThread(threading.Thread):
                 if err != "":
                     payload['failed'] = 1
                     payload['errormsg'] = err
+                    payload['vmstatus'] = 'stopped'
         except Exception as e:
             payload['failed'] = 1
+            payload['vmstatus'] = 'stopped'
             payload['errormsg'] = e.message
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))

@@ -326,6 +326,7 @@ def genRuntimeOptionForImageBuild(transid):
     #################################
 
     ccres_info = ecCCResources.objects.get(ccip = tidrec.ccip)
+    network_mode       = ccres_info.network_mode
 
     ###########################
     # 1. allocate rpd port
@@ -357,10 +358,17 @@ def genRuntimeOptionForImageBuild(transid):
         networkcards.append(netcard)
         runtime_option['networkcards'] = networkcards
 
+        if network_mode == "PUBLIC":
+            runtime_option['publicIP']  = tidrec.ncip
+            runtime_option['privateIP'] = tidrec.ncip
+        elif network_mode == "PRIVATE":
+            runtime_option['publicIP']  = tidrec.ccip
+            runtime_option['privateIP'] = tidrec.ncip
+
     elif ccres_info.usage == 'vs':
         available_ips_macs = json.loads(ccres_info.available_ips_macs)
         used_ips_macs      = json.loads(ccres_info.used_ips_macs)
-        network_mode       = ccres_info.network_mode
+
 
         if len(available_ips_macs) > 0:
             new_ips_macs = available_ips_macs[0]
@@ -391,14 +399,18 @@ def genRuntimeOptionForImageBuild(transid):
         else:
             runtime_option['services_ports'] = ''
 
-        runtime_option['mgr_accessURL'] = runtime_option['publicIP'] + ':' + runtime_option['rdp_port']
-        runtime_option['run_with_snapshot'] = 0
-
         if network_mode == "MANUAL":
             runtime_option['iptable_rules'] = []
+            runtime_option['publicIP']  = tidrec.ncip
+            runtime_option['privateIP'] = tidrec.ncip
         elif network_mode == "PUBLIC":
             runtime_option['iptable_rules'] = []
+            runtime_option['publicIP']  = tidrec.ncip
+            runtime_option['privateIP'] = tidrec.ncip
         elif network_mode == "PRIVATE":
+            runtime_option['publicIP']  = tidrec.ccip
+            runtime_option['privateIP'] = tidrec.ncip
+
             iptables = []
             # generate rdp port iptable
             ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], runtime_option['rdp_port'])
@@ -411,6 +423,7 @@ def genRuntimeOptionForImageBuild(transid):
                     iptables.append(ipt)
             runtime_option['iptable_rules'] = iptables
 
+    runtime_option['mgr_accessURL'] = "luhyavm://%s:%s" % (runtime_option['publicIP'], runtime_option['rdp_port'])
     return runtime_option
 
 def genIPTablesRule(fromip, toip, port):
@@ -449,6 +462,7 @@ def start_image_create_task(request, srcid):
 
     # open a window to monitor work progress
     imgobj = ecImages.objects.get(ecid = srcid)
+
     context = {
         'pagetitle' : "image create",
         'tid'       : _tid,
@@ -457,6 +471,7 @@ def start_image_create_task(request, srcid):
         "insid"     : _instanceid,
         'imgobj'    : imgobj,
         'steps'     : 0,
+        'vmstatus'  : 'stopped',
     }
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -525,7 +540,7 @@ def stop_image_create_task(request, srcid, dstid, insid):
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
-
+    rec = ectaskTransaction.objects.get(tid=_tid)
     try:
         payload = mc.get(str(_tid))
         if payload == None:
@@ -538,9 +553,11 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
             }
             response = json.dumps(payload)
         else:
+            if payload['vmstatus'] == 'running':
+                payload['url'] = rec.mgr_accessURL
             response = payload
             payload = json.loads(payload)
-            if payload['progress'] < 0 or payload['failed'] == 1:
+            if payload['failed'] == 1:
                 mc.delete(str(tid))
     except Exception as e:
         payload = {
@@ -626,6 +643,7 @@ def image_create_task_view(request,  srcid, dstid, insid):
         "insid"     : _instanceid,
         'imgobj'    : imgobj,
         'steps'     : steps,
+        'vmstatus'  : rec.vmstatus,
     }
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)
