@@ -81,14 +81,14 @@ function getPrepareProgress() {
 
         if (failed == 1) {
             $("#desclabel").text("{% trans "Sorry, Prepare Image failed. please click 'Prepare' button and try again." %}");
-            $("#desclabel").css('color', 'red')
+            $("#desclabel").css('color', 'red');
 
             $("#btn_prepare").removeClass("disabled");
         } else {
             if (progress >= 0) {
                 $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
                 $("#desclabel").text("{% trans "start to prepare image, please wait ... ..." %}");
-                $("#desclabel").css('color', 'black')
+                $("#desclabel").css('color', 'black');
 
                 setTimeout(getPrepareProgress, timer_interval);
             } else {
@@ -97,12 +97,12 @@ function getPrepareProgress() {
                     $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
 
                     $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
-                    $("#desclabel").css('color', 'green')
+                    $("#desclabel").css('color', 'green');
 
                     $(".jw-button-next").removeAttr("disabled");
                 } else {
                     $("#desclabel").text("{% trans "Sorry, Prepare Image failed. please click 'Prepare' button and try again." %}");
-                    $("#desclabel").css('color', 'red')
+                    $("#desclabel").css('color', 'red');
 
                     $("#btn_prepare").removeClass("disabled");
                 }
@@ -113,12 +113,61 @@ function getPrepareProgress() {
     });
 }
 
-function runVM() {
-    $(".jw-button-next").attr("disabled", true);
-    $('#btn_run').addClass('disabled');
-    $('#btn_stop').removeClass('disabled');
-    $("#editdesc").css('display', 'none');
+function editPageUIupdate(state) {
+    if (state == 'init') {
+        $(".jw-button-next").attr("disabled", true);
 
+        $('#btn_run').addClass('disabled');
+        $('#btn_stop').removeClass('disabled');
+
+        $("#editdesc").css('display', 'none');
+
+        $("#luhyaVM").css("display", "none");
+
+        $("#runningstatus").text('init');
+    }
+    if (state == 'failed') {
+        $(".jw-button-next").removeAttr("disabled");
+
+        $("#btn_run").removeClass("disabled");
+        $('#btn_stop').addClass('disabled');
+
+        $("#editdesc").text("{% trans "Sorry, Run Image failed. please click 'Run' button and try again." %}");
+        $("#editdesc").css('color', 'red');
+        $("#editdesc").css('display', 'block');
+
+        $("#luhyaVM").css("display", "none");
+
+        $("#runningstatus").text('stopped');
+    }
+    if (state == 'running') {
+        $(".jw-button-next").attr("disabled", true);
+
+        $('#btn_run').addClass('disabled');
+        $('#btn_stop').removeClass('disabled');
+
+        $("#editdesc").css('display', 'none');
+
+        $("#luhyaVM").css("display", "inline");
+
+        $("#runningstatus").text('running');
+
+    }
+    if (state == 'stopped') {
+        $(".jw-button-next").removeAttr("disabled");
+
+        $("#btn_run").removeClass("disabled");
+        $('#btn_stop').addClass('disabled');
+
+        $("#editdesc").css('display', 'none');
+
+        $("#luhyaVM").css("display", "none");
+
+        $("#runningstatus").text('stopped');
+    }
+}
+
+function runVM() {
     url = "/clc/image/create/task/run/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
     $.getJSON(url,function (data) {
         var items = [];
@@ -128,6 +177,7 @@ function runVM() {
     });
 
     setTimeout(getVMStatus, timer_interval);
+    editPageUIupdate('init');
 }
 
 function getVMStatus() {
@@ -146,43 +196,18 @@ function getVMStatus() {
         console.log(errormsg);
 
         if (failed == 1) {
-
-            $("#editdesc").text("{% trans "Sorry, Run Image failed. please click 'Run' button and try again." %}");
-            $("#editdesc").css('color', 'red');
-            $("#editdesc").css('display', 'block');
-
-            $("#luhyaVM").css("display", "none");
-
-            $("#btn_run").removeClass("disabled");
-            $('#btn_stop').addClass('disabled');
-            $(".jw-button-next").removeAttr("disabled");
-
-            $("#runningstatus").text('stopped');
+            editPageUIupdate('failed');
         } else {
-            $("#runningstatus").text(vmstatus);
-
             if (vmstatus == 'init') {
-                $("#editdesc").css('display', 'none');
-                $("#luhyaVM").css("display", "none");
-
+                editPageUIupdate('init');
                 setTimeout(getVMStatus, timer_interval);
             }
-
             if (vmstatus == 'running') {
-
-               $("#editdesc").css('display', 'none');
-               $("#luhyaVM").css("display", "inline");
-               $("#luhyaVM a").attr("href", items['url']);
-
+                $("#luhyaVM a").attr("href", items['url']);
+                editPageUIupdate('running');
             }
-
             if (vmstatus == 'stopped') {
-               $("#editdesc").css('display', 'none');
-               $("#luhyaVM").css("display", "none");
-
-               $("#btn_run").removeClass("disabled");
-               $('#btn_stop').addClass('disabled');
-               $(".jw-button-next").removeAttr("disabled");
+                editPageUIupdate('stopped');
             }
         }
     }).error(function () {
@@ -192,27 +217,99 @@ function getVMStatus() {
 }
 
 function stopVM() {
-    $('#btn_run').removeClass('disabled');
-    $('#btn_stop').addClass('disabled');
-
     url = "/clc/image/create/task/stop/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
     $.getJSON(url,function (data) {
         var items = [];
         $.each(data, function (key, val) {
             items[key] = val;
         });
-
     });
 
-    setTimeout(getVMStatus, timer_interval);
+    editPageUIupdate('stopped');
+}
+
+function submitPageUIupdate(state) {
+    if (state == 'init') {
+        $(".jw-button-next").attr("disabled", true);
+
+        $('#btn_submit').addClass('disabled');
+
+    }
+    if (state == 'failed') {
+        $(".jw-button-next").removeAttr("disabled");
+
+        $("#btn_submit").removeClass("disabled");
+
+    }
+    if (state == 'submitting') {
+        $(".jw-button-next").attr("disabled", true);
+
+        $('#btn_submit').addClass('disabled');
+    }
+    if (state = 'finished') {
+        $(".jw-button-next").removeAttr("disabled");
+
+        $('#btn_submit').addClass('disabled');
+    }
 }
 
 function submitVM() {
+    url = "/clc/image/create/task/submit/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    });
 
+    setTimeout(getSubmitProgress, timer_interval);
+    submitPageUIupdate('submitting');
 }
 
 function getSubmitProgress() {
+    url = "/clc/image/create/task/getsubmitprogress/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
 
+        phase = items['phase'];
+        progress = items['progress'];
+        failed   = items['failed'];
+
+        if (failed == 1) {
+            $("#submit_laber").text("{% trans "Sorry, Submit Image failed. please click 'Submit' button and try again." %}");
+            $("#submit_laber").css('color', 'red');
+
+            submitPageUIupdate('failed');
+        } else {
+            if (progress >= 0) {
+                $("#submit_progressbar").progressbar({"value": progress}).children("#submit_prlabel").html(progress + ' %');
+                $("#submit_laber").text("{% trans "start to Submit image, please wait ... ..." %}");
+                $("#submit_laber").css('color', 'black');
+
+                setTimeout(getSubmitProgress, timer_interval);
+            } else {
+                if (progress == -100) {
+                    progress = 100;
+                    $("#submit_progressbar").progressbar({"value": progress}).children("#submit_prlabel").html(progress + ' %');
+
+                    $("#submit_laber").text("{% trans "Submit Image Succeed. please click 'Next' button and finish it." %}");
+                    $("#submit_laber").css('color', 'green');
+
+                    submitPageUIupdate('finished');
+                } else {
+                    $("#submit_laber").text("{% trans "Sorry, Submit Image failed. please click 'Submit' button and try again." %}");
+                    $("#submit_laber").css('color', 'red');
+
+                    submitPageUIupdate('failed');
+                }
+            }
+        }
+    }).error(function () {
+        setTimeout(getSubmitProgress, timer_interval);
+    });
 }
 
 $(document).ready(function () {

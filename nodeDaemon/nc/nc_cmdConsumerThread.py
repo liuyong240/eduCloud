@@ -211,6 +211,133 @@ class prepareImageTaskThread(threading.Thread):
             if self.downloadFromCC2NC() == "OK":
                 self.cloneImage()
 
+class submitWorkerThread(threading.Thread):
+    def __init__(self, dstip, tid):
+        threading.Thread.__init__(self)
+
+        self.dstip    = dstip
+        self.tid      = tid
+        retval = tid.split(':')
+        self.srcimgid = retval[1]
+        self.progress = 0
+        self.failed   = 0
+
+    def isFailed(self):
+        return self.failed
+
+    def getprogress(self):
+        return self.progress
+
+    def run(self):
+        logger.error("enter into downloadWorkerThread run()")
+        self.progress = 0
+
+        source= "/storage/images/" + self.srcimgid
+        destination = "rsync://%s/luhya/" % (self.dstip)
+
+        rsync = rsyncWrapper(source, destination)
+        rsync.startRsync()
+
+        while rsync.isRsyncLive():
+            tmpfilesize, pct, bitrate, remain = rsync.getProgress()
+            msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
+            logger.error(msg)
+            self.progress = int(pct.split('%')[0])
+
+        exit_code = rsync.getExitStatus()
+        if exit_code == 0:
+            self.progress = -100
+        else:
+            self.progress = exit_code
+            self.failed   = 1
+        logger.error("%s: submitting thread exit with code=%s", self.tid, exit_code)
+
+
+class SubmitImageTaskThread(threading.Thread):
+    def __init__(self, tid):
+        threading.Thread.__init__(self)
+        retval = tid.split(':')
+        self.tid      = tid
+        self.srcimgid = retval[0]
+        self.dstimgid = retval[1]
+        self.ccip     = getccipbyconf()
+
+    # RPC call to ask CC download image from walrus
+    def submitFromCC2Walrus(self):
+        retvalue = "OK"
+
+        while True:
+            download_rpc = RpcClient(logger, self.ccip)
+            response = download_rpc.call(cmd="image/submit", paras=self.tid)
+            response = json.loads(response)
+            if response['failed'] == 1:
+                retvalue = "FALURE"
+                self.forwardTaskStatus2CC(json.dumps(response))
+                break
+            else:
+                if response['progress'] < 0:
+                    if response['progress'] == -100:
+                        response['progress'] = 100
+                        self.forwardTaskStatus2CC(json.dumps(response))
+                    else:
+                        retvalue = "FALURE"
+                    break
+                else:
+                    response['progress'] = 50 + response['progress']/2.0
+                    self.forwardTaskStatus2CC(json.dumps(response))
+                    logger.error("submit to walrus: %s", response['progress'])
+                    time.sleep(2)
+
+        return retvalue
+
+    def forwardTaskStatus2CC(self, response):
+        simple_send(logger, self.ccip, 'cc_status_queue', response)
+
+    def submitFromNC2CC(self):
+        retvalue = "OK"
+
+        worker = submitWorkerThread(self.ccip, self.tid)
+        worker.start()
+
+        payload = {
+                'type'      : 'taskstatus',
+                'phase'     : "submitting",
+                'progress'  : 0,
+                'tid'       : self.tid,
+                'errormsg'  : "",
+                'failed'    : 0
+        }
+
+        while True:
+            progress = worker.getprogress()
+            payload['failed']   = worker.isFailed()
+            if worker.isFailed():
+                self.forwardTaskStatus2CC(json.dumps(payload))
+                retvalue = "FALURE"
+                break
+            else:
+                if progress < 0:
+                    if progress == -100:
+                        progress = 50
+                        payload['progress'] = progress
+                        self.forwardTaskStatus2CC(json.dumps(payload))
+                    else:
+                        retvalue = "FALURE"
+                    break;
+                else:
+                    progress = progress / 2.0
+                    payload['progress'] = progress
+                    self.forwardTaskStatus2CC(json.dumps(payload))
+                    logger.error("submit to cc: %s", payload['progress'])
+                    time.sleep(2)
+
+        return retvalue
+
+    def run(self):
+        if self.submitFromNC2CC() == "OK":
+            self.submitFromCC2Walrus()
+
+
 def nc_image_prepare_handle(tid):
     worker = prepareImageTaskThread(tid)
     worker.start()
@@ -366,7 +493,9 @@ def nc_image_stop_handle(tid):
     simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
 
 def nc_image_submit_handle(tid):
-    pass
+    worker = SubmitImageTaskThread(tid)
+    worker.start()
+    return worker
 
 
 nc_cmd_handlers = {

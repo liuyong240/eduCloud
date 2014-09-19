@@ -72,6 +72,48 @@ class downloadWorkerThread(threading.Thread):
         else:
             self.progress = -100
 
+class submitWorkerThread(threading.Thread):
+    def __init__(self, dstip, tid):
+        threading.Thread.__init__(self)
+
+        self.dstip    = dstip
+        self.tid      = tid
+        retval = tid.split(':')
+        self.srcimgid = retval[1]
+        self.progress = 0
+        self.failed = 0
+
+    def isFailed(self):
+        return self.failed
+
+    def getprogress(self):
+        return self.progress
+
+    def run(self):
+        logger.error("enter into downloadWorkerThread run()")
+        self.progress = 0
+
+        destination = "rsync://%s/luhya/" % (self.dstip)
+        source= "/storage/images/" + self.srcimgid
+
+        rsync = rsyncWrapper(source, destination)
+        rsync.startRsync()
+
+        while rsync.isRsyncLive():
+            tmpfilesize, pct, bitrate, remain = rsync.getProgress()
+            msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
+            logger.error("luhya:%s", msg)
+            self.progress = int(pct.split('%')[0])
+
+        exit_code = rsync.getExitStatus()
+        if exit_code == 0:
+            self.progress = -100
+        else:
+            self.progress = exit_code
+            self.failed   = 1
+        logger.error("%s: submit thread exit with code=%s", self.tid, exit_code)
+
+
 class cc_rpcServerThread(run4everThread):
     def __init__(self, bucket):
         run4everThread.__init__(self, bucket)
@@ -83,9 +125,11 @@ class cc_rpcServerThread(run4everThread):
 
         self.cc_rpc_handlers = {
             'image/prepare'    : self.cc_rpc_handle_imageprepare,
+            'image/submit'     : self.cc_rpc_handle_imagesubmit,
         }
 
         self.tasks_status = {}
+        self.submit_tasks = {}
 
     def run4ever(self):
         self.channel.basic_consume(self.on_request, queue='rpc_queue')
@@ -135,4 +179,37 @@ class cc_rpcServerThread(run4everThread):
         if progress < 0:
             del self.tasks_status[tid]
 
+    def cc_rpc_handle_imagesubmit(self, ch, method, props, tid):
+        if tid in self.submit_tasks and self.submit_tasks[tid] != None:
+            worker = self.submit_tasks[tid]
+            if worker.isFailed():
+                worker.start()
+            progress = worker.getprogress()
+        else:
+            progress = 0
+            clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+            walrusinfo = getWalrusInfo(clcip)
+            serverIP = walrusinfo['data']['ip0']
+            worker = submitWorkerThread(serverIP, tid)
+            worker.start()
+            self.tasks_status[tid] = worker
+
+        payload = {
+                'type'      : 'taskstatus',
+                'phase'     : "submitting",
+                'progress'  : progress,
+                'tid'       : tid,
+                'errormsg'  : '',
+                'failed'    : worker.isFailed()
+        }
+        payload = json.dumps(payload)
+        ch.basic_publish(
+                 exchange='',
+                 routing_key=props.reply_to,
+                 properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                 body=payload)
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+
+        if progress < 0:
+            del self.tasks_status[tid]
 

@@ -572,13 +572,6 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
     logger.error("lkf: get progress = %s", response)
     return HttpResponse(response, mimetype="application/json")
 
-
-def submit_image_create_task(request, srcid, dstid, insid):
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "submitting"
-    rec.progress = 0
-
 def image_create_task_getprogress(request, srcid, dstid, insid):
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     tid = "%s:%s:%s" % (srcid, dstid, insid)
@@ -610,6 +603,59 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
 
     logger.error("lkf: get progress = %s", response)
     return HttpResponse(response, mimetype="application/json")
+
+def submit_image_create_task(request, srcid, dstid, insid):
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    rec = ectaskTransaction.objects.get(tid=_tid)
+    rec.phase = "submitting"
+    rec.progress = 0
+
+    # # send request to CC to work
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/image/create/task/submit' % rec.ccip
+    else:
+        url = 'http://%s/cc/api/1.0/image/create/task/submit' % rec.ccip
+    payload = {
+        'tid': _tid,
+        'ncip': rec.ncip
+    }
+    r = requests.post(url, data=payload)
+    logger.error(url + ":" + r.content)
+
+    return HttpResponse(r.content, mimetype="application/json")
+
+def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    tid = "%s:%s:%s" % (srcid, dstid, insid)
+    try:
+        payload = mc.get(str(tid))
+        if payload == None:
+            payload = {
+                'type': 'taskstatus',
+                'phase': "submitting",
+                'progress': 0,
+                'tid': tid,
+                'failed' : False
+            }
+            response = json.dumps(payload)
+        else:
+            response = payload
+            payload = json.loads(payload)
+            if payload['progress'] < 0 or payload['failed'] == 1:
+                mc.delete(str(tid))
+    except Exception as e:
+        payload = {
+            'type': 'taskstatus',
+            'phase': "submitting",
+            'progress': 0,
+            'tid': tid,
+            'failed' : False
+        }
+        response = json.dumps(payload)
+
+    logger.error("lkf: get progress = %s", response)
+    return HttpResponse(response, mimetype="application/json")
+
 
 def image_modify_task(request, srcid):
     ccip = findLazyCC()
