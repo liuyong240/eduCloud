@@ -92,7 +92,7 @@ function getPrepareProgress() {
 
                 setTimeout(getPrepareProgress, timer_interval);
             } else {
-                if (progress == -100) {
+                if ( progress == -100 || progress == 100) {
                     progress = 100;
                     $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
 
@@ -205,9 +205,13 @@ function getVMStatus() {
             if (vmstatus == 'running') {
                 $("#luhyaVM a").attr("href", items['url']);
                 editPageUIupdate('running');
+                url = "/clc/image/create/task/updatevmstatus/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid) + "/" + vmstatus;
+                $.getJSON(url,function (data) {});
             }
             if (vmstatus == 'stopped') {
                 editPageUIupdate('stopped');
+                url = "/clc/image/create/task/updatevmstatus/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid) + "/" + vmstatus;
+                $.getJSON(url,function (data) {});
             }
         }
     }).error(function () {
@@ -291,7 +295,7 @@ function getSubmitProgress() {
 
                 setTimeout(getSubmitProgress, timer_interval);
             } else {
-                if (progress == -100) {
+                if ( progress == -100 || progress == 100) {
                     progress = 100;
                     $("#submit_progressbar").progressbar({"value": progress}).children("#submit_prlabel").html(progress + ' %');
 

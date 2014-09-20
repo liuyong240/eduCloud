@@ -26,7 +26,7 @@
         $('#pubip_config').css("display","none");
         $('#prvip_config').css("display","none");
         $('#service_port_config').css("display","none");
-        $('#network_mode_config').css("display","none");
+        $('#network_mode_config').css("display","block");
     }
 
     function enterVSandPubMode() {
@@ -241,8 +241,8 @@
                         <label>Network Mode</label>
                         <select id="network_mode" class="form-control">
                             <option value="MANUAL">Manual</option>
-                            <option value="PUBLIC">Public DHCP</option>
-                            <option value="PRIVATE">Private DHCP</option>
+                            <option value="PUBLIC">Public</option>
+                            <option value="PRIVATE">Private</option>
                         </select>
                     </div>
                     </div>

@@ -33,7 +33,8 @@ urlpatterns = patterns('',
 
     url(r'^image/create/task/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                views.run_image_create_task,              name='run_image_create_task'),
     url(r'^image/create/task/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',               views.stop_image_create_task,             name='stop_image_create_task'),
-    url(r'^image/create/task/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',        views.image_create_task_getvmstatus,      name='stop_image_create_task'),
+    url(r'^image/create/task/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',        views.image_create_task_getvmstatus,      name='image_create_task_getvmstatus'),
+    url(r'^image/create/task/updatevmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)/(?P<vmstatus>\w+)$',        views.image_create_task_updatevmstatus,      name='image_create_task_updatevmstatus'),
 
     url(r'^image/create/task/submit/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',             views.submit_image_create_task,                 name='submit_image_create_task'),
     url(r'^image/create/task/getsubmitprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',  views.image_create_task_getsubmitprogress,      name='image_create_task_getsubmitprogress'),

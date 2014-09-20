@@ -733,3 +733,9 @@ options重点关注下：
 #相关代码
 sshfs -o cache=yes,allow_other user@xx.xx.xx.xx:/dir_remote ./dir_local
 fusermount -u mountpoint
+
+
+Some Issues:
+- Doen: rvd need add public & provate network mode
+- Doen: when vm get into running, stopped state, wizard web page need to update clc's db
+-

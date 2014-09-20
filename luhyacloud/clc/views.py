@@ -537,10 +537,16 @@ def stop_image_create_task(request, srcid, dstid, insid):
     r = requests.post(url, data=payload)
     return HttpResponse(r.content, mimetype="application/json")
 
+def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    rec = ectaskTransaction.objects.get(tid=_tid)
+    rec.vmstatus = vmstatus
+    rec.save()
+
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    rec = ectaskTransaction.objects.get(tid=_tid)
+
     try:
         payload = mc.get(str(_tid))
         if payload == None:
@@ -551,24 +557,24 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
                 'tid': _tid,
                 'failed' : 0
             }
-            response = json.dumps(payload)
         else:
-            if payload['vmstatus'] == 'running':
-                payload['url'] = rec.mgr_accessURL
-            response = payload
             payload = json.loads(payload)
+            if payload['vmstatus'] == 'running':
+                rec = ectaskTransaction.objects.get(tid=_tid)
+                runtime_option = json.loads(rec.runtime_option)
+                payload['url'] = runtime_option['mgr_accessURL']
             if payload['failed'] == 1:
-                mc.delete(str(tid))
+                mc.delete(str(_tid))
     except Exception as e:
         payload = {
             'type': 'taskstatus',
-            'phase': "downloading",
-            'progress': 0,
-            'tid': tid,
-            'failed' : False
+            'phase': "editing",
+            'vmstatus': 'init',
+            'tid': _tid,
+            'failed' : 0,
         }
-        response = json.dumps(payload)
 
+    response = json.dumps(payload)
     logger.error("lkf: get progress = %s", response)
     return HttpResponse(response, mimetype="application/json")
 
