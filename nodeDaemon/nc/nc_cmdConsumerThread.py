@@ -229,10 +229,10 @@ class submitWorkerThread(threading.Thread):
         return self.progress
 
     def run(self):
-        logger.error("enter into downloadWorkerThread run()")
+        logger.error("enter into submitWorkerThread run()")
         self.progress = 0
 
-        source= "/storage/images/" + self.srcimgid
+        source= "/storage/tmp/images/" + self.srcimgid
         destination = "rsync://%s/luhya/" % (self.dstip)
 
         rsync = rsyncWrapper(source, destination)
