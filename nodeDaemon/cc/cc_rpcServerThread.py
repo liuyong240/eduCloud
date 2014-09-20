@@ -192,7 +192,7 @@ class cc_rpcServerThread(run4everThread):
             serverIP = walrusinfo['data']['ip0']
             worker = submitWorkerThread(serverIP, tid)
             worker.start()
-            self.tasks_status[tid] = worker
+            self.submit_tasks[tid] = worker
 
         payload = {
                 'type'      : 'taskstatus',
@@ -211,5 +211,5 @@ class cc_rpcServerThread(run4everThread):
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
         if progress < 0:
-            del self.tasks_status[tid]
+            del self.submit_tasks[tid]
 
