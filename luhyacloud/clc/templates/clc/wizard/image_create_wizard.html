@@ -282,6 +282,8 @@ function getSubmitProgress() {
         progress = items['progress'];
         failed   = items['failed'];
 
+        console.log("- " + phase + " - " + progress + " - " + failed);
+
         if (failed == 1) {
             $("#submit_laber").text("{% trans "Sorry, Submit Image failed. please click 'Submit' button and try again." %}");
             $("#submit_laber").css('color', 'red');

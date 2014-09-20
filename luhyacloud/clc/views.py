@@ -615,6 +615,7 @@ def submit_image_create_task(request, srcid, dstid, insid):
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "submitting"
     rec.progress = 0
+    rec.save()
 
     # # send request to CC to work
     if DAEMON_DEBUG == True:
