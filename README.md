@@ -738,4 +738,12 @@ fusermount -u mountpoint
 Some Issues:
 - Doen: rvd need add public & provate network mode
 - Doen: when vm get into running, stopped state, wizard web page need to update clc's db
--
+- delete snapshot before submitting
+- wizard always contains 3 steps.
+- when submit finished, nc send message to cc to
+  1. delete task thread in cc.tasks_status
+  2. delete task thread in cc.
+
+  cc then send rquest to clc, to
+  1. add a new image record, and set it properties
+  2. delete transaction record
