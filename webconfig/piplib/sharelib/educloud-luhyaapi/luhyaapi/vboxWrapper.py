@@ -15,23 +15,6 @@ class vboxWrapper():
         self._sata_port = -1
         self._sata_device = 0
 
-    def increaseVersionNo(self, version_no="1.0.0"):
-        major, minor, build = version_no.split('.')
-        major = int(major)
-        minor = int(minor)
-        build = int(build)
-
-        build += 1
-        if build > 100:
-            build = 0
-            minor += 1
-            if minor > 100:
-                minor = 0
-                major += 1
-
-        return ("%d.%d.%d" % (major, minor, build))
-
-
     def cloneImageFile(self, src, dst):
         cmd_line = "VBoxManage clonehd " + src + " " + dst
         ret, err = self._tool.runCMDline(cmd_line)

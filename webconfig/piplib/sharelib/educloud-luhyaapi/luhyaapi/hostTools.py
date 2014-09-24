@@ -20,6 +20,23 @@ def ReadImageVersionFile(imgid):
     else:
         return '0.0.0'
 
+def IncreaseImageVersion(versionStr):
+    major, minor, build = versionStr.split('.')
+    major = int(major)
+    minor = int(minor)
+    build = int(build)
+
+    build += 1
+    if build > 100:
+        build = 0
+        minor += 1
+        if minor > 100:
+            minor = 0
+            major += 1
+
+    return ("%d.%d.%d" % (major, minor, build))
+
+
 def randomMAC():
 	mac = [ 0x00, 0x16, 0x3e,
 		random.randint(0x00, 0x7f),

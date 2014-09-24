@@ -218,7 +218,8 @@ class submitWorkerThread(threading.Thread):
         self.dstip    = dstip
         self.tid      = tid
         retval = tid.split(':')
-        self.srcimgid = retval[1]
+        self.srcimgid = retval[0]
+        self.dstimgid = retval[1]
         self.progress = 0
         self.failed   = 0
 
@@ -232,7 +233,11 @@ class submitWorkerThread(threading.Thread):
         logger.error("enter into submitWorkerThread run()")
         self.progress = 0
 
-        source= "/storage/tmp/images/" + self.srcimgid
+        if self.dstimgid != self.srcimgid:
+            root_dir = "/storage/tmp/images/"
+        else:
+            root_dir = "/storage/images/"
+        source= root_dir + self.dstimgid
         destination = "rsync://%s/luhya/" % (self.dstip)
 
         rsync = rsyncWrapper(source, destination)
@@ -350,14 +355,20 @@ class SubmitImageTaskThread(threading.Thread):
         response = finish_rpc.call(cmd="image/finished", paras=self.tid)
         response = json.loads(response)
 
-        self.vboxmgr.unregisterVM(delete=True)
-        self.vboxmgr.deleteVMConfigFile()
-
         if self.srcimgid != self.dstimgid:
+            self.vboxmgr.unregisterVM(delete=True)
+            self.vboxmgr.deleteVMConfigFile()
+
             rootdir = "/storage/tmp"
             if os.path.exists(rootdir + "/images/" + self.dstimgid):
                 shutil.rmtree(rootdir + "/images/" + self.dstimgid)
+        else:
+            self.vboxmgr.unregisterVM()
+            self.vboxmgr.deleteVMConfigFile()
 
+            oldversionNo = ReadImageVersionFile(self.dstimgid)
+            newversionNo = IncreaseImageVersion(oldversionNo)
+            WriteImageVersionFile(self.dstimgid,newversionNo)
 
     def run(self):
         self.delete_snapshort()

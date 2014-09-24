@@ -79,7 +79,8 @@ class submitWorkerThread(threading.Thread):
         self.dstip    = dstip
         self.tid      = tid
         retval = tid.split(':')
-        self.srcimgid = retval[1]
+        self.srcimgid = retval[0]
+        self.dstimgid = retval[1]
         self.progress = 0
         self.failed = 0
 
@@ -90,11 +91,11 @@ class submitWorkerThread(threading.Thread):
         return self.progress
 
     def run(self):
-        logger.error("enter into downloadWorkerThread run()")
+        logger.error("enter into submitWorkerThread run()")
         self.progress = 0
 
+        source= "/storage/images/" + self.dstimgid
         destination = "rsync://%s/luhya/" % (self.dstip)
-        source= "/storage/images/" + self.srcimgid
 
         rsync = rsyncWrapper(source, destination)
         rsync.startRsync()
@@ -234,6 +235,10 @@ class cc_rpcServerThread(run4everThread):
                  properties=pika.BasicProperties(correlation_id = props.correlation_id),
                  body=payload)
         ch.basic_ack(delivery_tag = method.delivery_tag)
+
+        oldversionNo = ReadImageVersionFile(self.dstimgid)
+        newversionNo = IncreaseImageVersion(oldversionNo)
+        WriteImageVersionFile(self.dstimgid,newversionNo)
 
 
 

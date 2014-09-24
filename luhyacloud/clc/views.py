@@ -664,18 +664,50 @@ def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
     return HttpResponse(response, mimetype="application/json")
 
 
-def image_modify_task(request, srcid):
-    ccip = findLazyCC()
+def start_image_modify_task(request, srcid):
+    # create ectaskTransation Record
+    _srcimgid        = srcid
+    _dstimageid      = _srcimgid
+    _instanceid      = 'TMPINS' + genHexRandom()
+    _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/image/modify' % ccip
-    else:
-        url = 'http://%s/cc/api/1.0/image/modify' % ccip
-    payload = {
-        'ccname': getccnamebyconf()
+    logger.error("tid=%s" % _tid)
+
+    _ccip, _ccname = findLazyCC(srcid)
+    _ncip = findLazyNC(_ccname)
+
+    rec = ectaskTransaction(
+         tid         = _tid,
+         srcimgid    = _srcimgid,
+         dstimgid    = _dstimageid,
+         insid       = _instanceid,
+         user        = request.user.username,
+         phase       = 'preparing',
+         vmstatus    = "",
+         progress    = 0,
+         ccip        = _ccip,
+         ncip        = _ncip
+    )
+    rec.save()
+
+    rec.runtime_option = json.dumps(genRuntimeOptionForImageBuild(_tid))
+    rec.save()
+
+    # open a window to monitor work progress
+    imgobj = ecImages.objects.get(ecid = srcid)
+
+    context = {
+        'pagetitle' : "image create",
+        'tid'       : _tid,
+        'srcid'     : _srcimgid,
+        'dstid'     : _dstimageid,
+        "insid"     : _instanceid,
+        'imgobj'    : imgobj,
+        'steps'     : 0,
+        'vmstatus'  : 'stopped',
     }
-    r = requests.post(url, data=payload)
-    return HttpResponse(r.content, mimetype="application/json")
+
+    return render(request, 'clc/wizard/image_create_wizard.html', context)
 
 def image_create_task_view(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
@@ -703,29 +735,36 @@ def image_create_task_view(request,  srcid, dstid, insid):
 
 def image_create_task_done(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    _srcimgid        = srcid
-    _dstimageid      = dstid
-    _instanceid      = insid
 
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.delete()
 
-    srcimgrec = ecImages(ecid=_srcimgid)
+    if srcid != dstid:
+        srcimgrec = ecImages(ecid=srcid)
 
-    imgfile_path = '/storage/images/' + _dstimageid + "/machine"
-    imgfile_size = os.path.getsize(imgfile_path)
+        imgfile_path = '/storage/images/' + dstid + "/machine"
+        imgfile_size = os.path.getsize(imgfile_path)
 
-    dstimgrec = ecImages(
-        ecid    = _dstimageid,
-        name    = _dstimageid,
-        ostype  = srcimgrec.ostype,
-        usage   = srcimgrec.usage,
-        version = "1.0.0",
-        size    = imgfile_size,
-    )
-    dstimgrec.save()
+        dstimgrec = ecImages(
+            ecid    = dstid,
+            name    = dstid,
+            ostype  = srcimgrec.ostype,
+            usage   = srcimgrec.usage,
+            version = "1.0.0",
+            size    = imgfile_size,
+        )
+        dstimgrec.save()
 
-    WriteImageVersionFile(_dstimageid, '1.0.0')
+        WriteImageVersionFile(dstid, '1.0.0')
+    else:
+        oldversionNo = ReadImageVersionFile(dstid)
+        newversionNo = IncreaseImageVersion(oldversionNo)
+        WriteImageVersionFile(dstid, newversionNo)
+
+        dstimgrec = ecImages(ecid=dstid)
+        dstimgrec.version = newversionNo
+        dstimgrec.save()
+
 
     response = {}
     response['Result'] = 'OK'
