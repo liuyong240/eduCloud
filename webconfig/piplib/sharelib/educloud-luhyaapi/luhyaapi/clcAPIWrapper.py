@@ -25,3 +25,16 @@ def getImageVersionFromCC(ccip, imgid):
     r = requests.get(url)
     return json.loads(r.content)
 
+def submitImageFinished(clcip, tid):
+    retval = tid.split(':')
+    srcid = retval[0]
+    dstid = retval[1]
+    insid = retval[2]
+
+    if DAEMON_DEBUG == True:
+        url = "http://%s:8000/clc/image/create/task/done/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    else:
+        url = "http://%s/clc/image/create/task/done/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    r = requests.get(url)
+    return json.loads(r.content)
+

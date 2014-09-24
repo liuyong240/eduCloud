@@ -126,6 +126,7 @@ class cc_rpcServerThread(run4everThread):
         self.cc_rpc_handlers = {
             'image/prepare'    : self.cc_rpc_handle_imageprepare,
             'image/submit'     : self.cc_rpc_handle_imagesubmit,
+            'image/finished'   : self.cc_rpc_handle_imagefinished,
         }
 
         self.tasks_status = {}
@@ -212,4 +213,27 @@ class cc_rpcServerThread(run4everThread):
 
         if progress < 0:
             del self.submit_tasks[tid]
+
+    def cc_rpc_handle_imagefinished(self, ch, method, props, tid):
+        if tid in self.tasks_status and self.tasks_status[tid] != None:
+            del self.tasks_status[tid]
+
+        if tid in self.submit_tasks and self.submit_tasks[tid] != None:
+            del self.submit_tasks[tid]
+
+        # send http request to clc to
+        #  1. add a new image record, and set it properties
+        #  2. delete transaction record
+        clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+        payload = submitImageFinished(clcip, tid)
+
+        payload = json.dumps(payload)
+        ch.basic_publish(
+                 exchange='',
+                 routing_key=props.reply_to,
+                 properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                 body=payload)
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+
+
 

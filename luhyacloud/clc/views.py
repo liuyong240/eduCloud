@@ -701,6 +701,34 @@ def image_create_task_view(request,  srcid, dstid, insid):
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)
 
+def image_create_task_done(request,  srcid, dstid, insid):
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    _srcimgid        = srcid
+    _dstimageid      = dstid
+    _instanceid      = insid
+
+    rec = ectaskTransaction.objects.get(tid=_tid)
+    rec.delete()
+
+    srcimgrec = ecImages(ecid=_srcimgid)
+
+    imgfile_path = '/storage/images/' + _dstimageid + "/machine"
+    imgfile_size = os.path.getsize(imgfile_path)
+
+    dstimgrec = ecImages(
+        ecid    = _dstimageid,
+        name    = _dstimageid,
+        ostype  = srcimgrec.ostype,
+        usage   = srcimgrec.usage,
+        version = "1.0.0",
+        size    = imgfile_size,
+    )
+    dstimgrec.save()
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
 
 
 #################################################################################

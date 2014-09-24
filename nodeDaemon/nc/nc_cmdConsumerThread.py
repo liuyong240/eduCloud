@@ -260,6 +260,7 @@ class SubmitImageTaskThread(threading.Thread):
         self.tid      = tid
         self.srcimgid = retval[0]
         self.dstimgid = retval[1]
+        self.insid    = retval[2]
         self.ccip     = getccipbyconf()
 
     # RPC call to ask CC download image from walrus
@@ -333,10 +334,36 @@ class SubmitImageTaskThread(threading.Thread):
 
         return retvalue
 
-    def run(self):
-        if self.submitFromNC2CC() == "OK":
-            self.submitFromCC2Walrus()
+    def delete_snapshort(self):
+        if self.srcimgid != self.dstimgid:
+            rootdir = "/storage/tmp"
+        else:
+            rootdir = "/storage"
+        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, rootdir)
+        snapshot_name = "thomas"
+        if self.vboxmgr.isSnapshotExist(snapshot_name):
+            out, err = self.vboxmgr.delete_snapshot(snapshot_name)
+            logger.error("luhya: delete snapshort with result - out=%s - err=%s", out, err)
 
+    def task_finished(self):
+        finish_rpc = RpcClient(logger, self.ccip)
+        response = finish_rpc.call(cmd="image/finished", paras=self.tid)
+        response = json.loads(response)
+
+        self.vboxmgr.unregisterVM(delete=True)
+        self.vboxmgr.deleteVMConfigFile()
+        
+        if self.srcimgid != self.dstimgid:
+            rootdir = "/storage/tmp"
+            if os.path.exists(rootdir + "/images/" + self.dstimgid):
+                shutil.rmtree(rootdir + "/images/" + self.dstimgid)
+
+
+    def run(self):
+        self.delete_snapshort()
+        if self.submitFromNC2CC() == "OK":
+            if self.submitFromCC2Walrus() == "OK":
+                self.task_finished()
 
 def nc_image_prepare_handle(tid):
     worker = prepareImageTaskThread(tid)

@@ -49,7 +49,7 @@ $(document).ready(function()
   $("#view").click(function(){
         taskid=$("#taskid").text().split(':')
 
-        url="/clc/images/create/task/view/" + taskid[0] + '/' + taskid[1] + '/' + taskid[2];
+        url="/clc/image/create/task/view/" + taskid[0] + '/' + taskid[1] + '/' + taskid[2];
         var left = ($(window).width() / 2) - (800 / 2);
         var top = ($(window).height() / 2) - (600 / 2);
         window.open(url, 'popUpWindow', 'height=350,width=800,left=' + left + ',top=' + top);

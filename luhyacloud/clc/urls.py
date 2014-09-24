@@ -39,7 +39,8 @@ urlpatterns = patterns('',
     url(r'^image/create/task/submit/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',             views.submit_image_create_task,                 name='submit_image_create_task'),
     url(r'^image/create/task/getsubmitprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',  views.image_create_task_getsubmitprogress,      name='image_create_task_getsubmitprogress'),
 
-    url(r'^images/create/task/view/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.image_create_task_view,      name='view_image_create_task'),
+    url(r'^image/create/task/view/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.image_create_task_view,      name='view_image_create_task'),
+    url(r'^image/create/task/done/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.image_create_task_done,      name='image_create_task_done'),
 
 
     url(r'^image/modify/(?P<srcid>\w+)$',        views.image_modify_task,               name='images_modify_task'),
