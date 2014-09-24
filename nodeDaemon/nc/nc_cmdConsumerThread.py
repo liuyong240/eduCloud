@@ -352,7 +352,7 @@ class SubmitImageTaskThread(threading.Thread):
 
         self.vboxmgr.unregisterVM(delete=True)
         self.vboxmgr.deleteVMConfigFile()
-        
+
         if self.srcimgid != self.dstimgid:
             rootdir = "/storage/tmp"
             if os.path.exists(rootdir + "/images/" + self.dstimgid):

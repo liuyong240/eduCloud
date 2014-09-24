@@ -725,6 +725,8 @@ def image_create_task_done(request,  srcid, dstid, insid):
     )
     dstimgrec.save()
 
+    WriteImageVersionFile(_dstimageid, '1.0.0')
+
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
