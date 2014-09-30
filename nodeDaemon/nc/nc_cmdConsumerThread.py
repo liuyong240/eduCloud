@@ -80,18 +80,19 @@ class prepareImageTaskThread(threading.Thread):
         self.srcimgid = retval[0]
         self.dstimgid = retval[1]
         self.ccip     = getccipbyconf()
+        self.download_rpc = RpcClient(logger, self.ccip)
 
     # RPC call to ask CC download image from walrus
     def downloadFromWalrus2CC(self):
         retvalue = "OK"
 
         while True:
-            download_rpc = RpcClient(logger, self.ccip)
-            response = download_rpc.call(cmd="image/prepare", paras=self.tid)
+            response = self.download_rpc.call(cmd="image/prepare", paras=self.tid)
             response = json.loads(response)
             if response['failed'] == 1:
                 retvalue = "FALURE"
                 self.forwardTaskStatus2CC(json.dumps(response))
+                self.download_rpc.call(cmd="image/prepare/failure", paras=self.tid)
                 break
             else:
                 if response['progress'] < 0:
@@ -100,6 +101,7 @@ class prepareImageTaskThread(threading.Thread):
                         self.forwardTaskStatus2CC(json.dumps(response))
                     else:
                         retvalue = "FALURE"
+                        self.download_rpc.call(cmd="image/prepare/failure", paras=self.tid)
                     break
                 else:
                     response['progress'] = response['progress']/2.0
@@ -133,6 +135,7 @@ class prepareImageTaskThread(threading.Thread):
             if worker.isFailed():
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 retvalue = "FALURE"
+                self.download_rpc.call(cmd="image/prepare/failure", paras=self.tid)
                 break
             else:
                 if progress < 0:
@@ -142,6 +145,7 @@ class prepareImageTaskThread(threading.Thread):
                         self.forwardTaskStatus2CC(json.dumps(payload))
                     else:
                         retvalue = "FALURE"
+                        self.download_rpc.call(cmd="image/prepare/failure", paras=self.tid)
                     break;
                 else:
                     progress = 50 + progress / 2.5
@@ -202,7 +206,7 @@ class prepareImageTaskThread(threading.Thread):
 
         payload['progress'] = -100
         self.forwardTaskStatus2CC(json.dumps(payload))
-
+        self.download_rpc.call(cmd="image/prepare/success", paras=self.tid)
 
         return "OK"
 
@@ -267,18 +271,19 @@ class SubmitImageTaskThread(threading.Thread):
         self.dstimgid = retval[1]
         self.insid    = retval[2]
         self.ccip     = getccipbyconf()
+        self.download_rpc = RpcClient(logger, self.ccip)
 
     # RPC call to ask CC download image from walrus
     def submitFromCC2Walrus(self):
         retvalue = "OK"
 
         while True:
-            download_rpc = RpcClient(logger, self.ccip)
-            response = download_rpc.call(cmd="image/submit", paras=self.tid)
+            response = self.download_rpc.call(cmd="image/submit", paras=self.tid)
             response = json.loads(response)
             if response['failed'] == 1:
                 retvalue = "FALURE"
                 self.forwardTaskStatus2CC(json.dumps(response))
+                self.download_rpc.call(cmd="image/submit/failure", paras=self.tid)
                 break
             else:
                 if response['progress'] < 0:
@@ -287,6 +292,7 @@ class SubmitImageTaskThread(threading.Thread):
                         self.forwardTaskStatus2CC(json.dumps(response))
                     else:
                         retvalue = "FALURE"
+                        self.download_rpc.call(cmd="image/submit/failure", paras=self.tid)
                     break
                 else:
                     response['progress'] = 50 + response['progress']/2.0
@@ -320,6 +326,7 @@ class SubmitImageTaskThread(threading.Thread):
             if worker.isFailed():
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 retvalue = "FALURE"
+                self.download_rpc.call(cmd="image/submit/failure", paras=self.tid)
                 break
             else:
                 if progress < 0:
@@ -329,6 +336,7 @@ class SubmitImageTaskThread(threading.Thread):
                         self.forwardTaskStatus2CC(json.dumps(payload))
                     else:
                         retvalue = "FALURE"
+                        self.download_rpc.call(cmd="image/submit/failure", paras=self.tid)
                     break;
                 else:
                     progress = progress / 2.0
@@ -351,8 +359,7 @@ class SubmitImageTaskThread(threading.Thread):
             logger.error("luhya: delete snapshort with result - out=%s - err=%s", out, err)
 
     def task_finished(self):
-        finish_rpc = RpcClient(logger, self.ccip)
-        response = finish_rpc.call(cmd="image/finished", paras=self.tid)
+        response = self.download_rpc.call(cmd="image/submit/success", paras=self.tid)
         response = json.loads(response)
 
         if self.srcimgid != self.dstimgid:
@@ -393,6 +400,8 @@ class runImageTaskThread(threading.Thread):
         self.dstimgid = retval[1]
         self.insid    = retval[2]
         self.runtime_option = json.loads(runtime_option)
+
+        self.rpcClient = RpcClient(logger, self.ccip)
 
     def createvm(self):
         flag = True
@@ -488,13 +497,16 @@ class runImageTaskThread(threading.Thread):
                     payload['failed'] = 1
                     payload['errormsg'] = err
                     payload['vmstatus'] = 'stopped'
+                    self.rpcClient.call(cmd="image/edit/stopped", paras=self.tid)
+                else:
+                    self.rpcClient.call(cmd="image/edit/running", paras=self.tid)
         except Exception as e:
             payload['failed'] = 1
             payload['vmstatus'] = 'stopped'
             payload['errormsg'] = e.message
+            self.rpcClient.call(cmd="image/edit/stopped", paras=self.tid)
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
-
 
     def run(self):
         if self.createvm():

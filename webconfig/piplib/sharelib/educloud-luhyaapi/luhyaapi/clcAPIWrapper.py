@@ -25,6 +25,45 @@ def getImageVersionFromCC(ccip, imgid):
     r = requests.get(url)
     return json.loads(r.content)
 
+def prepareImageFailed(clcip, tid):
+    retval = tid.split(':')
+    srcid = retval[0]
+    dstid = retval[1]
+    insid = retval[2]
+
+    if DAEMON_DEBUG == True:
+        url = "http://%s:8000/clc/image/create/task/prepare/failure/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    else:
+        url = "http://%s/clc/image/create/task/prepare/failure/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    r = requests.get(url)
+    return json.loads(r.content)
+
+def prepareImageFinished(clcip, tid):
+    retval = tid.split(':')
+    srcid = retval[0]
+    dstid = retval[1]
+    insid = retval[2]
+
+    if DAEMON_DEBUG == True:
+        url = "http://%s:8000/clc/image/create/task/prepare/success/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    else:
+        url = "http://%s/clc/image/create/task/prepare/success/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    r = requests.get(url)
+    return json.loads(r.content)
+
+def submitImageFailed(clcip, tid):
+    retval = tid.split(':')
+    srcid = retval[0]
+    dstid = retval[1]
+    insid = retval[2]
+
+    if DAEMON_DEBUG == True:
+        url = "http://%s:8000/clc/image/create/task/submit/failure/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    else:
+        url = "http://%s/clc/image/create/task/submit/failure/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    r = requests.get(url)
+    return json.loads(r.content)
+
 def submitImageFinished(clcip, tid):
     retval = tid.split(':')
     srcid = retval[0]
@@ -32,9 +71,22 @@ def submitImageFinished(clcip, tid):
     insid = retval[2]
 
     if DAEMON_DEBUG == True:
-        url = "http://%s:8000/clc/image/create/task/done/%s/%s/%s" % (clcip, srcid, dstid, insid)
+        url = "http://%s:8000/clc/image/create/task/submit/success/%s/%s/%s" % (clcip, srcid, dstid, insid)
     else:
-        url = "http://%s/clc/image/create/task/done/%s/%s/%s" % (clcip, srcid, dstid, insid)
+        url = "http://%s/clc/image/create/task/submit/success/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    r = requests.get(url)
+    return json.loads(r.content)
+
+def updateVMStatus(clcip, tid, status):
+    retval = tid.split(':')
+    srcid = retval[0]
+    dstid = retval[1]
+    insid = retval[2]
+
+    if DAEMON_DEBUG == True:
+        url = "http://%s:8000/clc/image/create/task/updatevmstatus/%s/%s/%s/%s" % (clcip, srcid, dstid, insid, status)
+    else:
+        url = "http://%s/clc/image/create/task/updatevmstatus/%s/%s/%s/%s" % (clcip, srcid, dstid, insid, status)
     r = requests.get(url)
     return json.loads(r.content)
 

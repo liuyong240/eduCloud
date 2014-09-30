@@ -125,9 +125,14 @@ class cc_rpcServerThread(run4everThread):
         self.channel.basic_qos(prefetch_count=1)
 
         self.cc_rpc_handlers = {
-            'image/prepare'    : self.cc_rpc_handle_imageprepare,
-            'image/submit'     : self.cc_rpc_handle_imagesubmit,
-            'image/finished'   : self.cc_rpc_handle_imagefinished,
+            'image/prepare'             : self.cc_rpc_handle_imageprepare,
+            'image/submit'              : self.cc_rpc_handle_imagesubmit,
+            'image/prepare/failure'     : self.cc_rpc_handle_prepare_failure,
+            'image/prepare/success'     : self.cc_rpc_handle_prepare_success,
+            'image/submit/failure'      : self.cc_rpc_handle_submit_failure,
+            'image/submit/success'      : self.cc_rpc_handle_submit_success,
+            'image/edit/running'        : self.cc_rpc_handle_image_running,
+            'image/edit/stopped'        : self.cc_rpc_handle_image_stopped,
         }
 
         self.tasks_status = {}
@@ -215,7 +220,43 @@ class cc_rpcServerThread(run4everThread):
         if progress < 0:
             del self.submit_tasks[tid]
 
-    def cc_rpc_handle_imagefinished(self, ch, method, props, tid):
+    def cc_rpc_handle_prepare_failure(self, ch, method, props, tid):
+        clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+        payload = prepareImageFailed(clcip, tid)
+
+        payload = json.dumps(payload)
+        ch.basic_publish(
+                 exchange='',
+                 routing_key=props.reply_to,
+                 properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                 body=payload)
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+
+    def cc_rpc_handle_prepare_success(self, ch, method, props, tid):
+        clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+        payload = prepareImageFinished(clcip, tid)
+
+        payload = json.dumps(payload)
+        ch.basic_publish(
+                 exchange='',
+                 routing_key=props.reply_to,
+                 properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                 body=payload)
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+
+    def cc_rpc_handle_submit_failure(self, ch, method, props, tid):
+        clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+        payload = submitImageFailed(clcip, tid)
+
+        payload = json.dumps(payload)
+        ch.basic_publish(
+                 exchange='',
+                 routing_key=props.reply_to,
+                 properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                 body=payload)
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+
+    def cc_rpc_handle_submit_success(self, ch, method, props, tid):
         if tid in self.tasks_status and self.tasks_status[tid] != None:
             del self.tasks_status[tid]
 
@@ -240,5 +281,27 @@ class cc_rpcServerThread(run4everThread):
         newversionNo = IncreaseImageVersion(oldversionNo)
         WriteImageVersionFile(self.dstimgid,newversionNo)
 
+    def cc_rpc_handle_image_running(self, ch, method, props, tid):
+        clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+        payload = updateVMStatus(clcip, tid, 'running')
 
+        payload = json.dumps(payload)
+        ch.basic_publish(
+                 exchange='',
+                 routing_key=props.reply_to,
+                 properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                 body=payload)
+        ch.basic_ack(delivery_tag = method.delivery_tag)
+
+    def cc_rpc_handle_image_stopped(self, ch, method, props, tid):
+        clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+        payload = updateVMStatus(clcip, tid, 'stopped')
+
+        payload = json.dumps(payload)
+        ch.basic_publish(
+                 exchange='',
+                 routing_key=props.reply_to,
+                 properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                 body=payload)
+        ch.basic_ack(delivery_tag = method.delivery_tag)
 

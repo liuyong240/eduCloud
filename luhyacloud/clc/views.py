@@ -435,7 +435,7 @@ def start_image_create_task(request, srcid):
          dstimgid    = _dstimageid,
          insid       = _instanceid,
          user        = request.user.username,
-         phase       = 'preparing',
+         phase       = 'init',
          vmstatus    = "",
          progress    = 0,
          ccip        = _ccip,
@@ -484,12 +484,42 @@ def prepare_image_create_task(request, srcid, dstid, insid):
 
     return HttpResponse(r.content, mimetype="application/json")
 
+def image_create_task_prepare_success(request, srcid, dstid, insid):
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+
+    rec = ectaskTransaction.objects.get(tid=_tid)
+    rec.phase = "editing"
+    rec.vmstatus = 'init'
+    rec.progress = 0
+    rec.save()
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+
+def image_create_task_prepare_failure(request, srcid, dstid, insid):
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+
+    rec = ectaskTransaction.objects.get(tid=_tid)
+    rec.phase = "init"
+    rec.vmstatus = ''
+    rec.progress = 0
+    rec.save()
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
 def run_image_create_task(request, srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "editing"
     rec.vmstatus = 'init'
+    rec.progress = 0
     rec.save()
 
     # now everything is ready, start to run instance
@@ -510,6 +540,7 @@ def stop_image_create_task(request, srcid, dstid, insid):
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "editing"
     rec.vmstatus = 'stopping'
+    rec.progress = 0
     rec.save()
 
     if DAEMON_DEBUG == True:
@@ -649,7 +680,6 @@ def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
     logger.error("lkf: get progress = %s", response)
     return HttpResponse(response, mimetype="application/json")
 
-
 def start_image_modify_task(request, srcid):
     # create ectaskTransation Record
     _srcimgid        = srcid
@@ -668,7 +698,7 @@ def start_image_modify_task(request, srcid):
          dstimgid    = _dstimageid,
          insid       = _instanceid,
          user        = request.user.username,
-         phase       = 'preparing',
+         phase       = 'init',
          vmstatus    = "",
          progress    = 0,
          ccip        = _ccip,
@@ -702,7 +732,7 @@ def image_create_task_view(request,  srcid, dstid, insid):
     _instanceid      = insid
 
     rec = ectaskTransaction.objects.get(tid=_tid)
-    phase_array = ['preparing', 'editing', 'submitting']
+    phase_array = ['init', 'preparing', 'editing', 'submitting']
     steps = phase_array.index(rec.phase)
 
     imgobj = ecImages.objects.get(ecid = srcid)
@@ -719,7 +749,21 @@ def image_create_task_view(request,  srcid, dstid, insid):
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)
 
-def image_create_task_done(request,  srcid, dstid, insid):
+def image_create_task_submit_failure(request,  srcid, dstid, insid):
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    rec = ectaskTransaction.objects.get(tid=_tid)
+
+    rec.phase = "editing"
+    rec.vmstatus = 'stopping'
+    rec.progress = 0
+    rec.save()
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def image_create_task_submit_success(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     tidrec = ectaskTransaction.objects.get(tid=_tid)
@@ -792,7 +836,6 @@ def image_create_task_done(request,  srcid, dstid, insid):
         dstimgrec = ecImages(ecid=dstid)
         dstimgrec.version = newversionNo
         dstimgrec.save()
-
 
     response = {}
     response['Result'] = 'OK'

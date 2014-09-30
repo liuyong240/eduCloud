@@ -30,6 +30,8 @@ urlpatterns = patterns('',
 
     url(r'^image/create/task/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',            views.prepare_image_create_task,          name='prepare_image_create_task'),
     url(r'^image/create/task/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',        views.image_create_task_getprogress,      name='image_create_task_getprogress'),
+    url(r'^image/create/task/prepare/success/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',    views.image_create_task_prepare_success,  name='image_create_task_prepare_success'),
+    url(r'^image/create/task/prepare/failure/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',    views.image_create_task_prepare_failure,  name='image_create_task_prepare_failure'),
 
     url(r'^image/create/task/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                views.run_image_create_task,              name='run_image_create_task'),
     url(r'^image/create/task/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',               views.stop_image_create_task,             name='stop_image_create_task'),
@@ -38,9 +40,10 @@ urlpatterns = patterns('',
 
     url(r'^image/create/task/submit/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',             views.submit_image_create_task,                 name='submit_image_create_task'),
     url(r'^image/create/task/getsubmitprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',  views.image_create_task_getsubmitprogress,      name='image_create_task_getsubmitprogress'),
+    url(r'^image/create/task/submit/failure/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',     views.image_create_task_submit_failure,         name='image_create_task_submit_failure'),
+    url(r'^image/create/task/submit/success/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',     views.image_create_task_submit_success,         name='image_create_task_submit_success'),
 
     url(r'^image/create/task/view/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.image_create_task_view,      name='view_image_create_task'),
-    url(r'^image/create/task/done/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.image_create_task_done,      name='image_create_task_done'),
 
     url(r'^image/modify/task/begin/(?P<srcid>\w+)$',  views.start_image_modify_task,            name='start_image_modify_task'),
 

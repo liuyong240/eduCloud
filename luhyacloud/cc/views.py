@@ -46,6 +46,7 @@ def prepare_image_create_task(request):
     return HttpResponse(retvalue, mimetype="application/json")
 
 def AddIPtableRule(ipt):
+    # first need to check these iptables is already configured or not
     pass
 
 def RemoveIPtableRule(ipt):

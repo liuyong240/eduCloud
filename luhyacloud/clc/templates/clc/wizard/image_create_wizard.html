@@ -205,13 +205,9 @@ function getVMStatus() {
             if (vmstatus == 'running') {
                 $("#luhyaVM a").attr("href", items['url']);
                 editPageUIupdate('running');
-                url = "/clc/image/create/task/updatevmstatus/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid) + "/" + vmstatus;
-                $.getJSON(url,function (data) {});
             }
             if (vmstatus == 'stopped') {
                 editPageUIupdate('stopped');
-                url = "/clc/image/create/task/updatevmstatus/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid) + "/" + vmstatus;
-                $.getJSON(url,function (data) {});
             }
         }
     }).error(function () {
@@ -318,6 +314,34 @@ function getSubmitProgress() {
     });
 }
 
+function prepareDone() {
+    progress = 100;
+    $("#btn_prepare").addClass("disabled");
+    $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
+
+    $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
+    $("#desclabel").css('color', 'green');
+}
+
+function wizard_moveto_edit() {
+    // change prepare page
+    prepareDone();
+
+    // move to edit page
+    $(".jw-button-next").click();
+}
+
+function wizard_moveto_submit() {
+    // change prepare page
+    prepareDone();
+
+    // no need to change edit page
+
+    // move to submit page
+    $(".jw-button-next").click();
+    $(".jw-button-next").click();
+}
+
 $(document).ready(function () {
 
     srcid = $("#srcid").text();
@@ -364,10 +388,29 @@ $(document).ready(function () {
         submitVM();
     });
 
-    if ($("#runningstatus").text() == {% trans "running"  %}) {
-        runVM();
-    } else if ($("#runningstatus").text() == {% trans "submitting"  %}) {
-        submitVM();
+    //0- init, 1- preparing, 2- editing, 3- submitting
+
+    steps = $("#steps").text()
+    if (steps == '0') {
+        // init, do nothing
+    }
+    if (steps == '1') {
+        $(".jw-button-next").attr("disabled", true);
+        $("#btn_prepare").addClass("disabled");
+
+        setTimeout(getPrepareProgress, timer_interval);
+    }
+    if (steps == '2' ) {
+        // editing, get vm status
+        wizard_moveto_edit();
+        if ($("#runningstatus").text() == {% trans "running"  %}) {
+            setTimeout(getVMStatus, timer_interval);
+        }
+    }
+    if (steps == '3') {
+        // submitting, get progress
+        wizard_moveto_submit();
+        setTimeout(getSubmitProgress, timer_interval);
     }
 });
 </script>
@@ -378,23 +421,21 @@ $(document).ready(function () {
     <div id="srcid" style="display: none;">{{ srcid }}</div>
     <div id="dstid" style="display: none;">{{ dstid }}</div>
     <div id="insid" style="display: none;">{{ insid }}</div>
+    <div id="steps" style="display: none;">{{ steps }}</div>
 
     <form id="wizard">
-        {% if steps <= 0 %}
-            <fieldset>
-                <legend>{% trans "Prepare Image." %}</legend>
-                <button id="btn_prepare"    type="button" class="btn btn-primary">{% trans "Prepare" %}</button>
-                <p> </p>
-                <p> </p>
-                <p id="desclabel">{% trans "start to prepare image, please wait ... ..." %}</p>
-                <div id="progressbar">
-                    <div id='prlabel'>{% trans "downloading ... ..." %}</div>
-                </div>
-            </fieldset>
-        {% endif %}
+        <fieldset>
+            <legend>{% trans "Prepare Image." %}</legend>
+            <button id="btn_prepare"    type="button" class="btn btn-primary">{% trans "Prepare" %}</button>
+            <p> </p>
+            <p> </p>
+            <p id="desclabel">{% trans "start to prepare image, please wait ... ..." %}</p>
+            <div id="progressbar">
+                <div id='prlabel'>{% trans "downloading ... ..." %}</div>
+            </div>
+        </fieldset>
 
-        {% if steps <= 1 %}
-            <fieldset>
+        <fieldset>
             <legend>{% trans "run/edit Image." %}</legend>
             <p id="erromsg"></p>
             <div class="opontable">
@@ -427,10 +468,8 @@ $(document).ready(function () {
             <p> </p>
             <div><a href="/static/luhyaAdmin/plugin.zip">{% trans "Download plugin for Cloud Desktop Connection" %}</a></div>
         </fieldset>
-        {% endif %}
 
-        {% if steps <= 2 %}
-            <fieldset>
+        <fieldset>
             <legend>{% trans "submit Image" %}</legend>
             <p id="submit_erromsg"></p>
             <button id="btn_submit" type="button" class="btn btn-primary">{% trans "Submit" %}</button>
@@ -443,6 +482,5 @@ $(document).ready(function () {
                 </div>
             </div>
         </fieldset>
-        {% endif %}
     </form>
 {% endblock %}
