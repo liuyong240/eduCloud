@@ -45,8 +45,25 @@ def prepare_image_create_task(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
-def setupIPtableRules(ipt):
+def AddIPtableRule(ipt):
     pass
+
+def RemoveIPtableRule(ipt):
+    pass
+
+def removeIPtables_image_create_task(request):
+    runtime_option = json.loads(request.POST['runtime_option'])
+    if len(runtime_option['iptable_rules']) > 0:
+        for ipt in runtime_option['iptable_rules']:
+            RemoveIPtableRule(ipt)
+
+    # return http response
+    response = {}
+    response['Result'] = 'OK'
+    response['tid'] = request.POST['tid']
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
 
 def run_image_create_task(request):
     ncip = request.POST['ncip']
@@ -64,7 +81,7 @@ def run_image_create_task(request):
     runtime_option = json.loads(message['runtime_option'])
     if len(runtime_option['iptable_rules']) > 0:
         for ipt in runtime_option['iptable_rules']:
-            setupIPtableRules(ipt)
+            AddIPtableRule(ipt)
 
     # return http response
     response = {}

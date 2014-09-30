@@ -110,4 +110,37 @@ def genHexRandom():
     ret = "%8x" % random.randint(0x0, 0xFFFFFFFF)
     return ret
 
+# network resouce allocation method
+def allocate_rdp_port(avail_ports, used_ports):
+    if len(avail_ports) > 0:
+        newport = avail_ports[0]
+        avail_ports.remove(newport)
+        used_ports.append(newport)
+    else:
+        newport = ''
+    return avail_ports, used_ports, newport
 
+def free_rdp_port(avail_port, used_port, port):
+    used_port.remove(port)
+    avail_port.append(port)
+    return avail_port, used_port
+
+def allocate_ip_macs(avail_ip_masc, used_ip_macs):
+    if len(avail_ip_masc) > 0:
+        newipmacs = avail_ip_masc[0]
+        avail_ip_masc.remove(newipmacs)
+        used_ip_macs.append(newipmacs)
+    else:
+        newipmacs = {
+            'mac': '',
+            'pubip': '',
+            'prvip': ''
+        }
+
+    return avail_ip_masc, used_ip_macs, newipmacs
+
+def free_ip_macs(avail_ip_macs, used_ip_macs, ipmacs):
+    used_ip_macs.remove(ipmacs)
+    avail_ip_macs.append(ipmacs)
+
+    return avail_ip_macs, used_ip_macs

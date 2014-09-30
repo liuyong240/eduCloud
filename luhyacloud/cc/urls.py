@@ -10,7 +10,7 @@ urlpatterns = patterns('',
     url(r'^api/1.0/image/create/task/run$',         views.run_image_create_task,           name='run_image_create_task'),
     url(r'^api/1.0/image/create/task/stop$',        views.stop_image_create_task,          name='stop_image_create_task'),
     url(r'^api/1.0/image/create/task/submit$',      views.submit_image_create_task,        name='submit_image_create_task'),
-
+    url(r'^api/1.0/image/create/task/removeIPtables$',      views.removeIPtables_image_create_task,        name='removeIPtables_image_create_task'),
 
     url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),
     url(r'^api/1.0/register/server$',      views.register_server,             name='register_server'),

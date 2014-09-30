@@ -331,20 +331,15 @@ def genRuntimeOptionForImageBuild(transid):
     ###########################
     # 1. allocate rpd port
 
-    available_rpd_port = json.loads(ccres_info.available_rdp_ports)
+    available_rdp_port = json.loads(ccres_info.available_rdp_ports)
     used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
 
-    if len(available_rpd_port) > 0:
-        newport = available_rpd_port[0]
-        available_rpd_port.remove(newport)
-        used_rdp_ports.append(newport)
-        runtime_option['rdp_port'] = newport
+    available_rdp_port, used_rdp_ports, newport = allocate_rdp_port(available_rdp_port, used_rdp_ports)
 
-        ccres_info.available_rdp_ports = json.dumps(available_rpd_port)
-        ccres_info.used_rdp_ports      = json.dumps(used_rdp_ports)
-        ccres_info.save()
-    else:
-        runtime_option['rdp_port'] = ''
+    runtime_option['rdp_port'] = newport
+    ccres_info.available_rdp_ports = json.dumps(available_rdp_port)
+    ccres_info.used_rdp_ports      = json.dumps(used_rdp_ports)
+    ccres_info.save()
 
     ############################
     # 2. allocate ips, macs
@@ -369,29 +364,20 @@ def genRuntimeOptionForImageBuild(transid):
         available_ips_macs = json.loads(ccres_info.available_ips_macs)
         used_ips_macs      = json.loads(ccres_info.used_ips_macs)
 
+        available_ips_macs, used_ips_macs, new_ips_macs = allocate_ip_macs(available_ips_macs, used_ips_macs)
 
-        if len(available_ips_macs) > 0:
-            new_ips_macs = available_ips_macs[0]
-            available_ips_macs.remove(new_ips_macs)
-            used_ips_macs.append(new_ips_macs)
+        networkcards = []
+        netcard = {}
+        netcard['nic_type']     = nic_type
+        netcard['nic_mac']      = new_ips_macs['mac']
+        netcard['nic_pubip']    = new_ips_macs['pubip']
+        netcard['nic_privip']   = new_ips_macs['prvip']
+        networkcards.append(netcard)
+        runtime_option['networkcards'] = networkcards
 
-            networkcards = []
-            netcard = {}
-            netcard['nic_type']     = nic_type
-            netcard['nic_mac']      = new_ips_macs['mac']
-            netcard['nic_pubip']    = new_ips_macs['pubip']
-            netcard['nic_privip']   = new_ips_macs['prvip']
-            networkcards.append(netcard)
-            runtime_option['networkcards'] = networkcards
-
-            ccres_info.available_ips_macs = json.dumps(available_ips_macs)
-            ccres_info.used_ips_macs      = json.dumps(used_ips_macs)
-            ccres_info.save()
-        else:
-            runtime_option['networkcards'] = ''
-
-        runtime_option['publicIP']  = new_ips_macs['pubip']
-        runtime_option['privateIP'] = new_ips_macs['prvip']
+        ccres_info.available_ips_macs = json.dumps(available_ips_macs)
+        ccres_info.used_ips_macs      = json.dumps(used_ips_macs)
+        ccres_info.save()
 
         service_ports = ccres_info.service_ports
         if service_ports != '':
@@ -736,9 +722,51 @@ def image_create_task_view(request,  srcid, dstid, insid):
 def image_create_task_done(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.delete()
+    tidrec = ectaskTransaction.objects.get(tid=_tid)
+    runtime_option = json.loads(tidrec.runtime_option)
 
+    ccres_info = ecCCResources.objects.get(ccip = tidrec.ccip)
+    available_rdp_ports     = json.loads(ccres_info.available_rdp_ports)
+    used_rdp_ports          = json.loads(ccres_info.used_rdp_ports)
+    available_ips_macs      = json.loads(ccres_info.available_ips_macs)
+    used_ips_macs           = json.loads(ccres_info.used_ips_macs)
+
+    # Release network resource
+    # 1. release rdp port
+    available_rdp_ports, used_rdp_ports = free_rdp_port(available_rdp_ports, used_rdp_ports, runtime_option['rdp_port'])
+    ccres_info.available_rdp_ports = json.dumps(available_rdp_ports)
+    ccres_info.used_rdp_ports      = json.dumps(used_rdp_ports)
+
+    # 2. release ip_mac
+    if runtime_option['usage'] != 'desktop':
+
+        networkcards = runtime_option['networkcards']
+        for netcard in networkcards:
+            ipmacs = {
+                'mac'   : netcard['nic_mac'],
+                'pubip' : netcard['nic_pubip'],
+                'prvip' : netcard['nic_prvip']
+            }
+            available_ips_macs, used_ips_macs = free_ip_macs(available_ips_macs, used_ips_macs, ipmacs)
+
+        ccres_info.available_ips_macs   = json.dumps(available_ips_macs)
+        ccres_info.used_ips_macs        = json.dumps(used_ips_macs)
+
+    # 3.update iptables
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
+    else:
+        url = 'http://%s/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
+
+    payload = {
+        'runtime_option' : tidrec.runtime_option
+    }
+    r = requests.post(url, data=payload)
+
+    tidrec.delete()
+    ccres_info.save()
+
+    # 4 update database
     if srcid != dstid:
         srcimgrec = ecImages(ecid=srcid)
 
