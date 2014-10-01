@@ -53,7 +53,10 @@ def registerMyselfasNC():
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()
-    url = 'http://%s/cc/api/1.0/register/server' % ccip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/register/server' % ccip
+    else:
+        url = 'http://%s/cc/api/1.0/register/server' % ccip
     payload = {
         'role': 'nc',
         'name': hostname,

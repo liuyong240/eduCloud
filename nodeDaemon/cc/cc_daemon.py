@@ -38,7 +38,10 @@ def registerMyselfasCC():
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()
-    url = 'http://%s/clc/api/1.0/register/server' % clcip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/clc/api/1.0/register/server' % clcip
+    else:
+        url = 'http://%s/clc/api/1.0/register/server' % clcip
     payload = {
         'role': 'cc',
         'name': hostname,

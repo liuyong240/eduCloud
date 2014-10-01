@@ -34,10 +34,10 @@ sudo mkdir images VMs config
 -------------------------------------
 incoming coding work
 -------------------------------------
-1. debug VM run/stop at different network configuration
+1. Done. debug VM run/stop at different network configuration
    - rvd
    - vs { manual, public, private }
-2. add image version management, for pre-process of image download & submit
+2. Done. add image version management, for pre-process of image download & submit
 3. add lvd, rvd, vss instance creation wizard, one by one and batch creation
    - and modify & delete instance
 4. add logic on both walrus, cc, nc to check

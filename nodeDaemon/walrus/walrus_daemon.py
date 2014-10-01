@@ -24,7 +24,10 @@ def registerMyselfasWALRUS():
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()
-    url = 'http://%s/clc/api/1.0/register/server' % clcip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/clc/api/1.0/register/server' % clcip
+    else:
+        url = 'http://%s/clc/api/1.0/register/server' % clcip
     payload = {
         'role':   'walrus',
         'name':   hostname,
@@ -61,7 +64,7 @@ def main ():
 
             logger.error("restart %s ... ..." % (daemon_name))
 
-            obj = globals()[daemon_name](bucket, logger)
+            obj = globals()[daemon_name](bucket)
             obj.daemon = True
             obj.start()
 
