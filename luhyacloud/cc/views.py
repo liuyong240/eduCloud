@@ -133,8 +133,10 @@ def submit_image_create_task(request):
 
 def register_host(request):
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
-
-    url = 'http://%s/clc/api/1.0/register/host' % clcip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/clc/api/1.0/register/host' % clcip
+    else:
+        url = 'http://%s/clc/api/1.0/register/host' % clcip
     payload = {
 
     }
@@ -144,7 +146,10 @@ def register_host(request):
 def register_server(request):
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
-    url = 'http://%s/clc/api/1.0/register/server' % clcip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/clc/api/1.0/register/server' % clcip
+    else:
+        url = 'http://%s/clc/api/1.0/register/server' % clcip
     payload = {
         'role':     request.POST['role'],
         'name':     request.POST['name'],
