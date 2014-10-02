@@ -108,6 +108,8 @@ def getHostNetInfo():
 import random
 def genHexRandom():
     ret = "%8x" % random.randint(0x0, 0xFFFFFFFF)
+    if ret[0] == ' ':
+        ret = "%8x" % random.randint(0x0, 0xFFFFFFFF)
     return ret
 
 # network resouce allocation method
