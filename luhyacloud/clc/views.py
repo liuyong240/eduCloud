@@ -298,6 +298,7 @@ def cc_modify_resources(request, cc_name):
 
 
 def genRuntimeOptionForImageBuild(transid):
+    logger.error("--- --- --- genRuntimeOptionForImageBuild")
     tidrec = ectaskTransaction.objects.get(tid=transid)
 
     runtime_option = {}
@@ -417,7 +418,7 @@ def genIPTablesRule(fromip, toip, port):
 
 @login_required
 def start_image_create_task(request, srcid):
-
+    logger.error("--- --- --- start_image_create_task")
     # create ectaskTransation Record
     _srcimgid        = srcid
     _dstimageid      = 'IMG' + genHexRandom()
@@ -463,6 +464,8 @@ def start_image_create_task(request, srcid):
     return render(request, 'clc/wizard/image_create_wizard.html', context)
 
 def prepare_image_create_task(request, srcid, dstid, insid):
+    logger.error("--- --- --- prepare_image_create_task")
+
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
@@ -480,11 +483,13 @@ def prepare_image_create_task(request, srcid, dstid, insid):
         'ncip': rec.ncip
     }
     r = requests.post(url, data=payload)
-    logger.error(url + ":" + r.content)
+    logger.error("--- --- --- " + url + ":" + r.content)
 
     return HttpResponse(r.content, mimetype="application/json")
 
 def image_create_task_prepare_success(request, srcid, dstid, insid):
+    logger.error("--- --- --- image_create_task_prepare_success")
+
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
@@ -500,6 +505,8 @@ def image_create_task_prepare_success(request, srcid, dstid, insid):
 
 
 def image_create_task_prepare_failure(request, srcid, dstid, insid):
+    logger.error("--- --- --- image_create_task_prepare_failure")
+
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
@@ -514,6 +521,8 @@ def image_create_task_prepare_failure(request, srcid, dstid, insid):
     return HttpResponse(retvalue, mimetype="application/json")
 
 def run_image_create_task(request, srcid, dstid, insid):
+    logger.error("--- --- --- run_image_create_task")
+
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
@@ -533,9 +542,13 @@ def run_image_create_task(request, srcid, dstid, insid):
         'runtime_option' : rec.runtime_option,
     }
     r = requests.post(url, data=payload)
+    logger.error("--- --- --- " + url + ":" + r.content)
+
     return HttpResponse(r.content, mimetype="application/json")
 
 def stop_image_create_task(request, srcid, dstid, insid):
+    logger.error("--- --- --- stop_image_create_task")
+
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "editing"
@@ -552,15 +565,21 @@ def stop_image_create_task(request, srcid, dstid, insid):
         'ncip' : rec.ncip,
     }
     r = requests.post(url, data=payload)
+    logger.error("--- --- --- " + url + ":" + r.content)
+
     return HttpResponse(r.content, mimetype="application/json")
 
 def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
+    logger.error("--- --- --- image_create_task_updatevmstatus")
+
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.vmstatus = vmstatus
     rec.save()
 
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
+    logger.error("--- --- --- image_create_task_getvmstatus")
+
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
@@ -580,8 +599,6 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
                 rec = ectaskTransaction.objects.get(tid=_tid)
                 runtime_option = json.loads(rec.runtime_option)
                 payload['url'] = runtime_option['mgr_accessURL']
-            if payload['failed'] == 1:
-                mc.delete(str(_tid))
     except Exception as e:
         payload = {
             'type': 'taskstatus',
@@ -592,7 +609,6 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
         }
 
     response = json.dumps(payload)
-    logger.error("lkf: get progress = %s", response)
     return HttpResponse(response, mimetype="application/json")
 
 def image_create_task_getprogress(request, srcid, dstid, insid):
@@ -628,6 +644,8 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
     return HttpResponse(response, mimetype="application/json")
 
 def submit_image_create_task(request, srcid, dstid, insid):
+    logger.error("--- --- --- submit_image_create_task")
+
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "submitting"
@@ -644,7 +662,7 @@ def submit_image_create_task(request, srcid, dstid, insid):
         'ncip': rec.ncip
     }
     r = requests.post(url, data=payload)
-    logger.error(url + ":" + r.content)
+    logger.error("--- --- --- " + url + ":" + r.content)
 
     return HttpResponse(r.content, mimetype="application/json")
 
@@ -665,8 +683,6 @@ def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
         else:
             response = payload
             payload = json.loads(payload)
-            if payload['progress'] < 0 or payload['failed'] == 1:
-                mc.delete(str(tid))
     except Exception as e:
         payload = {
             'type': 'taskstatus',
@@ -750,6 +766,8 @@ def image_create_task_view(request,  srcid, dstid, insid):
     return render(request, 'clc/wizard/image_create_wizard.html', context)
 
 def image_create_task_submit_failure(request,  srcid, dstid, insid):
+    logger.error("--- --- --- image_create_task_submit_failure")
+
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
     rec = ectaskTransaction.objects.get(tid=_tid)
 
@@ -764,6 +782,8 @@ def image_create_task_submit_failure(request,  srcid, dstid, insid):
     return HttpResponse(retvalue, mimetype="application/json")
 
 def image_create_task_submit_success(request,  srcid, dstid, insid):
+    logger.error("--- --- --- image_create_task_submit_success")
+
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     tidrec = ectaskTransaction.objects.get(tid=_tid)
@@ -780,6 +800,7 @@ def image_create_task_submit_success(request,  srcid, dstid, insid):
     available_rdp_ports, used_rdp_ports = free_rdp_port(available_rdp_ports, used_rdp_ports, runtime_option['rdp_port'])
     ccres_info.available_rdp_ports = json.dumps(available_rdp_ports)
     ccres_info.used_rdp_ports      = json.dumps(used_rdp_ports)
+    logger.error("--- --- --- release rdp port success")
 
     # 2. release ip_mac
     if runtime_option['usage'] != 'desktop':
@@ -795,6 +816,7 @@ def image_create_task_submit_success(request,  srcid, dstid, insid):
 
         ccres_info.available_ips_macs   = json.dumps(available_ips_macs)
         ccres_info.used_ips_macs        = json.dumps(used_ips_macs)
+        logger.error("--- --- --- release ips-macs success")
 
     # 3.update iptables
     if DAEMON_DEBUG == True:
@@ -806,6 +828,7 @@ def image_create_task_submit_success(request,  srcid, dstid, insid):
         'runtime_option' : tidrec.runtime_option
     }
     r = requests.post(url, data=payload)
+    logger.error("--- --- --- " + url + ":" + r.content)
 
     tidrec.delete()
     ccres_info.save()
@@ -828,14 +851,16 @@ def image_create_task_submit_success(request,  srcid, dstid, insid):
         dstimgrec.save()
 
         WriteImageVersionFile(dstid, '1.0.0')
+        logger.error("--- --- --- create a new image record successfully")
     else:
         oldversionNo = ReadImageVersionFile(dstid)
         newversionNo = IncreaseImageVersion(oldversionNo)
         WriteImageVersionFile(dstid, newversionNo)
 
-        dstimgrec = ecImages(ecid=dstid)
+        dstimgrec = ecImages.objects.get(ecid=dstid)
         dstimgrec.version = newversionNo
         dstimgrec.save()
+        logger.error("--- --- --- update image record successfully")
 
     response = {}
     response['Result'] = 'OK'

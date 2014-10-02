@@ -153,6 +153,8 @@ class cc_rpcServerThread(run4everThread):
 
 
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid):
+        logger.error("--- --- --- cc_rpc_handle_imageprepare")
+
         if tid in self.tasks_status and self.tasks_status[tid] != None:
             worker = self.tasks_status[tid]
             if worker.isFailed():
@@ -187,6 +189,8 @@ class cc_rpcServerThread(run4everThread):
             del self.tasks_status[tid]
 
     def cc_rpc_handle_imagesubmit(self, ch, method, props, tid):
+        logger.error("--- --- --- cc_rpc_handle_imagesubmit")
+
         if tid in self.submit_tasks and self.submit_tasks[tid] != None:
             worker = self.submit_tasks[tid]
             if worker.isFailed():
@@ -221,6 +225,8 @@ class cc_rpcServerThread(run4everThread):
             del self.submit_tasks[tid]
 
     def cc_rpc_handle_prepare_failure(self, ch, method, props, tid):
+        logger.error("--- --- --- cc_rpc_handle_prepare_failure")
+
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
         payload = prepareImageFailed(clcip, tid)
 
@@ -233,6 +239,8 @@ class cc_rpcServerThread(run4everThread):
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
     def cc_rpc_handle_prepare_success(self, ch, method, props, tid):
+        logger.error("--- --- --- cc_rpc_handle_prepare_success")
+
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
         payload = prepareImageFinished(clcip, tid)
 
@@ -245,6 +253,8 @@ class cc_rpcServerThread(run4everThread):
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
     def cc_rpc_handle_submit_failure(self, ch, method, props, tid):
+        logger.error("--- --- --- cc_rpc_handle_submit_failure")
+
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
         payload = submitImageFailed(clcip, tid)
 
@@ -257,6 +267,8 @@ class cc_rpcServerThread(run4everThread):
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
     def cc_rpc_handle_submit_success(self, ch, method, props, tid):
+        logger.error("--- --- --- cc_rpc_handle_submit_success")
+
         if tid in self.tasks_status and self.tasks_status[tid] != None:
             del self.tasks_status[tid]
 
@@ -282,6 +294,8 @@ class cc_rpcServerThread(run4everThread):
         WriteImageVersionFile(self.dstimgid,newversionNo)
 
     def cc_rpc_handle_image_running(self, ch, method, props, tid):
+        logger.error("--- --- --- cc_rpc_handle_image_running")
+
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
         payload = updateVMStatus(clcip, tid, 'running')
 
@@ -294,6 +308,8 @@ class cc_rpcServerThread(run4everThread):
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
     def cc_rpc_handle_image_stopped(self, ch, method, props, tid):
+        logger.error("--- --- --- cc_rpc_handle_image_stopped")
+
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
         payload = updateVMStatus(clcip, tid, 'stopped')
 

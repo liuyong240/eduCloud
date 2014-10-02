@@ -28,6 +28,7 @@ logger = getcclogger()
 import requests, memcache
 
 def prepare_image_create_task(request):
+    logger.error("--- --- --- prepare_image_create_task")
 
     message = {}
     message['type'] = "cmd"
@@ -36,6 +37,7 @@ def prepare_image_create_task(request):
     message = json.dumps(message)
 
     routing_send(logger, 'localhost', 'nc_cmd', message, request.POST['ncip'])
+    logger.error("--- --- --- send prepare cmd to nc sucessfully")
 
     # return http response
     response = {}
@@ -53,6 +55,8 @@ def RemoveIPtableRule(ipt):
     pass
 
 def removeIPtables_image_create_task(request):
+    logger.error("--- --- --- removeIPtables_image_create_task")
+
     runtime_option = json.loads(request.POST['runtime_option'])
     if len(runtime_option['iptable_rules']) > 0:
         for ipt in runtime_option['iptable_rules']:
@@ -66,6 +70,8 @@ def removeIPtables_image_create_task(request):
     return HttpResponse(retvalue, mimetype="application/json")
 
 def run_image_create_task(request):
+    logger.error("--- --- --- run_image_create_task")
+
     ncip = request.POST['ncip']
 
     message = {}
@@ -76,6 +82,7 @@ def run_image_create_task(request):
 
     _message = json.dumps(message)
     routing_send(logger, 'localhost', 'nc_cmd', _message, ncip)
+    logger.error("--- --- --- send run cmd to nc sucessfully")
 
     # check for runtime_option for cc's side work
     runtime_option = json.loads(message['runtime_option'])
@@ -93,6 +100,8 @@ def run_image_create_task(request):
 
 
 def stop_image_create_task(request):
+    logger.error("--- --- --- stop_image_create_task")
+
     ncip = request.POST['ncip']
 
     message = {}
@@ -102,6 +111,7 @@ def stop_image_create_task(request):
 
     _message = json.dumps(message)
     routing_send(logger, 'localhost', 'nc_cmd', _message, ncip)
+    logger.error("--- --- --- send stop cmd to nc sucessfully")
 
     # return http response
     response = {}
@@ -112,6 +122,8 @@ def stop_image_create_task(request):
     return HttpResponse(retvalue, mimetype="application/json")
 
 def submit_image_create_task(request):
+    logger.error("--- --- --- submit_image_create_task")
+
     ncip = request.POST['ncip']
 
     message = {}
@@ -121,6 +133,7 @@ def submit_image_create_task(request):
     message = json.dumps(message)
 
     routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
+    logger.error("--- --- --- send submit cmd to nc sucessfully")
 
     # return http response
     response = {}

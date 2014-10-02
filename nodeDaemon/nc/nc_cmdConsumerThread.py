@@ -384,6 +384,7 @@ class SubmitImageTaskThread(threading.Thread):
                 self.task_finished()
 
 def nc_image_prepare_handle(tid):
+    logger.error("--- --- --- nc_image_prepare_handle")
     worker = prepareImageTaskThread(tid)
     worker.start()
     return worker
@@ -513,6 +514,8 @@ class runImageTaskThread(threading.Thread):
             self.runvm()
 
 def nc_image_run_handle(tid, runtime_option):
+    logger.error("--- --- --- nc_image_run_handle")
+
     worker = runImageTaskThread(tid, runtime_option)
     worker.start()
     pass
@@ -522,6 +525,7 @@ def PoweroffVM(insID):
     out = commands.getoutput(cmd)
 
 def nc_image_stop_handle(tid):
+    logger.error("--- --- --- nc_image_stop_handle")
 
     retval   = tid.split(':')
     srcimgid = retval[0]
@@ -543,6 +547,8 @@ def nc_image_stop_handle(tid):
     simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
 
 def nc_image_submit_handle(tid):
+    logger.error("--- --- --- nc_image_submit_handle")
+
     worker = SubmitImageTaskThread(tid)
     worker.start()
     return worker
