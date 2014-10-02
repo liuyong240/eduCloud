@@ -812,7 +812,7 @@ def image_create_task_submit_success(request,  srcid, dstid, insid):
 
     # 4 update database
     if srcid != dstid:
-        srcimgrec = ecImages(ecid=srcid)
+        srcimgrec = ecImages.objects.get(ecid=srcid)
 
         imgfile_path = '/storage/images/' + dstid + "/machine"
         imgfile_size = os.path.getsize(imgfile_path)
