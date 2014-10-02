@@ -61,7 +61,6 @@ def removeIPtables_image_create_task(request):
     # return http response
     response = {}
     response['Result'] = 'OK'
-    response['tid'] = request.POST['tid']
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
