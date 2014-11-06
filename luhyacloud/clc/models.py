@@ -7,6 +7,30 @@ from django.forms import ModelForm
 # Basic setting for system
 #==============================================
 
+# mysql> describe auth_user;
+# +--------------+--------------+------+-----+---------+----------------+
+# | Field        | Type         | Null | Key | Default | Extra          |
+# +--------------+--------------+------+-----+---------+----------------+
+# | id           | int(11)      | NO   | PRI | NULL    | auto_increment |
+# | password     | varchar(128) | NO   |     | NULL    |                |
+# | last_login   | datetime     | NO   |     | NULL    |                |
+# | is_superuser | tinyint(1)   | NO   |     | NULL    |                |
+# | username     | varchar(30)  | NO   | UNI | NULL    |                |
+# | first_name   | varchar(30)  | NO   |     | NULL    |                |
+# | last_name    | varchar(30)  | NO   |     | NULL    |                |
+# | email        | varchar(75)  | NO   |     | NULL    |                |
+# | is_staff     | tinyint(1)   | NO   |     | NULL    |                |
+# | is_active    | tinyint(1)   | NO   |     | NULL    |                |
+# | date_joined  | datetime     | NO   |     | NULL    |                |
+# +--------------+--------------+------+-----+---------+----------------+
+class ecAccount(models.Model):
+    userid              = models.CharField(max_length=30)
+    showname            = models.CharField(max_length=30)
+    ec_authpath_name    = models.CharField(max_length=100)
+    phone               = models.CharField(max_length=30)
+    description         = models.TextField()
+    vdpara              = models.TextField()
+
 class ecAuthPath(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
     ec_authpath_value = models.CharField(max_length=100)

@@ -70,6 +70,17 @@ def user_logout(request):
     logout(request)
     return render(request, 'clc/login.html', {})
 
+
+def forget_password(request):
+    pass
+
+def create_new_account(request):
+    pass
+
+def feedback(request):
+    pass
+
+
 @login_required
 def index_view(request):
     context = {

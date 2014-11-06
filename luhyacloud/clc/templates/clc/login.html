@@ -63,7 +63,16 @@
                                 <!-- Change this to a button or input when using this as a form -->
                                 <input type="button" id="logon_btn" class="btn btn-lg btn-success btn-block" value="{% trans "Login" %}" />
                             </fieldset>
+                            <p></p>
+                            <div>
+                                <a href="/clc/forget_password" class="link" id="forgetpwd" target="_blank">{% trans "Forget Password ?" %}</a>
+                                <span class="dotted">|</span>
+                                <a href="/clc/create_new_account" class="link" target="_blank">{% trans "New Account" %}</a>
+                                <span class="dotted">|</span>
+                                <a class="link" id="feedback_web" href="/clc/feedback" target="_blank">{% trans "Feedback" %}</a>
+                            </div>
                         </form>
+
                     </div>
                 </div>
             </div>

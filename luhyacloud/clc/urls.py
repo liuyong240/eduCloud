@@ -25,6 +25,11 @@ urlpatterns = patterns('',
     url(r'^lvds$',          views.lvds_view,                          name='lvds_view'),
     url(r'^tasks$',         views.tasks_view,                         name='tasks_view'),
 
+    url(r'^forget_password$',           views.forget_password,        name='forget_password'),
+    url(r'^create_new_account',         views.create_new_account,     name='create_new_account'),
+    url(r'^feedback',                   views.feedback,               name='feedback'),
+
+
     # image create and modify URL
     url(r'^image/create/task/begin/(?P<srcid>\w+)$',                                            views.start_image_create_task,            name='start_image_create_task'),
 
