@@ -71,6 +71,10 @@ def user_logout(request):
     logout(request)
     return render(request, 'clc/login.html', {})
 
+
+##########################################################################
+# Account Management
+##########################################################################
 @login_required
 def adm_add_new_account(request):
     authnamelist =  ecAuthPath.objects.all()
@@ -1062,6 +1066,15 @@ def jtable_servers_nc(request):
 def jtable_servers_lnc(request):
     return render(request, 'clc/jtable/servers_lnc_table.html', {})
 
+@login_required
+def jtable_active_accounts(request):
+    return render(request, 'clc/jtable/active_account_table.html', {})
+
+
+@login_required
+def jtable_inactive_accounts(request):
+    return render(request, 'clc/jtable/inactive_account_table.html', {})
+
 #################################################################################
 # API Version 1.0 for accessing data model by POST request
 #################################################################################
@@ -1850,7 +1863,6 @@ def list_images(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
-
 def delete_images(request):
     response = {}
 
@@ -1911,6 +1923,68 @@ def create_images(request):
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
+
+def list_active_account(request):
+    response = {}
+    data = []
+
+    users = User.objects.filter(is_active=1)
+
+    for u in users:
+        ecuser = ecAccount.objects.filter(userid=u.username)
+        if ecuser.count() == 0:
+            continue
+        jrec = {}
+        jrec['id'] = u.id
+        jrec['ec_username'] = u.username
+        jrec['ec_displayname'] = ecuser[0].showname
+        jrec['ec_email'] = u.email
+        jrec['ec_phone'] = ecuser[0].phone
+        jrec['ec_supper_user']= u.is_superuser
+        jrec['ec_authpath_name'] = ecuser[0].ec_authpath_name
+        jrec['vdpara'] = ecuser[0].vdpara
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_active_account(request):
+    response = {}
+
+    u = User.objects.get(id=request.POST['id'])
+    ecu = ecAccount.objects.get(userid=u.username)
+    u.delete()
+    ecu.delete()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_active_account(request):
+    response = {}
+
+    u = User.objects.get(id=request.POST['id'])
+    ecu = ecAccount.objects.get(userid=u.username)
+
+    ecu.showname = request.POST['ec_displayname']
+    u.email = request.POST['ec_email']
+    ecu.phone = request.POST['ec_phone']
+    u.is_superuser = request.POST['ec_supper_user']
+    ecu.ec_authpath_name = request.POST['ec_authpath_name']
+    ecu.vdpara = request.POST['vdpara']
+
+    u.save()
+    ecu.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
 
 #################################################################################
 # API Version 1.0 for image build & modify

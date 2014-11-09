@@ -29,9 +29,9 @@
                         <div class="panel-body">
                             <!-- Nav tabs -->
                             <ul class="nav nav-tabs">
-                                <li class="active"><a href="#active_account" data-toggle="tab">Registered Accounts</a>
+                                <li class="active"><a href="#active_account" data-toggle="tab">Active Accounts</a>
                                 </li>
-                                <li class=""><a href="#inactive_account" data-toggle="tab">Approval Accounts</a>
+                                <li class=""><a href="#inactive_account" data-toggle="tab">Inactive Accounts</a>
                                 </li>
                             </ul>
 
@@ -39,12 +39,11 @@
                             <div class="tab-content">
                                 <div class="tab-pane fade" id="active_account">
                                     <p></p>
-                                    <p>list of all valid accounts for edit</p>
-                                    <iframe class="servers_table" id="myiframe" src="jt/servers/cc" frameborder="0" width="100%"></iframe>
+                                    <iframe class="servers_table" id="myiframe1" src="jt/account/actived" frameborder="0" width="100%"></iframe>
                                 </div>
                                 <div class="tab-pane fade" id="inactive_account">
                                     <p></p>
-                                    <p>list of all unapproved account for approval</p>
+                                    <iframe class="servers_table" id="myiframe2" src="jt/account/inactive" frameborder="0" width="100%"></iframe>
                                 </div>
                             </div>
                         </div>
@@ -60,6 +59,10 @@
 {% endblock %}
 
 {% block myjs %}
+<script type="text/javascript" language="javascript">
+    $('#myiframe1').css('height', $(window).height()+'px');
+    $('#myiframe2').css('height', $(window).height()+'px');
+</script>
 <script>
 function openNewAccount() {
     url="/clc/adm_add_new_account";

@@ -72,6 +72,9 @@ urlpatterns = patterns('',
     url(r'^jt/servers/nc$',             views.jtable_servers_nc,                 name='jtable_servers_nc_view'),
     url(r'^jt/servers/lnc$',            views.jtable_servers_lnc,                name='jtable_servers_lnc_view'),
 
+    url(r'^jt/account/actived$',            views.jtable_active_accounts,                name='jtable_active_accounts'),
+    url(r'^jt/account/inactive$',           views.jtable_inactive_accounts,              name='jtable_inactive_accounts'),
+
     # API v1.0
     # system setting table ops by POST
     url(r'^api/1.0/settings/listauthpath$',      views.list_authpath,               name='list_authpath_view'),
@@ -135,6 +138,11 @@ urlpatterns = patterns('',
     url(r'^api/1.0/ccresource/delete$',        views.delete_cc_resource,               name='delete_cc_resource_view'),
     url(r'^api/1.0/ccresource/update$',        views.update_cc_resource,               name='update_cc_resource_view'),
     url(r'^api/1.0/ccresource/create$',        views.create_cc_resource,               name='create_cc_resource_view'),
+
+    url(r'^api/1.0/account/active/list$',          views.list_active_account,                 name='list_active_account_view'),
+    url(r'^api/1.0/account/active/delete$',        views.delete_active_account,               name='delete_active_account_view'),
+    url(r'^api/1.0/account/active/update$',        views.update_active_account,               name='update_active_account_view'),
+
     #
     # url(r'^api/1.0/vapp/list$',          views.list_vapp,                 name='list_vapp_view'),
     # url(r'^api/1.0/vapp/delete$',        views.delete_vapp,               name='delete_vapp_view'),
