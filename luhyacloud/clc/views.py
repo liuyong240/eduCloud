@@ -125,10 +125,58 @@ def account_create(request):
 
 @login_required
 def admin_batch_add_new_accounts(request):
-    pass
+    authnamelist =  ecAuthPath.objects.all()
+    roles = []
+
+    for authname in authnamelist:
+        roles.append(authname.ec_authpath_name)
+
+    context = {
+        'roles': roles,
+    }
+    return render(request, 'clc/form/adm_add_new_account_batch.html', context)
 
 def account_create_batch(request):
-    pass
+    response = {}
+    prefix = request.POST['prefix']
+    id_start = int(request.POST['id_start'])
+    id_end = int(request.POST['id_end'])
+    password = request.POST['password']
+    role = request.POST['role']
+    email = request.POST['email']
+    phone = request.POST['phone']
+    desc = request.POST['desc']
+    _vdparar = {}
+    _vdparar['pds'] = request.POST['pds']
+    _vdparar['sds'] = request.POST['sds']
+
+    # construct user list
+    user_list = []
+    for index in range(id_start, id_end):
+        newname = prefix + str(index)
+        user_list.append(newname)
+        # check existence
+        num = User.objects.filter(username=newname).count()
+        if num > 0:
+            response['Result'] = 'FAIL'
+            response['errormsg'] = 'duplicated user name: ' + newname
+            return HttpResponse(json.dumps(response), mimetype="application/json")
+
+    for u in user_list:
+        user = User.objects.create_user(u, email, password)
+        rec = ecAccount(
+            userid  = u,
+            showname = u,
+            ec_authpath_name = role,
+            phone = phone,
+            description = desc,
+            vdpara=json.dumps(_vdparar),
+        )
+        rec.save()
+
+    response['Result'] = 'OK'
+    return HttpResponse(json.dumps(response), mimetype="application/json")
+
 
 @login_required
 def index_view(request):

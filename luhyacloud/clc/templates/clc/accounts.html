@@ -16,7 +16,7 @@
                                     <ul class="dropdown-menu pull-right" role="menu">
                                         <li><a href="JavaScript:void(0);" onclick="openNewAccount();">{% trans " Add New Account" %}</a>
                                         </li>
-                                        <li><a href="/clc/admin_batch_add_new_accounts" target="_blank">{% trans " Batch Add New Account" %}</a>
+                                        <li><a href="JavaScript:void(0);" onclick="openNewAccountBatch();">{% trans " Batch Add New Account" %}</a>
                                         </li>
                                         <li class="divider"></li>
                                         <li><a href="#" target="_blank">{% trans " more actions" %}</a>
@@ -66,6 +66,13 @@ function openNewAccount() {
     var left = ($(window).width() / 2) - (800 / 2);
     var top = ($(window).height() / 2) - (600 / 2);
     window.open(url, 'popUpWindow', 'height=760,width=550,left=' + left + ',top=' + top);
+}
+
+function openNewAccountBatch() {
+    url="/clc/admin_batch_add_new_accounts";
+    var left = ($(window).width() / 2) - (800 / 2);
+    var top = ($(window).height() / 2) - (600 / 2);
+    window.open(url, 'popUpWindow', 'height=760,width=650,left=' + left + ',top=' + top);
 }
 
 </script>
