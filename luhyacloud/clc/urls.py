@@ -25,12 +25,11 @@ urlpatterns = patterns('',
     url(r'^lvds$',          views.lvds_view,                          name='lvds_view'),
     url(r'^tasks$',         views.tasks_view,                         name='tasks_view'),
 
-    url(r'^forget_password$',           views.forget_password,        name='forget_password'),
-    url(r'^create_new_account',         views.create_new_account,     name='create_new_account'),
-    url(r'^feedback',                   views.feedback,               name='feedback'),
-
     url(r'^adm_add_new_account',                    views.adm_add_new_account,              name='adm_add_new_account'),
     url(r'^admin_batch_add_new_accounts',           views.admin_batch_add_new_accounts,     name='admin_batch_add_new_accounts'),
+    url(r'^request_new_account',                    views.request_new_account,              name='request_new_account'),
+    url(r'^restore_password',                    views.restore_password,              name='restore_password'),
+    url(r'^send_feedback',                    views.send_feedback,              name='send_feedback'),
 
     # image create and modify URL
     url(r'^image/create/task/begin/(?P<srcid>\w+)$',                                            views.start_image_create_task,            name='start_image_create_task'),
@@ -153,7 +152,6 @@ urlpatterns = patterns('',
     # url(r'^api/1.0/vss/create$',        views.create_vss,               name='create_vss_view'),
 
 
-
     # this is a POST requtst, all data in POST section
     url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),
     url(r'^api/1.0/register/server$',      views.register_server,             name='register_server'),
@@ -165,7 +163,6 @@ urlpatterns = patterns('',
 
     url(r'^api/1.0/account/create$',             views.account_create,                      name='account_create'),
     url(r'^api/1.0/account/create/batch$',       views.account_create_batch,                name='account_create_batch'),
-
-
+    url(r'^api/1.0/account/request$',            views.account_request,                     name='account_request'),
 
     )

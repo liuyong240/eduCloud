@@ -71,16 +71,6 @@ def user_logout(request):
     logout(request)
     return render(request, 'clc/login.html', {})
 
-
-def forget_password(request):
-    pass
-
-def create_new_account(request):
-    pass
-
-def feedback(request):
-    pass
-
 @login_required
 def adm_add_new_account(request):
     authnamelist =  ecAuthPath.objects.all()
@@ -177,6 +167,54 @@ def account_create_batch(request):
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), mimetype="application/json")
 
+def request_new_account(request):
+    context = {}
+    return render(request, 'clc/form/request_new_account.html', context)
+
+def account_request(request):
+    userid = request.POST['userid']
+    displayname = request.POST['displayname']
+    password = request.POST['password']
+    email = request.POST['email']
+    phone = request.POST['phone']
+    desc = request.POST['desc']
+
+    response = {}
+    # create a new account
+    # 1. check if user already existed
+    num = User.objects.filter(username=userid).count()
+    if num > 0 :
+        response['Result'] = 'FAIL'
+        response['errormsg'] = 'duplicated user name.'
+        return HttpResponse(json.dumps(response), mimetype="application/json")
+
+    # 2. start to create new account
+    user = User.objects.create_user(userid, email, password)
+    user.is_active = 0
+    user.save()
+
+    # create ecAccount record
+    rec = ecAccount(
+        userid  = userid,
+        showname = displayname,
+        phone = phone,
+        description = desc,
+    )
+    rec.save()
+
+    response['Result'] = 'OK'
+    return HttpResponse(json.dumps(response), mimetype="application/json")
+
+def restore_password(request):
+    context = {}
+    return render(request, 'clc/form/restore_password.html', context)
+
+def send_feedback(request):
+    context = {}
+    return render(request, 'clc/form/send_feedback.html', context)
+
+##########################################################################
+##########################################################################
 
 @login_required
 def index_view(request):

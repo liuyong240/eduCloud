@@ -64,12 +64,13 @@
                                 <input type="button" id="logon_btn" class="btn btn-lg btn-success btn-block" value="{% trans "Login" %}" />
                             </fieldset>
                             <p></p>
-                            <div>
-                                <a href="/clc/forget_password" class="link" id="forgetpwd" target="_blank">{% trans "Forget Password ?" %}</a>
+                            <a href="JavaScript:void(0);" onclick="requestNewAccount();">{% trans "New Account" %}</a>
+                            <div style="display:none">
+                                <a href="JavaScript:void(0);" onclick="restorePassword();">{% trans "Forget Password ?" %}</a>
                                 <span class="dotted">|</span>
-                                <a href="/clc/create_new_account" class="link" target="_blank">{% trans "New Account" %}</a>
+                                <a href="JavaScript:void(0);" onclick="requestNewAccount();">{% trans "New Account" %}</a>
                                 <span class="dotted">|</span>
-                                <a class="link" id="feedback_web" href="/clc/feedback" target="_blank">{% trans "Feedback" %}</a>
+                                <a href="JavaScript:void(0);" onclick="sendFeedback();">{% trans "Feedback" %}</a>
                             </div>
                         </form>
 
@@ -92,6 +93,27 @@
     <script src="{% static "clc/js/sb-admin-2.js" %}"></script>
 
     <script>
+        function requestNewAccount() {
+            url="/clc/request_new_account";
+            var left = ($(window).width() / 2) - (800 / 2);
+            var top = ($(window).height() / 2) - (600 / 2);
+            window.open(url, '', 'height=760,width=550,left=' + left + ',top=' + top);
+        }
+
+        function restorePassword() {
+            url="/clc/restore_password";
+            var left = ($(window).width() / 2) - (800 / 2);
+            var top = ($(window).height() / 2) - (600 / 2);
+            window.open(url, '', 'height=760,width=550,left=' + left + ',top=' + top);
+        }
+
+        function sendFeedback() {
+            url="/clc/send_feedback";
+            var left = ($(window).width() / 2) - (800 / 2);
+            var top = ($(window).height() / 2) - (600 / 2);
+            window.open(url, '', 'height=760,width=550,left=' + left + ',top=' + top);
+        }
+
         $(document).ready(function () {
             $("#logon_btn").click(function () {
                 vemail = $("#email").val();
