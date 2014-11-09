@@ -197,12 +197,16 @@ def account_request(request):
     user.is_active = 0
     user.save()
 
+    _vdpara = {}
+    _vdpara['pds'] = 0
+    _vdpara['sds'] = "no"
     # create ecAccount record
     rec = ecAccount(
         userid  = userid,
         showname = displayname,
         phone = phone,
         description = desc,
+        vdpara=json.dumps(_vdpara),
     )
     rec.save()
 
@@ -1920,6 +1924,33 @@ def create_images(request):
 
     response['Result'] = 'OK'
     response['Record'] = data
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def list_inactive_account(request):
+    response = {}
+    data = []
+
+    users = User.objects.filter(is_active=0)
+
+    for u in users:
+        ecuser = ecAccount.objects.filter(userid=u.username)
+        if ecuser.count() == 0:
+            continue
+        jrec = {}
+        jrec['id'] = u.id
+        jrec['ec_username'] = u.username
+        jrec['ec_displayname'] = ecuser[0].showname
+        jrec['ec_email'] = u.email
+        jrec['ec_phone'] = ecuser[0].phone
+        jrec['ec_supper_user']= u.is_superuser
+        jrec['ec_authpath_name'] = ecuser[0].ec_authpath_name
+        jrec['vdpara'] = ecuser[0].vdpara
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")

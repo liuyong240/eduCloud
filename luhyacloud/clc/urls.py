@@ -142,6 +142,7 @@ urlpatterns = patterns('',
     url(r'^api/1.0/account/active/list$',          views.list_active_account,                 name='list_active_account_view'),
     url(r'^api/1.0/account/active/delete$',        views.delete_active_account,               name='delete_active_account_view'),
     url(r'^api/1.0/account/active/update$',        views.update_active_account,               name='update_active_account_view'),
+    url(r'^api/1.0/account/inactive/list$',        views.list_inactive_account,                 name='list_active_account_view'),
 
     #
     # url(r'^api/1.0/vapp/list$',          views.list_vapp,                 name='list_vapp_view'),
@@ -172,5 +173,6 @@ urlpatterns = patterns('',
     url(r'^api/1.0/account/create$',             views.account_create,                      name='account_create'),
     url(r'^api/1.0/account/create/batch$',       views.account_create_batch,                name='account_create_batch'),
     url(r'^api/1.0/account/request$',            views.account_request,                     name='account_request'),
+
 
     )
