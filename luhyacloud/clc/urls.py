@@ -29,6 +29,8 @@ urlpatterns = patterns('',
     url(r'^create_new_account',         views.create_new_account,     name='create_new_account'),
     url(r'^feedback',                   views.feedback,               name='feedback'),
 
+    url(r'^adm_add_new_account',                    views.adm_add_new_account,              name='adm_add_new_account'),
+    url(r'^admin_batch_add_new_accounts',           views.admin_batch_add_new_accounts,     name='admin_batch_add_new_accounts'),
 
     # image create and modify URL
     url(r'^image/create/task/begin/(?P<srcid>\w+)$',                                            views.start_image_create_task,            name='start_image_create_task'),
@@ -160,5 +162,10 @@ urlpatterns = patterns('',
     # common api interface
     url(r'^api/1.0/getwalrusinfo$',                     views.get_walrus_info,             name='get_walrus_info'),
     url(r'^api/1.0/getimageinfo/(?P<imgid>\w+)$',       views.get_image_info,              name='get_image_info'),
+
+    url(r'^api/1.0/account/create$',             views.account_create,                      name='account_create'),
+    url(r'^api/1.0/account/create/batch$',       views.account_create_batch,                name='account_create_batch'),
+
+
 
     )

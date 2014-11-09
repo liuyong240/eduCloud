@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
 
 import json
 import random, pickle, pexpect, os, base64, shutil, time, datetime
@@ -80,6 +81,54 @@ def create_new_account(request):
 def feedback(request):
     pass
 
+@login_required
+def adm_add_new_account(request):
+    authnamelist =  ecAuthPath.objects.all()
+    roles = []
+
+    for authname in authnamelist:
+        roles.append(authname.ec_authpath_name)
+
+    context = {
+        'roles': roles,
+    }
+    return render(request, 'clc/form/adm_add_new_account.html', context)
+
+def account_create(request):
+    response = {}
+    # create a new account
+    # 1. check if user already existed
+    num = User.objects.filter(username=request.POST['userid']).count()
+    if num > 0 :
+        response['Result'] = 'FAIL'
+        response['errormsg'] = 'duplicated user name.'
+        return HttpResponse(json.dumps(response), mimetype="application/json")
+
+    # 2. start to create new account
+    user = User.objects.create_user(request.POST['userid'], request.POST['email'], request.POST['password'])
+    # create ecAccount record
+    _vdparar = {}
+    _vdparar['pds'] = request.POST['pds']
+    _vdparar['sds'] = request.POST['sds']
+    rec = ecAccount(
+        userid  = request.POST['userid'],
+        showname = request.POST['displayname'],
+        ec_authpath_name = request.POST['role'],
+        phone = request.POST['phone'],
+        description = request.POST['desc'],
+        vdpara=json.dumps(_vdparar),
+    )
+    rec.save()
+
+    response['Result'] = 'OK'
+    return HttpResponse(json.dumps(response), mimetype="application/json")
+
+@login_required
+def admin_batch_add_new_accounts(request):
+    pass
+
+def account_create_batch(request):
+    pass
 
 @login_required
 def index_view(request):
