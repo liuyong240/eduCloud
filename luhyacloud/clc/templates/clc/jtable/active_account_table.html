@@ -46,18 +46,26 @@
                                         listAction: function (postData, jtParams) {
                                                 return {
                                                     "Result": "OK",
-                                                    "Records": [{ "vdpara": accountData.record.vdpara }],
-                                                    "TotalRecordCount": 1
+                                                    "Records": [{ "vdpara":  accountData.record.vdpara,
+                                                                  "ec_desc": accountData.record.ec_desc, }],
+
+                                                    "TotalRecordCount": 1,
                                                 };
                                             }
                                     },
                                     fields: {
                                         vdpara: {
-                                            title: '',
+                                            title: 'vd parameters',
                                             display: function (data) {
                                                 return '<pre>' + data.record.vdpara + '</pre>';
                                             }
                                         },
+                                        ec_desc: {
+                                            title:'description',
+                                            display: function (data) {
+                                                return '<pre>' + data.record.ec_desc + '</pre>';
+                                            }
+                                        }
 
                                     }
                                 }, function (data) { //opened handler
@@ -96,6 +104,11 @@
                 },
                 vdpara: {
                     title: 'Parameters',
+                    type: 'textarea',
+                    list: false
+                },
+                ec_desc: {
+                    title: 'desc',
                     type: 'textarea',
                     list: false
                 },

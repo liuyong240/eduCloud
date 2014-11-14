@@ -57,13 +57,14 @@
             <ul class="nav navbar-top-links navbar-right">
                 <!-- /.dropdown -->
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ loginname }}
+                    <div id="uid"   style="display: none;">{{ uid }}</div>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="showname">{{ showname }}
                         <i class="fa fa-user fa-fw"></i><i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
-                        <li><a href="#"><i class="fa fa-user fa-fw"></i>{% trans " User Profile" %}</a>
+                        <li><a a href="JavaScript:void(0);" onclick="editUserProfile();"><i class="fa fa-user fa-fw"></i>{% trans " Edit User Profile" %}</a>
                         </li>
-                        <li><a href="#"><i class="fa fa-gear fa-fw"></i>{% trans " Settings" %}</a>
+                        <li><a a href="JavaScript:void(0);" onclick="editPassword();"><i class="fa fa-gear fa-fw"></i>{% trans " Edit Password" %}</a>
                         </li>
                         <li class="divider"></li>
                         <li><a href="/clc/user_logout"><i class="fa fa-sign-out fa-fw"></i>{% trans " Logout" %}</a>
@@ -161,6 +162,24 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="{% static "clc/js/sb-admin-2.js" %}"></script>
+
+    <script>
+    function editUserProfile() {
+        u_name = $('#uid').text()
+        url="/clc/user/edit_profile/" + u_name;
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, '', 'height=760,width=550,left=' + left + ',top=' + top);
+    }
+
+    function editPassword() {
+        u_name = $('#uid').text()
+        url="/clc/user/edit_password/" + u_name;
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, '', 'height=460,width=650,left=' + left + ',top=' + top);
+    }
+    </script>
 
     {% block myjs %}
     {% endblock %}

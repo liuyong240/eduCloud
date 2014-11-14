@@ -31,6 +31,10 @@ urlpatterns = patterns('',
     url(r'^restore_password',                    views.restore_password,              name='restore_password'),
     url(r'^send_feedback',                    views.send_feedback,              name='send_feedback'),
 
+    url(r'^user/edit_profile/(?P<uid>\w+)$',                    views.edit_profile,              name='edit_profile'),
+    url(r'^user/edit_password/(?P<uid>\w+)$',                   views.edit_password,             name='edit_profile'),
+
+
     # image create and modify URL
     url(r'^image/create/task/begin/(?P<srcid>\w+)$',                                            views.start_image_create_task,            name='start_image_create_task'),
 
@@ -173,6 +177,8 @@ urlpatterns = patterns('',
     url(r'^api/1.0/account/create$',             views.account_create,                      name='account_create'),
     url(r'^api/1.0/account/create/batch$',       views.account_create_batch,                name='account_create_batch'),
     url(r'^api/1.0/account/request$',            views.account_request,                     name='account_request'),
+    url(r'^api/1.0/account/update_profile$',     views.account_update_profile,              name='account_update_profile'),
+
 
 
     )

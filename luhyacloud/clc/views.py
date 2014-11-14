@@ -221,29 +221,91 @@ def send_feedback(request):
     context = {}
     return render(request, 'clc/form/send_feedback.html', context)
 
+def edit_profile(request, uid):
+    u = User.objects.get(username=uid)
+    ua = ecAccount.objects.get(userid=uid)
+
+    _user = {}
+    _user['userid'] = ua.userid
+    _user['showname'] = ua.showname
+    _user['role'] = ua.ec_authpath_name
+    _user['email'] = u.email
+    _user['phone'] = ua.phone
+    _user['desc'] = ua.description
+
+    if len(ua.vdpara) > 0:
+        _vdpara = json.loads(ua.vdpara)
+        _user['pds'] = _vdpara['pds']
+        _user['sds'] = _vdpara['sds']
+    else:
+        _user['pds'] = ''
+        _user['sds'] = ''
+
+    authnamelist =  ecAuthPath.objects.all()
+    roles = []
+
+    for authname in authnamelist:
+        roles.append(authname.ec_authpath_name)
+
+    context = {
+        'user': _user,
+        'roles': roles,
+    }
+    return render(request, 'clc/form/update_account_profile.html', context)
+
+def account_update_profile(request):
+    u = User.objects.get(username=request.POST['userid'])
+    ua = ecAccount.objects.get(userid=request.POST['userid'])
+
+    u.email = request.POST['email']
+    ua.phone = request.POST['phone']
+    ua.showname = request.POST['displayname']
+    ua.description = request.POST['desc']
+
+    u.save()
+    ua.save()
+
+    response = {}
+    response['Result'] = 'OK'
+    return HttpResponse(json.dumps(response), mimetype="application/json")
+
+def edit_password(request, uid):
+    pass
+
 ##########################################################################
 ##########################################################################
 
 @login_required
 def index_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
     context = {
-        'loginname': request.user,
+        'uid':   u.username,
+        'showname': ua.showname,
         'dashboard' : "System Run-time Status Overview",
     }
     return render(request, 'clc/overview.html', context)
 
 @login_required
 def accounts_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
     context = {
-        'loginname': request.user,
+        'uid':   u.username,
+        'showname': ua.showname,
         'dashboard' : "Account Management",
     }
     return render(request, 'clc/accounts.html', context)
 
 @login_required
 def images_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
     context = {
-        'loginname': request.user,
+        'uid':   u.username,
+        'showname': ua.showname,
         'dashboard' : "Images Management",
     }
 
@@ -251,8 +313,12 @@ def images_view(request):
 
 @login_required
 def computers_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
     context = {
-        'loginname': request.user,
+        'uid':   u.username,
+        'showname': ua.showname,
         'dashboard' : "Computer Management",
     }
     return render(request, 'clc/computers.html', context)
@@ -260,24 +326,36 @@ def computers_view(request):
 
 @login_required
 def hosts_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
     context = {
-        'loginname': request.user,
+        'uid':   u.username,
+        'showname': ua.showname,
         'dashboard' : "Hosts Management",
     }
     return render(request, 'clc/hosts.html', context)
 
 @login_required
 def settings_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
     context = {
-        'loginname': request.user,
+        'uid':   u.username,
+        'showname': ua.showname,
         'dashboard' : "System Settings Management",
     }
     return render(request, 'clc/settings.html', context)
 
 @login_required
 def vss_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
     context = {
-        'loginname': request.user,
+        'uid':   u.username,
+        'showname': ua.showname,
         'dashboard' : "Cloud App Management",
     }
 
@@ -285,8 +363,12 @@ def vss_view(request):
 
 @login_required
 def rvds_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
     context = {
-        'loginname': request.user,
+        'uid':   u.username,
+        'showname': ua.showname,
         'dashboard' : "Remote Cloud Desktop Management",
     }
 
@@ -294,8 +376,12 @@ def rvds_view(request):
 
 @login_required
 def lvds_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
     context = {
-        'loginname': request.user,
+        'uid':   u.username,
+        'showname': ua.showname,
         'dashboard' : "Local Cloud Desktop Management",
     }
 
@@ -303,8 +389,12 @@ def lvds_view(request):
 
 @login_required
 def tasks_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
     context = {
-        'loginname': request.user,
+        'uid':   u.username,
+        'showname': ua.showname,
         'dashboard' : "Tasks Management",
     }
 
@@ -1974,6 +2064,7 @@ def list_active_account(request):
         jrec['ec_supper_user']= u.is_superuser
         jrec['ec_authpath_name'] = ecuser[0].ec_authpath_name
         jrec['vdpara'] = ecuser[0].vdpara
+        jrec['ec_desc'] = ecuser[0].description
         data.append(jrec)
 
     response['Records'] = data
@@ -2007,6 +2098,7 @@ def update_active_account(request):
     u.is_superuser = request.POST['ec_supper_user']
     ecu.ec_authpath_name = request.POST['ec_authpath_name']
     ecu.vdpara = request.POST['vdpara']
+    ecu.description = request.POST['ec_desc']
 
     u.save()
     ecu.save()
