@@ -2045,10 +2045,19 @@ def list_inactive_account(request):
     response = {}
     data = []
 
-    users = User.objects.filter(is_active=0)
+    ec_username = request.POST['ec_username']
+    ec_displayname = request.POST['ec_displayname']
+
+    if len(ec_username) > 0:
+        users = User.objects.filter(is_active=0, username__contains=ec_username)
+    else:
+        users = User.objects.filter(is_active=0)
 
     for u in users:
-        ecuser = ecAccount.objects.filter(userid=u.username)
+        if len(ec_displayname):
+            ecuser = ecAccount.objects.filter(userid=u.username, showname__contains=ec_displayname)
+        else:
+            ecuser = ecAccount.objects.filter(userid=u.username)
         if ecuser.count() == 0:
             continue
         jrec = {}
@@ -2072,10 +2081,19 @@ def list_active_account(request):
     response = {}
     data = []
 
-    users = User.objects.filter(is_active=1)
+    ec_username = request.POST['ec_username']
+    ec_displayname = request.POST['ec_displayname']
+
+    if len(ec_username) > 0:
+        users = User.objects.filter(is_active=1, username__contains=ec_username)
+    else:
+        users = User.objects.filter(is_active=1)
 
     for u in users:
-        ecuser = ecAccount.objects.filter(userid=u.username)
+        if len(ec_displayname):
+            ecuser = ecAccount.objects.filter(userid=u.username, showname__contains=ec_displayname)
+        else:
+            ecuser = ecAccount.objects.filter(userid=u.username)
         if ecuser.count() == 0:
             continue
         jrec = {}
