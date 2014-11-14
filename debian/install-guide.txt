@@ -43,8 +43,8 @@ incoming coding work
 4. add logic on both walrus, cc, nc to check
    - is it stay wither others ?
    - for pre-process of image download & submit
-5. add account management , and support chinese
-6. add auth management 
+5. Done. add account management , and support chinese
+6. Done. add auth management 
 7. add machine & vm status report & display
 8. delete tasks
 9. support iptable & dhcp automatically for new instance
