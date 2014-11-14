@@ -113,6 +113,22 @@
                     list: false
                 },
             },
+            //Register to selectionChanged event to handle events
+            selectionChanged: function () {
+                //Get all selected rows
+                var $selectedRows = $('#myjtable').jtable('selectedRows');
+
+                if ($selectedRows.length > 0) {
+                    $selectedRows.each(function () {
+                        //Show selected rows
+                        var record = $(this).data('record');
+                        window.parent.a_userSelected(record.ec_username);
+                    });
+                } else {
+                    //No rows selected
+                    window.parent.a_userSelected(null);
+                }
+            },
         });
 
         //Load student list from server

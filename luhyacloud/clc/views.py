@@ -270,7 +270,30 @@ def account_update_profile(request):
     return HttpResponse(json.dumps(response), mimetype="application/json")
 
 def edit_password(request, uid):
-    pass
+    context = {
+        'uid': uid,
+    }
+    return render(request, 'clc/form/reset_account_password.html', context)
+
+def account_reset_password(request):
+    uid = request.POST['userid']
+    oldpw = request.POST['oldpassword']
+    newpw = request.POST['newpassword']
+
+    # verify old password
+    response = {}
+    user = authenticate(username=uid, password=oldpw)
+    if user is not None:
+         # set new password
+        user.set_password(newpw)
+        user.save()
+        response['Result'] = "OK"
+        return HttpResponse(json.dumps(response), mimetype='application/json')
+    else:
+        # Return an 'invalid login' error message.
+        response['Result'] = "FAILURE"
+        response['errormsg'] = "Password is not correct!"
+        return HttpResponse(json.dumps(response), mimetype='application/json')
 
 ##########################################################################
 ##########################################################################

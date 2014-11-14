@@ -39,10 +39,15 @@
                             <div class="tab-content">
                                 <div class="tab-pane fade" id="active_account">
                                     <p></p>
+                                    <div id="uid_a" style="display: none;"></div>
+                                    <button id="reset_pw_a" type="button" class="btn btn-primary disabled">Reset Password</button>
+                                    <p></p>
                                     <iframe class="servers_table" id="myiframe1" src="jt/account/actived" frameborder="0" width="100%"></iframe>
                                 </div>
                                 <div class="tab-pane fade" id="inactive_account">
                                     <p></p>
+                                    <div id="uid_i" style="display: none;"></div>
+                                    <button id="reset_pw_i" type="button" class="btn btn-primary disabled">Reset Password</button>
                                     <iframe class="servers_table" id="myiframe2" src="jt/account/inactive" frameborder="0" width="100%"></iframe>
                                 </div>
                             </div>
@@ -77,6 +82,44 @@ function openNewAccountBatch() {
     var top = ($(window).height() / 2) - (600 / 2);
     window.open(url, '', 'height=760,width=650,left=' + left + ',top=' + top);
 }
+
+function a_userSelected(uid){
+    if (uid == null) {
+        $('#reset_pw_a').addClass('disabled');
+        $('#uid_a').html(null);
+    } else {
+        $('#reset_pw_a').removeClass('disabled');
+        $('#uid_a').html(uid);
+    }
+}
+
+function i_userSelected(uid){
+    if (uid == null) {
+        $('#reset_pw_i').addClass('disabled');
+        $('#uid_i').html(null);
+    } else {
+        $('#reset_pw_i').removeClass('disabled');
+        $('#uid_i').html(uid);
+    }
+}
+
+  $("#reset_pw_a").click(function(){
+        uid=$("#uid_a").text()
+
+        url="/clc/user/edit_password/" + uid;
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, '', 'height=550,width=650,left=' + left + ',top=' + top);
+  });
+
+    $("#reset_pw_i").click(function(){
+        uid=$("#uid_i").text()
+
+        url="/clc/user/edit_password/" + uid;
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, '', 'height=550,width=650,left=' + left + ',top=' + top);
+  });
 
 </script>
 

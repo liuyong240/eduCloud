@@ -46,7 +46,8 @@
                                         listAction: function (postData, jtParams) {
                                                 return {
                                                     "Result": "OK",
-                                                    "Records": [{ "vdpara": accountData.record.vdpara }],
+                                                    "Records": [{ "vdpara":  accountData.record.vdpara,
+                                                                  "ec_desc": accountData.record.ec_desc, }],
                                                     "TotalRecordCount": 1
                                                 };
                                             }
@@ -58,7 +59,12 @@
                                                 return '<pre>' + data.record.vdpara + '</pre>';
                                             }
                                         },
-
+                                        ec_desc: {
+                                            title:'description',
+                                            display: function (data) {
+                                                return '<pre>' + data.record.ec_desc + '</pre>';
+                                            }
+                                        }
                                     }
                                 }, function (data) { //opened handler
                                     data.childTable.jtable('load');
@@ -99,6 +105,27 @@
                     type: 'textarea',
                     list: false
                 },
+                ec_desc: {
+                    title: 'desc',
+                    type: 'textarea',
+                    list: false
+                },
+            },
+            //Register to selectionChanged event to handle events
+            selectionChanged: function () {
+                //Get all selected rows
+                var $selectedRows = $('#myjtable').jtable('selectedRows');
+
+                if ($selectedRows.length > 0) {
+                    $selectedRows.each(function () {
+                        //Show selected rows
+                        var record = $(this).data('record');
+                        window.parent.i_userSelected(record.ec_username);
+                    });
+                } else {
+                    //No rows selected
+                    window.parent.i_userSelected(null);
+                }
             },
         });
 
