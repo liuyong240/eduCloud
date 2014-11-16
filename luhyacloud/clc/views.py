@@ -1960,7 +1960,19 @@ def list_images(request):
     response = {}
     data = []
 
-    recs = ecImages.objects.all()
+    f_imgname = request.POST['name']
+    f_imgostype = request.POST['ostype']
+
+    if len(f_imgname) > 0 and len(f_imgostype) > 0:
+        recs = ecImages.objects.filter(name__contains=f_imgname, ostype__contains=f_imgostype)
+    else:
+        if len(f_imgname) > 0:
+            recs = ecImages.objects.filter(name__contains=f_imgname)
+        elif len(f_imgostype) > 0:
+            recs = ecImages.objects.filter(ostype__contains=f_imgostype)
+        else:
+            recs = ecImages.objects.all()
+
     for rec in recs:
         jrec = {}
         jrec['id'] = rec.id

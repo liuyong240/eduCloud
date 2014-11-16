@@ -1,6 +1,19 @@
 {% extends "clc/jtable/template.html" %}
 {% load i18n %}
 
+{% block myfilter %}
+<div class="filtering">
+    <form>
+        <p>
+           Name:<input type="text"  id="name" />
+           OS Type:<input type="text" id="ostype" />
+           <button type="submit" id="LoadRecordsButton">Filter Images</button>
+        </p>
+    </form>
+</div>
+<p></p>
+{% endblock %}
+
 {% block myjs %}
 <script type="text/javascript">
 
@@ -134,8 +147,21 @@
             },
         });
 
+        //Re-load records when user click 'load records' button.
+        $('#LoadRecordsButton').click(function (e) {
+            e.preventDefault();
+
+            $('#myjtable').jtable('load', {
+                name: $("#name").val(),
+                ostype: $("#ostype").val(),
+            });
+        });
+
+        //Load all records when page is first shown
+        $('#LoadRecordsButton').click();
+
         //Load student list from server
-        $('#myjtable').jtable('load');
+        //$('#myjtable').jtable('load');
     });
 
 </script>
