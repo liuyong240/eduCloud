@@ -31,6 +31,10 @@ class ecAccount(models.Model):
     description         = models.TextField()
     vdpara              = models.TextField()
 
+# Auth Rule for ecAccount DB
+# - a.b.admin can manage all account with auth_name looks like a.b.*
+# - a.b.admin can get full control on all resource a.b.*
+
 class ecAuthPath(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
     ec_authpath_value = models.CharField(max_length=100)
@@ -94,7 +98,6 @@ class ecVMTypes(models.Model):
 # Core table definition
 #==============================================
 class ecServers(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
 
     # an array of roles' value, should be json string
     role = models.CharField(max_length=100)
@@ -119,6 +122,16 @@ class ecServers(models.Model):
 
     ccname = models.CharField(max_length=100)
 
+class ecServers_auth(models.Model):
+    mac0        = models.CharField(max_length=20)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+    fullctl     = models.BooleanField(default=False)
+
 class ecClusterNetMode(models.Model):
     network_mode   = models.CharField(max_length=20)
 
@@ -140,8 +153,6 @@ class ecCCResources(models.Model):
 
 # for all NCs that support LVD
 class ecHosts(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
-
     ip  = models.CharField(max_length=20)
     wip = models.CharField(max_length=20)
 
@@ -163,12 +174,19 @@ class ecHosts(models.Model):
     # auto_guest_attr_update=0
     runtime_option = models.TextField()
 
+class ecHosts_auth(models.Model):
+    mac0        = models.CharField(max_length=20)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+    fullctl     = models.BooleanField(default=False)
 #
 # Images
 #
 class ecImages(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
-
     ecid = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=100)
 
@@ -181,16 +199,34 @@ class ecImages(models.Model):
     version = models.CharField(max_length=10)
     size = models.IntegerField(default=0)
 
+class ecImages_auth(models.Model):
+    ecid        = models.CharField(max_length=20, unique=True)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+    fullctl     = models.BooleanField(default=False)
+
 #
 # Instance and VMs
 #
 class ecVAPP(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
+    appid = models.CharField(max_length=20, unique=True)
+
+class ecVAPP_auth(models.Model):
+    appid       = models.CharField(max_length=20, unique=True)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+    fullctl     = models.BooleanField(default=False)
 
 
 class ecVSS(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
-
     insid       = models.CharField(max_length=10, unique=True)
     imageid     = models.CharField(max_length=20)
     name        = models.CharField(max_length=100)
@@ -218,9 +254,17 @@ class ecVSS(models.Model):
     # fullscreen = 1, minitoolbar = 0 auto_unregister
     runtime_option = models.TextField()
 
-class ecVDS(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
+class ecVSS_auth(models.Model):
+    insid       = models.CharField(max_length=10, unique=True)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+    fullctl     = models.BooleanField(default=False)
 
+class ecVDS(models.Model):
     insid       = models.CharField(max_length=10, unique=True)
     imageid     = models.CharField(max_length=20)
     name        = models.CharField(max_length=100)
@@ -248,6 +292,16 @@ class ecVDS(models.Model):
     # fullscreen = 1, minitoolbar = 0 auto_unregister
     runtime_option = models.TextField()
 
+class ecVDS_auth(models.Model):
+    insid       = models.CharField(max_length=10, unique=True)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+    fullctl     = models.BooleanField(default=False)
+
 # class ecLVDS(models.Model):
 
 
@@ -272,21 +326,13 @@ class ectaskTransaction(models.Model):
     message     = models.TextField()
     completed   = models.BooleanField(default=False)
 
-# class ecImageBuildTask(models.Model):
-#     # /tmp/ImageBuildTask/type/oldid/newid/id
-#     type=models.CharField(max_length=10) #{new_build, modify_build}
-#     oldimgid=models.CharField(max_length=10)
-#     newimgid=models.CharField(max_length=10, unique=True)
-#     status=models.CharField(max_length=50) #{cloned, pending, running}
-#     walrusip=models.GenericIPAddressField()
-#     ccip=models.GenericIPAddressField()
-#     ncip=models.GenericIPAddressField()
-#     acurl=models.CharField(max_length=100)
-#
-# class ecImageSyncTask(models.Model):
-#     destip=models.GenericIPAddressField()
-#     destid=models.CharField(max_length=10)
-#     srcfile=models.TextField()
-#     destfile=models.TextField()
-#     status=models.CharField(max_length=10)
+class ectaskTransactionauth(models.Model):
+    tid         = models.CharField(max_length=100, unique=True)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+    fullctl     = models.BooleanField(default=False)
 

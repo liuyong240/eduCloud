@@ -48,6 +48,8 @@
                                     <p></p>
                                     <div id="uid_i" style="display: none;"></div>
                                     <button id="reset_pw_i" type="button" class="btn btn-primary disabled">Reset Password</button>
+                                    <button id="approval_i" type="button" class="btn btn-primary disabled">Approval</button>
+
                                     <iframe class="servers_table" id="myiframe2" src="jt/account/inactive" frameborder="0" width="100%"></iframe>
                                 </div>
                             </div>
@@ -96,9 +98,11 @@ function a_userSelected(uid){
 function i_userSelected(uid){
     if (uid == null) {
         $('#reset_pw_i').addClass('disabled');
+        $('#approval_i').addClass('disabled');
         $('#uid_i').html(null);
     } else {
         $('#reset_pw_i').removeClass('disabled');
+        $('#approval_i').removeClass('disabled');
         $('#uid_i').html(uid);
     }
 }
@@ -112,7 +116,7 @@ function i_userSelected(uid){
         window.open(url, '', 'height=550,width=650,left=' + left + ',top=' + top);
   });
 
-    $("#reset_pw_i").click(function(){
+  $("#reset_pw_i").click(function(){
         uid=$("#uid_i").text()
 
         url="/clc/user/edit_password/" + uid;
@@ -120,6 +124,17 @@ function i_userSelected(uid){
         var top = ($(window).height() / 2) - (600 / 2);
         window.open(url, '', 'height=550,width=650,left=' + left + ',top=' + top);
   });
+
+  $("#approval_i").click(function(){
+        uid=$("#uid_i").text()
+
+        url="/clc/user/activate/" + uid;
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, '', 'height=550,width=650,left=' + left + ',top=' + top);
+        window.location.reload(true);
+  });
+
 
 </script>
 

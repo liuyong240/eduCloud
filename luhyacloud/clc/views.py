@@ -275,6 +275,14 @@ def edit_password(request, uid):
     }
     return render(request, 'clc/form/reset_account_password.html', context)
 
+def activate_user(request, uid):
+    u = User.objects.get(username=uid)
+    u.is_active = 1
+    u.save()
+
+    Message = " user %s is activated now." % uid
+    return HttpResponse(Message, mimetype="application/json")
+
 def account_reset_password(request):
     uid = request.POST['userid']
     oldpw = request.POST['oldpassword']
@@ -1822,7 +1830,6 @@ def list_servers_by_role(reqeust, roletype):
     for rec in recs:
         jrec = {}
         jrec['id'] = rec.id
-        jrec['ec_authpath_name'] = rec.ec_authpath_name
         jrec['role'] = rec.role
         jrec['ip0'] = rec.ip0
         jrec['ip1']=rec.ip1
@@ -1856,7 +1863,6 @@ def list_servers(request):
     for rec in recs:
         jrec = {}
         jrec['id'] = rec.id
-        jrec['ec_authpath_name'] = rec.ec_authpath_name
         jrec['role'] = rec.role
         jrec['ip0'] = rec.ip0
         jrec['ip1']=rec.ip1
@@ -1897,7 +1903,6 @@ def update_servers(request):
     response = {}
 
     rec = ecServers.objects.get(id=request.POST['id'])
-    rec.ec_authpath_name = request.POST['ec_authpath_name']
     rec.name = request.POST['name']
     rec.location = request.POST['location']
 
@@ -1976,7 +1981,6 @@ def list_images(request):
     for rec in recs:
         jrec = {}
         jrec['id'] = rec.id
-        jrec['ec_authpath_name'] = rec.ec_authpath_name
         jrec['ecid'] = rec.ecid
         jrec['name'] = rec.name
         jrec['ostype']=rec.ostype
@@ -2007,7 +2011,6 @@ def update_images(request):
     response = {}
 
     rec = ecImages.objects.get(id=request.POST['id'])
-    rec.ec_authpath_name = request.POST['ec_authpath_name']
     rec.name = request.POST['name']
     rec.ostype = request.POST['ostype']
     rec.usage = request.POST['usage']
@@ -2024,7 +2027,6 @@ def create_images(request):
     data = []
 
     rec = ecImages(
-        ec_authpath_name = request.POST['ec_authpath_name'],
         ecid = request.POST['ecid'],
         name = request.POST['name'],
         ostype = request.POST['ostype'],
@@ -2037,7 +2039,6 @@ def create_images(request):
 
     jrec = {}
     jrec['id'] = rec.id
-    jrec['ec_authpath_name'] = rec.ec_authpath_name
     jrec['ecid'] = rec.ecid
     jrec['name'] = rec.name
     jrec['ostype']=rec.ostype
@@ -2302,7 +2303,6 @@ def get_image_info(request, imgid):
     rec = ecImages.objects.get(ecid=imgid)
     payload = {
         'ecid':              rec.ecid,
-        'ec_authpath_name' : rec.ec_authpath_name,
         'name':              rec.name,
         'ostype':            rec.ostype,
         'usage':             rec.usage,

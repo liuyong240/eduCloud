@@ -33,7 +33,7 @@ urlpatterns = patterns('',
 
     url(r'^user/edit_profile/(?P<uid>\w+)$',                    views.edit_profile,              name='edit_profile'),
     url(r'^user/edit_password/(?P<uid>\w+)$',                   views.edit_password,             name='edit_profile'),
-
+    url(r'^user/activate/(?P<uid>\w+)$',                        views.activate_user,             name='activate_user'),
 
     # image create and modify URL
     url(r'^image/create/task/begin/(?P<srcid>\w+)$',                                            views.start_image_create_task,            name='start_image_create_task'),
