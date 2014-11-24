@@ -3,68 +3,51 @@
 
 {% block myjavascript %}
 <script type="text/javascript">
-    var userid;
-    var displayname;
-    var password1;
-    var password2;
-    var role;
-    var pds;
-    var sds;
-    var email;
-    var phone;
-    var desc;
-    var errormsg;
+    var perm_str = "";
 
     function submit_resources() {
-        userid = $('#userid').val();
-        displayname = $('#displayname').val();
-        password1  = $('#password1').val();
-        password2  = $('#password2').val();
-        role = $('#role_list').val();
-        pds = $('#data_size').val();
-        r1 = $('#optionsRadios1').is(':checked');
-        if (r1 == true) {
-            sds = $('#optionsRadios1').val();
-        } else {
-            sds = $('#optionsRadios2').val();
-        }
-        email = $('#email').val();
-        phone = $('#phone').val();
-        desc  = $('#desc').val();
+        imgid = $('#imgid').text();
+        table = $('#table').text();
+        rows  = $('#next').text();
 
-        if (verification() == true) {
-            url = "/clc/api/1.0/account/create";
-            postdata = {
-                userid:         userid,
-                displayname:    displayname,
-                password:       password1,
-                role:           role,
-                pds:            pds,
-                sds:            sds,
-                email:          email,
-                phone:          phone,
-                desc:           desc,
+        for (index=0; index<parseInt(rows); index++) {
+            idstr = '#perm' + index.toString();
+            role = $(idstr).val();
+            if ( role == "") {
+                continue;
             }
-
-            $.post(url, postdata, function(data) {
-                var items = [];
-                $.each(data, function (key, val) {
-                    items[key] = val;
-                });
-                if (items['Result'] == "OK") {
-                    $('.alert-success').css('display', 'block');
-                    $('.alert-danger').css( 'display', 'none');
-                    $('.btn').addClass('disabled');
-                } else {
-                    $('.alert-success').css('display', 'none');
-                    $('.alert-danger').text(items['errormsg']);
-                    $('.alert-danger').css( 'display', 'block');
-                }
-            });
-        } else {
-            $('.alert-success').css('display', 'none');
-            $('.alert-danger').css( 'display', 'block');
+            read    = $('#checkbox_perm' + index.toString() + '> label:nth-child(2) > input[type="checkbox"]').is(':checked');
+            write   = $('#checkbox_perm' + index.toString() + '> label:nth-child(3) > input[type="checkbox"]').is(':checked');
+            execute = $('#checkbox_perm' + index.toString() + '> label:nth-child(4) > input[type="checkbox"]').is(':checked');
+            create  = $('#checkbox_perm' + index.toString() + '> label:nth-child(5) > input[type="checkbox"]').is(':checked');
+            del     = $('#checkbox_perm' + index.toString() + '> label:nth-child(6) > input[type="checkbox"]').is(':checked');
+            tmp_perm_str = role + ":" + read + ":" + write + ":" + execute + ":" + create + ":" + del + "#";
+            perm_str = perm_str + tmp_perm_str;
         }
+
+        url = "/clc/api/1.0/perm/update";
+        postdata = {
+            id:             imgid,
+            table:          table,
+            data:           perm_str,
+        }
+
+        $.post(url, postdata, function(data) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+            if (items['Result'] == "OK") {
+                $('.alert-success').css('display', 'block');
+                $('.alert-danger').css( 'display', 'none');
+                $('.btn').addClass('disabled');
+            } else {
+                $('.alert-success').css('display', 'none');
+                $('.alert-danger').text(items['errormsg']);
+                $('.alert-danger').css( 'display', 'block');
+            }
+        });
+
     }
 
     function add_new_role() {
@@ -103,9 +86,8 @@
     }
 
     function init_data() {
-
         {% for perm in perms %}
-        $('#{{ perm.id}}' ).val('{{ perm.role_value}}')
+        $('#{{ perm.id}}').val('{{ perm.role_value}}')
         {% endfor%}
     }
 
@@ -118,7 +100,7 @@
             add_new_role();
         });
 
-        init_data();
+        //init_data();
 
     });
 </script>
@@ -137,6 +119,8 @@
             <!-- /.col-lg-6 (nested) -->
             <div class="col-lg-9">
                 <div role="form" id="myform">
+                    <div id="imgid" style="display:none">{{ imgobj.ecid }}</div>
+                    <div id="table" style="display:none">{{ table }}</div>
                     <div id="next" style="display:none">{{ next }}</div>
                     {% for perm in perms %}
                     <div class="well well-sm">
@@ -145,7 +129,11 @@
                             <select id="{{ perm.id }}" class="form-control-inline">
                                 <option value=""></option>
                                 {% for role in roles %}
-                                <option value="{{ role.value }}">{{ role.name }}</option>
+                                    {% if role.value == perm.role_value %}
+                                        <option selected value="{{ role.value }}">{{ role.name }}</option>
+                                    {% else %}
+                                        <option value="{{ role.value }}">{{ role.name }}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
@@ -195,10 +183,10 @@
                 </div>
                 <p></p>
                 <div class="alert alert-success" style="display: none">
-                      New Account is created Successfully.
+                      Update Permission Successfully.
                 </div>
                 <div class="alert alert-danger" style="display: none">
-                      Create new account Failed, try again.
+                      Update Permission Failed, try again.
                 </div>
         </div>
         <!-- /.col-lg-6 (nested) -->

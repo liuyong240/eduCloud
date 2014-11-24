@@ -2363,5 +2363,53 @@ def image_permission_edit(request, srcid):
         'lists':  range(0,rows),
         'next':   rows,
         'perms':  perms,
+        'table': 'ecImages',
     }
     return render(request, 'clc/form/permission_edit.html', context)
+
+def perm_update(request):
+    id = request.POST['id']
+    table = request.POST['table']
+    data = request.POST['data']
+
+    tflist = {
+        'true': True,
+        'false': False,
+    }
+
+    perms = data.split('#')
+    for perm in perms:
+        if len(perm) > 0:
+            auth = perm.split(':')
+            _role   = auth[0]
+            _read   = tflist[auth[1]]
+            _write  = tflist[auth[2]]
+            _execute= tflist[auth[3]]
+            _create = tflist[auth[4]]
+            _delete = tflist[auth[5]]
+
+            # check for either update or new record
+            try:
+                rec = ecImages_auth.objects.get(ecid=id, role_value= _role)
+                rec.read    = _read
+                rec.write   = _write
+                rec.execute = _execute
+                rec.create  = _create
+                rec.delete  = _delete
+                rec.save()
+            except:
+                rec = ecImages_auth(
+                    ecid        = id,
+                    role_value  = _role,
+                    read        = _read,
+                    write       = _write,
+                    execute     = _execute,
+                    create      = _create,
+                    delete      = _delete,
+                )
+                rec.save()
+
+    response = {}
+    response['Result'] = "OK"
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
