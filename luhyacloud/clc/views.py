@@ -1734,6 +1734,18 @@ def autoFindNewAddImage():
             # create version file for this image
             WriteImageVersionFile(local_image, '1.0.0')
 
+            # add default permission for this image
+            rec = ecImages_auth(
+                ecid = local_image,
+                role_value = "eduCloud.admin",
+                read = True,
+                write = True,
+                execute = True,
+                create = True,
+                delete = True,
+            )
+            rec.save()
+
 # core table function for ecClusterNetMode
 def list_cc_resource_by_id(request, recid):
     response = {}
@@ -2315,3 +2327,41 @@ def get_image_info(request, imgid):
     response['data'] = payload
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
+
+def image_permission_edit(request, srcid):
+    index = 0
+    authlist =  ecAuthPath.objects.all()
+    roles = []
+    for auth in authlist:
+        role={}
+        role['name']    =auth.ec_authpath_name
+        role['value']   = auth.ec_authpath_value
+        roles.append(role)
+
+    permsObjs = ecImages_auth.objects.filter(ecid=srcid)
+    perms = []
+    for perm_obj in permsObjs:
+        perm = {}
+        perm['id'] = 'perm' +  str(index)
+        perm['role_value'] = perm_obj.role_value
+        perm['read'] =  perm_obj.read
+        perm['write'] = perm_obj.write
+        perm['execute'] = perm_obj.execute
+        perm['create'] = perm_obj.create
+        perm['delete'] = perm_obj.delete
+        perms.append(perm)
+        index += 1
+
+    rows = len(perms)
+
+    imgobj = ecImages.objects.get(ecid=srcid)
+
+    context = {
+        'imgobj': imgobj ,
+        'res':    "Image " + imgobj.name,
+        'roles':  roles,
+        'lists':  range(0,rows),
+        'next':   rows,
+        'perms':  perms,
+    }
+    return render(request, 'clc/form/permission_edit.html', context)

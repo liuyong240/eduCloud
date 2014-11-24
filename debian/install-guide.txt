@@ -27,9 +27,51 @@ sudo mkdir images VMs config
 0. install modified version of rsyncd into CC and NC
 1. start rsyncd daemon
 
+############################
+# 4. system init
+############################
+4.1 clear all tables
+BEGIN;
 
+delete from auth_group;
+delete from auth_group_permissions;
+delete from auth_user;
+delete from auth_user_groups;
+delete from auth_user_user_permission;
+DROP TABLE `clc_ectasktransactionauth`;
+DROP TABLE `clc_ectasktransaction`;
+DROP TABLE `clc_ecvds_auth`;
+DROP TABLE `clc_ecvds`;
+DROP TABLE `clc_ecvss_auth`;
+DROP TABLE `clc_ecvss`;
+DROP TABLE `clc_ecvapp_auth`;
+DROP TABLE `clc_ecvapp`;
+DROP TABLE `clc_ecimages_auth`;
+DROP TABLE `clc_ecimages`;
+DROP TABLE `clc_echosts_auth`;
+DROP TABLE `clc_echosts`;
+DROP TABLE `clc_ecccresources`;
+DROP TABLE `clc_ecclusternetmode`;
+DROP TABLE `clc_ecservers_auth`;
+DROP TABLE `clc_ecservers`;
+DROP TABLE `clc_ecvmtypes`;
+DROP TABLE `clc_ecserverrole`;
+DROP TABLE `clc_ecvmusages`;
+DROP TABLE `clc_ecostypes`;
+DROP TABLE `clc_ecrbac`;
+DROP TABLE `clc_ecauthpath`;
+DROP TABLE `clc_ecaccount`;
 
+COMMIT;
 
+4.2 create supper user
+python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com
+python manage.py changepassword luhya
+
+4.3 add role to super user luhya
+./init_data.sh
+
+4.5 manually delete duplicated records.
 
 -------------------------------------
 incoming coding work

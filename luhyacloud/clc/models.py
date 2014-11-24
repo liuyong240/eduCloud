@@ -200,14 +200,13 @@ class ecImages(models.Model):
     size = models.IntegerField(default=0)
 
 class ecImages_auth(models.Model):
-    ecid        = models.CharField(max_length=20, unique=True)
+    ecid        = models.CharField(max_length=20)
     role_value  = models.CharField(max_length=100)
     read        = models.BooleanField(default=False)
     write       = models.BooleanField(default=False)
     execute     = models.BooleanField(default=False)
     create      = models.BooleanField(default=False)
     delete      = models.BooleanField(default=False)
-    fullctl     = models.BooleanField(default=False)
 
 #
 # Instance and VMs

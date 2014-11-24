@@ -55,7 +55,8 @@ urlpatterns = patterns('',
 
     url(r'^image/create/task/view/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.image_create_task_view,      name='view_image_create_task'),
 
-    url(r'^image/modify/task/begin/(?P<srcid>\w+)$',  views.start_image_modify_task,            name='start_image_modify_task'),
+    url(r'^image/modify/task/begin/(?P<srcid>\w+)$',    views.start_image_modify_task,              name='start_image_modify_task'),
+    url(r'^image/permission/edit/(?P<srcid>\w+)$',      views.image_permission_edit,                name='image_permission_edit'),
 
     # form URLs
     url(r'^cc/modify/resources/(?P<cc_name>\w+)$',      views.cc_modify_resources,                   name='cc_modify_resources'),
