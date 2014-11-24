@@ -2367,10 +2367,7 @@ def image_permission_edit(request, srcid):
     }
     return render(request, 'clc/form/permission_edit.html', context)
 
-def perm_update(request):
-    id = request.POST['id']
-    table = request.POST['table']
-    data = request.POST['data']
+def image_perm_update(id, data):
 
     tflist = {
         'true': True,
@@ -2388,7 +2385,6 @@ def perm_update(request):
             _create = tflist[auth[4]]
             _delete = tflist[auth[5]]
 
-            # check for either update or new record
             try:
                 rec = ecImages_auth.objects.get(ecid=id, role_value= _role)
                 rec.read    = _read
@@ -2408,6 +2404,14 @@ def perm_update(request):
                     delete      = _delete,
                 )
                 rec.save()
+
+def perm_update(request):
+    id = request.POST['id']
+    table = request.POST['table']
+    data = request.POST['data']
+
+    if table == 'ecImages':
+        image_perm_update(id, data)
 
     response = {}
     response['Result'] = "OK"
