@@ -1062,6 +1062,8 @@ def image_create_task_submit_success(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     tidrec = ectaskTransaction.objects.get(tid=_tid)
+    creator = tidrec.user
+
     runtime_option = json.loads(tidrec.runtime_option)
 
     ccres_info = ecCCResources.objects.get(ccip = tidrec.ccip)
@@ -1124,6 +1126,32 @@ def image_create_task_submit_success(request,  srcid, dstid, insid):
             size    = imgfile_size,
         )
         dstimgrec.save()
+
+        rec = ecImages_auth(
+            ecid = dstid,
+            roel_value = 'eduCloud.admin',
+            read = True,
+            write = True,
+            execute = True,
+            create = True,
+            delete = True,
+        )
+        rec.save()
+
+        rec = ecAccount.objects.get(userid=creator)
+        auth_name = rec.ec_authpath_name
+        rec = ecAuthPath.objects.get(ec_authpath_name = auth_name)
+        if rec.ec_authpath_value != 'eduCloud.admin':
+            newrec = ecImages_auth(
+                ecid = dstid,
+                roel_value = rec.ec_authpath_value,
+                read = True,
+                write = True,
+                execute = True,
+                create = True,
+                delete = False,
+            )
+            newrec.save()
 
         WriteImageVersionFile(dstid, '1.0.0')
         logger.error("--- --- --- create a new image record successfully")
@@ -2216,6 +2244,7 @@ def register_server(request):
             rec.mac2   = request.POST['mac2']
             rec.mac3   = request.POST['mac3']
             logger.error("update existing server db")
+            rec.save()
         except:
             rec = ecServers(
                 role   = request.POST['role'],
@@ -2233,7 +2262,19 @@ def register_server(request):
                 mac3   = request.POST['mac3'],
             )
             logger.error("create a new server db")
-        rec.save()
+            rec.save()
+
+            # add auth permission for new
+            rec = ecServers_auth(
+                mac0        =   request.POST['mac0'],
+                role_value  =   'eduCloud.admin',
+                read        =   True,
+                write       =   True,
+                execute     =   True,
+                create      =   True,
+                delete      =   True,
+            )
+            rec.save()
     else:
         try:
             rec = ecServers.objects.get(role=request.POST['role'],
@@ -2252,6 +2293,7 @@ def register_server(request):
             rec.mac2   = request.POST['mac2']
             rec.mac3   = request.POST['mac3']
             rec.ccname = request.POST['ccname']
+            rec.save()
         except:
             rec = ecServers(
                     role   = request.POST['role'],
@@ -2268,8 +2310,21 @@ def register_server(request):
                     mac2   = request.POST['mac2'],
                     mac3   = request.POST['mac3'],
                     ccname = request.POST['ccname'],
-                )
-        rec.save()
+            )
+            rec.save()
+
+            # add auth permission for new
+            rec = ecServers_auth(
+                mac0        =   request.POST['mac0'],
+                role_value  =   'eduCloud.admin',
+                read        =   True,
+                write       =   True,
+                execute     =   True,
+                create      =   True,
+                delete      =   True,
+            )
+            rec.save()
+
 
         if request.POST['role'] == 'cc':
             try:

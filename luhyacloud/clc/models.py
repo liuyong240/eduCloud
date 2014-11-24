@@ -130,7 +130,6 @@ class ecServers_auth(models.Model):
     execute     = models.BooleanField(default=False)
     create      = models.BooleanField(default=False)
     delete      = models.BooleanField(default=False)
-    fullctl     = models.BooleanField(default=False)
 
 class ecClusterNetMode(models.Model):
     network_mode   = models.CharField(max_length=20)
@@ -182,7 +181,7 @@ class ecHosts_auth(models.Model):
     execute     = models.BooleanField(default=False)
     create      = models.BooleanField(default=False)
     delete      = models.BooleanField(default=False)
-    fullctl     = models.BooleanField(default=False)
+
 #
 # Images
 #
@@ -215,18 +214,17 @@ class ecVAPP(models.Model):
     appid = models.CharField(max_length=20, unique=True)
 
 class ecVAPP_auth(models.Model):
-    appid       = models.CharField(max_length=20, unique=True)
+    appid       = models.CharField(max_length=20)
     role_value  = models.CharField(max_length=100)
     read        = models.BooleanField(default=False)
     write       = models.BooleanField(default=False)
     execute     = models.BooleanField(default=False)
     create      = models.BooleanField(default=False)
     delete      = models.BooleanField(default=False)
-    fullctl     = models.BooleanField(default=False)
 
 
 class ecVSS(models.Model):
-    insid       = models.CharField(max_length=10, unique=True)
+    insid       = models.CharField(max_length=20, unique=True)
     imageid     = models.CharField(max_length=20)
     name        = models.CharField(max_length=100)
     description = models.TextField()
@@ -254,17 +252,16 @@ class ecVSS(models.Model):
     runtime_option = models.TextField()
 
 class ecVSS_auth(models.Model):
-    insid       = models.CharField(max_length=10, unique=True)
+    insid       = models.CharField(max_length=20)
     role_value  = models.CharField(max_length=100)
     read        = models.BooleanField(default=False)
     write       = models.BooleanField(default=False)
     execute     = models.BooleanField(default=False)
     create      = models.BooleanField(default=False)
     delete      = models.BooleanField(default=False)
-    fullctl     = models.BooleanField(default=False)
 
 class ecVDS(models.Model):
-    insid       = models.CharField(max_length=10, unique=True)
+    insid       = models.CharField(max_length=20, unique=True)
     imageid     = models.CharField(max_length=20)
     name        = models.CharField(max_length=100)
     description = models.TextField()
@@ -292,17 +289,26 @@ class ecVDS(models.Model):
     runtime_option = models.TextField()
 
 class ecVDS_auth(models.Model):
-    insid       = models.CharField(max_length=10, unique=True)
+    insid       = models.CharField(max_length=20)
     role_value  = models.CharField(max_length=100)
     read        = models.BooleanField(default=False)
     write       = models.BooleanField(default=False)
     execute     = models.BooleanField(default=False)
     create      = models.BooleanField(default=False)
     delete      = models.BooleanField(default=False)
-    fullctl     = models.BooleanField(default=False)
 
-# class ecLVDS(models.Model):
 
+class ecLVDS(models.Model):
+    insid       = models.CharField(max_length=20, unique=True)
+
+class ecLVDS_auth(models.Model):
+    insid       = models.CharField(max_length=20)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
 
 
 #==============================================
