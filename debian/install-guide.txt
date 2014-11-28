@@ -80,13 +80,62 @@ incoming coding work
    - rvd
    - vs { manual, public, private }
 2. Done. add image version management, for pre-process of image download & submit
-3. add lvd, rvd, vss instance creation wizard, one by one and batch creation
+3. Done. add account management , and support chinese
+4. Done. add auth management
+
+5. add vss, rvd, lvd instance creation wizard, one by one and batch creation
    - and modify & delete instance
-4. add logic on both walrus, cc, nc to check
+
+6. add logic on both walrus, cc, nc to check
    - is it stay wither others ?
    - for pre-process of image download & submit
-5. Done. add account management , and support chinese
-6. Done. add auth management 
+
 7. add machine & vm status report & display
 8. delete tasks
 9. support iptable & dhcp automatically for new instance
+
+----------------------------------
+computer management
+----------------------------------
+clc:
+- status:running/stop
+- display basic static information
+- display dynamic information of cpu uti, memory util, and disk space, network I/O ration
+- button to set perm
+
+walrus
+- same as clc
+
+cc
+- 2 columns
+- left column
+    - a list of all cc list table (add runing status )
+    - button to config para,
+    - button to set perm
+- right column
+    same as clc
+nc
+- same as cc
+lnc
+- same as cc
+
+----------------------------------
+virtual server management
+----------------------------------
+two column,
+left
+- list of all defined vss, with static information
+rigth
+- dynamic information of selected vss
+----------------------------------
+virtual remote desktop
+----------------------------------
+two tab
+1st tab
+- same as vss, for pre-defined rvd
+2nd tab
+- two column
+-
+----------------------------------
+virtual local desktop
+----------------------------------

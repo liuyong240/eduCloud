@@ -17,12 +17,24 @@ urlpatterns = patterns('',
     url(r'^index$',         views.index_view,                         name='index_view'),
     url(r'^accounts$',      views.accounts_view,                      name='accounts_view'),
     url(r'^images$',        views.images_view,                        name='images_view'),
-    url(r'^computers$',     views.computers_view,                     name='computers_view'),
+
+    ## computer management
+    url(r'^clc_mgr$',       views.clc_mgr_view,         name='clc_mgr_view'),
+    url(r'^walrus_mgr$',    views.walrus_mgr_view,      name='walrus_mgr_view'),
+    url(r'^cc_mgr$',        views.cc_mgr_view,          name='cc_mgr_view'),
+    url(r'^nc_mgr$',        views.nc_mgr_view,          name='nc_mgr_view'),
+    url(r'^lnc_mgr$',       views.lnc_mgr_view,         name='lnc_mgr_view'),
+    url(r'^terminal_mgr$',  views.terminal_mgr_view,    name='terminal_mgr_view'),
+
+
     url(r'^hosts$',         views.hosts_view,                         name='hosts_view'),
     url(r'^settings$',      views.settings_view,                      name='settings_view'),
+
+    ## vm management
     url(r'^vss$',           views.vss_view,                           name='vss_view'),
     url(r'^rvds$',          views.rvds_view,                          name='rvds_view'),
     url(r'^lvds$',          views.lvds_view,                          name='lvds_view'),
+
     url(r'^tasks$',         views.tasks_view,                         name='tasks_view'),
 
     url(r'^adm_add_new_account',                    views.adm_add_new_account,              name='adm_add_new_account'),

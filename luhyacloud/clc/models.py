@@ -106,6 +106,7 @@ class ecServers(models.Model):
     ip1 = models.CharField(max_length=20)
     ip2 = models.CharField(max_length=20)
     ip3 = models.CharField(max_length=20)
+    eip = models.CharField(max_length=20)
 
     # used for remote LAN-awake, or WAN-awake.
     mac0 = models.CharField(max_length=20)

@@ -78,29 +78,51 @@
 
             <div class="navbar-default sidebar" role="navigation">
                 <div class="sidebar-nav navbar-collapse">
-                    <ul class="nav" id="side-menu">  
+                    <ul class="nav" id="side-menu">
                         <li>
-                            <a  href="index"><i class="fa fa-cloud fa-fw"></i>{% trans " System Overview" %}</a>
+                            <a href="settings"><i class="fa fa-globe fa-fw"></i>{% trans " Settings" %}</a>
                         </li>
+
                         <li>
                             <a href="accounts"><i class="fa fa-user fa-fw"></i>{% trans " Accounts" %}</a>
                             <!-- /.nav-second-level -->
                         </li>
+
                         <li>
-                            <a href="#"><i class="fa fa-table fa-fw"></i> Resource<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
+                            <a href="images"><i class="fa fa-hdd-o fa-fw"></i>{% trans " Images" %}</a>
+                        </li>
+
+                        <li>
+                             <a href="computers"><i class="fa fa-h-square fa-fw"></i>{% trans " Computers" %}<span class="fa arrow"></span></a>
+                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="images"><i class="fa fa-hdd-o fa-fw"></i>{% trans " Images" %}</a>
+                                    <a href="clc_mgr"><i class="fa fa-hdd-o fa-fw"></i>{% trans " Cloud Contorl" %}</a>
                                 </li>
+
+
                                 <li>
-                                    <a href="computers"><i class="fa fa-h-square fa-fw"></i>{% trans " Computers" %}</a>
+                                    <a href="walrus_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Walrus" %}</a>
                                 </li>
+
                                 <li>
-                                    <a href="settings"><i class="fa fa-globe fa-fw"></i>{% trans " Settings" %}</a>
+                                    <a href="cc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Cluster" %}</a>
+                                </li>
+
+                                 <li>
+                                    <a href="nc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Node" %}</a>
+                                </li>
+
+                                 <li>
+                                    <a href="lnc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Local Node" %}</a>
+                                </li>
+
+
+                                 <li>
+                                    <a href="terminal_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud terminal" %}</a>
                                 </li>
                             </ul>
-                            <!-- /.nav-second-level -->
-                        </li>
+                         </li>
+
                         <li>
                             <a href="#"><i class="fa fa-cogs fa-fw"></i>{% trans " Instance" %}<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
@@ -159,6 +181,15 @@
     <!-- Morris Charts JavaScript
     <script src="{% static "clc/js/plugins/morris/morris-data.js" %}"></script>
     -->
+
+    <!-- Flot Charts JavaScript -->
+
+    <script src="{% static "clc/js/plugins/flot/excanvas.min.js" %}"></script>
+    <script src="{% static "clc/js/plugins/flot/jquery.flot.js" %}"></script>
+    <script src="{% static "clc/js/plugins/flot/jquery.flot.pie.js" %}"></script>
+    <script src="{% static "clc/js/plugins/flot/jquery.flot.resize.js" %}"></script>
+    <script src="{% static "clc/js/plugins/flot/jquery.flot.tooltip.min.js" %}"></script>
+    <script src="{% static "clc/myjs/myplot.js" %}"></script>
 
     <!-- Custom Theme JavaScript -->
     <script src="{% static "clc/js/sb-admin-2.js" %}"></script>

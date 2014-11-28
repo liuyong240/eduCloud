@@ -1,0 +1,101 @@
+{% extends "clc/clctemplate.html" %}
+{% load i18n %}
+
+{% block myjs %}
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        draw_plot("#cpu_util", '/machine/cpu/util');
+        //draw_plot("#net_util", '/machine/net/util');
+        //draw_plot("#mem_util", '/machine/mem/util');
+        //draw_plot("#disk_util", '/machine/disk/util');
+    });
+</script>
+{% endblock%}
+
+{% block content %}
+<div class="col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            OverView
+        </div>
+        <div class="panel-body">
+            <p>
+                this is a clc mangement console. need to add reboot button, poweroff button ,etc
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- /.col-lg-6 -->
+<div class="col-lg-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            CPU Utilization
+        </div>
+        <!-- /.panel-heading -->
+        <div class="panel-body">
+            <div class="flot-chart">
+                <div class="flot-chart-content" id="cpu_util"></div>
+            </div>
+        </div>
+        <!-- /.panel-body -->
+    </div>
+    <!-- /.panel -->
+</div>
+<!-- /.col-lg-6 -->
+
+<!-- /.col-lg-6 -->
+<div class="col-lg-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Memory Utilization
+        </div>
+        <!-- /.panel-heading -->
+        <div class="panel-body">
+            <div class="flot-chart">
+                <div class="flot-chart-content" id="mem_util"></div>
+            </div>
+        </div>
+        <!-- /.panel-body -->
+    </div>
+    <!-- /.panel -->
+</div>
+<!-- /.col-lg-6 -->
+
+<!-- /.col-lg-6 -->
+<div class="col-lg-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Network Utilization
+        </div>
+        <!-- /.panel-heading -->
+        <div class="panel-body">
+            <div class="flot-chart">
+                <div class="flot-chart-content" id="net_util"></div>
+            </div>
+        </div>
+        <!-- /.panel-body -->
+    </div>
+    <!-- /.panel -->
+</div>
+<!-- /.col-lg-6 -->
+
+<!-- /.col-lg-6 -->
+<div class="col-lg-6">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Disk Utilization
+        </div>
+        <!-- /.panel-heading -->
+        <div class="panel-body">
+            <div class="flot-chart">
+                <div class="flot-chart-content" id="disk_util"></div>
+            </div>
+        </div>
+        <!-- /.panel-body -->
+    </div>
+    <!-- /.panel -->
+</div>
+<!-- /.col-lg-6 -->
+</div>
+{% endblock %}

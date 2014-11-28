@@ -343,17 +343,88 @@ def images_view(request):
     return render(request, 'clc/images.html', context)
 
 @login_required
-def computers_view(request):
+def clc_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
 
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Computer Management",
+        'dashboard' : "Cloud Control Management",
     }
-    return render(request, 'clc/computers.html', context)
+    return render(request, 'clc/clc_mgr.html', context)
 
+@login_required
+def clc_mgr_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
+    context = {
+        'uid':   u.username,
+        'showname': ua.showname,
+        'dashboard' : "Cloud Control Management",
+    }
+    return render(request, 'clc/clc_mgr.html', context)
+
+@login_required
+def walrus_mgr_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
+    context = {
+        'uid':   u.username,
+        'showname': ua.showname,
+        'dashboard' : "Cloud Walrus Management",
+    }
+    return render(request, 'clc/walrus_mgr.html', context)
+
+@login_required
+def cc_mgr_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
+    context = {
+        'uid':   u.username,
+        'showname': ua.showname,
+        'dashboard' : "Cloud Cluster Management",
+    }
+    return render(request, 'clc/cc_mgr.html', context)
+
+@login_required
+def nc_mgr_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
+    context = {
+        'uid':   u.username,
+        'showname': ua.showname,
+        'dashboard' : "Cloud Node Management",
+    }
+    return render(request, 'clc/nc_mgr.html', context)
+
+@login_required
+def lnc_mgr_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
+    context = {
+        'uid':   u.username,
+        'showname': ua.showname,
+        'dashboard' : "Cloud Local Node Management",
+    }
+    return render(request, 'clc/lnc_mgr.html', context)
+
+@login_required
+def terminal_mgr_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
+    context = {
+        'uid':   u.username,
+        'showname': ua.showname,
+        'dashboard' : "Cloud Terminal Management",
+    }
+    return render(request, 'clc/terminal_mgr.html', context)
 
 @login_required
 def hosts_view(request):
@@ -387,7 +458,7 @@ def vss_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud App Management",
+        'dashboard' : "Cloud Server Management",
     }
 
     return render(request, 'clc/vss.html', context)
@@ -2239,6 +2310,7 @@ def register_server(request):
             rec.ip1    = request.POST['ip1']
             rec.ip2    = request.POST['ip2']
             rec.ip3    = request.POST['ip3']
+            rec.eip    = request.POST['eip']
             rec.mac0   = request.POST['mac0']
             rec.mac1   = request.POST['mac1']
             rec.mac2   = request.POST['mac2']
@@ -2256,6 +2328,7 @@ def register_server(request):
                 ip1    = request.POST['ip1'],
                 ip2    = request.POST['ip2'],
                 ip3    = request.POST['ip3'],
+                eip    = request.POST['eip'],
                 mac0   = request.POST['mac0'],
                 mac1   = request.POST['mac1'],
                 mac2   = request.POST['mac2'],
@@ -2288,6 +2361,7 @@ def register_server(request):
             rec.ip1    = request.POST['ip1']
             rec.ip2    = request.POST['ip2']
             rec.ip3    = request.POST['ip3']
+            rec.eip    = request.POST['eip']
             rec.mac0   = request.POST['mac0']
             rec.mac1   = request.POST['mac1']
             rec.mac2   = request.POST['mac2']
@@ -2305,6 +2379,7 @@ def register_server(request):
                     ip1    = request.POST['ip1'],
                     ip2    = request.POST['ip2'],
                     ip3    = request.POST['ip3'],
+                    eip    = request.POST['eip'],
                     mac0   = request.POST['mac0'],
                     mac1   = request.POST['mac1'],
                     mac2   = request.POST['mac2'],

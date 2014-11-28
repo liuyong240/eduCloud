@@ -1,0 +1,56 @@
+# coding=UTF-8
+
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth import authenticate, login, logout
+from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+
+import json
+import commands
+from datetime import datetime
+
+from luhyaapi.hostTools import *
+
+
+
+# Create your views here.
+#################################################################################
+# API Version 1.0 for image build & modify
+#################################################################################
+import requests, memcache
+
+
+def machine_cpu_util(request):
+    response = {}
+    response['value'] = getSysCpuUtil()
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+
+def machine_mem_util(request):
+    response = {}
+    response['value'] = getSysMemUtil()
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def machine_net_util(request):
+    response = {}
+    response['value'] = getSysNetworkUtil()
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def machine_disk_util(request):
+    response = {}
+    response['value'] = getSysDiskUtil()
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")

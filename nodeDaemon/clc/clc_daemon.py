@@ -41,6 +41,7 @@ def registerMyselfasCLC():
         'ip1': netlist['ip1'],
         'ip2': netlist['ip2'],
         'ip3': netlist['ip3'],
+        'eip': netlist['ip0'],
         'mac0': netlist['mac0'],
         'mac1': netlist['mac1'],
         'mac2': netlist['mac2'],
