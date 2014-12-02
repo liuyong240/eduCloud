@@ -99,8 +99,8 @@ computer management
 ----------------------------------
 clc:
 - status:running/stop
-- display basic static information
-- display dynamic information of cpu uti, memory util, and disk space, network I/O ration
+- display static information {ips, macs, location, name, cpus, memeory, disk}
+  button to change exIP
 - button to set perm
 
 walrus
@@ -118,6 +118,12 @@ nc
 - same as cc
 lnc
 - same as cc
+
+
+
+
+
+
 
 ----------------------------------
 virtual server management

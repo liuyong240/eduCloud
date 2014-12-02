@@ -23,7 +23,7 @@ function draw_plot(idstring, url) {
             $.each(data, function (key, val) {
                 items[key] = val;
             });
-            cache_data = items['value'];
+            $.merge(cache_data, items['value']);;
             flag = 0;
         });
 
@@ -49,20 +49,20 @@ function draw_plot(idstring, url) {
             data = data.slice(1);
         }
 
-        console.log( "before:" + data.length );
-        console.log( "before:" + cache_data.length);
+        //console.log( "before:" + data.length );
+        //console.log( "before:" + cache_data.length);
         while (data.length < maximum) {
 
             if (cache_data.length == 0) {
                 data.push(0);
                 if (flag == 0) {
-                    console.log("retriveData() is callled when cache_data.length = 0... ...");
+                    //console.log("retriveData() is callled when cache_data.length = 0... ...");
                     setTimeout(retriveData, 40);
                     flag = 1;
                 }
             } else if (cache_data.length < 200 ) {
                 if (flag == 0) {
-                    console.log("retriveData() is callled ... ...");
+                    //console.log("retriveData() is callled ... ...");
                     setTimeout(retriveData, 40);
                     flag = 1;
                 }
@@ -73,8 +73,8 @@ function draw_plot(idstring, url) {
                 cache_data = cache_data.slice(1);
             }
         }
-        console.log( "after:" + data.length );
-        console.log( "after:" + cache_data.length);
+        //console.log( "after:" + data.length );
+        //console.log( "after:" + cache_data.length);
 
         // zip the generated y values with the x values
 
@@ -148,7 +148,7 @@ function draw_plot(idstring, url) {
         if (cache_data.length == 0) {
             inteval = 5000;
         } else {
-            inteval = 50;
+            inteval = 100;
         }
         setTimeout(updateRandom, inteval);
     }

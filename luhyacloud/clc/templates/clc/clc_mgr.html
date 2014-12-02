@@ -1,101 +1,176 @@
 {% extends "clc/clctemplate.html" %}
 {% load i18n %}
+{% load staticfiles %}
 
 {% block myjs %}
+<script src="{% static "clc/myjs/my_server_mgr.js" %}"></script>
 <script type="text/javascript" language="javascript">
+
     $(document).ready(function () {
-        draw_plot("#cpu_util", '/machine/cpu/util');
-        //draw_plot("#net_util", '/machine/net/util');
-        //draw_plot("#mem_util", '/machine/mem/util');
-        //draw_plot("#disk_util", '/machine/disk/util');
+        $("#exip_edit").click(function(){
+            exip_edit();
+        });
+
+        $("#restart_http").click(function(){
+            restart_http();
+        });
+
+        $("#restart_ssh").click(function(){
+            restart_ssh();
+        });
+
+        $("#restart_amqp").click(function(){
+            restart_amqp();
+        });
+
+        $("#restart_rsync").click(function(){
+            restart_rsync();
+        });
     });
 </script>
 {% endblock%}
 
 {% block content %}
+
 <div class="col-lg-12">
     <div class="panel panel-default">
         <div class="panel-heading">
             OverView
         </div>
         <div class="panel-body">
-            <p>
-                this is a clc mangement console. need to add reboot button, poweroff button ,etc
-            </p>
-        </div>
-    </div>
-</div>
+            <div class="col-lg-6">
+                <h3>Cloud Parameters</h3>
+                <div class="list-group">
+                <p class="list-group-item">
+                    Clusters
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <p  class="list-group-item">
+                    Nodes
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <p  class="list-group-item">
+                    Local Nodes
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <p  class="list-group-item">
+                    Terminals
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <p></p>
+                <p  class="list-group-item">
+                    Accounts
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <p  class="list-group-item">
+                    Images
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <p  class="list-group-item">
+                    Instances
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
 
-<!-- /.col-lg-6 -->
-<div class="col-lg-6">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            CPU Utilization
-        </div>
-        <!-- /.panel-heading -->
-        <div class="panel-body">
-            <div class="flot-chart">
-                <div class="flot-chart-content" id="cpu_util"></div>
-            </div>
-        </div>
-        <!-- /.panel-body -->
-    </div>
-    <!-- /.panel -->
-</div>
-<!-- /.col-lg-6 -->
+                <h3>Online Data</h3>
+                <p  class="list-group-item">
+                    Online Users
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <p  class="list-group-item">
+                    Running Virtual Servers
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <p  class="list-group-item">
+                    Running Virtual Desktops
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                </div>
 
-<!-- /.col-lg-6 -->
-<div class="col-lg-6">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            Memory Utilization
-        </div>
-        <!-- /.panel-heading -->
-        <div class="panel-body">
-            <div class="flot-chart">
-                <div class="flot-chart-content" id="mem_util"></div>
+                <h3>Service Data</h3>
+                <div class="list-group">
+                <p class="list-group-item">
+                    Web Service
+                    <span class="pull-right text-muted"><em>on</em></span>
+                    <button type="button" id="restart_http">Restart</button>
+                </p>
+                <p class="list-group-item">
+                    Daemon Service
+                    <span class="pull-right text-muted"><em>on</em></span>
+                    <button type="button" id="restart_daemon">Restart</button>
+                </p>
+                <p class="list-group-item">
+                    SSH Service
+                    <span class="pull-right text-muted"><em>on</em></span>
+                    <button type="button" id="restart_ssh">Restart</button>
+                </p>
+                <p class="list-group-item">
+                    AMQP Service
+                    <span class="pull-right text-muted"><em>on</em></span>
+                    <button type="button" id="restart_amqp">Restart</button>
+                </p>
+                <p class="list-group-item">
+                    RSYNC Service
+                    <span class="pull-right text-muted"><em>on</em></span>
+                    <button type="button" id="restart_rsync">Restart</button>
+                </p>
+                </div>
             </div>
-        </div>
-        <!-- /.panel-body -->
-    </div>
-    <!-- /.panel -->
-</div>
-<!-- /.col-lg-6 -->
 
-<!-- /.col-lg-6 -->
-<div class="col-lg-6">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            Network Utilization
+            <div class="col-lg-6">
+                <h3>Hardware Parameters</h3>
+                <p class="list-group-item">
+                    CPUs/Cores
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <p class="list-group-item">
+                    Memory
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <p class="list-group-item">
+                    Disk
+                    <span class="pull-right text-muted"><em>4</em></span>
+                </p>
+                <h3>IP Addresses</h3>
+                <p class="list-group-item">
+                    External IP Address
+                    <span class="pull-right text-muted"><em>100.990.999.999</em></span>
+                    <button type="button" id="exip_edit">Edit</button>
+                </p>
+                <p class="list-group-item">
+                    IP Address 0
+                    <span class="pull-right text-muted"><em>100.990.999.999</em></span>
+                </p>
+                <p class="list-group-item">
+                    IP Address 1
+                    <span class="pull-right text-muted"><em></em></span>
+                </p>
+                <p class="list-group-item">
+                    IP Address 2
+                    <span class="pull-right text-muted"><em></em></span>
+                </p>
+                <p class="list-group-item">
+                    IP Address 3
+                    <span class="pull-right text-muted"><em></em></span>
+                </p>
+                <h3>MAC Addresses</h3>
+                <p class="list-group-item">
+                    MAC Address 0
+                    <span class="pull-right text-muted"><em>68:5b:35:7e:60:34</em></span>
+                </p>
+                <p class="list-group-item">
+                    MAC Address 1
+                    <span class="pull-right text-muted"><em>68:5b:35:7e:60:34</em></span>
+                </p>
+                <p class="list-group-item">
+                    MAC Address 2
+                    <span class="pull-right text-muted"><em>68:5b:35:7e:60:34</em></span>
+                </p>
+                <p class="list-group-item">
+                    MAC Address 3
+                    <span class="pull-right text-muted"><em></em></span>
+                </p>
+             </div>
         </div>
-        <!-- /.panel-heading -->
-        <div class="panel-body">
-            <div class="flot-chart">
-                <div class="flot-chart-content" id="net_util"></div>
-            </div>
-        </div>
-        <!-- /.panel-body -->
     </div>
-    <!-- /.panel -->
-</div>
-<!-- /.col-lg-6 -->
-
-<!-- /.col-lg-6 -->
-<div class="col-lg-6">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            Disk Utilization
-        </div>
-        <!-- /.panel-heading -->
-        <div class="panel-body">
-            <div class="flot-chart">
-                <div class="flot-chart-content" id="disk_util"></div>
-            </div>
-        </div>
-        <!-- /.panel-body -->
-    </div>
-    <!-- /.panel -->
-</div>
-<!-- /.col-lg-6 -->
 </div>
 {% endblock %}
