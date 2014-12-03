@@ -45,9 +45,10 @@ def registerMyselfasCC():
     payload = {
         'role': 'cc',
         'name': hostname,
-        'cpus': hostcpus,
+        'cores': hostcpus,
         'memory': hostmem,
         'disk': hostdisk,
+        'exip': netlist['exip'],
         'ip0': netlist['ip0'],
         'ip1': netlist['ip1'],
         'ip2': netlist['ip2'],

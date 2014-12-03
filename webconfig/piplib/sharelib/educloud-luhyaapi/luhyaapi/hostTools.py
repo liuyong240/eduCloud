@@ -115,6 +115,7 @@ def getHostAttr():
 
 def getHostNetInfo():
     hostnetinfo = {
+        'exip': '',
         'ip0':  '',
         'ip1':  '',
         'ip2':  '',
@@ -133,6 +134,8 @@ def getHostNetInfo():
             hostnetinfo[ipstr]  = netinfo.get_ip(interface)
             hostnetinfo[macstr] = netinfo.get_hwaddr(interface)
             index = index + 1
+
+    hostnetinfo['exip'] = hostnetinfo['ip0']
     return hostnetinfo
 
 import random

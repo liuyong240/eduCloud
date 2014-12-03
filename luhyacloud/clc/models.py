@@ -117,8 +117,7 @@ class ecServers(models.Model):
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
 
-    cpus = models.IntegerField(default=0)
-    cores = models.IntegerField(default=0)
+    cpu_cores = models.IntegerField(default=0)
     memory = models.IntegerField(default=0)
     disk = models.IntegerField(default=0)
 
