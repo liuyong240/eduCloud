@@ -20,4 +20,8 @@ urlpatterns = patterns('',
     url(r'^machine/net/util$',         views.machine_net_util,               name='machine_net_util'),
     url(r'^machine/mem/util$',         views.machine_mem_util,               name='machine_mem_util'),
     url(r'^machine/disk/util$',        views.machine_disk_util,               name='machine_disk_util'),
+
+    url(r'^machine/get_service_status',        views.get_service_status,               name='get_service_status'),
+    url(r'^machine/get_hardware_status$',      views.get_hardware_status,              name='get_hardware_status'),
+
 )

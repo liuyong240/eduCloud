@@ -6,13 +6,13 @@
     function submit_eip() {
         eip = $("#eip").val();
         role = $("#role").text();
-        ip0 = $("#ip0").text();
+        mac0 = $("#mac0").text();
 
         url = "/clc/api/1.0/eip/update";
         postdata = {
             eip:        eip,
             role:       role,
-            ip0:        ip0,
+            mac0:        mac0,
         }
 
         $.post(url, postdata, function(data) {
@@ -71,7 +71,7 @@
                             Update External IP Failed, try again.
                         </div>
                         <div style="display:none" id="role">{{role}}</div>
-                        <div style="display:none" id="ip0">{{ip0}}</div>
+                        <div style="display:none" id="mac0">{{mac0}}</div>
                     </div>
                 </div>
             </div>

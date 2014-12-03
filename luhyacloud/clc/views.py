@@ -360,13 +360,13 @@ def getCloudStatisticData():
 
     return result;
 
-def getHostIPs(hrole, hip0):
+def getHostIPs(hrole, hmac0):
     result = {}
 
-    if hip0 == "":
+    if hmac0 == "":
         obj = ecServers.objects.get(role=hrole)
     else:
-        obj = ecServers.objects.get(role=hrole, ip0=hip0)
+        obj = ecServers.objects.get(role=hrole, mac0=hmac0)
 
     result['name'] = obj.name
     result['location'] = obj.location
@@ -388,9 +388,10 @@ def clc_mgr_view(request):
     ua = ecAccount.objects.get(userid=request.user)
 
     cloud_data = getCloudStatisticData()
-    service_data = getServiceStatus()
-    hardware_data = getHostHardware()
     host_ips = getHostIPs("clc", "")
+
+    service_data    = remote_getServiceStatus("127.0.0.1", "clc")
+    hardware_data   = remote_getHostHardware("127.0.0.1")
 
     context = {
         'uid':   u.username,
@@ -404,25 +405,58 @@ def clc_mgr_view(request):
     return render(request, 'clc/clc_mgr.html', context)
 
 @login_required
-def edit_eip_view(request, role, ip):
-    s = ecServers.objects.get(role=role, ip0=ip)
+def edit_eip_view(request, role, mac):
+    s = ecServers.objects.get(role=role, mac0=mac)
     context = {
         'role':  role,
         'eip':   s.eip,
-        'ip0':   ip,
+        'mac0':  mac,
     }
     return render(request, 'clc/form/edit_eip.html', context)
 
+def remote_getServiceStatus(ip, role):
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/machine/get_service_status' % ip
+    else:
+        url = 'http://%s/machine/get_service_status' % ip
+    payload = {
+        "role": role,
+    }
+    r = requests.post(url, data=payload)
+    return json.loads(r.content)
+
+def remote_getHostHardware(ip):
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/machine/get_hardware_status' % ip
+    else:
+        url = 'http://%s/machine/get_hardware_status' % ip
+    payload = {
+    }
+    r = requests.post(url, data=payload)
+    return json.loads(r.content)
 
 @login_required
 def walrus_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
 
+    wobj = ecServers.objects.get(role="walrus")
+    if DoesServiceExist(wobj.eip, 80) == "Running" :
+        sip = wobj.eip
+    else:
+        sip = wobj.ip0
+
+    service_data    = remote_getServiceStatus(sip, "walrus")
+    hardware_data   = remote_getHostHardware(sip)
+    host_ips        = getHostIPs("walrus", "")
+
     context = {
         'uid':   u.username,
         'showname': ua.showname,
         'dashboard' : "Cloud Walrus Management",
+        'service_data': service_data,
+        'hardware_data': hardware_data,
+        'host_ips': host_ips,
     }
     return render(request, 'clc/walrus_mgr.html', context)
 
@@ -2400,7 +2434,7 @@ def register_server(request):
     else:
         try:
             rec = ecServers.objects.get(role=request.POST['role'],
-                                        ip0=request.POST['ip0'])
+                                        mac0=request.POST['mac0'])
             rec.role   = request.POST['role']
             rec.name   = request.POST['name']
             rec.cpu_cores   = request.POST['cores']
@@ -2643,10 +2677,10 @@ def perm_update(request):
 
 def eip_update(request):
     _eip = request.POST['eip']
-    _ip0 = request.POST['ip0']
+    _mac0 = request.POST['mac0']
     _role = request.POST['role']
 
-    rec = ecServers.objects.get(role=_role, ip0=_ip0)
+    rec = ecServers.objects.get(role=_role, mac0=_mac0)
     rec.eip = _eip
     rec.save()
 

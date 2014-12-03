@@ -8,24 +8,8 @@
 
     $(document).ready(function () {
         $("#exip_edit").click(function(){
-            ip0 = $("#ip0").text();
-            exip_edit('clc', ip0);
-        });
-
-        $("#restart_http").click(function(){
-            restart_http();
-        });
-
-        $("#restart_ssh").click(function(){
-            restart_ssh();
-        });
-
-        $("#restart_amqp").click(function(){
-            restart_amqp();
-        });
-
-        $("#restart_rsync").click(function(){
-            restart_rsync();
+            mac0 = $("#mac0").text();
+            exip_edit('clc', mac0);
         });
 
         $("#permission").click(function(){
@@ -101,32 +85,27 @@
                 <p class="list-group-item">
                     Web Service
                     <span class="pull-right text-muted"><em>{{ service_data.web }}</em></span>
-                    <button type="button" id="restart_http">Restart</button>
+                    <!--<button type="button" id="restart_http">Restart</button>-->
                 </p>
                 <p class="list-group-item">
                     Daemon Service
                     <span class="pull-right text-muted"><em>{{ service_data.daemon }}</em></span>
-                    <button type="button" id="restart_daemon">Restart</button>
+                    <!--<button type="button" id="restart_daemon">Restart</button>-->
                 </p>
                 <p class="list-group-item">
                     SSH Service
                     <span class="pull-right text-muted"><em>{{ service_data.ssh }}</em></span>
-                    <button type="button" id="restart_ssh">Restart</button>
+                    <!--<button type="button" id="restart_ssh">Restart</button>-->
                 </p>
                 <p class="list-group-item">
                     AMQP Service
                     <span class="pull-right text-muted"><em>{{ service_data.amqp }}</em></span>
-                    <button type="button" id="restart_amqp">Restart</button>
-                </p>
-                <p class="list-group-item">
-                    RSYNC Service
-                    <span class="pull-right text-muted"><em>{{ service_data.rsync }}</em></span>
-                    <button type="button" id="restart_rsync">Restart</button>
+                    <!--<button type="button" id="restart_amqp">Restart</button>-->
                 </p>
                 <p class="list-group-item">
                     Memcache Service
                     <span class="pull-right text-muted"><em>{{ service_data.memcache }}</em></span>
-                    <button type="button" id="restart_memcache">Restart</button>
+                    <!--<button type="button" id="restart_memcache">Restart</button>-->
                 </p>
                 </div>
             </div>

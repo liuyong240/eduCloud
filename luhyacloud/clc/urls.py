@@ -26,7 +26,7 @@ urlpatterns = patterns('',
     url(r'^lnc_mgr$',       views.lnc_mgr_view,         name='lnc_mgr_view'),
     url(r'^terminal_mgr$',  views.terminal_mgr_view,    name='terminal_mgr_view'),
 
-    url(r'^edit_eip/(?P<role>\w+)/(?P<ip>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))/$',       views.edit_eip_view,         name='edit_eip_view'),
+    url(r'^edit_eip/(?P<role>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',       views.edit_eip_view,         name='edit_eip_view'),
     url(r'^api/1.0/eip/update$',      views.eip_update,               name='eip_update'),
     url(r'^edit/server/permission/(?P<srole>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',       views.edit_server_permission_view,         name='edit_server_permission_view'),
 

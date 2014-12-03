@@ -242,16 +242,25 @@ def restart_web():
     cmd = "sudo service apache2 restart"
     commands.getoutput(cmd)
 
-def get_daemon_status():
-    cmd = "sudo service educloud_daemon restart"
+
+daemon_list = {
+    "clc":      "clc_daemon",
+    "walrus":   "walrus_daemon",
+    "cc":       "cc_daemon",
+    "nc":       "nc_daemon",
+    "sc":       "clc_daemon",
+}
+
+def get_daemon_status(dtype):
+    cmd = "sudo service " + daemon_list[dtype] + " status "
     output = commands.getoutput(cmd)
     if "running" in output:
         return "Running"
     else:
         return "Closed"
 
-def restart_daemon():
-    cmd = "sudo service educloud_daemon restart"
+def restart_daemon(dtype):
+    cmd = "sudo service " + daemon_list[dtype] + " restart "
     commands.getoutput(cmd)
 
 def get_amqp_status():
@@ -268,14 +277,14 @@ def restart_rsync():
     cmd = "sudo service rsync restart"
     commands.getoutput(cmd)
 
-def getServiceStatus():
+def getServiceStatus(dtype):
     result = {}
     result['ssh'] = get_ssh_status()
     result['web'] = get_web_status()
     result['memcache'] = get_memcache_status()
     result['amqp'] = get_amqp_status()
     result['rsync'] = get_rsync_status()
-    result['daemon'] = get_daemon_status()
+    result['daemon'] = get_daemon_status(dtype)
 
     return result
 

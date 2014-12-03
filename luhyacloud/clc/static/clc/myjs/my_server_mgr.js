@@ -3,8 +3,8 @@ function popupClosing() {
   window.location.href = window.location.href;
 }
 
-function exip_edit(role, ip0) {
-    url = "/clc/edit_eip/" + role + "/" + ip0;
+function exip_edit(role, mac0) {
+    url = "/clc/edit_eip/" + role + "/" + mac0;
     var left = ($(window).width() / 2) - (800 / 2);
     var top = ($(window).height() / 2) - (600 / 2);
     window.open(url, '', 'height=350,width=500,left=' + left + ',top=' + top);

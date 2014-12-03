@@ -54,3 +54,14 @@ def machine_disk_util(request):
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
+
+def get_service_status(request):
+    role = request.POST['role']
+    result = getServiceStatus(role )
+    retvalue = json.dumps(result)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def get_hardware_status(request):
+    result = getHostHardware()
+    retvalue = json.dumps(result)
+    return HttpResponse(retvalue, mimetype="application/json")
