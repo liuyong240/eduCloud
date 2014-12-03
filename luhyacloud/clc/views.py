@@ -342,29 +342,77 @@ def images_view(request):
 
     return render(request, 'clc/images.html', context)
 
+def getCloudStatisticData():
+    result = {}
+    result['num_clusters'] = ecServers.objects.filter(role='cc').count()
+    result['num_nodes']  =  ecServers.objects.filter(role='nc').count()
+    result['num_lnodes']  = ecServers.objects.filter(role='lnc').count()
+    result['num_terminals']  = ecTerminal.objects.all().count()
+    result['num_accounts']  = ecAccount.objects.all().count()
+    result['num_images']  = ecImages.objects.all().count()
+    result['num_def_vss']  = ecVSS.objects.all().count()
+    result['num_def_vd']   = ecVDS.objects.all().count()
+
+    result['num_online_user']  = 0
+    result['num_run_vss']  = 0
+    result['num_run_vd']  = 0
+    result['num_run_lvd']  = 0
+
+    return result;
+
+def getHostIPs(hrole, hip0):
+    result = {}
+
+    if hip0 == "":
+        obj = ecServers.objects.get(role=hrole)
+    else:
+        obj = ecServers.objects.get(role=hrole, ip0=hip0)
+
+    result['name'] = obj.name
+    result['location'] = obj.location
+    result['eip'] = obj.eip
+    result['ip0'] = obj.ip0
+    result['ip1'] = obj.ip1
+    result['ip2'] = obj.ip2
+    result['ip3'] = obj.ip3
+    result['mac0'] = obj.mac0
+    result['mac1'] = obj.mac1
+    result['mac2'] = obj.mac2
+    result['mac3'] = obj.mac3
+
+    return result
+
 @login_required
 def clc_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
 
+    cloud_data = getCloudStatisticData()
+    service_data = getServiceStatus()
+    hardware_data = getHostHardware()
+    host_ips = getHostIPs("clc", "")
+
     context = {
         'uid':   u.username,
         'showname': ua.showname,
         'dashboard' : "Cloud Control Management",
+        'cloud_data' : cloud_data,
+        'service_data': service_data,
+        'hardware_data': hardware_data,
+        'host_ips': host_ips,
     }
     return render(request, 'clc/clc_mgr.html', context)
 
 @login_required
-def clc_mgr_view(request):
-    u = User.objects.get(username=request.user)
-    ua = ecAccount.objects.get(userid=request.user)
-
+def edit_eip_view(request, role, ip):
+    s = ecServers.objects.get(role=role, ip0=ip)
     context = {
-        'uid':   u.username,
-        'showname': ua.showname,
-        'dashboard' : "Cloud Control Management",
+        'role':  role,
+        'eip':   s.eip,
+        'ip0':   ip,
     }
-    return render(request, 'clc/clc_mgr.html', context)
+    return render(request, 'clc/form/edit_eip.html', context)
+
 
 @login_required
 def walrus_mgr_view(request):
@@ -2340,6 +2388,7 @@ def register_server(request):
             # add auth permission for new
             rec = ecServers_auth(
                 mac0        =   request.POST['mac0'],
+                srole       =   request.POST['role'],
                 role_value  =   'eduCloud.admin',
                 read        =   True,
                 write       =   True,
@@ -2391,6 +2440,7 @@ def register_server(request):
             # add auth permission for new
             rec = ecServers_auth(
                 mac0        =   request.POST['mac0'],
+                srole       =   request.POST['role'],
                 role_value  =   'eduCloud.admin',
                 read        =   True,
                 write       =   True,
@@ -2535,6 +2585,47 @@ def image_perm_update(id, data):
                 )
                 rec.save()
 
+def server_perm_update(id, data):
+    tmp = id.split("&")
+
+    tflist = {
+        'true': True,
+        'false': False,
+    }
+
+    perms = data.split('#')
+    for perm in perms:
+        if len(perm) > 0:
+            auth = perm.split(':')
+            _role   = auth[0]
+            _read   = tflist[auth[1]]
+            _write  = tflist[auth[2]]
+            _execute= tflist[auth[3]]
+            _create = tflist[auth[4]]
+            _delete = tflist[auth[5]]
+
+            try:
+                rec = ecServers_auth.objects.get(srole=tmp[0], mac0=tmp[1], role_value= _role)
+                rec.read    = _read
+                rec.write   = _write
+                rec.execute = _execute
+                rec.create  = _create
+                rec.delete  = _delete
+                rec.save()
+            except:
+                rec = ecServers_auth(
+                    srole       = tmp[0],
+                    mac0        = tmp[1],
+                    role_value  = _role,
+                    read        = _read,
+                    write       = _write,
+                    execute     = _execute,
+                    create      = _create,
+                    delete      = _delete,
+                )
+                rec.save()
+
+
 def perm_update(request):
     id = request.POST['id']
     table = request.POST['table']
@@ -2542,8 +2633,65 @@ def perm_update(request):
 
     if table == 'ecImages':
         image_perm_update(id, data)
+    elif table == "ecServers":
+        server_perm_update(id, data)
 
     response = {}
     response['Result'] = "OK"
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
+
+def eip_update(request):
+    _eip = request.POST['eip']
+    _ip0 = request.POST['ip0']
+    _role = request.POST['role']
+
+    rec = ecServers.objects.get(role=_role, ip0=_ip0)
+    rec.eip = _eip
+    rec.save()
+
+    response = {}
+    response['Result'] = "OK"
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def edit_server_permission_view(request, srole, mac):
+    index = 0
+    authlist =  ecAuthPath.objects.all()
+    roles = []
+    for auth in authlist:
+        role={}
+        role['name']    = auth.ec_authpath_name
+        role['value']   = auth.ec_authpath_value
+        roles.append(role)
+
+    permsObjs = ecServers_auth.objects.filter(mac0=mac, srole=srole)
+    perms = []
+    for perm_obj in permsObjs:
+        perm = {}
+        perm['id'] = 'perm' +  str(index)
+        perm['role_value'] = perm_obj.role_value
+        perm['read'] =  perm_obj.read
+        perm['write'] = perm_obj.write
+        perm['execute'] = perm_obj.execute
+        perm['create'] = perm_obj.create
+        perm['delete'] = perm_obj.delete
+        perms.append(perm)
+        index += 1
+
+    rows = len(perms)
+
+    sobj = ecServers.objects.get(mac0=mac, role=srole)
+
+    context = {
+        'sobj':   sobj,
+        'res':    "Server ",
+        'roles':  roles,
+        'lists':  range(0,rows),
+        'next':   rows,
+        'perms':  perms,
+        'table': 'ecServers',
+    }
+    return render(request, 'clc/form/server_permission_edit.html', context)
+
+

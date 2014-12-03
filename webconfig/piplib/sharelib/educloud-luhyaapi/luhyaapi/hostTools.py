@@ -206,39 +206,83 @@ def getSysMemUtil():
     cpu_pcts = cpu_stat.cpu_percents(5)
     return '%.2f%' % (100 - cpu_pcts['idle'])
 
+###########################################################################
+### Service tools
+import socket, commands
 
-#######################################################
-###
-###
-INTERVAL = 0.1
+def DoesServiceExist(host, port):
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1)
+        s.connect((host, port))
+        s.close()
+    except:
+        return 'Closed'
 
-def getTimeList():
-    """
-    Fetches a list of time units the cpu has spent in various modes
-    Detailed explanation at http://www.linuxhowtos.org/System/procstat.htm
-    """
-    cpuStats = file("/proc/stat", "r").readline()
-    columns = cpuStats.replace("cpu", "").split(" ")
-    return map(int, filter(None, columns))
+    return "Running"
 
-def deltaTime(interval):
-    """
-    Returns the difference of the cpu statistics returned by getTimeList
-    that occurred in the given time delta
-    """
-    timeList1 = getTimeList()
-    time.sleep(interval)
-    timeList2 = getTimeList()
-    return [(t2-t1) for t1, t2 in zip(timeList1, timeList2)]
+def get_ssh_status():
+    return DoesServiceExist('127.0.0.1', 22)
 
-def getCpuLoad():
-    """
-    Returns the cpu load as a value from the interval [0.0, 1.0]
-    """
-    dt = list(deltaTime(INTERVAL))
-    idle_time = float(dt[3])
-    total_time = sum(dt)
-    load = 1-(idle_time/total_time)
-    return load
+def restart_ssh():
+    cmd = "sudo service ssh restart"
+    commands.getoutput(cmd)
 
+def get_memcache_status():
+    return DoesServiceExist('127.0.0.1', 11211)
 
+def restart_memcache():
+    cmd = "sudo service memcached restart"
+    commands.getoutput(cmd)
+
+def get_web_status():
+    return DoesServiceExist('127.0.0.1', 80)
+
+def restart_web():
+    cmd = "sudo service apache2 restart"
+    commands.getoutput(cmd)
+
+def get_daemon_status():
+    cmd = "sudo service educloud_daemon restart"
+    output = commands.getoutput(cmd)
+    if "running" in output:
+        return "Running"
+    else:
+        return "Closed"
+
+def restart_daemon():
+    cmd = "sudo service educloud_daemon restart"
+    commands.getoutput(cmd)
+
+def get_amqp_status():
+    return DoesServiceExist('127.0.0.1', 5672)
+
+def restart_amqp():
+    cmd = "sudo service rabbitmq-server restart"
+    commands.getoutput(cmd)
+
+def get_rsync_status():
+    return DoesServiceExist('127.0.0.1', 873)
+
+def restart_rsync():
+    cmd = "sudo service rsync restart"
+    commands.getoutput(cmd)
+
+def getServiceStatus():
+    result = {}
+    result['ssh'] = get_ssh_status()
+    result['web'] = get_web_status()
+    result['memcache'] = get_memcache_status()
+    result['amqp'] = get_amqp_status()
+    result['rsync'] = get_rsync_status()
+    result['daemon'] = get_daemon_status()
+
+    return result
+
+def getHostHardware():
+    result = {}
+
+    result['cpus'] = psutil.cpu_count()
+    result['mem']  = psutil.virtual_memory().total/(1024*1024*1024)
+    result['disk'] = psutil.disk_usage("/").total /(1024*1024*1024)
+    return result

@@ -8,7 +8,8 @@
 
     $(document).ready(function () {
         $("#exip_edit").click(function(){
-            exip_edit();
+            ip0 = $("#ip0").text();
+            exip_edit('clc', ip0);
         });
 
         $("#restart_http").click(function(){
@@ -25,6 +26,11 @@
 
         $("#restart_rsync").click(function(){
             restart_rsync();
+        });
+
+        $("#permission").click(function(){
+            mac0 = $("#mac0").text();
+            edit_server_permission('clc', mac0);
         });
     });
 </script>
@@ -43,46 +49,50 @@
                 <div class="list-group">
                 <p class="list-group-item">
                     Clusters
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_clusters}}</em></span>
                 </p>
                 <p  class="list-group-item">
                     Nodes
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_nodes}}</em></span>
                 </p>
                 <p  class="list-group-item">
                     Local Nodes
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_lnodes}}</em></span>
                 </p>
                 <p  class="list-group-item">
                     Terminals
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_terminals}}</em></span>
                 </p>
                 <p></p>
                 <p  class="list-group-item">
                     Accounts
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_accounts}}</em></span>
                 </p>
                 <p  class="list-group-item">
                     Images
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_images}}</em></span>
                 </p>
                 <p  class="list-group-item">
-                    Instances
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    Virtual Servers
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_def_vss}}</em></span>
+                </p>
+                <p  class="list-group-item">
+                    Virtual Desktops
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_def_vd}}</em></span>
                 </p>
 
                 <h3>Online Data</h3>
                 <p  class="list-group-item">
-                    Online Users
-                    <span class="pull-right text-muted"><em>4</em></span>
-                </p>
-                <p  class="list-group-item">
                     Running Virtual Servers
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_run_vss}}</em></span>
                 </p>
                 <p  class="list-group-item">
                     Running Virtual Desktops
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_run_vd}}</em></span>
+                </p>
+                <p  class="list-group-item">
+                    Running Local Virtual Desktops
+                    <span class="pull-right text-muted"><em>{{ cloud_data.num_run_lvd}}</em></span>
                 </p>
                 </div>
 
@@ -90,94 +100,104 @@
                 <div class="list-group">
                 <p class="list-group-item">
                     Web Service
-                    <span class="pull-right text-muted"><em>on</em></span>
+                    <span class="pull-right text-muted"><em>{{ service_data.web }}</em></span>
                     <button type="button" id="restart_http">Restart</button>
                 </p>
                 <p class="list-group-item">
                     Daemon Service
-                    <span class="pull-right text-muted"><em>on</em></span>
+                    <span class="pull-right text-muted"><em>{{ service_data.daemon }}</em></span>
                     <button type="button" id="restart_daemon">Restart</button>
                 </p>
                 <p class="list-group-item">
                     SSH Service
-                    <span class="pull-right text-muted"><em>on</em></span>
+                    <span class="pull-right text-muted"><em>{{ service_data.ssh }}</em></span>
                     <button type="button" id="restart_ssh">Restart</button>
                 </p>
                 <p class="list-group-item">
                     AMQP Service
-                    <span class="pull-right text-muted"><em>on</em></span>
+                    <span class="pull-right text-muted"><em>{{ service_data.amqp }}</em></span>
                     <button type="button" id="restart_amqp">Restart</button>
                 </p>
                 <p class="list-group-item">
                     RSYNC Service
-                    <span class="pull-right text-muted"><em>on</em></span>
+                    <span class="pull-right text-muted"><em>{{ service_data.rsync }}</em></span>
                     <button type="button" id="restart_rsync">Restart</button>
+                </p>
+                <p class="list-group-item">
+                    Memcache Service
+                    <span class="pull-right text-muted"><em>{{ service_data.memcache }}</em></span>
+                    <button type="button" id="restart_memcache">Restart</button>
                 </p>
                 </div>
             </div>
+
+            <div style="display:none" id="ip0">{{  host_ips.ip0 }}</div>
+            <div style="display:none" id="mac0">{{  host_ips.mac0 }}</div>
 
             <div class="col-lg-6">
                 <h3>Hardware Parameters</h3>
                 <p class="list-group-item">
                     HostName
-                    <span class="pull-right text-muted"><em>cloud controller</em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.name }}</em></span>
                 </p>
                 <p class="list-group-item">
                     Location
-                    <span class="pull-right text-muted"><em></em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.location }}</em></span>
                 </p>
-		<p></p>
+		        <p></p>
                 <p class="list-group-item">
-                    CPUs/Cores
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    CPU Cores
+                    <span class="pull-right text-muted"><em>{{ hardware_data.cpus }}</em></span>
                 </p>
                 <p class="list-group-item">
                     Memory
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    <span class="pull-right text-muted"><em>{{ hardware_data.mem }}</em></span>
                 </p>
                 <p class="list-group-item">
                     Disk
-                    <span class="pull-right text-muted"><em>4</em></span>
+                    <span class="pull-right text-muted"><em>{{ hardware_data.disk }}</em></span>
                 </p>
                 <h3>IP Addresses</h3>
                 <p class="list-group-item">
                     External IP Address
-                    <span class="pull-right text-muted"><em>100.990.999.999</em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.eip }}</em></span>
                     <button type="button" id="exip_edit">Edit</button>
                 </p>
                 <p class="list-group-item">
                     IP Address 0
-                    <span class="pull-right text-muted"><em>100.990.999.999</em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.ip0 }}</em></span>
                 </p>
                 <p class="list-group-item">
                     IP Address 1
-                    <span class="pull-right text-muted"><em></em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.ip1 }}</em></span>
                 </p>
                 <p class="list-group-item">
                     IP Address 2
-                    <span class="pull-right text-muted"><em></em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.ip2 }}</em></span>
                 </p>
                 <p class="list-group-item">
                     IP Address 3
-                    <span class="pull-right text-muted"><em></em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.ip3 }}</em></span>
                 </p>
                 <h3>MAC Addresses</h3>
                 <p class="list-group-item">
                     MAC Address 0
-                    <span class="pull-right text-muted"><em>68:5b:35:7e:60:34</em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.mac0 }}</em></span>
                 </p>
                 <p class="list-group-item">
                     MAC Address 1
-                    <span class="pull-right text-muted"><em>68:5b:35:7e:60:34</em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.mac1 }}</em></span>
                 </p>
                 <p class="list-group-item">
                     MAC Address 2
-                    <span class="pull-right text-muted"><em>68:5b:35:7e:60:34</em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.mac2 }}</em></span>
                 </p>
                 <p class="list-group-item">
                     MAC Address 3
-                    <span class="pull-right text-muted"><em></em></span>
+                    <span class="pull-right text-muted"><em>{{  host_ips.mac3 }}</em></span>
                 </p>
+                <p></p>
+                <button id="permission" type="button" class="btn btn-primary">Edit Permission</button>
              </div>
         </div>
     </div>

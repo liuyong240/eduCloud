@@ -125,6 +125,7 @@ class ecServers(models.Model):
 
 class ecServers_auth(models.Model):
     mac0        = models.CharField(max_length=20)
+    srole        = models.CharField(max_length=100)
     role_value  = models.CharField(max_length=100)
     read        = models.BooleanField(default=False)
     write       = models.BooleanField(default=False)
@@ -152,7 +153,7 @@ class ecCCResources(models.Model):
     used_ips_macs              = models.TextField()  # [{pubip1, prvip1, mac1}, {pubip2, prvip2, mac2},{pubip3, prvip3, mac3}, ... ... ]
 
 # for all NCs that support LVD
-class ecHosts(models.Model):
+class ecTerminal(models.Model):
     ip  = models.CharField(max_length=20)
     wip = models.CharField(max_length=20)
 
@@ -174,7 +175,7 @@ class ecHosts(models.Model):
     # auto_guest_attr_update=0
     runtime_option = models.TextField()
 
-class ecHosts_auth(models.Model):
+class ecTerminal_auth(models.Model):
     mac0        = models.CharField(max_length=20)
     role_value  = models.CharField(max_length=100)
     read        = models.BooleanField(default=False)
