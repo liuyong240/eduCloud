@@ -2481,6 +2481,9 @@ def register_server(request):
             rec.save()
     else:
         try:
+            # need to check whether ccname is already exist.
+            #
+            # before we save record.
             rec = ecServers.objects.get(role=request.POST['role'],
                                         mac0=request.POST['mac0'])
             rec.role   = request.POST['role']
