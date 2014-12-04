@@ -20,7 +20,7 @@
             actions: {
                 listAction:     '/clc/api/1.0/servers/list/cc',
                 //deleteAction:   '/clc/api/1.0/servers/delete',
-                updateAction:   '/clc/api/1.0/servers/update',
+                //updateAction:   '/clc/api/1.0/servers/update',
                 //createAction: '/clc/api/1.0/servers/create'
             },
             fields: {
@@ -32,21 +32,21 @@
                 },
                 name: {
                     title: 'Name',
-                    width: '8%'
+                    width: '15%'
                 },
                 ccname:{
                     title: "Cluster Name",
-                    width: '18%',
+                    width: '15%',
                     edit: false,
                 },
-                cpus: {
-                    title: 'CPUs',
-                    width: '8%',
+                cores: {
+                    title: 'Cores',
+                    width: '5%',
                     edit: false,
                 },
                 memory: {
                     title: 'Mem(G)',
-                    width: '8%',
+                    width: '5%',
                     edit: false,
                 },
                 disk: {
@@ -54,19 +54,24 @@
                     width: '8%',
                     edit: false,
                 },
+                eip: {
+                    title: "External IP",
+                    width: "10%",
+                },
                 ip0: {
-                    title: "IP",
+                    title: "IP0",
                     width: '10%',
                     edit: false,
                 },
                 mac0: {
-                    title: "MAC",
+                    title: "MAC0",
                     width: '10%',
                     edit: false,
                 },
                 location: {
                     title: "Location",
                     width: '25%',
+                    list: false,
                 },
             },
             //Register to selectionChanged event to handle events

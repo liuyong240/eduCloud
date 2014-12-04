@@ -441,10 +441,10 @@ def walrus_mgr_view(request):
     ua = ecAccount.objects.get(userid=request.user)
 
     wobj = ecServers.objects.get(role="walrus")
-    if DoesServiceExist(wobj.eip, 80) == "Running" :
-        sip = wobj.eip
-    else:
+    if DoesServiceExist(wobj.ip0, 80) == "Running" :
         sip = wobj.ip0
+    else:
+        sip = wobj.eip
 
     service_data    = remote_getServiceStatus(sip, "walrus")
     hardware_data   = remote_getHostHardware(sip)
@@ -472,6 +472,49 @@ def cc_mgr_view(request):
     }
     return render(request, 'clc/cc_mgr.html', context)
 
+def cc_mgr_ccname(request, ccname):
+    ccobj = ecServers.objects.get(role="cc", ccname=ccname)
+    if DoesServiceExist(ccobj.ip0, 80) == "Running" :
+        sip = ccobj.ip0
+    else:
+        sip = ccobj.eip
+
+    service_data    = remote_getServiceStatus(sip, "cc")
+    hardware_data   = remote_getHostHardware(sip)
+    host_ips        = getHostIPs("cc", ccobj.mac0)
+
+    htmlstr = CC_DETAIL_TEMPLATE
+    htmlstr = htmlstr.replace('{{service_data.web}}',     service_data['web'])
+    htmlstr = htmlstr.replace('{{service_data.daemon}}',  service_data['daemon'])
+    htmlstr = htmlstr.replace('{{service_data.ssh}}',     service_data['ssh'])
+    htmlstr = htmlstr.replace('{{service_data.rsync}}',   service_data['rsync'])
+    htmlstr = htmlstr.replace('{{service_data.amqp}}',    service_data['amqp'])
+    htmlstr = htmlstr.replace('{{service_data.amqp}}',    service_data['amqp'])
+    htmlstr = htmlstr.replace('{{service_data.memcache}}', service_data['memcache'])
+
+    htmlstr = htmlstr.replace('{{host_ips.name}}',        host_ips['name'])
+    htmlstr = htmlstr.replace('{{host_ips.location}}',    host_ips['location'])
+
+    htmlstr = htmlstr.replace('{{hardware_data.cpus}}',        str(hardware_data['cpus']))
+    htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
+    htmlstr = htmlstr.replace('{{hardware_data.disk}}',        str(hardware_data['disk']))
+
+    htmlstr = htmlstr.replace('{{host_ips.eip}}', host_ips['eip'])
+    htmlstr = htmlstr.replace('{{host_ips.ip0}}', host_ips['ip0'])
+    htmlstr = htmlstr.replace('{{host_ips.ip1}}', host_ips['ip1'])
+    htmlstr = htmlstr.replace('{{host_ips.ip2}}', host_ips['ip2'])
+    htmlstr = htmlstr.replace('{{host_ips.ip3}}', host_ips['ip3'])
+
+    htmlstr = htmlstr.replace('{{host_ips.mac0}}', host_ips['mac0'])
+    htmlstr = htmlstr.replace('{{host_ips.mac1}}', host_ips['mac1'])
+    htmlstr = htmlstr.replace('{{host_ips.mac2}}', host_ips['mac2'])
+    htmlstr = htmlstr.replace('{{host_ips.mac3}}', host_ips['mac3'])
+
+    response = {}
+    response['Result'] = 'OK'
+    response['data'] = htmlstr
+    return HttpResponse(json.dumps(response), mimetype="application/json")
+
 @login_required
 def nc_mgr_view(request):
     u = User.objects.get(username=request.user)
@@ -483,6 +526,9 @@ def nc_mgr_view(request):
         'dashboard' : "Cloud Node Management",
     }
     return render(request, 'clc/nc_mgr.html', context)
+
+def nc_mgr_mac(request, mac):
+    pass
 
 @login_required
 def lnc_mgr_view(request):
@@ -2024,6 +2070,7 @@ def list_servers_by_role(reqeust, roletype):
         jrec = {}
         jrec['id'] = rec.id
         jrec['role'] = rec.role
+        jrec['eip']  = rec.eip
         jrec['ip0'] = rec.ip0
         jrec['ip1']=rec.ip1
         jrec['ip2'] = rec.ip2
@@ -2034,7 +2081,7 @@ def list_servers_by_role(reqeust, roletype):
         jrec['mac3'] = rec.mac3
         jrec['name'] = rec.name
         jrec['location'] = rec.location
-        jrec['cpus'] = rec.cpus
+        jrec['cores'] = rec.cpu_cores
         jrec['memory'] = rec.memory
         jrec['disk'] = rec.disk
         jrec['ccname'] = rec.ccname
@@ -2057,8 +2104,9 @@ def list_servers(request):
         jrec = {}
         jrec['id'] = rec.id
         jrec['role'] = rec.role
+        jrec['eip']  = rec.eip
         jrec['ip0'] = rec.ip0
-        jrec['ip1']=rec.ip1
+        jrec['ip1'] = rec.ip1
         jrec['ip2'] = rec.ip2
         jrec['ip3'] = rec.ip3
         jrec['mac0'] = rec.mac0
@@ -2067,7 +2115,7 @@ def list_servers(request):
         jrec['mac3'] = rec.mac3
         jrec['name'] = rec.name
         jrec['location'] = rec.location
-        jrec['cpus'] = rec.cpus
+        jrec['cores'] = rec.cpu_cores
         jrec['memory'] = rec.memory
         jrec['disk'] = rec.disk
         jrec['ccname'] = rec.ccname
@@ -2455,7 +2503,7 @@ def register_server(request):
             rec = ecServers(
                     role   = request.POST['role'],
                     name   = request.POST['name'],
-                    cpus   = request.POST['cpus'],
+                    cpu_cores   = request.POST['cores'],
                     memory = request.POST['memory'],
                     disk   = request.POST['disk'],
                     eip    = request.POST['exip'],
