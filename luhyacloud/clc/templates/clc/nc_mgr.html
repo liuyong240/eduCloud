@@ -1,0 +1,95 @@
+{% extends "clc/clctemplate.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block myjs %}
+<script src="{% static "clc/myjs/my_server_mgr.js" %}"></script>
+<script type="text/javascript" language="javascript">
+    $('#myiframe').css('height', $(window).height()/2+'px');
+</script>
+
+<script type="text/javascript" language="javascript">
+function clear_data() {
+    $(".col-lg-6").remove();
+}
+
+function add_data(ccname) {
+    var newdata;
+    url = "/clc/cc_mgr/" + ccname;
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        newdata = items['data'];
+        //console.log(newdata);
+        $("#mark").before(newdata);
+    });
+}
+
+function bind_click_event() {
+    $('body').on("click", "#ccres_modify", function(){
+        ccname=$("#ccname").text()
+
+        url="/clc/cc/modify/resources/" + ccname;
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, 'popUpWindow', 'height=760,width=550,left=' + left + ',top=' + top);
+
+    });
+
+    $('body').on("click", "#exip_edit", function(){
+        mac0 = $("#mac0").text();
+        exip_edit('cc', mac0);
+    });
+
+    $('body').on("click", "#permission", function(){
+        mac0 = $("#mac0").text();
+        edit_server_permission('cc', mac0);
+    });
+}
+
+function ccSelected(ccname){
+    if (ccname == null) {
+        $('#ccname').html(null);
+        clear_data();
+    } else {
+        $('#ccname').html(ccname);
+        clear_data();
+        add_data(ccname);
+        bind_click_event();
+    }
+}
+
+$(document).ready(function()
+{
+
+});
+</script>
+
+{% endblock%}
+
+{% block content %}
+<div class="col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            OverView
+        </div>
+        <div class="panel-body">
+            <iframe class="servers_table" id="myiframe" src="jt/servers/nc" frameborder="0" width="100%"></iframe>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Detail
+        </div>
+        <div class="panel-body">
+            <p id="mark"></p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

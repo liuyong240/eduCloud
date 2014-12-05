@@ -2425,131 +2425,118 @@ def list_ncs(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
+def update_server_record(request, rec):
+    rec.role   = request.POST['role']
+    rec.name   = request.POST['name']
+    rec.cpu_cores   = request.POST['cores']
+    rec.memory = request.POST['memory']
+    rec.disk   = request.POST['disk']
+    # rec.eip    = request.POST['exip']
+    rec.ip0    = request.POST['ip0']
+    rec.ip1    = request.POST['ip1']
+    rec.ip2    = request.POST['ip2']
+    rec.ip3    = request.POST['ip3']
+    rec.mac0   = request.POST['mac0']
+    rec.mac1   = request.POST['mac1']
+    rec.mac2   = request.POST['mac2']
+    rec.mac3   = request.POST['mac3']
+    rec.ccname = request.POST['ccname']
+    rec.save()
+
+def add_new_server(request):
+    rec = ecServers(
+            role   = request.POST['role'],
+            name   = request.POST['name'],
+            cpu_cores   = request.POST['cores'],
+            memory = request.POST['memory'],
+            disk   = request.POST['disk'],
+            eip    = request.POST['exip'],
+            ip0    = request.POST['ip0'],
+            ip1    = request.POST['ip1'],
+            ip2    = request.POST['ip2'],
+            ip3    = request.POST['ip3'],
+            mac0   = request.POST['mac0'],
+            mac1   = request.POST['mac1'],
+            mac2   = request.POST['mac2'],
+            mac3   = request.POST['mac3'],
+            ccname = request.POST['ccname'],
+    )
+    rec.save()
+
+    # add auth permission for new
+    auth_rec = ecServers_auth(
+        mac0        =   request.POST['mac0'],
+        srole       =   request.POST['role'],
+        role_value  =   'eduCloud.admin',
+        read        =   True,
+        write       =   True,
+        execute     =   True,
+        create      =   True,
+        delete      =   True,
+    )
+    auth_rec.save()
+
+    if request.POST['role'] == 'cc':
+        res_rec = ecCCResources(
+            ccip        = request.POST['ip0'],
+            ccname      = request.POST['ccname'],
+            usage       = "lvd",
+            network_mode= '',
+            portRange   = "3389-4389",
+        )
+        res_rec.save()
+
 def register_server(request):
+    if request.POST['role'] == 'clc':
+        recs = ecServers.objects.filter(role=request.POST['role'])
+        if recs.count() > 0:
+            if recs[0].mac0 == request.POST['mac0']:
+                # update existing record
+                update_server_record(request, recs[0])
+            else:
+                # duplicate clc register
+                logger.error(" duplicated CLC registration.")
+        else:
+            # new record
+            add_new_server(request)
+    elif request.POST['role'] == 'walrus':
+        recs = ecServers.objects.filter(role=request.POST['role'])
+        if recs.count() > 0:
+            if recs[0].mac0 == request.POST['mac0']:
+                # update existing record
+                update_server_record(request, recs[0])
+            else:
+                # duplicate clc register
+                logger.error(" duplicated Walrus registration.")
+        else:
+            # new record
+            add_new_server(request)
+    elif request.POST['role'] == 'cc':
+        recs = ecServers.objects.filter(role=request.POST['role'], ccname=request.POST['ccname'])
+        if recs.count() > 0:
+            if recs[0].mac0 == request.POST['mac0']:
+                # update existing record
+                update_server_record(request, recs[0])
+            else:
+                # duplicate clc register
+                logger.error(" duplicated CC registration.")
+        else:
+            # new record
+            add_new_server(request)
+    elif request.POST['role'] == 'nc':
+        recs = ecServers.objects.filter(role=request.POST['role'], mac0=request.POST['mac0'])
+        if recs.count() > 0:
+            if recs[0].ccname == request.POST['ccname']:
+                # update existing record
+                update_server_record(request, recs[0])
+            else:
+                # duplicate clc register
+                logger.error(" duplicated nc registration.")
+        else:
+            # new record
+            add_new_server(request)
+
     response = {}
-
-    if request.POST['role'] == 'clc' or request.POST['role'] == 'walrus':
-        try:
-            rec = ecServers.objects.get(role=request.POST['role'])
-            rec.role   = request.POST['role']
-            rec.name   = request.POST['name']
-            rec.cpu_cores   = request.POST['cores']
-            rec.memory = request.POST['memory']
-            rec.disk   = request.POST['disk']
-            rec.eip    = request.POST['exip']
-            rec.ip0    = request.POST['ip0']
-            rec.ip1    = request.POST['ip1']
-            rec.ip2    = request.POST['ip2']
-            rec.ip3    = request.POST['ip3']
-            rec.mac0   = request.POST['mac0']
-            rec.mac1   = request.POST['mac1']
-            rec.mac2   = request.POST['mac2']
-            rec.mac3   = request.POST['mac3']
-            logger.error("update existing server db")
-            rec.save()
-        except:
-            rec = ecServers(
-                role   = request.POST['role'],
-                name   = request.POST['name'],
-                cpu_cores   = request.POST['cores'],
-                memory = request.POST['memory'],
-                disk   = request.POST['disk'],
-                eip    = request.POST['exip'],
-                ip0    = request.POST['ip0'],
-                ip1    = request.POST['ip1'],
-                ip2    = request.POST['ip2'],
-                ip3    = request.POST['ip3'],
-                mac0   = request.POST['mac0'],
-                mac1   = request.POST['mac1'],
-                mac2   = request.POST['mac2'],
-                mac3   = request.POST['mac3'],
-            )
-            logger.error("create a new server db")
-            rec.save()
-
-            # add auth permission for new
-            rec = ecServers_auth(
-                mac0        =   request.POST['mac0'],
-                srole       =   request.POST['role'],
-                role_value  =   'eduCloud.admin',
-                read        =   True,
-                write       =   True,
-                execute     =   True,
-                create      =   True,
-                delete      =   True,
-            )
-            rec.save()
-    else:
-        try:
-            # need to check whether ccname is already exist.
-            #
-            # before we save record.
-            rec = ecServers.objects.get(role=request.POST['role'],
-                                        mac0=request.POST['mac0'])
-            rec.role   = request.POST['role']
-            rec.name   = request.POST['name']
-            rec.cpu_cores   = request.POST['cores']
-            rec.memory = request.POST['memory']
-            rec.disk   = request.POST['disk']
-            rec.eip    = request.POST['exip']
-            rec.ip0    = request.POST['ip0']
-            rec.ip1    = request.POST['ip1']
-            rec.ip2    = request.POST['ip2']
-            rec.ip3    = request.POST['ip3']
-            rec.mac0   = request.POST['mac0']
-            rec.mac1   = request.POST['mac1']
-            rec.mac2   = request.POST['mac2']
-            rec.mac3   = request.POST['mac3']
-            rec.ccname = request.POST['ccname']
-            rec.save()
-        except:
-            rec = ecServers(
-                    role   = request.POST['role'],
-                    name   = request.POST['name'],
-                    cpu_cores   = request.POST['cores'],
-                    memory = request.POST['memory'],
-                    disk   = request.POST['disk'],
-                    eip    = request.POST['exip'],
-                    ip0    = request.POST['ip0'],
-                    ip1    = request.POST['ip1'],
-                    ip2    = request.POST['ip2'],
-                    ip3    = request.POST['ip3'],
-                    mac0   = request.POST['mac0'],
-                    mac1   = request.POST['mac1'],
-                    mac2   = request.POST['mac2'],
-                    mac3   = request.POST['mac3'],
-                    ccname = request.POST['ccname'],
-            )
-            rec.save()
-
-            # add auth permission for new
-            rec = ecServers_auth(
-                mac0        =   request.POST['mac0'],
-                srole       =   request.POST['role'],
-                role_value  =   'eduCloud.admin',
-                read        =   True,
-                write       =   True,
-                execute     =   True,
-                create      =   True,
-                delete      =   True,
-            )
-            rec.save()
-
-
-        if request.POST['role'] == 'cc':
-            try:
-                ccresource = ecCCResources.objects.get(ccip=request.POST['ip0'], ccname=request.POST['ccname'])
-                pass
-            except:
-                rec = ecCCResources(
-                    ccip        = request.POST['ip0'],
-                    ccname      = request.POST['ccname'],
-                    usage       = "lvd",
-                    network_mode= '',
-                    portRange   = "3389-4389",
-                )
-                rec.save()
-
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")

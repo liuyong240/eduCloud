@@ -43,6 +43,7 @@ def registerMyselfasWALRUS():
         'mac1':   netlist['mac1'],
         'mac2':   netlist['mac2'],
         'mac3':   netlist['mac3'],
+        'ccname': '',
     }
     r = requests.post(url, data=payload)
     return r.status_code
