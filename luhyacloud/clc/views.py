@@ -2495,7 +2495,7 @@ def register_server(request):
                 update_server_record(request, recs[0])
             else:
                 # duplicate clc register
-                logger.error(" duplicated CLC registration.")
+                logger.error(" duplicated CLC registration from %s." % request.POST['ip0'])
         else:
             # new record
             add_new_server(request)
@@ -2507,7 +2507,7 @@ def register_server(request):
                 update_server_record(request, recs[0])
             else:
                 # duplicate clc register
-                logger.error(" duplicated Walrus registration.")
+                logger.error(" duplicated Walrus registration from %s." % request.POST['ip0'])
         else:
             # new record
             add_new_server(request)
@@ -2519,7 +2519,7 @@ def register_server(request):
                 update_server_record(request, recs[0])
             else:
                 # duplicate clc register
-                logger.error(" duplicated CC registration.")
+                logger.error(" duplicated CC registration from %s." % request.POST['ip0'])
         else:
             # new record
             add_new_server(request)
@@ -2531,7 +2531,7 @@ def register_server(request):
                 update_server_record(request, recs[0])
             else:
                 # duplicate clc register
-                logger.error(" duplicated nc registration.")
+                logger.error(" duplicated nc registration from %s." % request.POST['ip0'])
         else:
             # new record
             add_new_server(request)

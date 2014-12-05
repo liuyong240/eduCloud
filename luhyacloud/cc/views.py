@@ -165,9 +165,10 @@ def register_server(request):
     payload = {
         'role':     request.POST['role'],
         'name':     request.POST['name'],
-        'cpus':     request.POST['cpus'],
+        'cores':     request.POST['cores'],
         'memory':   request.POST['memory'],
         'disk':     request.POST['disk'],
+        'exip':     request.POST['exip'],
         'ip0':      request.POST['ip0'],
         'ip1':      request.POST['ip1'],
         'ip2':      request.POST['ip2'],
