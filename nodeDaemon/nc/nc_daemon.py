@@ -75,7 +75,11 @@ def registerMyselfasNC():
         'ccname': ccname,
     }
     r = requests.post(url, data=payload)
-    return r.content
+    msg = json.loads(r.content)
+    if msg['Result'] == "OK":
+ 	logger.error("register NC %s succeed !" % netlist['ip0'])
+    else:
+	logger.error("register NC %s failed !" % netlist['ip0'])
 
 
 def main():

@@ -8,9 +8,10 @@ import time, psutil
 logger = getncdaemonlogger()
 
 class nc_statusPublisherThread(run4everThread):
-    def __init__(self, bucket, logger):
-        run4everThread.__init__(self, bucket, logger)
-        _ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
+    def __init__(self, bucket):
+        run4everThread.__init__(self, bucket)
+        self._ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
+	logger.error("cc ip = %s" % self._ccip)
 
     def run4ever(self):
         while True:
@@ -18,7 +19,7 @@ class nc_statusPublisherThread(run4everThread):
             self.send_node_status_to_cc(node_status)
             time.sleep(5*60)
 
-    def collect_status(self):
+    def collect_node_status(self):
         payload = { }
         payload['type']             = 'nodestatus'
         payload['service_data']     = getServiceStatus('nc')
