@@ -15,7 +15,7 @@ function clear_data() {
 
 function add_data(ccname, mac0) {
     var newdata;
-    url = "/clc/nc_mgr/" + ccname + / + mac0;
+    url = "/clc/nc_mgr/" + ccname + "/" + mac0;
     $.getJSON(url,function (data) {
         var items = [];
         $.each(data, function (key, val) {

@@ -527,7 +527,7 @@ def nc_mgr_view(request):
     return render(request, 'clc/nc_mgr.html', context)
 
 def nc_mgr_mac(request, ccname, mac):
-
+    logger.error("enter nc_mgr_mac --- --- ")
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     key = "nc#" + mac + "#status"
 
@@ -545,6 +545,7 @@ def nc_mgr_mac(request, ccname, mac):
         payload = None
 
     if payload == None:
+        logger.error("not get nc[%s] status data from memcache." % mac)
         return
 
     htmlstr = NC_DETAIL_TEMPLATE
