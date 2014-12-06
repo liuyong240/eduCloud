@@ -489,7 +489,6 @@ def cc_mgr_ccname(request, ccname):
     htmlstr = htmlstr.replace('{{service_data.ssh}}',     service_data['ssh'])
     htmlstr = htmlstr.replace('{{service_data.rsync}}',   service_data['rsync'])
     htmlstr = htmlstr.replace('{{service_data.amqp}}',    service_data['amqp'])
-    htmlstr = htmlstr.replace('{{service_data.amqp}}',    service_data['amqp'])
     htmlstr = htmlstr.replace('{{service_data.memcache}}', service_data['memcache'])
 
     htmlstr = htmlstr.replace('{{host_ips.name}}',        host_ips['name'])
@@ -527,8 +526,64 @@ def nc_mgr_view(request):
     }
     return render(request, 'clc/nc_mgr.html', context)
 
-def nc_mgr_mac(request, mac):
-    pass
+def nc_mgr_mac(request, ccname, mac):
+
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    key = "nc#" + mac + "#status"
+
+    try:
+        payload = mc.get(key)
+        if payload == None:
+            pass
+        else:
+            payload = json.loads(payload)
+            service_data = payload['service_data']
+            hardware_data = payload['hardware_data']
+            host_ips = payload['net_data']
+            vminfo = payload['vm_data']
+    except Exception as e:
+        payload = None
+
+    if payload == None:
+        return
+
+    htmlstr = NC_DETAIL_TEMPLATE
+    vmstr   = VM_LIST_GROUP_ITEM
+
+    if vminfo != []:
+        vms = ""
+        for vm in vminfo:
+            _vm = vmstr.replace('{{vminfo.insid}}', vm['name'])
+            vms = vms + _vm
+
+        htmlstr = htmlstr.replace('{{vminfos}}',  vms)
+
+    htmlstr = htmlstr.replace('{{service_data.daemon}}',  service_data['daemon'])
+    htmlstr = htmlstr.replace('{{service_data.ssh}}',     service_data['ssh'])
+
+    htmlstr = htmlstr.replace('{{host_ips.name}}',        host_ips['name'])
+    htmlstr = htmlstr.replace('{{host_ips.location}}',    host_ips['location'])
+
+    htmlstr = htmlstr.replace('{{hardware_data.cpus}}',        str(hardware_data['cpus']))
+    htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
+    htmlstr = htmlstr.replace('{{hardware_data.disk}}',        str(hardware_data['disk']))
+
+    htmlstr = htmlstr.replace('{{host_ips.eip}}', host_ips['eip'])
+    htmlstr = htmlstr.replace('{{host_ips.ip0}}', host_ips['ip0'])
+    htmlstr = htmlstr.replace('{{host_ips.ip1}}', host_ips['ip1'])
+    htmlstr = htmlstr.replace('{{host_ips.ip2}}', host_ips['ip2'])
+    htmlstr = htmlstr.replace('{{host_ips.ip3}}', host_ips['ip3'])
+
+    htmlstr = htmlstr.replace('{{host_ips.mac0}}', host_ips['mac0'])
+    htmlstr = htmlstr.replace('{{host_ips.mac1}}', host_ips['mac1'])
+    htmlstr = htmlstr.replace('{{host_ips.mac2}}', host_ips['mac2'])
+    htmlstr = htmlstr.replace('{{host_ips.mac3}}', host_ips['mac3'])
+
+    response = {}
+    response['Result'] = 'OK'
+    response['data'] = htmlstr
+    return HttpResponse(json.dumps(response), mimetype="application/json")
+
 
 @login_required
 def lnc_mgr_view(request):
@@ -2061,11 +2116,23 @@ def create_cc_resource(request):
     pass
 
 # core table functions for ecServers
-def list_servers_by_role(reqeust, roletype):
+def list_servers_by_role(request, roletype):
     response = {}
     data = []
 
-    recs = ecServers.objects.filter(role=roletype)
+    f_ccname = request.POST['ccname']
+    f_ip = request.POST['ip']
+
+    if len(f_ccname) > 0 and len(f_ip) > 0:
+        recs = ecServers.objects.filter(ccname__contains=f_ccname, ip0__contains=f_ip, role=roletype)
+    else:
+        if len(f_ccname) > 0:
+            recs = ecServers.objects.filter(ccname__contains=f_ccname, role=roletype)
+        elif len(f_ip) > 0:
+            recs = ecServers.objects.filter(ip0__contains=f_ip, role=roletype)
+        else:
+            recs = ecServers.objects.filter(role=roletype)
+
     for rec in recs:
         jrec = {}
         jrec['id'] = rec.id
@@ -2414,6 +2481,7 @@ def register_host(request):
     return HttpResponse(retvalue, mimetype="application/json")
 
 def list_ncs(request):
+
     ncs = ecServers.objects.filter(role='nc', ccname=request.POST['ccname'])
     ncsips = []
     for nc in ncs:

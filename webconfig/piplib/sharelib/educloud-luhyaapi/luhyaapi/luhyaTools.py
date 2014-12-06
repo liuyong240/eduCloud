@@ -8,6 +8,17 @@ GUEST_USERNAME = "Administrator"
 GUEST_PASSWORD = "luhya"
 SNAPSHOT_NAME = "luhya-thomas"
 
+def execute_cmd(cmd_line, needsplit=True):
+    import subprocess
+
+    if needsplit:
+        cmd = cmd_line.split()
+    else:
+        cmd = cmd_line
+
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+    return out, err
 
 class configuration():
     def __init__(self, conf):

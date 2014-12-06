@@ -24,7 +24,7 @@ urlpatterns = patterns('',
     url(r'^cc_mgr$',        views.cc_mgr_view,          name='cc_mgr_view'),
     url(r'^cc_mgr/(?P<ccname>\w+)/$',        views.cc_mgr_ccname,          name='cc_mgr_ccname'),
     url(r'^nc_mgr$',        views.nc_mgr_view,          name='nc_mgr_view'),
-    url(r'^nc_mgr/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',        views.nc_mgr_mac,          name='nc_mgr_mac'),
+    url(r'^nc_mgr/(?P<ccname>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',        views.nc_mgr_mac,          name='nc_mgr_mac'),
     url(r'^lnc_mgr$',       views.lnc_mgr_view,         name='lnc_mgr_view'),
     url(r'^terminal_mgr$',  views.terminal_mgr_view,    name='terminal_mgr_view'),
 
@@ -187,7 +187,7 @@ urlpatterns = patterns('',
     # this is a POST requtst, all data in POST section
     url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),
     url(r'^api/1.0/register/server$',      views.register_server,             name='register_server'),
-    url(r'^api/1.0/list/ncs$',             views.list_ncs,                    name='list_ncs'),
+    # url(r'^api/1.0/list/ncs$',             views.list_ncs,                    name='list_ncs'),
 
     # common api interface
     url(r'^api/1.0/getwalrusinfo$',                     views.get_walrus_info,             name='get_walrus_info'),

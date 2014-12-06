@@ -10,16 +10,24 @@ logger = getclcdaemonlogger()
 class clc_statusConsumerThread(run4everThread):
     def __init__(self, bucket):
         run4everThread.__init__(self, bucket)
-        self.mc = mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+        self.mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+
+    def save2Mem(self, key, msg):
+        try:
+            self.mc.set(key, msg)
+            logger.error("add to memcaceh: %s" % msg)
+        except Exception as e:
+            logger.errro(e.message)
 
     def forwardMessage2Memcache(self, message):
         json_msg = json.loads(message)
-        tid = json_msg['tid']
-        try:
-            self.mc.set(str(tid), message)
-            logger.error("add to memcaceh: %s" % message)
-        except Exception as e:
-            logger.errro(e.message)
+        if json_msg['type'] == 'taskstatus':
+            key = str(json_msg['tid'])
+        elif json_msg['type'] == 'nodestatus':
+            key = json_msg['nid']
+
+        self.save2Mem(key, json_msg)
+
 
     def statusMessageHandle(self, ch, method, properties, body):
         self.forwardMessage2Memcache(body)

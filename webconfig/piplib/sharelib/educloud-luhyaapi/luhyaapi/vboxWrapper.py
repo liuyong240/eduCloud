@@ -3,6 +3,23 @@
 import os
 from luhyaTools import *
 
+
+def getVMlist():
+    cmd = "VBoxManage list runningvms"
+    out, err = execute_cmd(cmd, True)
+
+    result = []
+    if len(out) > 0:
+        vms = out.split()
+        num_of_vms = len(vms)/2
+        for x in range(0, num_of_vms):
+            vm = {}
+            vm['name'] = vms[2*x]
+            vm['uuid'] = vms[2*x+1]
+            result.append(vm)
+
+    return result
+
 class vboxWrapper():
     def __init__(self, imageID, name, rootdir):
         self._rootdir = rootdir

@@ -17,7 +17,4 @@ urlpatterns = patterns('',
 
     url(r'^api/1.0/getimageversion/(?P<imgid>\w+)$',      views.get_images_version,          name='get_images_version'),
 
-
-    # Web Page
-
     )

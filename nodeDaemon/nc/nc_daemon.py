@@ -83,7 +83,7 @@ def main():
     registerMyselfasNC()
 
     # start main loop to start & monitor thread
-    thread_array = ['nc_cmdConsumerThread']
+    thread_array = ['nc_cmdConsumerThread', 'nc_statusPublisherThread']
     bucket = Queue.Queue()
 
     for daemon in thread_array:

@@ -1,6 +1,19 @@
 {% extends "clc/jtable/template.html" %}
 {% load i18n %}
 
+{% block myfilter %}
+<div class="filtering">
+    <form>
+        <p>
+           Cluster Name:<input type="text"  id="ccname" />
+           IP:<input type="text" id="ip" />
+           <button type="submit" id="LoadRecordsButton">Filter Nodes</button>
+        </p>
+    </form>
+</div>
+<p></p>
+{% endblock %}
+
 {% block myjs %}
 <script type="text/javascript">
 
@@ -83,17 +96,30 @@
                     $selectedRows.each(function () {
                         //Show selected rows
                         var record = $(this).data('record');
-                        window.parent.ccSelected(record.ccname);
+                        window.parent.ncSelected(record.ccname, record.mac0);
                     });
                 } else {
                     //No rows selected
-                    window.parent.ccSelected(null);
+                    window.parent.ncSelected(null, null);
                 }
             },
         });
 
+        //Re-load records when user click 'load records' button.
+        $('#LoadRecordsButton').click(function (e) {
+            e.preventDefault();
+
+            $('#myjtable').jtable('load', {
+                ccname: $("#ccname").val(),
+                ip: $("#ip").val(),
+            });
+        });
+
+        //Load all records when page is first shown
+        $('#LoadRecordsButton').click();
+
         //Load student list from server
-        $('#myjtable').jtable('load');
+        //$('#myjtable').jtable('load');
     });
 
 </script>

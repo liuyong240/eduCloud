@@ -1,8 +1,10 @@
 import socket, psutil, netinfo
 from luhyaTools import configuration
+from vboxWrapper import *
 from settings import *
 import random, os, commands
 from linux_metrics import cpu_stat
+
 
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):
@@ -355,6 +357,102 @@ CC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
         <button id="ccres_modify" type="button" class="btn btn-primary">Network Resource Configure</button>
         <button id="permission" type="button" class="btn btn-primary">Edit Permission</button>
 
+    </div>
+</div>
+
+<div class="col-lg-6">
+    <div class="list-group">
+        <div style="display:none" id="ip0"> {{host_ips.ip0}}</div>
+        <div style="display:none" id="mac0">{{host_ips.mac0}}</div>
+        <h3>IP Addresses</h3>
+        <p class="list-group-item">
+            External IP Address
+            <span class="pull-right text-muted"><em>{{host_ips.eip}}</em></span>
+            <button type="button" id="exip_edit">Edit</button>
+        </p>
+        <p class="list-group-item">
+            IP Address 0
+            <span class="pull-right text-muted"><em>{{host_ips.ip0}}</em></span>
+        </p>
+        <p class="list-group-item">
+            IP Address 1
+            <span class="pull-right text-muted"><em>{{host_ips.ip1}}</em></span>
+        </p>
+        <p class="list-group-item">
+            IP Address 2
+            <span class="pull-right text-muted"><em>{{host_ips.ip2}}</em></span>
+        </p>
+        <p class="list-group-item">
+            IP Address 3
+            <span class="pull-right text-muted"><em>{{host_ips.ip3}}</em></span>
+        </p>
+        <h3>MAC Addresses</h3>
+        <p class="list-group-item">
+            MAC Address 0
+            <span class="pull-right text-muted"><em>{{host_ips.mac0}}</em></span>
+        </p>
+        <p class="list-group-item">
+            MAC Address 1
+            <span class="pull-right text-muted"><em>{{host_ips.mac1}}</em></span>
+        </p>
+        <p class="list-group-item">
+            MAC Address 2
+            <span class="pull-right text-muted"><em>{{host_ips.mac2}}</em></span>
+        </p>
+        <p class="list-group-item">
+            MAC Address 3
+            <span class="pull-right text-muted"><em>{{host_ips.mac3}}</em></span>
+        </p>
+        <p></p>
+    </div>
+</div> '''
+
+VM_LIST_GROUP_ITEM = '''
+        <p class="list-group-item">
+            {{vminfo.insid}}
+            <span class="pull-right text-muted"><em>Running</em></span>
+        </p>
+'''
+
+NC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
+    <div class="list-group">
+        <h3>Virtual Machine Data</h3>
+        {{vminfos}}
+        <h3>Service Data</h3>
+        <p class="list-group-item">
+            Daemon Service
+            <span class="pull-right text-muted"><em>{{service_data.daemon}}</em></span>
+            <!--<button type="button" id="restart_daemon">Restart</button>-->
+        </p>
+        <p class="list-group-item">
+            SSH Service
+            <span class="pull-right text-muted"><em>{{service_data.ssh}}</em></span>
+            <!--<button type="button" id="restart_ssh">Restart</button>-->
+        </p>
+        <h3>Hardware Parameters</h3>
+        <p class="list-group-item">
+            HostName
+            <span class="pull-right text-muted"><em>{{host_ips.name}}</em></span>
+        </p>
+        <p class="list-group-item">
+            Location
+            <span class="pull-right text-muted"><em>{{host_ips.location}}</em></span>
+        </p>
+        <p></p>
+        <p class="list-group-item">
+            CPU Cores
+            <span class="pull-right text-muted"><em>{{hardware_data.cpus}}</em></span>
+        </p>
+        <p class="list-group-item">
+            Memory
+            <span class="pull-right text-muted"><em>{{hardware_data.mem}}</em></span>
+        </p>
+        <p class="list-group-item">
+            Disk
+            <span class="pull-right text-muted"><em>{{hardware_data.disk}}</em></span>
+        </p>
+        <p></p>
+        <button id="permission" type="button" class="btn btn-primary">Edit Permission</button>
     </div>
 </div>
 
