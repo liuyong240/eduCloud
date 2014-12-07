@@ -1,0 +1,62 @@
+#! /bin/bash
+
+function desc_step() {
+    echo "#######################################################"
+    echo "#### $1"
+    echo "#######################################################"
+}
+
+#1 prepare directory
+desc_step "1. prepare directory"
+
+test -d "/var/log/educloud" || sudo mkdir /var/log/educloud
+test -d "/storage" || sudo mkdir /storage/
+cd /storage
+test -d "images" || sudo mkdir images VMs config
+sudo chown -R luhya:luhya /storage
+cp ~/src/eduCloud/debian/clc.conf /storage/config/
+sudo cp /home/luhya/src/eduCloud/debian/sudoers  /etc/
+
+#2 prepare dependented packages
+desc_step "2. prepare dependented packages"
+sudo apt-get install memcached libmemcached-tools mysql-server libmysqld-dev libmysqlclient-dev apache2 rabbitmq-server libapache2-mod-wsgi python-dev ifstat sysstat sudo openssh-server python-pip
+
+#3 configure rabbitmq service
+desc_step "3. configure rabbitmq service"
+sudo rabbitmqctl add_user luhya luhya
+sudo rabbitmqctl set_permissions luhya  ".*" ".*" ".*"
+sudo service rabbitmq-server restart
+
+#4 prepare & configure rsync service
+desc_step "4. prepare & configure rsync service"
+sudo cp /home/luhya/src/eduCloud/webconfig/rsync/rsync /etc/default/
+sudo cp /home/luhya/src/eduCloud/webconfig/rsync/rsyncd.conf /etc/
+sudo dpkg -i ~/src/eduCloud/webconfig/piplib/3rd/rsync_3.1.0-2ubuntu0.1_amd64.deb
+
+#5 install dependented python package
+desc_step "5 install python packages"
+cd /home/luhya/src/eduCloud/webconfig/piplib/3rd
+sudo pip install amqp-1.4.3.tar.gz
+sudo pip install Django-1.6.1.tar.gz
+sudo pip install linux-metrics-0.1.4.tar.gz
+sudo pip install MySQL-python-1.2.3.tar.gz
+sudo pip install pika-0.9.14.tar.gz
+sudo pip install psutil-2.1.1.tar.gz
+sudo pip install Pynetinfo-0.2.3.tar.gz
+sudo pip install python-iptables-0.4.0.tar.gz
+sudo pip install python-memcached-1.53.tar.gz
+
+#6 prepare database tables
+desc_step "6 create database tables"
+cd ~/src/eduCloud/luhyacloud 
+python manage.py syncdb
+
+#7 configure admin account & password
+desc_step "7 create admin account for Django Framework"
+python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com
+python manage.py changepassword luhya
+
+#8 init database 
+desc_step "8 init database data"
+cd /home/luhya/src/eduCloud/luhyacloud/clc/sql
+./init_data.sh

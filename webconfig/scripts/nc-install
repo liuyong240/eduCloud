@@ -1,0 +1,35 @@
+#! /bin/bash
+
+function desc_step() {
+    echo "#######################################################"
+    echo "#### $1"
+    echo "#######################################################"
+}
+
+#1 prepare directory
+desc_step "1. prepare directory"
+test -d "/var/log/educloud" || sudo mkdir /var/log/educloud
+test -d "/storage" || sudo mkdir /storage/
+cd /storage
+test -d "images" || sudo mkdir images VMs config
+sudo chown -R luhya:luhya /storage
+cp ~/src/eduCloud/debian/clc.conf /storage/config/
+cp ~/src/eduCloud/debian/cc.conf  /storage/config/
+sudo cp /home/luhya/src/eduCloud/debian/sudoers  /etc/
+
+#2 prepare dependented packages
+desc_step "2. prepare dependented packages"
+sudo apt-get install python-dev ifstat sysstat sudo openssh-server python-pip
+
+#3 prepare & configure rsync service
+desc_step "3. prepare & configure rsync service"
+sudo dpkg -i ~/src/eduCloud/webconfig/piplib/3rd/rsync_3.1.0-2ubuntu0.1_amd64.deb
+
+#5 install dependented python package
+desc_step "4 install python packages"
+cd /home/luhya/src/eduCloud/webconfig/piplib/3rd
+sudo pip install linux-metrics-0.1.4.tar.gz
+sudo pip install pika-0.9.14.tar.gz
+sudo pip install psutil-2.1.1.tar.gz
+sudo pip install Pynetinfo-0.2.3.tar.gz
+sudo pip install python-iptables-0.4.0.tar.gz
