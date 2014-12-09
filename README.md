@@ -6,7 +6,8 @@ support both virtual desktop and virtual server, based on vbox, a simple eucalyp
 1.系统架构说明
 
 Luhya私有云平台同时提供了虚拟服务器和虚拟桌面两种服务。它的系统架构说明如下：
-- 系统由6个独立的模块组成，分别是CLC, walrus, cc, sc, nc, watch。 每个独立的模块可以安装在不同的机器上，也可以多个模块安装在一台机器上
+- 系统由6个独立的模块组成，分别是CLC, walrus, cc, sc, nc, watch。
+- 每个独立的模块可以安装在不同的机器上，也可以多个模块安装在一台机器上
 - 每个模块都表现为一个django app
 - 每个django app的数据库是mysql
 - 模块之间的访问是通过web service来实现的，url表现形式如下
@@ -116,10 +117,6 @@ Luhya私有云平台同时提供了虚拟服务器和虚拟桌面两种服务。
    2.1 
 
 
-
-
-
-
 3. 资源管理
    3.1 compute resource(hosts & instances)
    3.2 walrus resource (image)
@@ -144,9 +141,6 @@ Luhya私有云平台同时提供了虚拟服务器和虚拟桌面两种服务。
 7. CloudWatch Service
 7.1 instance Metrics & Dimension
 7.2 enable/disable monitoring
-
-
-
 
 
 Task List:
@@ -201,10 +195,6 @@ A few Typical Scenario
 4. list all images
 5. list all active instance
 6. list all tasks
-
-
-
-
 
 
 ------------------
@@ -619,39 +609,116 @@ result from cc to nc
     ]
 }
 
-VII CC's resource
+=========================================
+VII CC's resource and network management
+=========================================
 
-  Ubuntu RDP client : remmina
+Ubuntu RDP client : remmina
 
-7.0 CC network mode
-    PUBLIC  Mode: NC can be accessed from outside
-    PRIVATE Mode: NC can NOT be accessed from outside, need CC as bridge
+5.1 core and clusters are in same LAN
 
-7.1 VM Network resource
+- The ip0 of each server(clc & cc & nc) is statically configured
+- at lease two cluster: one for vss, one for rvd
 
-# VD only need this
-7.1.1 RDP Port pool
-  CC PUBLIC  Mode:  accessURL = NCIP:port
-  CC PRIVATE Mode:  accessURL = CCIP:port, and forward to NCIP:port
+5.1.1 for internal user
+* for accessing desktop vm
+  - desktop cluster server own a RDP port pool
+    -> each vm in node runs in
+       --- NAT mode
+       --- port from port pool
+    -> accessing/managed url is : nc_ip:rdp_port
 
-# below are only for VS
-7.1.2 Public IP address pool
-7.1.3 Private IP address pool (managed by CC DHCP server)
-7.1.4 MAC addr pool (managed by CC DHCP server)
+* for accessing server vm
+  - server cluster server own a DHCP service and a RDP port pool
+    -> each vm in node runs in
+       --- bridge mode
+       --- mac and IP addr from DHCP service (valid LAN IP pool)
+       --- port number from port pool
+    -> URL
+       --- manage URL:  nc_ip:rdp_port
+       --- service URL: lan_ip
 
-  CC PUBLIC  Mode:
-    PUBLIC IPs = PRIVATE IPS
-    MAC addr assigned to VM, and get IP from DHCP server's private IP pool by MAC
-    accessURL = PUBLICIP:rdp_port|80
+5.1.2 for external user
+* pre-requisite
+  - clc MUST be configured with a valid external IP: clc_eip
+  - cc  MUST be configured with a valid external IP: cc_eip
 
-  CC PRIVATE Mode:  accessURL = CCIP:port, and forward to NCIP:port
-    PUBLIC IPs = PRIVATE IPS
-    MAC addr assigned to VM, and get IP from DHCP server's private IP pool by MAC
-    add Public IP to cc as IP alias
-    add iptable rule as PUBLICip:port => PRIVATEIP:port
-    accessURL = PUBLICIP:rdp_port|80
+* for accessing desktop vm
+  - desktop cluster server own a RDP port pool
+    -> each vm in node runs in
+       --- NAT mode
+       --- port from port pool
+    -> iptable route:     cc_eip:rdp_port ----> nc_ip:port
+    -> accessing url is : cc_eip:rdp_port
 
+* for accessing server vm
+  - server cluster server own a DHCP service and a RDP port pool
+  - server cluster server own a eip pool
+    -> each vm in node runs in
+       --- bridge mode
+       --- mac(lan_mac) and IP addr(lan_ip) from DHCP service (valid LAN IP pool)
+       --- port number from port pool
+    -> a new eip is assigned to cluster server: vm_eip
+    -> enable iptable for package forwarding:
+       --- service router :    vm_eip ----> lan_ip
+       --- manage router  :    cc_eip:rdp_port -> nc_ip:rdp_port
+    -> URL
+       --- manage URL:  cc_eip:rdp_port
+       --- service URL: vm_eip
+
+
+5.2 core and clusters are in different LAN
+
+- The internal ip0 of each server(clc & cc & nc) is statically configured
+- at lease two cluster: one for vss, one for rvd
+- clc MUST be configured with a valid external IP: clc_eip
+- cc  MUST be configured with a valid external IP: cc_eip
+
+5.2.1 for internal user
+* for accessing desktop vm
+  - desktop cluster server own a RDP port pool
+    -> each vm in node runs in
+       --- NAT mode
+       --- port from port pool
+    -> accessing/managed url is : nc_ip:rdp_port
+
+* for accessing server vm
+  - server cluster server own a DHCP service and a RDP port pool
+    -> each vm in node runs in
+       --- bridge mode
+       --- mac and IP addr from DHCP service (valid LAN IP pool)
+       --- port number from port pool
+    -> URL
+       --- manage URL:  nc_ip:rdp_port
+       --- service URL: lan_ip
+
+5.2.2 for external user
+* for accessing desktop vm
+  - desktop cluster server own a RDP port pool
+    -> each vm in node runs in
+       --- NAT mode
+       --- port from port pool
+    -> iptable route:     cc_eip:rdp_port ----> nc_ip:port
+    -> accessing url is : cc_eip:rdp_port
+
+* for accessing server vm
+  - server cluster server own a DHCP service and a RDP port pool
+  - server cluster server own a eip pool
+    -> each vm in node runs in
+       --- bridge mode
+       --- mac(lan_mac) and IP addr(lan_ip) from DHCP service (valid LAN IP pool)
+       --- port number from port pool
+    -> a new eip is assigned to cluster server: vm_eip
+    -> enable iptable for package forwarding:
+       --- service router :    vm_eip ----> lan_ip
+       --- manage router  :    cc_eip:rdp_port -> nc_ip:rdp_port
+    -> URL
+       --- manage URL:  cc_eip:rdp_port
+       --- service URL: vm_eip
+
+========================================
 VIII. What happens when you run a vm ?
+========================================
 
 8.1 when you create/modify a new image
 - select a image, click "create"/"modify" button
@@ -747,3 +814,5 @@ Some Issues:
   cc then send rquest to clc, to
   1. add a new image record, and set it properties
   2. delete transaction record
+
+
