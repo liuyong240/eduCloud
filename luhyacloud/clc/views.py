@@ -529,7 +529,7 @@ def nc_mgr_view(request):
 def nc_mgr_mac(request, ccname, mac):
     logger.error("enter nc_mgr_mac --- --- ")
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
-    key = "nc#" + mac + "#status"
+    key = str("nc#" + mac + "#status")
 
     try:
         payload = mc.get(key)
@@ -540,13 +540,22 @@ def nc_mgr_mac(request, ccname, mac):
             service_data = payload['service_data']
             hardware_data = payload['hardware_data']
             host_ips = payload['net_data']
-            vminfo = payload['vm_data']
+            __host_ips = getHostIPs('nc', mac)
+            host_ips['name'] = __host_ips['name']
+            host_ips['location'] = __host_ips['location']
+            if 'vm_data' in payload.keys():
+                vminfo = payload['vm_data']
+            else:
+                vminfo = []
     except Exception as e:
         payload = None
 
     if payload == None:
         logger.error("not get nc[%s] status data from memcache." % mac)
-        return
+        response = {}
+        response['Result'] = 'OK'
+        response['data'] = '<div class="col-lg-6"><p>detail information is NOT available.</p></div>'
+        return HttpResponse(json.dumps(response), mimetype="application/json")
 
     htmlstr = NC_DETAIL_TEMPLATE
     vmstr   = VM_LIST_GROUP_ITEM
@@ -558,6 +567,13 @@ def nc_mgr_mac(request, ccname, mac):
             vms = vms + _vm
 
         htmlstr = htmlstr.replace('{{vminfos}}',  vms)
+    else:
+        novmstr = '''
+                <p class="list-group-item">
+                No Running VMs available
+                </p>
+        '''
+        htmlstr = htmlstr.replace('{{vminfos}}',  novmstr)
 
     htmlstr = htmlstr.replace('{{service_data.daemon}}',  service_data['daemon'])
     htmlstr = htmlstr.replace('{{service_data.ssh}}',     service_data['ssh'])
@@ -569,7 +585,7 @@ def nc_mgr_mac(request, ccname, mac):
     htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
     htmlstr = htmlstr.replace('{{hardware_data.disk}}',        str(hardware_data['disk']))
 
-    htmlstr = htmlstr.replace('{{host_ips.eip}}', host_ips['eip'])
+    htmlstr = htmlstr.replace('{{host_ips.eip}}', host_ips['exip'])
     htmlstr = htmlstr.replace('{{host_ips.ip0}}', host_ips['ip0'])
     htmlstr = htmlstr.replace('{{host_ips.ip1}}', host_ips['ip1'])
     htmlstr = htmlstr.replace('{{host_ips.ip2}}', host_ips['ip2'])
