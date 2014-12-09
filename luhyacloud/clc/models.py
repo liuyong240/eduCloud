@@ -251,6 +251,24 @@ class ecVSS(models.Model):
     # hardware para(cpus, memory, disktype, nictype, audio_para)
     # iptable forward rule( )
     # fullscreen = 1, minitoolbar = 0 auto_unregister
+    # {
+    #     'imagesID': xxxx,
+    #     'hardware': {
+    #         'mem': 4G,
+    #         'cpu': 1,
+    #         'diskd': 0/20G,     # private disk
+    #         'diskp': True/False # pubic disk
+    #     },
+    #     'cluster':  null || cc name or ip
+    #     'node':     null || node ip
+    #     'poweroff': manually || Auto (5 hour)
+    #     'desktop': {
+    #
+    #      }
+    #     'server' : {
+    #
+    #      }
+    # }
     runtime_option = models.TextField()
 
 class ecVSS_auth(models.Model):

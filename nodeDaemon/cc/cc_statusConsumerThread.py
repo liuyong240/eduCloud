@@ -18,7 +18,7 @@ class cc_statusConsumerThread(run4everThread):
         self.forwardTaskStatus2CLC(body)
 
     def run4ever(self):
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        connection = getConnection("localhost")
         channel = connection.channel()
         channel.queue_declare(queue='cc_status_queue')
         channel.basic_consume(self.statusMessageHandle,

@@ -14,6 +14,7 @@ class clc_statusConsumerThread(run4everThread):
 
     def save2Mem(self, key, msg):
         try:
+            logger.error("start to save to memcache")
             self.mc.set(key, msg)
             logger.error("add to memcaceh: %s" % msg)
         except Exception as e:
@@ -26,9 +27,10 @@ class clc_statusConsumerThread(run4everThread):
             key = str(json_msg['tid'])
         elif json_msg['type'] == 'nodestatus':
             logger.error("get node status msg: %s" % message)
-            key = json_msg['nid']
+            key = str(json_msg['nid'])
+            logger.error("key = %s" % key)
 
-        self.save2Mem(key, json_msg)
+        self.save2Mem(key, message)
 
 
     def statusMessageHandle(self, ch, method, properties, body):
