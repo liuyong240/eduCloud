@@ -1,4 +1,9 @@
 ##############################
+# 0. configure eth0
+##############################
+refer to /usr/share/doc/ifupdown/examples/network-interfaces
+
+##############################
 # 1. prepare /storage
 ##############################
 sudo mkdir /var/log/educloud
