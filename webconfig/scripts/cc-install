@@ -58,7 +58,7 @@ sudo restart network-manager
 
 #6.2 install dnsmasq
 sudo apt-get install dnsmasq
-sudo bash -c "echo "conf-file=/etc/dnsmasq.d/dnsmasq.intranet.conf" >> /etc/dnsmasq.conf"
+sudo bash -c "echo \"conf-file=/etc/dnsmasq.d/dnsmasq.intranet.conf\" >> /etc/dnsmasq.conf"
 
 #6.3 prepare statci DHCP IP assignment
 sudo cp $SRC_ROOT/webconfig/dhcp/dnsmasq.intranet.conf /etc/dnsmasq.d/dnsmasq.intranet.conf
