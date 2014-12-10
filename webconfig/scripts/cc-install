@@ -47,3 +47,22 @@ sudo pip install psutil-2.1.1.tar.gz
 sudo pip install Pynetinfo-0.2.3.tar.gz
 sudo pip install python-iptables-0.4.0.tar.gz
 sudo pip install python-memcached-1.53.tar.gz
+
+#6 configure dhcp via dnsmasq
+desc_step "6 configure dhcp service via dnsmasq"
+
+#6.1 disable network-manager's dnsmasq
+sudo cp /etc/NetworkManager/NetworkManager.conf /etc/NetworkManager/NetworkManager.conf.pkg
+sudo cat /etc/NetworkManager/NetworkManager.conf | sed -e 's/dns=dnsmasq/#dns=dnsmasq/' > /etc/NetworkManager/NetworkManager.conf
+sudo restart network-manager
+
+#6.2 install dnsmasq
+sudo apt-get install dnsmasq
+sudo echo "conf-file=/etc/dnsmasq.d/dnsmasq.intranet.conf" >> /etc/dnsmasq.conf
+
+#6.3 prepare statci DHCP IP assignment
+sudo cp $SRC_ROOT/webconfig/dhcp/dnsmasq.intranet.conf /etc/dnsmasq.d/dnsmasq.intranet.conf
+sudo cp $SRC_ROOT/webconfig/dhcp/ethers  /etc/
+
+sudo /etc/init.d/dnsmasq restart
+
