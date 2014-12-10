@@ -133,24 +133,24 @@ class ecServers_auth(models.Model):
     create      = models.BooleanField(default=False)
     delete      = models.BooleanField(default=False)
 
-class ecClusterNetMode(models.Model):
-    network_mode   = models.CharField(max_length=20)
-
 class ecCCResources(models.Model):
-    ccip           = models.CharField(max_length=20)
+    ccmac0         = models.CharField(max_length=20)
     ccname         = models.CharField(max_length=100)
     usage          = models.CharField(max_length=20) #lvd, rvd, vss, app
-    network_mode   = models.CharField(max_length=20) # manual, public, private
 
-    portRange      = models.CharField(max_length=100) # port1-port2
-    publicIPRange  = models.CharField(max_length=100) # ip1-ip2
-    privateIPRange = models.CharField(max_length=100) # ip1-ip2
-    service_ports  = models.CharField(max_length=100) # [80,21, 8080, 22]
+    # below are necessary for vds
+    rdp_port_pool_def  = models.CharField(max_length=100) # port1-port2
+    rdp_port_pool_list = models.TextField()  # [port1, port2, port3, ... ... ]
+    used_rdp_ports     = models.TextField()  # [port1, port2, ports, ... ... ]
 
-    available_rdp_ports        = models.TextField()  # [port1, port2, port3, ... ... ]
-    used_rdp_ports             = models.TextField()  # [port1, port2, ports, ... ... ]
-    available_ips_macs         = models.TextField()  # [{pubip1, prvip1, mac1}, {pubip2, prvip2, mac2},{pubip3, prvip3, mac3}, ... ... ]
-    used_ips_macs              = models.TextField()  # [{pubip1, prvip1, mac1}, {pubip2, prvip2, mac2},{pubip3, prvip3, mac3}, ... ... ]
+    # below are necessary for vss
+    external_ip_pool_def = models.CharField(max_length=100)
+    external_ip_pool_list = models.TextField()
+    external_ip_netmask   = models.CharField(max_length=100)
+    external_ip_gateway   = models.CharField(max_length=100)
+    used_external_ips     = models.TextField()
+
+    dhcp_range_def        = models.CharField(max_length=100)
 
 # for all NCs that support LVD
 class ecTerminal(models.Model):

@@ -710,88 +710,49 @@ def generateAvailableResourceforCC(cc_name):
     emptyarray = []
 
     if rec.usage == 'lvd':
-
-        rec.network_mode    = ''
-        rec.portRange       = ''
-        rec.publicIPRange   = ''
-        rec.privateIPRange  = ''
-        rec.service_ports       = json.dumps(emptyarray)
-        rec.available_rdp_ports = json.dumps(emptyarray)
-        rec.used_rdp_ports      = json.dumps(emptyarray)
-        rec.available_ips_macs  = json.dumps(emptyarray)
-        rec.used_ips_macs       = json.dumps(emptyarray)
+        rec.rdp_port_pool_list          = ''
+        rec.used_rdp_ports              = ''
+        rec.external_ip_pool_list       = ''
+        rec.used_external_ips           = ''
 
     elif rec.usage == 'rvd': # only need port range
-        rec.publicIPRange   = ''
-        rec.privateIPRange  = ''
-        rec.service_ports      = json.dumps(emptyarray)
-        rec.available_ips_macs = json.dumps(emptyarray)
-        rec.used_ips_macs      = json.dumps(emptyarray)
+        rec.rdp_port_pool_list          = ''
+        rec.used_rdp_ports              = ''
+        rec.external_ip_pool_list       = ''
+        rec.used_external_ips           = ''
 
-        portrange = rec.portRange.split('-')
+        portrange = rec.rdp_port_pool_def.split('-')
         portrange = range(int(portrange[0]), int(portrange[1]))
-        rec.available_rdp_ports = json.dumps(portrange)
+        rec.rdp_port_pool_list = json.dumps(portrange)
         rec.used_rdp_ports = json.dumps(emptyarray)
-
     elif rec.usage == 'vs':
-        portrange = rec.portRange.split('-')
+        rec.rdp_port_pool_list          = ''
+        rec.used_rdp_ports              = ''
+        rec.external_ip_pool_list       = ''
+        rec.used_external_ips           = ''
+
+        portrange = rec.rdp_port_pool_def.split('-')
         portrange = range(int(portrange[0]), int(portrange[1]))
-        rec.available_rdp_ports = json.dumps(portrange)
+        rec.rdp_port_pool_list = json.dumps(portrange)
         rec.used_rdp_ports = json.dumps(emptyarray)
 
-        if rec.network_mode == "MANUAL":
-            rec.publicIPRange   = ''
-            rec.privateIPRange  = ''
-            rec.service_ports      = json.dumps(emptyarray)
-            rec.available_ips_macs = json.dumps(emptyarray)
-            rec.used_ips_macs      = json.dumps(emptyarray)
-        elif rec.network_mode == "PUBLIC":
-            rec.privateIPRange  = ''
-            iplist    = rec.publicIPRange.split('-')
-            iplist    = ipRange(iplist[0], iplist[1])
-            lenght    = len(iplist)
+        iplist    = rec.external_ip_pool_def.split('-')
+        iplist    = ipRange(iplist[0], iplist[1])
+        rec.external_ip_pool_list = json.dumps(iplist)
+        rec.used_external_ips = json.dumps(emptyarray)
 
-            available_ips_macs = []
-
-            for index in range(0, lenght):
-                res = {}
-                res['pubip']    = iplist[index]
-                res['prvip']    = iplist[index]
-                res['mac']      = randomMAC()
-                available_ips_macs.append(res)
-            rec.available_ips_macs = json.dumps(available_ips_macs)
-            rec.used_ips_macs      = json.dumps(emptyarray)
-        elif rec.network_mode == "PRIVATE":
-            pubiplist    = rec.publicIPRange.split('-')
-            pubiplist    = ipRange(pubiplist[0], pubiplist[1])
-
-            prviplist    = rec.privateIPRange.split('-')
-            prviplist    = ipRange(prviplist[0], prviplist[1])
-
-            lenght    = min(len(pubiplist), len(prviplist))
-
-            available_ips_macs = []
-
-            for index in range(0, lenght):
-                res = {}
-                res['pubip']    = pubiplist[index]
-                res['prvip']    = prviplist[index]
-                res['mac']      = randomMAC()
-                available_ips_macs.append(res)
-            rec.available_ips_macs = json.dumps(available_ips_macs)
-            rec.used_ips_macs      = json.dumps(emptyarray)
     rec.save()
 
 @login_required
 def cc_modify_resources(request, cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
     if request.method == 'POST':
-        rec.usage           = request.POST['usage']
-        rec.network_mode    = request.POST['network_mode']
-        rec.portRange       = request.POST['port_range']
-        rec.publicIPRange   = request.POST['pubip_range']
-        rec.privateIPRange  = request.POST['prvip_range']
-        rec.service_ports   = request.POST['sport_port']
+        rec.usage                       = request.POST['usage']
+        rec.rdp_port_pool_def           = request.POST['port_range']
+        rec.external_ip_pool_def        = request.POST['pubip_range']
+        rec.external_ip_netmask         = request.POST['pubip_netmask']
+        rec.external_ip_gateway         = request.POST['pubip_gateway']
+        rec.dhcp_range_def              = request.POST['dhcp_range']
         rec.save()
 
         generateAvailableResourceforCC(cc_name)
@@ -2563,11 +2524,10 @@ def add_new_server(request):
 
     if request.POST['role'] == 'cc':
         res_rec = ecCCResources(
-            ccip        = request.POST['ip0'],
+            ccmac0        = request.POST['mac0'],
             ccname      = request.POST['ccname'],
             usage       = "lvd",
-            network_mode= '',
-            portRange   = "3389-4389",
+            rdp_port_pool_def   = "3389-4389",
         )
         res_rec.save()
 

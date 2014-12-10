@@ -16,39 +16,20 @@
     function enterLVDMode() {
         $('#port_config').css("display","none");
         $('#pubip_config').css("display","none");
-        $('#prvip_config').css("display","none");
-        $('#service_port_config').css("display","none");
-        $('#network_mode_config').css("display","none");
+        $('#dhcp_config').css("display","none");
     }
 
     function enterRVDMode() {
         $('#port_config').css("display","block");
         $('#pubip_config').css("display","none");
-        $('#prvip_config').css("display","none");
-        $('#service_port_config').css("display","none");
-        $('#network_mode_config').css("display","block");
+        $('#dhcp_config').css("display","none");
     }
 
-    function enterVSandPubMode() {
-        $('#port_config').css("display","block");
+    function enterVSMode() {
         $('#pubip_config').css("display","block");
-        $('#prvip_config').css("display","none");
-        $('#service_port_config').css("display","none");
+        $('#dhcp_config').css("display","block");
     }
 
-    function enterVSandPrvMode() {
-        $('#port_config').css("display","block");
-        $('#pubip_config').css("display","block");
-        $('#prvip_config').css("display","block");
-        $('#service_port_config').css("display","block");
-    }
-
-    function enterVSandManMode() {
-        $('#port_config').css("display","block");
-        $('#pubip_config').css("display","none");
-        $('#prvip_config').css("display","none");
-        $('#service_port_config').css("display","none");
-    }
 
     function init_data() {
         cc_port_range = $('#port_init_value').text().split('-');
@@ -65,17 +46,15 @@
             $('#pubip_end').val("0.0.0.0");
         }
 
-        cc_prvip_range = $('#prvip_init_value').text();
-        if ( cc_prvip_range != "") {
-            cc_prvip_range = cc_prvip_range.split('-');
-            $('#prvip_start').val(cc_prvip_range[0]);
-            $('#prvip_end').val(cc_prvip_range[1]);
+        dhcp_range = $('#dhcp_init_value').text();
+        if ( dhcp_range != "") {
+            dhcp_range = dhcp_range.split('-');
+            $('#dhcp_start').val(dhcp_range[0]);
+            $('#dhcp_end').val(dhcp_range[1]);
         } else {
-            $('#prvip_start').val("0.0.0.0");
-            $('#prvip_end').val("0.0.0.0");
+            $('#dhcp_start').val("0.0.0.0");
+            $('#dhcp_end').val("0.0.0.0");
         }
-
-        service_ports = $('#sports_init_value').text();
 
         jQuery.removeFromArray = function(value, arr) {
             return jQuery.grep(arr, function(elem, index) {
@@ -83,29 +62,8 @@
             });
         };
 
-        if ( service_ports != "") {
-            service_ports = service_ports.split(',');
-            for (index=0; index < service_ports.length; index++) {
-                service_ports[index]=service_ports[index].trim();
-            }
-            if ($.inArray('80', service_ports) == 0) {
-                $('#http').attr('checked', true);
-                service_ports.splice($.inArray('80', service_ports), 1);
-            }
-            if ($.inArray('21', service_ports) == 0) {
-                $('#ftp').attr('checked', true);
-                service_ports.splice($.inArray('21', service_ports), 1);
-            }
-            ports_str = service_ports.join();
-            $('#others').val(ports_str)
-        }
-
-        cc_nework_mode = $('#network_mode_init_value').text();
-        $('#network_mode').val(cc_nework_mode);
-
         cc_usage = $('#usage_init_value').text();
         $('#cluster_usage').val(cc_usage);
-        // $('#cluster_usage option[value=cc_usage]').attr('selected',true);
     }
 
     function display_page() {
@@ -116,46 +74,28 @@
             enterRVDMode();
         }
         if ($("#cluster_usage").val() == "vs" ) {
-            $('#network_mode_config').css("display","block");
-            if ($("#network_mode").val() == "PUBLIC") {
-                enterVSandPubMode();
-            }
-            if ($("#network_mode").val() == "PRIVATE") {
-                enterVSandPrvMode();
-            }
-            if ($("#network_mode").val() == "MANUAL") {
-                enterVSandManMode();
-            }
+            enterVSMode();
         }
     }
 
     function submit_resources() {
-        ccip = $("#ccip").attr('placeholder');
         ccname = $("#ccname").attr('placeholder');
-        cc_network_mode = $("#network_mode").val();
         cc_usage = $("#cluster_usage").val();
         cc_port_range = $('#port_start').val() + "-" + $('#port_end').val();
         cc_pubip_range = $('#pubip_start').val() + "-" + $('#pubip_end').val();
-        cc_prvip_range = $('#prvip_start').val() + "-" + $('#prvip_end').val();
-        others_port = $('#others').val();
+        cc_pubip_netmask = $('#pubip_netmask').val()
+        cc_pubip_gateway = $('#pubip_gateway').val()
+        cc_dhcp_range = $('#dhcp_start').val() + "-" + $('#dhcp_end').val();
 
-        sport_array = [];
-        if ($("#http").prop('checked') == true) {
-           sport_array.push('80');
-        }
-        if ($("#ftp").prop('checked') == true) {
-           sport_array.push('21');
-        }
 
-        cc_sport_port = sport_array.join() + "," + others_port
         url = "/clc/cc/modify/resources/" + ccname;
         postdata = {
             usage:        cc_usage,
-            network_mode: cc_network_mode,
             port_range:   cc_port_range,
             pubip_range:  cc_pubip_range,
-            prvip_range:  cc_prvip_range,
-            sport_port:   cc_sport_port,
+            pubip_netmask:cc_pubip_netmask,
+            pubip_gateway:cc_pubip_gateway,
+            dhcp_range:   cc_dhcp_range,
         }
 
         $.post(url, postdata, function(data) {
@@ -175,9 +115,6 @@
     }
 
     $(document).ready(function () {
-        $("#network_mode").change(function(){
-            $("#cluster_usage").trigger("change");
-        });
 
         $("#cluster_usage").change(function(){
             display_page();
@@ -216,41 +153,25 @@
                 <div role="form">
                     <fieldset disabled="">
                         <div class="form-group">
-                            <label>Cluster IP Address</label>
-                            <input id="ccip" class="form-control" type="text" placeholder="{{ ccres.ccip }}" disabled="">
-                        </div>
-                        <div class="form-group">
                             <label>Cluster Name</label>
                             <input id="ccname" class="form-control" type="text" placeholder="{{ ccres.ccname }}" disabled="">
                         </div>
                     </fieldset>
 
                     <div class="form-group">
-                        <div id="usage_init_value" style="display: none">{{ ccres.usage }}</div>
+                        <div id="usage_init_value" style="display:none">{{ ccres.usage }}</div>
                         <label>Cluster Usage</label>
                         <select id="cluster_usage" class="form-control">
                             <option value="lvd">Local Cloud Desktop</option>
                             <option value="rvd">Remote Cloud Desktop</option>
-                            <option value="vs" >Cloud App Server</option>
+                            <option value="vs" >Cloud Virtual Server</option>
                         </select>
                     </div>
 
-                    <div id="network_mode_config" style="display: none">
-                    <div class="form-group">
-                        <div id="network_mode_init_value" style="display: none">{{ ccres.network_mode }}</div>
-                        <label>Network Mode</label>
-                        <select id="network_mode" class="form-control">
-                            <option value="MANUAL">Manual</option>
-                            <option value="PUBLIC">Public</option>
-                            <option value="PRIVATE">Private</option>
-                        </select>
-                    </div>
-                    </div>
-
-                    <div id="port_config" style="display: none">
+                    <div id="port_config">
                     <label>RDP Port Range</label>
                     <div class="form-group">
-                        <div id="port_init_value" style="display: none">{{ ccres.portRange }}</div>
+                        <div id="port_init_value" style="display:none">{{ ccres.rdp_port_pool_def }}</div>
                         <label class="input-inline">
                             <input id="port_start" type="text" class="form-control" value="3389">
                         </label>
@@ -264,7 +185,7 @@
                     <div id="pubip_config" style="display: none">
                     <label>Public IP address Range</label>
                     <div class="form-group">
-                        <div id="pubip_init_value" style="display: none">{{ ccres.publicIPRange }}</div>
+                        <div id="pubip_init_value" style="display: none">{{ ccres.external_ip_pool_def }}</div>
                         <label class="input-inline">
                             <input id="pubip_start" class="form-control" placeholder="0.0.0.0">
                         </label>
@@ -273,34 +194,27 @@
                             <input id="pubip_end" class="form-control" placeholder="0.0.0.0">
                         </label>
                     </div>
+
+                    <div class="form-group">
+                        <label class="input-inline">Public IP Netmask
+                            <input id="pubip_netmask" class="form-control" value="{{ ccres.external_ip_netmask }}">
+                        </label>
+                        <label class="input-inline"></label>
+                        <label class="input-inline">Public IP Gateway
+                            <input id="pubip_gateway" class="form-control" value="{{ ccres.external_ip_gateway }}">
+                        </label>
                     </div>
 
-                    <div id="prvip_config" style="display: none">
-                    <label>Private IP address Range</label>
+                    <div id="dhcp_config" style="display: none">
+                    <label>DHCP Internal IP Address Range</label>
                     <div class="form-group">
-                        <div id="prvip_init_value" style="display: none">{{ ccres.privateIPRange }}</div>
+                        <div id="dhcp_init_value" style="display: none">{{ ccres.dhcp_range_def }}</div>
                         <label class="input-inline" >
-                            <input id="prvip_start" class="form-control" placeholder="0.0.0.0">
+                            <input id="dhcp_start" class="form-control" placeholder="0.0.0.0">
                         </label>
                         <label class="input-inline"> - </label>
                         <label class="input-inline">
-                            <input id="prvip_end" class="form-control" placeholder="0.0.0.0">
-                        </label>
-                    </div>
-                    </div>
-
-                    <div id="service_port_config" style="display: none">
-                    <label>Service Port</label>
-                    <div class="form-group">
-                        <div id="sports_init_value" style="display: none">{{ ccres.service_ports }}</div>
-                        <label class="checkbox-inline">
-                            <input id='http' type="checkbox">HTTP
-                        </label>
-                        <label class="checkbox-inline">
-                            <input id='ftp' type="checkbox">FTP
-                        </label>
-                        <label class="checkbox-inline">
-                            <input id="others" class="form-control" placeholder="8080, 22">
+                            <input id="dhcp_end" class="form-control" placeholder="0.0.0.0">
                         </label>
                     </div>
                     </div>
@@ -328,173 +242,3 @@
 <!-- /.col-lg-12 -->
 </div>
 {% endblock %}
-
-
-<!--
-
-
-                <form role="form">
-                    <div class="form-group">
-
-
-                        <p class="help-block">Example block-level help text here.</p>
-                    </div>
-                    <div class="form-group">
-                        <label>Text Input with Placeholder</label>
-                        <input class="form-control" placeholder="Enter text">
-                    </div>
-                    <div class="form-group">
-                        <label>Static Control</label>
-
-                        <p class="form-control-static">email@example.com</p>
-                    </div>
-                    <div class="form-group">
-                        <label>File input</label>
-                        <input type="file">
-                    </div>
-                    <div class="form-group">
-                        <label>Text area</label>
-                        <textarea class="form-control" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Checkboxes</label>
-
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" value="">Checkbox 1
-                            </label>
-                        </div>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" value="">Checkbox 2
-                            </label>
-                        </div>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" value="">Checkbox 3
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Inline Checkboxes</label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox">1
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox">2
-                        </label>
-                        <label class="checkbox-inline">
-                            <input type="checkbox">3
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>Radio Buttons</label>
-
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1"
-                                       checked="">Radio 1
-                            </label>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="optionsRadios" id="optionsRadios2"
-                                       value="option2">Radio 2
-                            </label>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="optionsRadios" id="optionsRadios3"
-                                       value="option3">Radio 3
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Inline Radio Buttons</label>
-                        <label class="radio-inline">
-                            <input type="radio" name="optionsRadiosInline" id="optionsRadiosInline1"
-                                   value="option1" checked="">1
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="optionsRadiosInline" id="optionsRadiosInline2"
-                                   value="option2">2
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" name="optionsRadiosInline" id="optionsRadiosInline3"
-                                   value="option3">3
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>Selects</label>
-                        <select class="form-control">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Multiple Selects</label>
-                        <select multiple="" class="form-control">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-default">Submit Button</button>
-                    <button type="reset" class="btn btn-default">Reset Button</button>
-                </form>
-            </div>
-
-            <h1>Form Validation States</h1>
-
-            <form role="form">
-                <div class="form-group has-success">
-                    <label class="control-label" for="inputSuccess">Input with success</label>
-                    <input type="text" class="form-control" id="inputSuccess">
-                </div>
-                <div class="form-group has-warning">
-                    <label class="control-label" for="inputWarning">Input with warning</label>
-                    <input type="text" class="form-control" id="inputWarning">
-                </div>
-                <div class="form-group has-error">
-                    <label class="control-label" for="inputError">Input with error</label>
-                    <input type="text" class="form-control" id="inputError">
-                </div>
-            </form>
-            <h1>Input Groups</h1>
-
-            <form role="form">
-                <div class="form-group input-group">
-                    <span class="input-group-addon">@</span>
-                    <input type="text" class="form-control" placeholder="Username">
-                </div>
-                <div class="form-group input-group">
-                    <input type="text" class="form-control">
-                    <span class="input-group-addon">.00</span>
-                </div>
-                <div class="form-group input-group">
-                                        <span class="input-group-addon"><i class="fa fa-eur"></i>
-                                        </span>
-                    <input type="text" class="form-control" placeholder="Font Awesome Icon">
-                </div>
-                <div class="form-group input-group">
-                    <span class="input-group-addon">$</span>
-                    <input type="text" class="form-control">
-                    <span class="input-group-addon">.00</span>
-                </div>
-                <div class="form-group input-group">
-                    <input type="text" class="form-control">
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default" type="button"><i
-                                                    class="fa fa-search"></i>
-                                            </button>
-                                        </span>
-                </div>
-            </form>
-
-
--->
