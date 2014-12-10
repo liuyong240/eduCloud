@@ -61,6 +61,7 @@ sudo apt-get install dnsmasq
 sudo bash -c "echo \"conf-file=/etc/dnsmasq.d/dnsmasq.intranet.conf\" >> /etc/dnsmasq.conf"
 
 #6.3 prepare statci DHCP IP assignment
+sudo cp $SRC_ROOT/webconfig/dhcp/dhcp-lease-notification /usr/bin/
 sudo cp $SRC_ROOT/webconfig/dhcp/dnsmasq.intranet.conf /etc/dnsmasq.d/dnsmasq.intranet.conf
 sudo cp $SRC_ROOT/webconfig/dhcp/ethers  /etc/
 

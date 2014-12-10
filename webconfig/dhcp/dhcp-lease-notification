@@ -1,0 +1,6 @@
+#! /bin/bash
+
+# add 08:00:27:dd:f8:e4 192.168.56.222 ubuntuServer
+# del 08:00:27:dd:f8:e4 192.168.56.222 ubuntuServer
+
+echo $@ > /tmp/dhcp-lease-notification
