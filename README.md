@@ -784,22 +784,7 @@ vs cluster
     public IP + private IP + port
 
 
-When nc start, it should to sshfs cc's /storage/data directory as below:
 
-sshfs [user@]host:[dir] mountpoint [options]
-前面和ssh命令一样，mountpoint是挂载点
-options重点关注下：
--C 压缩，或者-o compression=yes
--o reconnect 自动重连
--o transform_symlinks 表示转换绝对链接符号为相对链接符号
--o follow_symlinks 沿用服务器上的链接符号
--o cache=yes
--o allow_other 这个参数最重要，必须写，否则任何文件都是Permission Deny
-
-
-#相关代码
-sshfs -o cache=yes,allow_other user@xx.xx.xx.xx:/dir_remote ./dir_local
-fusermount -u mountpoint
 
 
 Some Issues:

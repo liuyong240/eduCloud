@@ -12,7 +12,9 @@ desc_step "1. prepare directory"
 test -d "/var/log/educloud" || sudo mkdir /var/log/educloud
 test -d "/storage" || sudo mkdir /storage/
 cd /storage
-test -d "images" || sudo mkdir images VMs config
+test -d "images" || sudo mkdir images VMs config tmp
+cd tmp
+test -d "images" || sudo mkdir images VMs
 sudo chown -R luhya:luhya /storage
 sudo chown -R luhya:luhya /var/log/educloud
 cp $SRC_ROOT/debian/clc.conf /storage/config/

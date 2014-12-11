@@ -78,6 +78,122 @@ python manage.py changepassword luhya
 
 4.5 manually delete duplicated records.
 
+
+####################################
+# 5. upload very large file(>2G)
+####################################
+5.1 www.plupload.com
+5.2 github: bigupload
+
+############################
+# 6. prepare storage space
+############################
+6.1 storage diretory description
+
+-  /storage/space/software/*
+   used to store all software install package for image building
+   only visible to admin who can build new image
+   need set quota (option)
+   physically on clc/walrus, mounted to cc, nc via sshfs
+
+-  /storage/space/pub-data/*
+   used to store all public data that can be accessed by all desktop vm instances
+   full write & read permission
+   need set quota (option)
+   physically on clc/walrus, mounted to cc, nc via sshfs
+
+-  /storage/space/prv-data/user-id/*      :
+   used to store each user' private data in desktop vm instance
+   full write & read permission
+   physically on clc/warlus, mounted to cc, nc via sshfs
+
+-  /storage/space/server-data/imgid/database.vdi   :
+   for each server instance, there is such disk, all database  installed on this disk
+   physically on cc, mounted to nc
+   it is a dynamic size vdi file and attached in write-through mode
+
+   when using, it is only download to cc, and mount to nc
+
+6.2 how to use sshfs ?
+- usage & syntax
+    sshfs [user@]host:[dir] mountpoint [options]
+    前面和ssh命令一样，mountpoint是挂载点
+    options重点关注下：
+    -C 压缩，或者-o compression=yes
+    -o reconnect 自动重连
+    -o transform_symlinks 表示转换绝对链接符号为相对链接符号
+    -o follow_symlinks 沿用服务器上的链接符号
+    -o cache=yes
+    -o allow_other 这个参数最重要，必须写，否则任何文件都是Permission Deny
+
+    #相关代码
+    echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect user@xx.xx.xx.xx:/dir_remote ./dir_local
+    fusermount -u mountpoint
+
+- mount when server boot
+
+    script at startup of Ubuntu
+    --------------------------
+    Edit /etc/rc.local and add your commands
+    The script must always end with exit 0
+
+    To execute a script upon rebooting Ubuntu
+    -----------------------------------------
+    Put your script in /etc/rc0.d
+    Make it executable (sudo chmod +x myscript)
+    Note: The scripts in this directory are executed in alphabetical order
+
+    The name of your script must begin with K99 to run at the right time.
+
+    To execute a script at shutdown
+    --------------------------------
+    Put your script in /etc/rc6.d
+    Make it executable (sudo chmod +x myscript)
+    Note: The scripts in this directory are executed in alphabetical order
+
+    The name of your script must begin with K99 to run at the right time.
+
+6.3 storage architect
+
+clc:    /storage/space/{software/* ,  pub-data/*}
+vs-cc:  /storage/space/{software/* ,  pub-data/* , server-data/img/imgid-database.vdi}
+                                                   server-data/ins/insid-database.vdi
+vs-nc:  /storage/space/{software/* ,  pub-data/* , server-data/img/imgid-database.vdi}
+                                                   server-data/ins/insid-database.vdi
+
+vd-cc:  /storage/space/{software/* ,  pub-data/* , prv-d-data/user-id/*}
+vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-d-data/user-id/*}
+
+6.3.1 image build or modify
+- desktop image build
+  c: image disk, snapshotted
+  d: temp local vdi disk 1T, multi-attached
+  e: network disk of /storage/space/software/*
+- server image build
+  c: image disk, snapshotted
+  d: database disk, write-through, /storage/space/server-data/ins/insid-database,vdi
+  e: temp local vdi disk 1T, multi-attached
+  f: network disk of /storage/space/software/*
+
+6.3.1 desktop vm instance
+  c: image disk , snapshotted
+  d: network disk of /storage/space/prv-d-data/user-id/*
+  e: network disk of /storage/space/pub-data/*
+
+6.3.3 server vm instance
+  c: image disk, snapshotted
+  d: database disk, write-through, /storage/space/server-data/insid/database,vdi
+
+############################
+# 7. get server's CPU info 
+############################
+- find the number of physical CPUs:
+  cat /proc/cpuinfo | grep "^physical id" | sort | uniq | wc -l
+- find the number of cores per CPU:
+  cat /proc/cpuinfo | grep "^cpu cores" | uniq
+- find the total number of processors:
+  cat /proc/cpuinfo | grep "^processor" | wc -l
+
 -------------------------------------
 incoming coding work
 -------------------------------------
