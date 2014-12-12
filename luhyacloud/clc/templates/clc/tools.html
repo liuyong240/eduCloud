@@ -16,6 +16,13 @@ $(function() {
         chunk_size : '10Mb',
         rename: true,
         drapgrop: true,
+
+        init : {
+            BeforeUpload: function(up, file) {
+                // Called right before the upload for a given file starts, can be used to cancel it if required
+                up.setOption('multipart_params', {'image_path': '/storage/images/ubuntu'});
+            },
+        }
       });
 
     // Setup html4 version

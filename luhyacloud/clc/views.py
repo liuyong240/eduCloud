@@ -737,12 +737,15 @@ def handle_uploaded_file(f, chunk, filename):
 
 def tools_image_upload(request):
     if request.method == 'POST' and request.FILES:
-        os.chdir('/tmp/')
+        path = request.POST['image_path']
+        if not os.path.exists(path):
+            os.makedirs(path)
+        os.chdir(path)
 
         for _file in request.FILES:
             handle_uploaded_file(request.FILES[_file],
                                  request.POST['chunk'],
-                                 request.POST['name'])
+                                 'machine')
         #response only to notify plUpload that the upload was successful
         return HttpResponse()
     else:
