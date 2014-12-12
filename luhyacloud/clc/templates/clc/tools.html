@@ -5,9 +5,44 @@
 {% block myjs %}
 <script src="{% static "clc/plupload-2.1.2/js/plupload.full.min.js" %}"></script>
 <script src="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/jquery.plupload.queue.min.js" %}"></script>
-
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.core-3.5.js" %}"></script>
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.excheck-3.5.js" %}"></script>
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.exedit-3.5.js" %}"></script>
 <script type="text/javascript">
-$(function() {
+var setting = {
+    view: {
+        selectedMulti: false,
+    },
+    edit: {
+        enable: true,
+        showRemoveBtn: false,
+        showRenameBtn: false
+    },
+    data: {
+        keep: {
+            parent:true,
+            leaf:true
+        },
+        simpleData: {
+            enable: true
+        }
+    },
+};
+
+var imag_zNodes =[
+{% for img in image_list %}
+    {"name": '{{img}}', open:true, children: [
+			    { "name":"machine"},
+			]
+	},
+{% endfor %}
+];
+
+var software_zNodes =[
+
+];
+
+$(document).ready(function(){
     // Setup html5 version
     $("#image_uploader").pluploadQueue({
         // General settings
@@ -34,13 +69,16 @@ $(function() {
         rename: true,
         drapgrop: true,
     });
+
+    $.fn.zTree.init($("#image_tree"), setting, imag_zNodes);
+    $.fn.zTree.init($("#software_tree"), setting, software_zNodes);
 });
 </script>
 {% endblock %}
 
 {% block content %}
 <link href="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/css/jquery.plupload.queue.css" %}" rel="stylesheet">
-
+<link href="{% static "clc/zTree_v3/css/zTreeStyle/zTreeStyle.css" %}" rel="stylesheet">
 <div class="row">
     <div class="col-lg-12">
         <div class="panel panel-default">
@@ -57,11 +95,24 @@ $(function() {
                         <div id="collapseOne" class="panel-collapse collapse" style="height: 0px;">
                             <div class="panel-body">
                                 <div class="col-lg-6">
-                                    <div id="image_uploader">Your browser doesn't support HTML5.</div>
-
+                                    <div id="image_uploader" style="height:330px; overflow:auto;">Your browser doesn't support HTML5.</div>
                                 </div>
                                 <div class="col-lg-6">
-                                    rigth
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            Image Directory in Server
+                                            <div class="pull-right">
+                                                <div class="btn-group">
+                                                    <button id="add_image_node" type="button" class="btn btn-default btn-xs">Add</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.panel-heading -->
+                                        <div class="panel-body">
+                                            <ul id="image_tree" class="ztree" style="height:250px; overflow:auto;"></ul>
+                                        </div>
+                                        <!-- .panel-body -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -76,11 +127,24 @@ $(function() {
                         <div id="collapseTwo" class="panel-collapse collapse" style="height: 0px;">
                             <div class="panel-body">
                                 <div class="col-lg-6">
-                                    <div id="software_uploader">Your browser doesn't support HTML5.</div>
-
+                                    <div id="software_uploader" style="height:330px; overflow:auto;">Your browser doesn't support HTML5.</div>
                                 </div>
                                 <div class="col-lg-6">
-                                    rigth
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            Software Directory in Server
+                                            <div class="pull-right">
+                                                <div class="btn-group">
+                                                    <button id="add_software_node" type="button" class="btn btn-default btn-xs">Add</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.panel-heading -->
+                                        <div class="panel-body">
+                                            <ul id="software_tree" class="ztree" style="height:250px; overflow:auto;"></ul>
+                                        </div>
+                                        <!-- .panel-body -->
+                                    </div>
                                 </div>
                             </div>
                         </div>

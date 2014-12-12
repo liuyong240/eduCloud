@@ -707,10 +707,16 @@ def tools_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
 
+    imageList = ecImages.objects.only("ecid")
+    server_images = []
+    for imgobj in imageList:
+        server_images.append(imgobj.ecid)
+
     context = {
         'uid':   u.username,
         'showname': ua.showname,
         'dashboard' : "Administrator Tools",
+        'image_list' :server_images,
     }
 
     return render(request, 'clc/tools.html', context)
