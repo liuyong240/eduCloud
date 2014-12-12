@@ -42,6 +42,8 @@ urlpatterns = patterns('',
     url(r'^lvds$',          views.lvds_view,                          name='lvds_view'),
 
     url(r'^tasks$',         views.tasks_view,                         name='tasks_view'),
+    url(r'^tools$',         views.tools_view,                         name='tools_view'),
+
 
     url(r'^adm_add_new_account',                    views.adm_add_new_account,              name='adm_add_new_account'),
     url(r'^admin_batch_add_new_accounts',           views.admin_batch_add_new_accounts,     name='admin_batch_add_new_accounts'),

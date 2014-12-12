@@ -1,0 +1,87 @@
+{% extends "clc/clctemplate.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block myjs %}
+<script src="{% static "clc/plupload-2.1.2/js/plupload.full.min.js" %}"></script>
+<script src="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/jquery.plupload.queue.min.js" %}"></script>
+
+<script type="text/javascript">
+$(function() {
+    // Setup html5 version
+    $("#image_uploader").pluploadQueue({
+        // General settings
+        runtimes : 'html5',
+        url : "/clc/image_upload",
+        chunk_size : '10mb',
+        unique_names : true,
+      });
+
+    // Setup html4 version
+    $("#software_uploader").pluploadQueue({
+        // General settings
+        runtimes : 'html5',
+        url : "/clc/software_upload",
+        unique_names : true,
+    });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<link href="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/css/jquery.plupload.queue.css" %}" rel="stylesheet">
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <!-- .panel-heading -->
+            <div class="panel-body">
+                <div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                                   class="collapsed">Upload Raw Images</a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse" style="height: 0px;">
+                            <div class="panel-body">
+                                <div class="col-lg-6">
+                                    <div id="image_uploader">Your browser doesn't support HTML5.</div>
+
+                                </div>
+                                <div class="col-lg-6">
+                                    rigth
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
+                                   class="collapsed">Upload Software</a>
+                            </h4>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse" style="height: 0px;">
+                            <div class="panel-body">
+                                <div class="col-lg-6">
+                                    <div id="software_uploader">Your browser doesn't support HTML5.</div>
+
+                                </div>
+                                <div class="col-lg-6">
+                                    rigth
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- .panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+{% endblock %}

@@ -702,6 +702,19 @@ def tasks_view(request):
 
     return render(request, 'clc/tasks.html', context)
 
+@login_required
+def tools_view(request):
+    u = User.objects.get(username=request.user)
+    ua = ecAccount.objects.get(userid=request.user)
+
+    context = {
+        'uid':   u.username,
+        'showname': ua.showname,
+        'dashboard' : "Administrator Tools",
+    }
+
+    return render(request, 'clc/tools.html', context)
+
 ###################################################################################
 # Form
 ###################################################################################
