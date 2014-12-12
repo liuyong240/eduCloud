@@ -715,6 +715,42 @@ def tools_view(request):
 
     return render(request, 'clc/tools.html', context)
 
+def handle_uploaded_file(f, chunk, filename):
+    """
+    Here you can do whatever you like with your files, like resize them if they
+    are images
+    :param f: the file
+    :param chunk: number of chunk to save
+    """
+    if int(chunk) > 0:
+        #opens for append
+        _file = open(filename, 'a')
+    else:
+        #erases content
+        _file = open(filename, 'w')
+
+    if f.multiple_chunks:
+        for chunk in f.chunks():
+            _file.write(chunk)
+    else:
+        _file.write(f.read())
+
+def tools_image_upload(request):
+    if request.method == 'POST' and request.FILES:
+        os.chdir('/tmp/')
+
+        for _file in request.FILES:
+            handle_uploaded_file(request.FILES[_file],
+                                 request.POST['chunk'],
+                                 request.POST['name'])
+        #response only to notify plUpload that the upload was successful
+        return HttpResponse()
+    else:
+        raise Http404
+
+def tools_file_upload(request):
+    pass
+
 ###################################################################################
 # Form
 ###################################################################################

@@ -19,6 +19,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 FILE_CHARSET = 'utf-8'
 DEFAULT_CHARSET = 'utf-8'
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  #10Mb
+FILE_UPLOAD_PERMISSIONS = 0644
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os

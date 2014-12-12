@@ -11,18 +11,21 @@ $(function() {
     // Setup html5 version
     $("#image_uploader").pluploadQueue({
         // General settings
-        runtimes : 'html5',
-        url : "/clc/image_upload",
-        chunk_size : '10mb',
-        unique_names : true,
+        runtimes : 'html5,html4',
+        url : "/clc/tools/image_upload",
+        chunk_size : '10Mb',
+        rename: true,
+        drapgrop: true,
       });
 
     // Setup html4 version
     $("#software_uploader").pluploadQueue({
         // General settings
-        runtimes : 'html5',
-        url : "/clc/software_upload",
-        unique_names : true,
+        runtimes : 'html5,html4',
+        url : "/clc/tools/file_upload",
+        chunk_size : '10Mb',
+        rename: true,
+        drapgrop: true,
     });
 });
 </script>
