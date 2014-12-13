@@ -9,7 +9,132 @@
 <script src="{% static "clc/zTree_v3/js/jquery.ztree.excheck-3.5.js" %}"></script>
 <script src="{% static "clc/zTree_v3/js/jquery.ztree.exedit-3.5.js" %}"></script>
 <script type="text/javascript">
-var setting = {
+
+/////////////////////////////////////////////////
+/////  script for software tree and uploader
+/////////////////////////////////////////////////
+
+var software_zNodes =[
+{% for img in image_list %}
+    {"name": '{{img}}', open:false },
+{% endfor %}
+];
+
+var software_setting = {
+    async: {
+        enable: true,
+        url: getUrl,
+        //otherParam: {"parent":"true", "child":"false"},
+    },
+    view: {
+        selectedMulti: false,
+        expandSpeed: "",
+    },
+    edit: {
+        enable: true,
+        showRemoveBtn: true,
+        showRenameBtn: false
+    },
+    data: {
+        keep: {
+            parent:true,
+            leaf:true
+        },
+        simpleData: {
+            enable: true
+        }
+    },
+    callback: {
+        onMouseDown:    sw_onMouseDown_handle,
+        beforeExpand:   sw_beforeExpand,
+		onAsyncSuccess: sw_onAsyncSuccess,
+		onAsyncError:   sw_onAsyncError
+    }
+};
+
+function getUrl(treeId, treeNode) {
+    return "/clc/list_directory/software";
+}
+
+function getOtherParam(treeNode) {
+    var start_node = treeNode;
+    var path_param = [];
+
+    while (start_node != null) {
+        path_param.unshift(start_node.name);
+        start_node = start_node.getParentNode();
+    }
+
+    var param = {
+        'full_path': path_param.toString()
+    }
+    return param;
+}
+
+function sw_beforeExpand(treeId, treeNode) {
+    var zTree = $.fn.zTree.getZTreeObj("software_tree");
+    zTree.setting.async.otherParam = getOtherParam(treeNode);
+    if (!treeNode.isAjaxing) {
+        ajaxGetNodes(treeNode, "refresh");
+        return true;
+    } else {
+        alert("zTree 正在下载数据中，请稍后展开节点。。。");
+        return false;
+    }
+}
+
+function ajaxGetNodes(treeNode, reloadType) {
+    var zTree = $.fn.zTree.getZTreeObj("software_tree");
+    if (reloadType == "refresh") {
+        //treeNode.icon = "{% static "clc/zTree_v3/css/zTreeStyle/img/loading.gif" %}"
+        zTree.updateNode(treeNode);
+    }
+    zTree.reAsyncChildNodes(treeNode, reloadType, true);
+}
+
+function sw_onAsyncSuccess(event, treeId, treeNode, msg) {
+    if (!msg || msg.length == 0) {
+        return;
+    }
+    //var zTree = $.fn.zTree.getZTreeObj("software_tree");
+    //treeNode.icon = "";
+    //zTree.updateNode(treeNode);
+
+}
+
+function sw_onAsyncError(event, treeId, treeNode, XMLHttpRequest, textStatus, errorThrown) {
+    var zTree = $.fn.zTree.getZTreeObj("software_tree");
+    //alert("异步获取数据出现异常。");
+    //treeNode.icon = "";
+    //zTree.updateNode(treeNode);
+}
+
+$("#add_software_node").click(function(){
+    var folder_name = prompt("Please enter new folder name", "NewFolder");
+    if (folder_name != null) {
+        var zTree = $.fn.zTree.getZTreeObj("software_tree")
+        var selectedNode = zTree.getSelectedNodes();
+        zTree.addNodes(selectedNode, { name:folder_name, isParent:true } );
+    }
+});
+
+function sw_onMouseDown_handle(event, treeId, treeNode) {
+    if (treeNode && treeNode.isParent) {
+        $("#selected_software_folder").text(treeNode.name);
+        $("#software_uploader").show();
+        $("#add_software_node").show();
+    } else {
+        $("#selected_software_folder").text('');
+        $("#software_uploader").hide();
+        $("#add_software_node").hide();
+    }
+};
+
+/////////////////////////////////////////////////
+/////  script for image tree and uploader
+/////////////////////////////////////////////////
+
+var image_setting = {
     view: {
         selectedMulti: false,
     },
@@ -42,18 +167,7 @@ function image_onMouseDown_handle(event, treeId, treeNode) {
     }
 };
 
-var imag_zNodes =[
-{% for img in image_list %}
-    {"name": '{{img}}', open:true, children: [
-			    { "name":"machine"},
-			]
-	},
-{% endfor %}
-];
-
-var software_zNodes =[
-
-];
+var imag_zNodes =[];
 
 function add_image_leaf(parent_node_name) {
     var zTree = $.fn.zTree.getZTreeObj("image_tree")
@@ -67,10 +181,6 @@ $("#add_image_node").click(function(){
         var zTree = $.fn.zTree.getZTreeObj("image_tree")
         zTree.addNodes(null, { name:folder_name, isParent:true } );
     }
-});
-
-$("#add_software_node").click(function(){
-
 });
 
 $(document).ready(function(){
@@ -106,9 +216,12 @@ $(document).ready(function(){
         drapgrop: true,
     });
 
-    $.fn.zTree.init($("#image_tree"), setting, imag_zNodes);
-    $.fn.zTree.init($("#software_tree"), setting, software_zNodes);
+    $.fn.zTree.init($("#image_tree"), image_setting, imag_zNodes);
+    $.fn.zTree.init($("#software_tree"), software_setting, software_zNodes);
+
     $("#image_uploader").hide();
+    $("#software_uploader").hide();
+    $("#add_software_node").hide();
 
 });
 </script>

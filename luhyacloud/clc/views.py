@@ -759,6 +759,26 @@ def tools_image_upload(request):
 def tools_file_upload(request):
     pass
 
+def tools_list_dir_software(request):
+    ret = []
+    root_dir = '/home/luhya/Documents/'
+
+    if "full_path" in request.POST.keys():
+        rpath = request.POST['full_path'].split(',')
+        for _rpath in rpath:
+            root_dir =os.path.join(root_dir, _rpath)
+
+    for name in os.listdir(root_dir):
+        node = {}
+        if os.path.isdir(os.path.join(root_dir, name)):
+            node['name'] = name
+            node['isParent'] = "true"
+        else:
+            node['name'] = name
+        ret.append(node)
+
+    return HttpResponse(json.dumps(ret), mimetype="application/json")
+
 ###################################################################################
 # Form
 ###################################################################################

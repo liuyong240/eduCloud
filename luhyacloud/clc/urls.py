@@ -44,10 +44,8 @@ urlpatterns = patterns('',
     url(r'^tasks$',         views.tasks_view,                         name='tasks_view'),
     url(r'^tools$',         views.tools_view,                         name='tools_view'),
     url(r'^tools/image_upload$',         views.tools_image_upload,                       name='tools_image_upload'),
-    url(r'^tools/file_upload$',         views.tools_file_upload,                         name='tools_file_upload'),
-
-
-
+    url(r'^tools/file_upload$',          views.tools_file_upload,                        name='tools_file_upload'),
+    url(r'^list_directory/software$',    views.tools_list_dir_software,             name='tools_list_dir_software'),
 
     url(r'^adm_add_new_account',                    views.adm_add_new_account,              name='adm_add_new_account'),
     url(r'^admin_batch_add_new_accounts',           views.admin_batch_add_new_accounts,     name='admin_batch_add_new_accounts'),
