@@ -15,7 +15,7 @@ var setting = {
     },
     edit: {
         enable: true,
-        showRemoveBtn: false,
+        showRemoveBtn: true,
         showRenameBtn: false
     },
     data: {
@@ -27,6 +27,19 @@ var setting = {
             enable: true
         }
     },
+    callback: {
+        onMouseDown: image_onMouseDown_handle,
+    }
+};
+
+function image_onMouseDown_handle(event, treeId, treeNode) {
+    if (treeNode && treeNode.isParent) {
+        $("#selected_image_folder").text(treeNode.name);
+        $("#image_uploader").show();
+    } else {
+        $("#selected_image_folder").text('');
+        $("#image_uploader").hide();
+    }
 };
 
 var imag_zNodes =[
@@ -42,6 +55,18 @@ var software_zNodes =[
 
 ];
 
+$("#add_image_node").click(function(){
+    var folder_name = prompt("Please enter new folder name", "NewFolder");
+    if (folder_name != null) {
+        var zTree = $.fn.zTree.getZTreeObj("image_tree")
+        zTree.addNodes(null, { name:folder_name, isParent:true } );
+    }
+});
+
+$("#add_software_node").click(function(){
+
+});
+
 $(document).ready(function(){
     // Setup html5 version
     $("#image_uploader").pluploadQueue({
@@ -55,7 +80,8 @@ $(document).ready(function(){
         init : {
             BeforeUpload: function(up, file) {
                 // Called right before the upload for a given file starts, can be used to cancel it if required
-                up.setOption('multipart_params', {'image_path': '/storage/images/ubuntu'});
+                var folder_name = $("#selected_image_folder").text();
+                up.setOption('multipart_params', {'image_path': '/storage/images/' + folder_name });
             },
         }
       });
@@ -72,6 +98,8 @@ $(document).ready(function(){
 
     $.fn.zTree.init($("#image_tree"), setting, imag_zNodes);
     $.fn.zTree.init($("#software_tree"), setting, software_zNodes);
+    $("#image_uploader").hide();
+
 });
 </script>
 {% endblock %}
@@ -95,9 +123,7 @@ $(document).ready(function(){
                         <div id="collapseOne" class="panel-collapse collapse" style="height: 0px;">
                             <div class="panel-body">
                                 <div class="col-lg-6">
-                                    <div id="image_uploader" style="height:330px; overflow:auto;">Your browser doesn't support HTML5.</div>
-                                </div>
-                                <div class="col-lg-6">
+                                    <p>Step 1: create and select directory</p>
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
                                             Image Directory in Server
@@ -109,10 +135,15 @@ $(document).ready(function(){
                                         </div>
                                         <!-- /.panel-heading -->
                                         <div class="panel-body">
+                                            <div id="selected_image_folder" style="display:none"></div>
                                             <ul id="image_tree" class="ztree" style="height:250px; overflow:auto;"></ul>
                                         </div>
                                         <!-- .panel-body -->
                                     </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <p>Step 2: Select image file to upload</p>
+                                        <div id="image_uploader" style="height:330px; overflow:auto;">Your browser doesn't support HTML5.</div>
                                 </div>
                             </div>
                         </div>
@@ -127,9 +158,6 @@ $(document).ready(function(){
                         <div id="collapseTwo" class="panel-collapse collapse" style="height: 0px;">
                             <div class="panel-body">
                                 <div class="col-lg-6">
-                                    <div id="software_uploader" style="height:330px; overflow:auto;">Your browser doesn't support HTML5.</div>
-                                </div>
-                                <div class="col-lg-6">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
                                             Software Directory in Server
@@ -141,10 +169,14 @@ $(document).ready(function(){
                                         </div>
                                         <!-- /.panel-heading -->
                                         <div class="panel-body">
+                                            <div id="selected_software_folder" style="display:none"></div>
                                             <ul id="software_tree" class="ztree" style="height:250px; overflow:auto;"></ul>
                                         </div>
                                         <!-- .panel-body -->
                                     </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div id="software_uploader" style="height:330px; overflow:auto;">Your browser doesn't support HTML5.</div>
                                 </div>
                             </div>
                         </div>

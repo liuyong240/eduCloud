@@ -716,7 +716,6 @@ def tools_view(request):
         'uid':   u.username,
         'showname': ua.showname,
         'dashboard' : "Administrator Tools",
-        'image_list' :server_images,
     }
 
     return render(request, 'clc/tools.html', context)
