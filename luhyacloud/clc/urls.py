@@ -203,6 +203,7 @@ urlpatterns = patterns('',
     url(r'^api/1.0/account/update_profile$',     views.account_update_profile,              name='account_update_profile'),
     url(r'^api/1.0/account/reset_password$',     views.account_reset_password,              name='account_reset_password'),
 
-    url(r'^api/1.0/perm/update$',     views.perm_update,              name='perm_update'),
+    url(r'^api/1.0/perm/update$',     views.perm_update,                     name='perm_update'),
+    url(r'^api/1.0/software/op$',     views.software_operation,              name='software_operation'),
 
     )

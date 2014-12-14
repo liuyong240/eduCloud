@@ -757,16 +757,38 @@ def tools_image_upload(request):
         raise Http404
 
 def tools_file_upload(request):
-    pass
+    root_dir = '/storage/space/software/'
+
+    if request.method == 'POST' and request.FILES:
+
+        rpath = request.POST['full_path'].split(',')
+        for _rpath in rpath:
+            root_dir =os.path.join(root_dir, _rpath)
+
+        if not os.path.exists(root_dir):
+            os.makedirs(root_dir)
+        os.chdir(root_dir)
+
+        for _file in request.FILES:
+            handle_uploaded_file(request.FILES[_file],
+                                 request.POST['chunk'],
+                                 request.POST['name'])
+        #response only to notify plUpload that the upload was successful
+        return HttpResponse()
+    else:
+        raise Http404
 
 def tools_list_dir_software(request):
     ret = []
-    root_dir = '/home/luhya/Documents/'
+    root_dir = '/storage/space/software/'
 
     if "full_path" in request.POST.keys():
         rpath = request.POST['full_path'].split(',')
         for _rpath in rpath:
             root_dir =os.path.join(root_dir, _rpath)
+
+    if not os.path.exists(root_dir):
+        os.makedirs(root_dir)
 
     for name in os.listdir(root_dir):
         node = {}
@@ -777,6 +799,37 @@ def tools_list_dir_software(request):
             node['name'] = name
         ret.append(node)
 
+    return HttpResponse(json.dumps(ret), mimetype="application/json")
+
+def software_operation(request):
+    op   = request.POST['cmd']
+    opt  = request.POST['opt']
+
+    root_dir = '/storage/space/software/'
+
+    if op == 'rm':
+        arg1 = request.POST['arg1'].split(',')
+        for _arg1 in arg1:
+            root_dir =os.path.join(root_dir, _arg1)
+
+        cmdline = [op, opt, root_dir]
+        execute_cmd(cmdline, False)
+    elif op == 'mv':
+        fdir =  root_dir
+        arg1 = request.POST['arg1'].split(',')
+        for _arg1 in arg1:
+            fdir =os.path.join(fdir, _arg1)
+
+        ddir =  root_dir
+        arg2 = request.POST['arg2'].split(',')
+        for _arg2 in arg2:
+            ddir =os.path.join(ddir, _arg2)
+
+        cmdline = [op, fdir, ddir]
+        execute_cmd(cmdline, False)
+
+    ret={}
+    ret['Result'] = 'OK'
     return HttpResponse(json.dumps(ret), mimetype="application/json")
 
 ###################################################################################
