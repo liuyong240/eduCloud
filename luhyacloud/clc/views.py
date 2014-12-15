@@ -54,7 +54,7 @@ def user_login(request):
         if user.is_active:
             login(request, user)
             response['status'] = "SUCCESS"
-            response['url'] = "/clc/index"
+            response['url'] = "/clc/settings"
             return HttpResponse(json.dumps(response), mimetype='application/json')
         else:
             # Return a 'disabled account' error message

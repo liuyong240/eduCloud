@@ -11,9 +11,13 @@ SRC_ROOT=/mnt/src/eduCloud
 desc_step "1. prepare directory"
 
 test -d "/var/log/educloud" || sudo mkdir /var/log/educloud
+
 test -d "/storage" || sudo mkdir /storage/
 cd /storage
-test -d "images" || sudo mkdir images VMs config
+test -d "images"   || sudo mkdir images VMs config space
+cd /storage/space
+test -d "software" || sudo mkdir software pub-data database prv-data
+
 sudo chown -R luhya:luhya /storage
 sudo chown -R luhya:luhya /var/log/educloud
 

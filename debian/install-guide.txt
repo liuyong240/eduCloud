@@ -155,14 +155,14 @@ python manage.py changepassword luhya
 
 6.3 storage architect
 
-clc:    /storage/space/{software/* ,  pub-data/*}
-vs-cc:  /storage/space/{software/* ,  pub-data/* , server-data/img/imgid-database.vdi}
-                                                   server-data/ins/insid-database.vdi
-vs-nc:  /storage/space/{software/* ,  pub-data/* , server-data/img/imgid-database.vdi}
-                                                   server-data/ins/insid-database.vdi
+clc:    /storage/space/{software/* ,  pub-data/*,  database/imgid/database.vdi}
+vs-cc:  /storage/space/{software/* ,  pub-data/* , database/imgid/database.vdi}
+                                                   database/insid/database.vdi
+vs-nc:  /storage/space/{software/* ,  pub-data/* , database/imgid/database.vdi}
+                                                   database/insid/database.vdi
 
-vd-cc:  /storage/space/{software/* ,  pub-data/* , prv-d-data/user-id/*}
-vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-d-data/user-id/*}
+vd-cc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
+vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
 
 6.3.1 image build or modify
 - desktop image build
@@ -197,12 +197,15 @@ vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-d-data/user-id/*}
 -------------------------------------
 incoming coding work
 -------------------------------------
-1. Done. debug VM run/stop at different network configuration
-   - rvd
-   - vs { manual, public, private }
-2. Done. add image version management, for pre-process of image download & submit
-3. Done. add account management , and support chinese
-4. Done. add auth management
+0. (12/15)prepare mounted directory
+1. (12/15)vss build server logic, based on vd build logic
+2. (12/16)GUI of vss definition
+3. (12/16)vss running server logic
+4. (12/17)permission control when login with different account
+5. (12/17)汉化
+6. (12/18)package for install
+7. (12/18)system testing
+
 
 5. add vss, rvd, lvd instance creation wizard, one by one and batch creation
    - and modify & delete instance
@@ -214,33 +217,6 @@ incoming coding work
 7. add machine & vm status report & display
 8. delete tasks
 9. support iptable & dhcp automatically for new instance
-
-----------------------------------
-computer management
-----------------------------------
-clc:
-- status:running/stop
-- display static information {ips, macs, location, name, cpus, memeory, disk}
-  button to change exIP
-- button to set perm
-
-
-
-walrus
-- same as clc
-
-cc
-- 2 columns
-- left column
-    - a list of all cc list table (add runing status )
-    - button to config para,
-    - button to set perm
-- right column
-    same as clc
-nc
-- same as cc
-lnc
-- same as cc
 
 
 
