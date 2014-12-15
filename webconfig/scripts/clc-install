@@ -26,7 +26,7 @@ sudo cp $SRC_ROOT/debian/sudoers  /etc/
 
 #2 prepare dependented packages
 desc_step "2. prepare dependented packages"
-sudo apt-get install memcached libmemcached-tools mysql-server libmysqld-dev libmysqlclient-dev apache2 rabbitmq-server libapache2-mod-wsgi python-dev ifstat sysstat sudo openssh-server python-pip
+sudo apt-get install memcached libmemcached-tools mysql-server libmysqld-dev libmysqlclient-dev apache2 rabbitmq-server libapache2-mod-wsgi python-dev ifstat sysstat sudo openssh-server python-pip sshfs
 
 #3 configure rabbitmq service
 desc_step "3. configure rabbitmq service"

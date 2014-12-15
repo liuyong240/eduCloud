@@ -27,7 +27,7 @@ sudo cp $SRC_ROOT/debian/sudoers  /etc/
 
 #2 prepare dependented packages
 desc_step "2. prepare dependented packages"
-sudo apt-get install python-dev ifstat sysstat sudo openssh-server python-pip
+sudo apt-get install python-dev ifstat sysstat sudo openssh-server python-pip sshfs
 
 #3 prepare & configure rsync service
 desc_step "3. prepare & configure rsync service"
