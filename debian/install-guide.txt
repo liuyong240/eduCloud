@@ -212,6 +212,10 @@ incoming coding work
    - re-install clc/cc/nc
    - when updating image property
       - if it is server image, create /storage/space/database/imgid/database.vdi
+   - when cc daemon is running,
+      - automaticall mount clc's /storage/{software, pub-data} to local
+   - when nc daemon is running
+      - automatically mount cc's /storage/space/ to local /storage/space
 2. (12/16)GUI of vss definition
 3. (12/16)vss running server logic
 4. (12/17)permission control when login with different account
@@ -234,26 +238,3 @@ incoming coding work
 
 
 
-
-
-
-----------------------------------
-virtual server management
-----------------------------------
-two column,
-left
-- list of all defined vss, with static information
-rigth
-- dynamic information of selected vss
-----------------------------------
-virtual remote desktop
-----------------------------------
-two tab
-1st tab
-- same as vss, for pre-defined rvd
-2nd tab
-- two column
--
-----------------------------------
-virtual local desktop
-----------------------------------

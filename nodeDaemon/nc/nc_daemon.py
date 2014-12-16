@@ -47,6 +47,15 @@ list of daemon and worker thread
        - create & run vm
 '''
 
+def perform_mount():
+    # mount cc's /storage/space/ to local
+    ccip = getccipbyconf()
+    base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space  /storage/space'
+
+    if not os.path.ismount('/storage/space'):
+        cmd = base_cmd % (ccip)
+        os.system(cmd, True)
+
 def registerMyselfasNC():
     ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
     ccname = getccnamebyconf()
@@ -85,6 +94,8 @@ def registerMyselfasNC():
 def main():
     # read /storage/config/cc.conf to register itself to cc
     registerMyselfasNC()
+
+    perform_mount()
 
     # start main loop to start & monitor thread
     thread_array = ['nc_cmdConsumerThread', 'nc_statusPublisherThread']

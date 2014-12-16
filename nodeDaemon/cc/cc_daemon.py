@@ -30,7 +30,18 @@ list of daemon and worker thread
 3.2  upload image to walrus
 
 '''
+def perform_mount():
+    # mount clc's /storage/space/{software, pub-data} to local
+    clcip = getclcipbyconf()
+    base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space/%s /storage/space/%s'
 
+    if not os.path.ismount('/storage/space/software'):
+        cmd1 = base_cmd % (clcip, 'software', 'software')
+        os.system(cmd1, True)
+
+    if not os.path.ismount('/storage/space/pubdata'):
+        cmd2 = base_cmd % (clcip, 'pub-data', 'pub-data')
+        os.system(cmd2, True)
 
 def registerMyselfasCC():
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
@@ -66,6 +77,8 @@ def registerMyselfasCC():
 def main():
     # read /storage/config/cc.conf to register itself to cc
     registerMyselfasCC()
+
+    perform_mount()
 
     # start main loop to start & monitor thread
     # thread_array = ['cc_statusPublisherThread', 'cc_statusConsumerThread', 'cc_rpcServerThread']
