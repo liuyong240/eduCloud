@@ -2433,6 +2433,16 @@ def update_images(request):
     rec.description = request.POST['description']
     rec.save()
 
+    # if ostype == server, check existence of /storage/space/database/imgid/database
+    if rec.usage == 'server':
+        dst = '/storage/space/database/images/%s/database' % rec.ecid
+        if not os.path.exists(dst):
+            # cp one database disk
+            # from /storage/images/database to /storage/space/database/imgid/database
+            os.makedirs('/storage/space/database/images/%s' % rec.ecid)
+            src = '/storage/images/database'
+            shutil.copy2(src, dst)
+
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)

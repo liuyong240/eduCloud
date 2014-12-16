@@ -16,8 +16,8 @@ cd /storage
 test -d "images"   || sudo mkdir images VMs config space tmp
 cd /storage/tmp
 test -d "images"   || sudo mkdir images VMs
-cd /storage/space
-test -d "software" || sudo mkdir software pub-data database prv-data
+
+#### sshfs to mount cc's space to nc's space
 
 sudo chown -R luhya:luhya /storage
 sudo chown -R luhya:luhya /var/log/educloud

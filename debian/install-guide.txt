@@ -155,11 +155,14 @@ python manage.py changepassword luhya
 
 6.3 storage architect
 
-clc:    /storage/space/{software/* ,  pub-data/*,  database/imgid/database.vdi}
-vs-cc:  /storage/space/{software/* ,  pub-data/* , database/imgid/database.vdi}
-                                                   database/insid/database.vdi
-vs-nc:  /storage/space/{software/* ,  pub-data/* , database/imgid/database.vdi}
-                                                   database/insid/database.vdi
+clc:    /storage/space/{software/* ,  pub-data/*,  database/images/imgid/database.vdi}
+
+
+vs-cc:  /storage/space/{software/* ,  pub-data/* , database/images/imgid/database.vdi}
+                                                   database/vms/insid/database.vdi
+vs-nc:  /storage/space/{software/* ,  pub-data/* , database/images/imgid/database.vdi}
+                                                   database/vms/insid/database.vdi
+
 
 vd-cc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
 vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
@@ -194,11 +197,21 @@ vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
 - find the total number of processors:
   cat /proc/cpuinfo | grep "^processor" | wc -l
 
+############################
+# 8. Server installation
+############################
+- Ubuntu 14.04 Server 64bit
+- apt-get install xubuntu-desktop  #Xfce
+
 -------------------------------------
 incoming coding work
 -------------------------------------
 0. (12/15)prepare mounted directory
 1. (12/15)vss build server logic, based on vd build logic
+   - create a database.vid
+   - re-install clc/cc/nc
+   - when updating image property
+      - if it is server image, create /storage/space/database/imgid/database.vdi
 2. (12/16)GUI of vss definition
 3. (12/16)vss running server logic
 4. (12/17)permission control when login with different account

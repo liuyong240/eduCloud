@@ -17,7 +17,9 @@ test -d "/storage" || sudo mkdir /storage/
 cd /storage
 test -d "images"   || sudo mkdir images VMs config space
 cd /storage/space
-test -d "software" || sudo mkdir software pub-data database prv-data
+test -d "software" || sudo mkdir software pub-data prv-data database
+cd database
+test -d "images"   || sudo mkdir images vms
 
 sudo chown -R luhya:luhya /storage
 sudo chown -R luhya:luhya /var/log/educloud
