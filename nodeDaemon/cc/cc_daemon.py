@@ -37,11 +37,11 @@ def perform_mount():
 
     if not os.path.ismount('/storage/space/software'):
         cmd1 = base_cmd % (clcip, 'software', 'software')
-        os.system(cmd1, True)
+        os.system(cmd1)
 
     if not os.path.ismount('/storage/space/pubdata'):
         cmd2 = base_cmd % (clcip, 'pub-data', 'pub-data')
-        os.system(cmd2, True)
+        os.system(cmd2)
 
 def registerMyselfasCC():
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)

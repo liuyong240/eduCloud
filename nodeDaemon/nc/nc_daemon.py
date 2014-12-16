@@ -54,7 +54,7 @@ def perform_mount():
 
     if not os.path.ismount('/storage/space'):
         cmd = base_cmd % (ccip)
-        os.system(cmd, True)
+        os.system(cmd)
 
 def registerMyselfasNC():
     ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
