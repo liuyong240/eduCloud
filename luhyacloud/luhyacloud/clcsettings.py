@@ -1,3 +1,7 @@
+# coding=UTF-8
+
+from basesettings import *
+
 INSTALLED_APPS += (
     'clc',
     'walrus',

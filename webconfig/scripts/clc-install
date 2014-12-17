@@ -26,6 +26,10 @@ sudo chown -R luhya:luhya /var/log/educloud
 cp $SRC_ROOT/debian/clc.conf /storage/config/
 sudo cp $SRC_ROOT/debian/sudoers  /etc/
 
+test -d "/etc/educloud/modules/" || sudo mkdir -p /etc/educloud/modules/
+sudo touch /etc/educloud/modules/clc
+sudo touch /etc/educloud/modules/walrus
+
 #2 prepare dependented packages
 desc_step "2. prepare dependented packages"
 sudo apt-get install memcached libmemcached-tools mysql-server libmysqld-dev libmysqlclient-dev apache2 rabbitmq-server libapache2-mod-wsgi python-dev ifstat sysstat sudo openssh-server python-pip sshfs

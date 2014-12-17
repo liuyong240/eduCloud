@@ -202,20 +202,33 @@ vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
 ############################
 - Ubuntu 14.04 Server 64bit
 - apt-get install xubuntu-desktop  #Xfce
+- configre DNS in ubuntu 14.04
+  $ sudo vim /etc/resolvconf/resolv.conf.d/base
+  nameserver 8.8.8.8
+  nameserver 8.8.4.4
+- DHCP should be a single installation package
+  it could be located on either clc or cc server
+  it could be located on either clc or cc server
 
 -------------------------------------
 incoming coding work
 -------------------------------------
 0. (12/15)prepare mounted directory
 1. (12/15)vss build server logic, based on vd build logic
-   - create a database.vid
-   - re-install clc/cc/nc
-   - when updating image property
-      - if it is server image, create /storage/space/database/imgid/database.vdi
-   - when cc daemon is running,
-      - automaticall mount clc's /storage/{software, pub-data} to local
-   - when nc daemon is running
-      - automatically mount cc's /storage/space/ to local /storage/space
+   Done - create a database.vid
+   Done - re-install clc/cc/nc
+   Done - when updating image property
+          if it is server image, create /storage/space/database/imgid/database.vdi
+   Done - when cc daemon is running,
+          automaticall mount clc's /storage/{software, pub-data} to local
+   Done - when nc daemon is running
+          automatically mount cc's /storage/space/ to local /storage/space
+   Done - split web service into clc/walrus/cc by
+          different settings.py
+          add into install script : /etc/educloud/modules/{clc, walrus, cc, nc}
+   - re-test desktop build work flow
+   - modify it to handle server build work flow
+
 2. (12/16)GUI of vss definition
 3. (12/16)vss running server logic
 4. (12/17)permission control when login with different account

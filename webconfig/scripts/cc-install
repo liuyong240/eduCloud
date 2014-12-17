@@ -27,6 +27,9 @@ cp $SRC_ROOT/debian/clc.conf /storage/config/
 cp $SRC_ROOT/debian/cc.conf  /storage/config/
 sudo cp $SRC_ROOT/debian/sudoers  /etc/
 
+test -d "/etc/educloud/modules/" || sudo mkdir -p /etc/educloud/modules/
+sudo touch /etc/educloud/modules/cc
+
 #2 prepare dependented packages
 desc_step "2. prepare dependented packages"
 sudo apt-get install memcached libmemcached-tools apache2 rabbitmq-server libapache2-mod-wsgi python-dev ifstat sysstat sudo openssh-server python-pip sshfs
