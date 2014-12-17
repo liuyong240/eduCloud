@@ -210,6 +210,55 @@ vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
   it could be located on either clc or cc server
   it could be located on either clc or cc server
 
+############################################
+# 9. network configuration for node & vms 
+############################################
+
+9.1 The network toplogy of cloud 
+flat   mode: all node & controller on same LAN 
+twins  mode: all controller on same LAN, all node on same LAN
+tree   mode: all controller on same LAN, each cluster on its own LAN
+forest mode: controller distributed on different LAN(talk by public IP), each cluster on its own LAN
+
+9.2 IP addr allocation method
+Desktop VMs:  all get NAT address
+Server VMs:   all get IP via DHCP
+
+9.3 access mode
+9.3.1 access from inside
+Desktop VMs: 
+- (PUBLIC  mode)by ncip:port, 
+- (PRIVATE mode)by ccip:port -> ncip:port
+
+Server VMs:
+- (PUBLIC  mode)by vmip:port
+- (PUBLIC  mode)by ncip:port,
+
+- (PRIVATE mode)by ccip:port -> vmip:port
+- (PRIVATE mode)by ccip:port -> ncip:port
+
+9.3.2 access from outside
+- static port mapping
+  pre-defind & configure rules of port mapping
+- dynamic port mapping
+  deploy private firewall on clc
+
+9.4 DHCP Service:
+- deployed one for all VMs
+  * flat   mode:  on any physical server, prefer clc
+  * twins  mode:  on any physical server in node LAN
+- deployed one for each cluster
+  * tree   mode:  on any physical server in cluster LAN, prefer cc
+  * forest mode:  on any physical server in cluster LAN, prefer cc
+
+- deploy with switch's DHCP 
+  * require to enable fixed IP assignment by mac address
+- deploy with private DHCP
+  * use dnsmasq as DHCP server, with script to notify clc {add/del, IP, MAC} pair
+
+
+
+
 -------------------------------------
 incoming coding work
 -------------------------------------
@@ -226,8 +275,9 @@ incoming coding work
    Done - split web service into clc/walrus/cc by
           different settings.py
           add into install script : /etc/educloud/modules/{clc, walrus, cc, nc}
-   - re-test desktop build work flow
-   - modify it to handle server build work flow
+   ing - add django app for DHCP service management
+   ing - re-test desktop build work flow
+   ing - modify it to handle server build work flow
 
 2. (12/16)GUI of vss definition
 3. (12/16)vss running server logic
