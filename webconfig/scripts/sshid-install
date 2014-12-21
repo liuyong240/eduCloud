@@ -1,4 +1,6 @@
 #! /bin/bash
+SRC_ROOT=/mnt/src/eduCloud
+sudo cp $SRC_ROOT/debian/fuse.conf /etc/
 
 sudo adduser $USER fuse
 ssh-keygen
