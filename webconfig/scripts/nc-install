@@ -44,3 +44,7 @@ sudo pip install pika-0.9.14.tar.gz
 sudo pip install psutil-2.1.1.tar.gz
 sudo pip install Pynetinfo-0.2.3.tar.gz
 sudo pip install python-iptables-0.4.0.tar.gz
+
+#6 add $USER into group of fuse
+desc_step "6. test sshfs functioin"
+./sshid-install cc
