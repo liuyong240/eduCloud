@@ -37,10 +37,12 @@ def perform_mount():
 
     if not os.path.ismount('/storage/space/software'):
         cmd1 = base_cmd % (clcip, 'software', 'software')
+	logger.error(cmd1)
         os.system(cmd1)
 
-    if not os.path.ismount('/storage/space/pubdata'):
+    if not os.path.ismount('/storage/space/pub-data'):
         cmd2 = base_cmd % (clcip, 'pub-data', 'pub-data')
+	logger.error(cmd2)
         os.system(cmd2)
 
 def registerMyselfasCC():
