@@ -877,7 +877,7 @@ def generateAvailableResourceforCC(cc_name):
 def cc_modify_resources(request, cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
     if request.method == 'POST':
-        rec.usage                       = request.POST['usage']
+        rec.cc_usage                    = request.POST['usage']
         rec.rdp_port_pool_def           = request.POST['port_range']
         rec.external_ip_pool_def        = request.POST['pubip_range']
         rec.external_ip_netmask         = request.POST['pubip_netmask']
@@ -2664,9 +2664,9 @@ def add_new_server(request):
 
     if request.POST['role'] == 'cc':
         res_rec = ecCCResources(
-            ccmac0        = request.POST['mac0'],
-            ccname      = request.POST['ccname'],
-            usage       = "lvd",
+            ccmac0         = request.POST['mac0'],
+            ccname         = request.POST['ccname'],
+            cc_usage       = "lvd",
             rdp_port_pool_def   = "3389-4389",
         )
         res_rec.save()
@@ -2701,12 +2701,14 @@ def register_server(request):
         if recs.count() > 0:
             if recs[0].mac0 == request.POST['mac0']:
                 # update existing record
+                logger.error('------ update_server_record')
                 update_server_record(request, recs[0])
             else:
                 # duplicate clc register
                 logger.error(" duplicated CC registration from %s." % request.POST['ip0'])
         else:
             # new record
+            logger.error('------ add_new_server')
             add_new_server(request)
     elif request.POST['role'] == 'nc':
         recs = ecServers.objects.filter(role=request.POST['role'], mac0=request.POST['mac0'])
