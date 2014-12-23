@@ -33,12 +33,12 @@ def findLazyNC(cc_name):
 # this is simple algorith, just find the first cc in db
 def findLazyCC(srcid):
     rec = ecImages.objects.get(ecid=srcid)
-    if rec.usage == "server":
+    if rec.img_usage == "server":
         filter = 'vs'
     else:
         filter = 'rvd'
 
-    ccs = ecCCResources.objects.filter(usage=filter)
+    ccs = ecCCResources.objects.filter(cc_usage=filter)
     ccip = ccs[0].ccip
     return ccip, ccs[0].ccname
 
@@ -839,13 +839,13 @@ def generateAvailableResourceforCC(cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
     emptyarray = []
 
-    if rec.usage == 'lvd':
+    if rec.cc_usage == 'lvd':
         rec.rdp_port_pool_list          = ''
         rec.used_rdp_ports              = ''
         rec.external_ip_pool_list       = ''
         rec.used_external_ips           = ''
 
-    elif rec.usage == 'rvd': # only need port range
+    elif rec.cc_usage == 'rvd': # only need port range
         rec.rdp_port_pool_list          = ''
         rec.used_rdp_ports              = ''
         rec.external_ip_pool_list       = ''
@@ -855,7 +855,7 @@ def generateAvailableResourceforCC(cc_name):
         portrange = range(int(portrange[0]), int(portrange[1]))
         rec.rdp_port_pool_list = json.dumps(portrange)
         rec.used_rdp_ports = json.dumps(emptyarray)
-    elif rec.usage == 'vs':
+    elif rec.cc_usage == 'vs':
         rec.rdp_port_pool_list          = ''
         rec.used_rdp_ports              = ''
         rec.external_ip_pool_list       = ''
@@ -877,7 +877,7 @@ def generateAvailableResourceforCC(cc_name):
 def cc_modify_resources(request, cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
     if request.method == 'POST':
-        rec.cc_usage                    = request.POST['usage']
+        rec.cc_usage                       = request.POST['usage']
         rec.rdp_port_pool_def           = request.POST['port_range']
         rec.external_ip_pool_def        = request.POST['pubip_range']
         rec.external_ip_netmask         = request.POST['pubip_netmask']
@@ -946,8 +946,8 @@ def genRuntimeOptionForImageBuild(transid):
     # prepare runtime option
     img_info = ecImages.objects.get(ecid = tidrec.srcimgid)
     runtime_option['ostype']     = img_info.ostype
-    runtime_option['usage']      = img_info.usage
-    if img_info.usage == "desktop":
+    runtime_option['usage']      = img_info.img_usage
+    if img_info.img_usage == "desktop":
         vmtype = 'vdmedium'
     else:
         vmtype = 'vssmall'
@@ -981,7 +981,7 @@ def genRuntimeOptionForImageBuild(transid):
 
     ############################
     # 2. allocate ips, macs
-    if ccres_info.usage == 'rvd':
+    if ccres_info.cc_usage == 'rvd':
         networkcards = []
         netcard = {}
         netcard['nic_type'] = nic_type
@@ -998,7 +998,7 @@ def genRuntimeOptionForImageBuild(transid):
             runtime_option['publicIP']  = tidrec.ccip
             runtime_option['privateIP'] = tidrec.ncip
 
-    elif ccres_info.usage == 'vs':
+    elif ccres_info.cc_usage == 'vs':
         available_ips_macs = json.loads(ccres_info.available_ips_macs)
         used_ips_macs      = json.loads(ccres_info.used_ips_macs)
 
@@ -1483,7 +1483,7 @@ def image_create_task_submit_success(request,  srcid, dstid, insid):
             ecid    = dstid,
             name    = dstid,
             ostype  = srcimgrec.ostype,
-            usage   = srcimgrec.usage,
+            img_usage   = srcimgrec.img_usage,
             version = "1.0.0",
             size    = imgfile_size,
         )
@@ -2400,7 +2400,7 @@ def list_images(request):
         jrec['ecid'] = rec.ecid
         jrec['name'] = rec.name
         jrec['ostype']=rec.ostype
-        jrec['usage'] = rec.usage
+        jrec['usage'] = rec.img_usage
         jrec['description'] = rec.description
         jrec['version'] = ReadImageVersionFile(rec.ecid)
         jrec['size'] = rec.size
@@ -2429,12 +2429,12 @@ def update_images(request):
     rec = ecImages.objects.get(id=request.POST['id'])
     rec.name = request.POST['name']
     rec.ostype = request.POST['ostype']
-    rec.usage = request.POST['usage']
+    rec.img_usage = request.POST['usage']
     rec.description = request.POST['description']
     rec.save()
 
     # if ostype == server, check existence of /storage/space/database/imgid/database
-    if rec.usage == 'server':
+    if rec.img_usage == 'server':
         dst = '/storage/space/database/images/%s/database' % rec.ecid
         if not os.path.exists(dst):
             # cp one database disk
@@ -2456,7 +2456,7 @@ def create_images(request):
         ecid = request.POST['ecid'],
         name = request.POST['name'],
         ostype = request.POST['ostype'],
-        usage = request.POST['usage'],
+        img_usage = request.POST['usage'],
         description = request.POST['description'],
         version = request.POST['version'],
         size = request.POST['size'],
@@ -2468,7 +2468,7 @@ def create_images(request):
     jrec['ecid'] = rec.ecid
     jrec['name'] = rec.name
     jrec['ostype']=rec.ostype
-    jrec['usage'] = rec.usage
+    jrec['usage'] = rec.img_usage
     jrec['description'] = rec.description
     jrec['version'] = rec.version
     jrec['size'] = rec.size
@@ -2664,8 +2664,8 @@ def add_new_server(request):
 
     if request.POST['role'] == 'cc':
         res_rec = ecCCResources(
-            ccmac0         = request.POST['mac0'],
-            ccname         = request.POST['ccname'],
+            ccmac0        = request.POST['mac0'],
+            ccname      = request.POST['ccname'],
             cc_usage       = "lvd",
             rdp_port_pool_def   = "3389-4389",
         )

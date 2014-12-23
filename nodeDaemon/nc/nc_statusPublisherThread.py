@@ -11,7 +11,7 @@ class nc_statusPublisherThread(run4everThread):
     def __init__(self, bucket):
         run4everThread.__init__(self, bucket)
         self._ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
-	logger.error("cc ip = %s" % self._ccip)
+	    logger.error("cc ip = %s" % self._ccip)
 
     def run4ever(self):
         while True:

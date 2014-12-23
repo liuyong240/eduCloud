@@ -136,7 +136,7 @@ class ecServers_auth(models.Model):
 class ecCCResources(models.Model):
     ccmac0         = models.CharField(max_length=20)
     ccname         = models.CharField(max_length=100)
-    usage          = models.CharField(max_length=20) #lvd, rvd, vss, app
+    cc_usage          = models.CharField(max_length=20) #lvd, rvd, vss, app
 
     # below are necessary for vds
     rdp_port_pool_def  = models.CharField(max_length=100) # port1-port2
@@ -194,7 +194,7 @@ class ecImages(models.Model):
     ostype = models.CharField(max_length=20)
 
     # possible value are : desktop, server
-    usage = models.CharField(max_length=20)
+    img_usage = models.CharField(max_length=20)
 
     description = models.TextField()
     version = models.CharField(max_length=10)
