@@ -29,6 +29,10 @@ class clc_statusConsumerThread(run4everThread):
             logger.error("get node status msg: %s" % message)
             key = str(json_msg['nid'])
             logger.error("key = %s" % key)
+        elif json_msg['type'] == 'ccstatus':
+            logger.error("get cc status msg: %s" % message)
+            key = str(json_msg['ccid'])
+            logger.error("key = %s" % key)
 
         self.save2Mem(key, message)
 
