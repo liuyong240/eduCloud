@@ -84,7 +84,7 @@ def main():
 
     # start main loop to start & monitor thread
     # thread_array = ['cc_statusPublisherThread', 'cc_statusConsumerThread', 'cc_rpcServerThread']
-    thread_array = ['cc_rpcServerThread', 'cc_statusConsumerThread']
+    thread_array = ['cc_rpcServerThread', 'cc_statusConsumerThread', 'cc_statusPublisherThread']
     bucket = Queue.Queue()
 
     for daemon in thread_array:
