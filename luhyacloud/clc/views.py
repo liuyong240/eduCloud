@@ -565,8 +565,8 @@ def nc_mgr_mac(request, ccname, mac):
         for vm in vminfo:
             _vm = vmstr.replace('{{vminfo.insid}}',  vm['insid'])
             _vm = _vm.replace('{{vminfo.guest_os}}', vm['guest_os'])
-            _vm = _vm.replace('{{vminfo.mem}}',      vm['mem'])
-            _vm = _vm.replace('{{vminfo.vcpu}}',     vm['vcpu'])
+            _vm = _vm.replace('{{vminfo.mem}}',      str(vm['mem']))
+            _vm = _vm.replace('{{vminfo.vcpu}}',     str(vm['vcpu']))
             vms = vms + _vm
 
         htmlstr = htmlstr.replace('{{vminfos}}',  vms)

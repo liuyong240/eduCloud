@@ -300,7 +300,7 @@ def getHostHardware():
     result['mem_usage'] = psutil.virtual_memory().percent
 
     result['disk'] = psutil.disk_usage("/").total /(1024*1024*1024)
-    result['free_disk'] = psutil.disk_usage("/").free
+    result['free_disk'] = psutil.disk_usage("/").free /(1024*1024*1024)
     result['disk_usage'] = psutil.disk_usage("/").percent
     return result
 
@@ -427,7 +427,7 @@ VM_LIST_GROUP_ITEM = '''
             </p>
 
             <p class="list-group-item">
-            VCPU<span class="pull-right text-muted"><em>{{vminfo.vcp}}</em></span>
+            VCPU<span class="pull-right text-muted"><em>{{vminfo.vcpu}}</em></span>
             </p>
         </p>
 '''
