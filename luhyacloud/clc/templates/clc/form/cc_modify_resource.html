@@ -15,19 +15,20 @@
 
     function enterLVDMode() {
         $('#port_config').css("display","none");
-        $('#pubip_config').css("display","none");
-        $('#dhcp_config').css("display","none");
+        //$('#pubip_config').css("display","none");
+        //$('#dhcp_config').css("display","none");
     }
 
     function enterRVDMode() {
         $('#port_config').css("display","block");
-        $('#pubip_config').css("display","none");
-        $('#dhcp_config').css("display","none");
+        //$('#pubip_config').css("display","none");
+        //$('#dhcp_config').css("display","none");
     }
 
     function enterVSMode() {
-        $('#pubip_config').css("display","block");
-        $('#dhcp_config').css("display","block");
+        $('#port_config').css("display","block");
+        //$('#pubip_config').css("display","block");
+        //$('#dhcp_config').css("display","block");
     }
 
 
@@ -35,32 +36,6 @@
         cc_port_range = $('#port_init_value').text().split('-');
         $('#port_start').val(cc_port_range[0]);
         $('#port_end').val(cc_port_range[1]);
-
-        cc_pubip_range = $('#pubip_init_value').text();
-        if ( cc_pubip_range != "") {
-            cc_pubip_range = cc_pubip_range.split('-');
-            $('#pubip_start').val(cc_pubip_range[0]);
-            $('#pubip_end').val(cc_pubip_range[1]);
-        } else {
-            $('#pubip_start').val("0.0.0.0");
-            $('#pubip_end').val("0.0.0.0");
-        }
-
-        dhcp_range = $('#dhcp_init_value').text();
-        if ( dhcp_range != "") {
-            dhcp_range = dhcp_range.split('-');
-            $('#dhcp_start').val(dhcp_range[0]);
-            $('#dhcp_end').val(dhcp_range[1]);
-        } else {
-            $('#dhcp_start').val("0.0.0.0");
-            $('#dhcp_end').val("0.0.0.0");
-        }
-
-        jQuery.removeFromArray = function(value, arr) {
-            return jQuery.grep(arr, function(elem, index) {
-                return elem !== value;
-            });
-        };
 
         cc_usage = $('#usage_init_value').text();
         $('#cluster_usage').val(cc_usage);
@@ -82,20 +57,11 @@
         ccname = $("#ccname").attr('placeholder');
         cc_usage = $("#cluster_usage").val();
         cc_port_range = $('#port_start').val() + "-" + $('#port_end').val();
-        cc_pubip_range = $('#pubip_start').val() + "-" + $('#pubip_end').val();
-        cc_pubip_netmask = $('#pubip_netmask').val()
-        cc_pubip_gateway = $('#pubip_gateway').val()
-        cc_dhcp_range = $('#dhcp_start').val() + "-" + $('#dhcp_end').val();
-
 
         url = "/clc/cc/modify/resources/" + ccname;
         postdata = {
             usage:        cc_usage,
             port_range:   cc_port_range,
-            pubip_range:  cc_pubip_range,
-            pubip_netmask:cc_pubip_netmask,
-            pubip_gateway:cc_pubip_gateway,
-            dhcp_range:   cc_dhcp_range,
         }
 
         $.post(url, postdata, function(data) {
@@ -182,43 +148,6 @@
                     </div>
                     </div>
 
-                    <div id="pubip_config" style="display: none">
-                    <label>Public IP address Range</label>
-                    <div class="form-group">
-                        <div id="pubip_init_value" style="display: none">{{ ccres.external_ip_pool_def }}</div>
-                        <label class="input-inline">
-                            <input id="pubip_start" class="form-control" placeholder="0.0.0.0">
-                        </label>
-                        <label class="input-inline"> - </label>
-                        <label class="input-inline">
-                            <input id="pubip_end" class="form-control" placeholder="0.0.0.0">
-                        </label>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="input-inline">Public IP Netmask
-                            <input id="pubip_netmask" class="form-control" value="{{ ccres.external_ip_netmask }}">
-                        </label>
-                        <label class="input-inline"></label>
-                        <label class="input-inline">Public IP Gateway
-                            <input id="pubip_gateway" class="form-control" value="{{ ccres.external_ip_gateway }}">
-                        </label>
-                    </div>
-                    </div>
-
-                    <div id="dhcp_config" style="display: none">
-                    <label>DHCP Internal IP Address Range</label>
-                    <div class="form-group">
-                        <div id="dhcp_init_value" style="display: none">{{ ccres.dhcp_range_def }}</div>
-                        <label class="input-inline" >
-                            <input id="dhcp_start" class="form-control" placeholder="0.0.0.0">
-                        </label>
-                        <label class="input-inline"> - </label>
-                        <label class="input-inline">
-                            <input id="dhcp_end" class="form-control" placeholder="0.0.0.0">
-                        </label>
-                    </div>
-                    </div>
 
                     <button id="mysubmit" type="submit" class="btn btn-primary">Submit Button</button>
                     <button id="myreset"  type="reset" class="btn btn-default">Reset Button</button>
@@ -243,3 +172,4 @@
 <!-- /.col-lg-12 -->
 </div>
 {% endblock %}
+

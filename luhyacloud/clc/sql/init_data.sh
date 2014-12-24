@@ -7,5 +7,7 @@ mysql -uroot -proot mysql < ecserverrole.sql
 mysql -uroot -proot mysql < ecservers.sql
 mysql -uroot -proot mysql < ecvmtypes.sql  
 mysql -uroot -proot mysql < ecvmusages.sql
+mysql -uroot -proot mysql < ecnetworkmode.sql
+
 
 

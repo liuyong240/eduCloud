@@ -842,34 +842,24 @@ def generateAvailableResourceforCC(cc_name):
     if rec.cc_usage == 'lvd':
         rec.rdp_port_pool_list          = ''
         rec.used_rdp_ports              = ''
-        rec.external_ip_pool_list       = ''
-        rec.used_external_ips           = ''
 
     elif rec.cc_usage == 'rvd': # only need port range
         rec.rdp_port_pool_list          = ''
         rec.used_rdp_ports              = ''
-        rec.external_ip_pool_list       = ''
-        rec.used_external_ips           = ''
 
         portrange = rec.rdp_port_pool_def.split('-')
         portrange = range(int(portrange[0]), int(portrange[1]))
         rec.rdp_port_pool_list = json.dumps(portrange)
         rec.used_rdp_ports = json.dumps(emptyarray)
+
     elif rec.cc_usage == 'vs':
         rec.rdp_port_pool_list          = ''
         rec.used_rdp_ports              = ''
-        rec.external_ip_pool_list       = ''
-        rec.used_external_ips           = ''
 
         portrange = rec.rdp_port_pool_def.split('-')
         portrange = range(int(portrange[0]), int(portrange[1]))
         rec.rdp_port_pool_list = json.dumps(portrange)
         rec.used_rdp_ports = json.dumps(emptyarray)
-
-        iplist    = rec.external_ip_pool_def.split('-')
-        iplist    = ipRange(iplist[0], iplist[1])
-        rec.external_ip_pool_list = json.dumps(iplist)
-        rec.used_external_ips = json.dumps(emptyarray)
 
     rec.save()
 
@@ -877,12 +867,8 @@ def generateAvailableResourceforCC(cc_name):
 def cc_modify_resources(request, cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
     if request.method == 'POST':
-        rec.cc_usage                       = request.POST['usage']
+        rec.cc_usage                    = request.POST['usage']
         rec.rdp_port_pool_def           = request.POST['port_range']
-        rec.external_ip_pool_def        = request.POST['pubip_range']
-        rec.external_ip_netmask         = request.POST['pubip_netmask']
-        rec.external_ip_gateway         = request.POST['pubip_gateway']
-        rec.dhcp_range_def              = request.POST['dhcp_range']
         rec.save()
 
         generateAvailableResourceforCC(cc_name)

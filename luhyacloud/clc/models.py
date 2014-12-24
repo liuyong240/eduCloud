@@ -94,6 +94,11 @@ class ecVMTypes(models.Model):
     memory = models.IntegerField(default=1)
     cpus = models.IntegerField(default=1)
 
+class ecNetworkMode(models,Model):
+    networkmode = models.CharField(max_length=100) # flat, twins, tree, forest
+    description = models.TextField()
+
+class
 #==============================================
 # Core table definition
 #==============================================
@@ -143,14 +148,29 @@ class ecCCResources(models.Model):
     rdp_port_pool_list = models.TextField()  # [port1, port2, port3, ... ... ]
     used_rdp_ports     = models.TextField()  # [port1, port2, ports, ... ... ]
 
-    # below are necessary for vss
-    external_ip_pool_def = models.CharField(max_length=100)
-    external_ip_pool_list = models.TextField()
-    external_ip_netmask   = models.CharField(max_length=100)
-    external_ip_gateway   = models.CharField(max_length=100)
-    used_external_ips     = models.TextField()
+    # when networkmode is not Flat, need define more field for cc forward rule
+    # for networkmode = Tree or Forest
+    ## define service port forward rule
 
+    ## define desktop port forward rule
+
+class ecPortForwardRules(models.Model):
+    ccname                = models.CharField(max_length=100) # example: gloabl, 'ccname'
+    srcip                 = models.CharField(max_length=20)
+    dstip                 = models.CharField(max_length=20)
+    srcport               = models.IntegerField(default=0)
+    dstport               = models.IntegerField(default=0)
+    insid                 = models.CharField(max_length=20)
+
+class ecDHCPRes(models.Model):
+    ccname                = models.CharField(max_length=100) # example: gloabl, 'ccname'
     dhcp_range_def        = models.CharField(max_length=100)
+
+class ecDHCPEthers(models.Model):
+    ccname                = models.CharField(max_length=100)
+    mac                   = models.CharField(max_length=20)
+    ip                    = models.CharField(max_length=20)
+    insid                 = models.CharField(max_length=20)
 
 # for all NCs that support LVD
 class ecTerminal(models.Model):

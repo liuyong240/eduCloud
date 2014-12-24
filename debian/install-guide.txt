@@ -215,8 +215,7 @@ vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
 ############################################
 
 9.1 The network toplogy of cloud 
-flat   mode: all node & controller on same LAN 
-twins  mode: all controller on same LAN, all node on same LAN
+flat   mode: all node & controller on same LAN
 tree   mode: all controller on same LAN, each cluster on its own LAN
 forest mode: controller distributed on different LAN(talk by public IP), each cluster on its own LAN
 
@@ -256,7 +255,33 @@ Server VMs:
 - deploy with private DHCP
   * use dnsmasq as DHCP server, with script to notify clc {add/del, IP, MAC} pair
 
+9.5 Summary
+- each vss vm is allocated with a private DHCP address
+- FLAT: public mode
+    * only one global DHCP server (private IP range, {mac,ip} pairs)
+    * vss in the same LAN as all servers
+    * access mode:
+        > from inside, directly access vss IP
+        > from outside, add port-forward on firewall
 
+- TREE: private mode
+    * each CC has its own DHCP server(private IP range, {mac,ip} pairs, forward port)
+    * vss in the same LAN as CC
+    * add port-forwarding rule on cc (ccip:8000 to vss:ip:80)
+- FOREST: private mode (TBD)
+    * each CC has its own DHCP server
+    * vss in the same LAN as CC
+
+access vss vm can be
+  * directly:
+    for inside user, access DHCP IP addr
+    for outside user, configure forward rule on system's firewall
+  * proxied by CC
+    pre-condition: CC will be assigned new IP per vss vm and configure forward rule
+    for inside user, access CC's new IP address
+    for outside user,
+       > CC's new IP addr is public IP
+       > add forward rule in system's firewall to CC's new IP addr
 
 
 -------------------------------------
@@ -276,6 +301,16 @@ incoming coding work
           different settings.py
           add into install script : /etc/educloud/modules/{clc, walrus, cc, nc}
    ing - add django app for DHCP service management
+         > configured with switch DHCP Server
+            >> configure global DHCP paras
+                { private IP range, public IP range, {mac, fixed-ip} pairs }
+            >> configure cc-owned DHCP paras
+                { private IP range, public IP range, {mac, fixed-ip} pairs }
+         > configured with private DHCP server
+            >> configure global DHCP paras
+                { private IP range, public IP range, {mac, fixed-ip} pairs }
+            >> configure cc-owned DHCP paras
+                { private IP range, public IP range, {mac, fixed-ip} pairs }
    ing - re-test desktop build work flow
    ing - modify it to handle server build work flow
 
