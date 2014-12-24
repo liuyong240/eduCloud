@@ -94,11 +94,10 @@ class ecVMTypes(models.Model):
     memory = models.IntegerField(default=1)
     cpus = models.IntegerField(default=1)
 
-class ecNetworkMode(models,Model):
+class ecNetworkMode(models.Model):
     networkmode = models.CharField(max_length=100) # flat, twins, tree, forest
     description = models.TextField()
 
-class
 #==============================================
 # Core table definition
 #==============================================
