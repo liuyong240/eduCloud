@@ -563,7 +563,10 @@ def nc_mgr_mac(request, ccname, mac):
     if vminfo != []:
         vms = ""
         for vm in vminfo:
-            _vm = vmstr.replace('{{vminfo.insid}}', vm['name'])
+            _vm = vmstr.replace('{{vminfo.insid}}',  vm['insid'])
+            _vm = _vm.replace('{{vminfo.guest_os}}', vm['guest_os'])
+            _vm = _vm.replace('{{vminfo.mem}}',      vm['mem'])
+            _vm = _vm.replace('{{vminfo.vcpu}}',     vm['vcpu'])
             vms = vms + _vm
 
         htmlstr = htmlstr.replace('{{vminfos}}',  vms)
@@ -582,8 +585,14 @@ def nc_mgr_mac(request, ccname, mac):
     htmlstr = htmlstr.replace('{{host_ips.location}}',    host_ips['location'])
 
     htmlstr = htmlstr.replace('{{hardware_data.cpus}}',        str(hardware_data['cpus']))
+
     htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
+    htmlstr = htmlstr.replace('{{hardware_data.free_mem}}',    str(hardware_data['free_mem']))
+    htmlstr = htmlstr.replace('{{hardware_data.mem_usage}}',   str(hardware_data['mem_usage']))
+
     htmlstr = htmlstr.replace('{{hardware_data.disk}}',        str(hardware_data['disk']))
+    htmlstr = htmlstr.replace('{{hardware_data.free_disk}}',   str(hardware_data['free_disk']))
+    htmlstr = htmlstr.replace('{{hardware_data.disk_usage}}',  str(hardware_data['disk_usage']))
 
     htmlstr = htmlstr.replace('{{host_ips.eip}}', host_ips['exip'])
     htmlstr = htmlstr.replace('{{host_ips.ip0}}', host_ips['ip0'])

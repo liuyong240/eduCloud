@@ -293,9 +293,15 @@ def getServiceStatus(dtype):
 def getHostHardware():
     result = {}
 
-    result['cpus'] = psutil.cpu_count()
+    result['cpus'] = psutil.cpu_count()*2
+
     result['mem']  = psutil.virtual_memory().total/(1024*1024*1024)
+    result['free_mem'] = (psutil.virtual_memory().total - psutil.virtual_memory().used)/(1024*1024*1024)
+    result['mem_usage'] = psutil.virtual_memory().percent
+
     result['disk'] = psutil.disk_usage("/").total /(1024*1024*1024)
+    result['free_disk'] = psutil.disk_usage("/").free
+    result['disk_usage'] = psutil.disk_usage("/").percent
     return result
 
 CC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
@@ -411,6 +417,18 @@ VM_LIST_GROUP_ITEM = '''
         <p class="list-group-item">
             {{vminfo.insid}}
             <span class="pull-right text-muted"><em>Running</em></span>
+
+            <p class="list-group-item">
+            Guest OS<span class="pull-right text-muted"><em>{{vminfo.guest_os}}</em></span>
+            </p>
+
+            <p class="list-group-item">
+            Memroy<span class="pull-right text-muted"><em>{{vminfo.mem}}G</em></span>
+            </p>
+
+            <p class="list-group-item">
+            VCPU<span class="pull-right text-muted"><em>{{vminfo.vcp}}</em></span>
+            </p>
         </p>
 '''
 
@@ -443,13 +461,31 @@ NC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
             CPU Cores
             <span class="pull-right text-muted"><em>{{hardware_data.cpus}}</em></span>
         </p>
+        <p></p>
         <p class="list-group-item">
-            Memory
-            <span class="pull-right text-muted"><em>{{hardware_data.mem}}</em></span>
+            Total Memory
+            <span class="pull-right text-muted"><em>{{hardware_data.mem}}G</em></span>
         </p>
         <p class="list-group-item">
-            Disk
-            <span class="pull-right text-muted"><em>{{hardware_data.disk}}</em></span>
+            Free Memory
+            <span class="pull-right text-muted"><em>{{hardware_data.free_mem}}G</em></span>
+        </p>
+        <p class="list-group-item">
+            Memory Usage
+            <span class="pull-right text-muted"><em>{{hardware_data.mem_usage}}%</em></span>
+        </p>
+        <p></p>
+        <p class="list-group-item">
+            Total Disk
+            <span class="pull-right text-muted"><em>{{hardware_data.disk}}G</em></span>
+        </p>
+        <p class="list-group-item">
+            Free Disk
+            <span class="pull-right text-muted"><em>{{hardware_data.free_disk}}G</em></span>
+        </p>
+        <p class="list-group-item">
+            Disk Usage
+            <span class="pull-right text-muted"><em>{{hardware_data.disk_usage}}%</em></span>
         </p>
         <p></p>
         <button id="permission" type="button" class="btn btn-primary">Edit Permission</button>

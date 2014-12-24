@@ -14,8 +14,17 @@ def getVMlist():
         num_of_vms = len(vms)/2
         for x in range(0, num_of_vms):
             vm = {}
-            vm['name'] = vms[2*x]
-            vm['uuid'] = vms[2*x+1]
+            vm['insid'] = vms[2*x].replace('"', '')
+            vm['uuid'] = vms[2*x+1].replace('{', '').replace('}', '')
+
+            vm_cmd = "vboxmanage showvminfo %s" % vm['insid']
+            out, err = execute_cmd(vm_cmd, True)
+            out = out.split('\n')
+            vm['guest_os'] =  out[2].split(':')[1].strip()  # line 3
+            tmp            =  out[8].split(':')[1].strip()  # line 9
+            vm['mem']      =  int(tmp.split('MB')[0])/1024
+            vm['vcpu']     =  int(out[15].split(':')[1].strip()) # line 16
+
             result.append(vm)
 
     return result
