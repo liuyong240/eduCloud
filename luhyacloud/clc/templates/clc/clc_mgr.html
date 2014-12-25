@@ -128,13 +128,31 @@
                     CPU Cores
                     <span class="pull-right text-muted"><em>{{ hardware_data.cpus }}</em></span>
                 </p>
+                <p></p>
                 <p class="list-group-item">
-                    Memory
-                    <span class="pull-right text-muted"><em>{{ hardware_data.mem }}</em></span>
+                    Total Memory
+                    <span class="pull-right text-muted"><em>{{hardware_data.mem}}G</em></span>
                 </p>
                 <p class="list-group-item">
-                    Disk
-                    <span class="pull-right text-muted"><em>{{ hardware_data.disk }}</em></span>
+                    Free Memory
+                    <span class="pull-right text-muted"><em>{{hardware_data.free_mem}}G</em></span>
+                </p>
+                <p class="list-group-item">
+                    Memory Usage
+                    <span class="pull-right text-muted"><em>{{hardware_data.mem_usage}}%</em></span>
+                </p>
+                <p></p>
+                <p class="list-group-item">
+                    Total Disk
+                    <span class="pull-right text-muted"><em>{{hardware_data.disk}}G</em></span>
+                </p>
+                <p class="list-group-item">
+                    Free Disk
+                    <span class="pull-right text-muted"><em>{{hardware_data.free_disk}}G</em></span>
+                </p>
+                <p class="list-group-item">
+                    Disk Usage
+                    <span class="pull-right text-muted"><em>{{hardware_data.disk_usage}}%</em></span>
                 </p>
                 <h3>IP Addresses</h3>
                 <p class="list-group-item">

@@ -295,8 +295,8 @@ def getHostHardware():
 
     result['cpus'] = psutil.cpu_count()*2
 
-    result['mem']  = psutil.virtual_memory().total/(1024*1024*1024)
-    result['free_mem'] = (psutil.virtual_memory().total - psutil.virtual_memory().used)/(1024*1024*1024)
+    result['mem']  = psutil.virtual_memory().total/(1024*1024*1024) + 1
+    result['free_mem'] = (psutil.virtual_memory().total - psutil.virtual_memory().used)/(1024*1024*1024) + 1
     result['mem_usage'] = psutil.virtual_memory().percent
 
     result['disk'] = psutil.disk_usage("/").total /(1024*1024*1024)
@@ -351,13 +351,31 @@ CC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
             CPU Cores
             <span class="pull-right text-muted"><em>{{hardware_data.cpus}}</em></span>
         </p>
+        <p></p>
         <p class="list-group-item">
-            Memory
-            <span class="pull-right text-muted"><em>{{hardware_data.mem}}</em></span>
+            Total Memory
+            <span class="pull-right text-muted"><em>{{hardware_data.mem}}G</em></span>
         </p>
         <p class="list-group-item">
-            Disk
-            <span class="pull-right text-muted"><em>{{hardware_data.disk}}</em></span>
+            Free Memory
+            <span class="pull-right text-muted"><em>{{hardware_data.free_mem}}G</em></span>
+        </p>
+        <p class="list-group-item">
+            Memory Usage
+            <span class="pull-right text-muted"><em>{{hardware_data.mem_usage}}%</em></span>
+        </p>
+        <p></p>
+        <p class="list-group-item">
+            Total Disk
+            <span class="pull-right text-muted"><em>{{hardware_data.disk}}G</em></span>
+        </p>
+        <p class="list-group-item">
+            Free Disk
+            <span class="pull-right text-muted"><em>{{hardware_data.free_disk}}G</em></span>
+        </p>
+        <p class="list-group-item">
+            Disk Usage
+            <span class="pull-right text-muted"><em>{{hardware_data.disk_usage}}%</em></span>
         </p>
         <p></p>
         <button id="ccres_modify" type="button" class="btn btn-primary">Network Resource Configure</button>

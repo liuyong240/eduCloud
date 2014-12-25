@@ -496,7 +496,12 @@ def cc_mgr_ccname(request, ccname):
 
     htmlstr = htmlstr.replace('{{hardware_data.cpus}}',        str(hardware_data['cpus']))
     htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
+    htmlstr = htmlstr.replace('{{hardware_data.free_mem}}',    str(hardware_data['free_mem']))
+    htmlstr = htmlstr.replace('{{hardware_data.mem_usage}}',   str(hardware_data['mem_usage']))
+
     htmlstr = htmlstr.replace('{{hardware_data.disk}}',        str(hardware_data['disk']))
+    htmlstr = htmlstr.replace('{{hardware_data.free_disk}}',   str(hardware_data['free_disk']))
+    htmlstr = htmlstr.replace('{{hardware_data.disk_usage}}',  str(hardware_data['disk_usage']))
 
     htmlstr = htmlstr.replace('{{host_ips.eip}}', host_ips['eip'])
     htmlstr = htmlstr.replace('{{host_ips.ip0}}', host_ips['ip0'])
