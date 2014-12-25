@@ -42,6 +42,105 @@ def findLazyCC(srcid):
     ccip = ccs[0].ccip
     return ccip, ccs[0].ccname
 
+''' Example of nc status data in memcache
+{
+    "net_data": {
+        "exip": "192.168.96.127",
+        "ip2": "",
+        "ip0": "192.168.96.127",
+        "ip1": "192.168.56.1",
+        "mac3": "",
+        "mac2": "",
+        "mac1": "0A:00:27:00:00:00",
+        "ip3": "",
+        "mac0": "84:2B:2B:48:CF:06"
+    },
+    "nid": "nc#84:2B:2B:48:CF:06#status",
+    "vm_data": [
+        {"mem": 4, "vcpu": 2, "uuid": "41cbbb16-2b74-428b-a01b-7ff8a08c6dd3", "insid": "a", "guest_os": "Ubuntu (64 bit)"},
+        {"mem": 4, "vcpu": 2, "uuid": "2999ccde-ec4a-47d7-a6dd-fdbc24ae9915", "insid": "b", "guest_os": "Ubuntu (64 bit)"},
+        {"mem": 12, "vcpu": 1, "uuid": "cbc86361-23b5-40ce-b131-c654b5215cb4", "insid": "c", "guest_os": "Ubuntu (64 bit)"}
+    ],
+    "service_data": {
+        "web": "Running",
+        "rsync": "Running",
+        "amqp": "Running",
+        "daemon": "Closed",
+        "memcache": "Running",
+        "ssh": "Running"
+    },
+    "hardware_data": {
+        "disk_usage": 11.1,
+        "mem": 32,
+        "cpus": 16,
+        'cpu_usage': 14.9,
+        "mem_usage": 24.8,
+        "disk": 236
+    },
+    "type": "nodestatus"
+}
+'''
+def findBuildResource(srcid):
+    from sortedcontainers import SortedList
+    l = SortedList()
+
+    _ccip = None
+    _ncip = None
+    _msg  = "Can't Find enough resource."
+
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+
+    # get the expected usage of cc
+
+    rec = ecImages.objects.get(ecid=srcid)
+    if rec.img_usage == "server":
+        filter = 'vs'
+        cpu = 10
+        mem = 4+2
+        disk = 10
+    else:
+        filter = 'rvd'
+        cpu = 20
+        mem = 2+2
+        disk = 20
+
+    # get a list of cc
+    ccs = ecCCResources.objects.filter(cc_usage=filter)
+
+    # for each cc, find a good candidate nc and return, based on data in memcache
+    # and compare all these selected ncs, find the best one
+    for cc in ccs:
+        # get list of ncs
+        ncs = ecServers.objects.filter(ccname=cc.ccname , role='nc')
+        for nc in ncs:
+            key = str( 'nc#%s#status' % nc.mac0 )
+            try:
+                payload = mc.get(key)
+                if payload == None:
+                    continue
+                else:
+                    payload = json.loads(payload)
+                    data = payload['hardware_data']
+                    data['xncip'] = nc.ip0
+                    data['xccip'] = cc.ip0
+                    l.add(data)
+            except Exception as e:
+                continue
+
+    # now check sorted nc to find best one
+    for index in range(0, len(l)):
+        data = l[index]
+        avail_cpu = 100 - data['cpu_usage']
+        avail_mem  = data['mem']  * (100 - data['mem_usage'])
+        avail_disk = data['disk'] * (100 - data['disk_usage'])
+        if avail_cpu > cpu and avail_mem > mem and avail_disk > disk:
+            _ccip = data['xccip']
+            _ncip = data['xncip']
+            _msg = ''
+            break;
+
+    return _ccip, _ncip, _msg
+
 def display_login_window(request):
     return render(request, 'clc/login.html', {})
 
@@ -1064,41 +1163,48 @@ def start_image_create_task(request, srcid):
 
     logger.error("tid=%s" % _tid)
 
-    _ccip, _ccname = findLazyCC(srcid)
-    _ncip = findLazyNC(_ccname)
+    _ccip, _ncip, _msg = findBuildResource(srcid)
 
-    rec = ectaskTransaction(
-         tid         = _tid,
-         srcimgid    = _srcimgid,
-         dstimgid    = _dstimageid,
-         insid       = _instanceid,
-         user        = request.user.username,
-         phase       = 'init',
-         vmstatus    = "",
-         progress    = 0,
-         ccip        = _ccip,
-         ncip        = _ncip
-    )
-    rec.save()
+    if _ncip == None:
+        # not find proper cc,nc for build image
+        context = {
+            'pagetitle'     : 'Error Report',
+            'error'         : _msg,
+        }
+        return render(request, 'clc/error.html', context)
+    else:
+        rec = ectaskTransaction(
+             tid         = _tid,
+             srcimgid    = _srcimgid,
+             dstimgid    = _dstimageid,
+             insid       = _instanceid,
+             user        = request.user.username,
+             phase       = 'init',
+             vmstatus    = "",
+             progress    = 0,
+             ccip        = _ccip,
+             ncip        = _ncip
+        )
+        rec.save()
 
-    rec.runtime_option = json.dumps(genRuntimeOptionForImageBuild(_tid))
-    rec.save()
+        rec.runtime_option = json.dumps(genRuntimeOptionForImageBuild(_tid))
+        rec.save()
 
-    # open a window to monitor work progress
-    imgobj = ecImages.objects.get(ecid = srcid)
+        # open a window to monitor work progress
+        imgobj = ecImages.objects.get(ecid = srcid)
 
-    context = {
-        'pagetitle' : "image create",
-        'tid'       : _tid,
-        'srcid'     : _srcimgid,
-        'dstid'     : _dstimageid,
-        "insid"     : _instanceid,
-        'imgobj'    : imgobj,
-        'steps'     : 0,
-        'vmstatus'  : 'stopped',
-    }
+        context = {
+            'pagetitle' : "image create",
+            'tid'       : _tid,
+            'srcid'     : _srcimgid,
+            'dstid'     : _dstimageid,
+            "insid"     : _instanceid,
+            'imgobj'    : imgobj,
+            'steps'     : 0,
+            'vmstatus'  : 'stopped',
+        }
 
-    return render(request, 'clc/wizard/image_create_wizard.html', context)
+        return render(request, 'clc/wizard/image_create_wizard.html', context)
 
 def prepare_image_create_task(request, srcid, dstid, insid):
     logger.error("--- --- --- prepare_image_create_task")

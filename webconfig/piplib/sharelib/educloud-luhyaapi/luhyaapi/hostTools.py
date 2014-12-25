@@ -294,13 +294,14 @@ def getHostHardware():
     result = {}
 
     result['cpus'] = psutil.cpu_count()*2
+    result['cpu_usage'] = psutil.cpu_percent()
 
     result['mem']  = psutil.virtual_memory().total/(1024*1024*1024) + 1
-    result['free_mem'] = (psutil.virtual_memory().total - psutil.virtual_memory().used)/(1024*1024*1024) + 1
+    #result['free_mem'] = (psutil.virtual_memory().total - psutil.virtual_memory().used)/(1024*1024*1024) + 1
     result['mem_usage'] = psutil.virtual_memory().percent
 
     result['disk'] = psutil.disk_usage("/").total /(1024*1024*1024)
-    result['free_disk'] = psutil.disk_usage("/").free /(1024*1024*1024)
+    #result['free_disk'] = psutil.disk_usage("/").free /(1024*1024*1024)
     result['disk_usage'] = psutil.disk_usage("/").percent
     return result
 
@@ -351,14 +352,14 @@ CC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
             CPU Cores
             <span class="pull-right text-muted"><em>{{hardware_data.cpus}}</em></span>
         </p>
+        <p class="list-group-item">
+            CPU Usage
+            <span class="pull-right text-muted"><em>{{hardware_data.cpu_usage}}%</em></span>
+        </p>
         <p></p>
         <p class="list-group-item">
             Total Memory
             <span class="pull-right text-muted"><em>{{hardware_data.mem}}G</em></span>
-        </p>
-        <p class="list-group-item">
-            Free Memory
-            <span class="pull-right text-muted"><em>{{hardware_data.free_mem}}G</em></span>
         </p>
         <p class="list-group-item">
             Memory Usage
@@ -368,10 +369,6 @@ CC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
         <p class="list-group-item">
             Total Disk
             <span class="pull-right text-muted"><em>{{hardware_data.disk}}G</em></span>
-        </p>
-        <p class="list-group-item">
-            Free Disk
-            <span class="pull-right text-muted"><em>{{hardware_data.free_disk}}G</em></span>
         </p>
         <p class="list-group-item">
             Disk Usage
@@ -479,14 +476,14 @@ NC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
             CPU Cores
             <span class="pull-right text-muted"><em>{{hardware_data.cpus}}</em></span>
         </p>
+        <p class="list-group-item">
+            CPU Usage
+            <span class="pull-right text-muted"><em>{{hardware_data.cpu_usage}}%</em></span>
+        </p>
         <p></p>
         <p class="list-group-item">
             Total Memory
             <span class="pull-right text-muted"><em>{{hardware_data.mem}}G</em></span>
-        </p>
-        <p class="list-group-item">
-            Free Memory
-            <span class="pull-right text-muted"><em>{{hardware_data.free_mem}}G</em></span>
         </p>
         <p class="list-group-item">
             Memory Usage
@@ -496,10 +493,6 @@ NC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
         <p class="list-group-item">
             Total Disk
             <span class="pull-right text-muted"><em>{{hardware_data.disk}}G</em></span>
-        </p>
-        <p class="list-group-item">
-            Free Disk
-            <span class="pull-right text-muted"><em>{{hardware_data.free_disk}}G</em></span>
         </p>
         <p class="list-group-item">
             Disk Usage
