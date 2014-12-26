@@ -30,7 +30,7 @@ sudo touch /etc/educloud/modules/nc
 
 #2 prepare dependented packages
 desc_step "2. prepare dependented packages"
-sudo apt-get install python-dev ifstat sysstat sudo openssh-server python-pip sshfs
+sudo apt-get install python-dev ifstat sysstat sudo openssh-server python-pip sshfs iperf
 
 #3 prepare & configure rsync service
 desc_step "3. prepare & configure rsync service"

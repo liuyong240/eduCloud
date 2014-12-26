@@ -95,7 +95,7 @@ class ecVMTypes(models.Model):
     cpus = models.IntegerField(default=1)
 
 class ecNetworkMode(models.Model):
-    networkmode = models.CharField(max_length=100) # flat, twins, tree, forest
+    networkmode = models.CharField(max_length=100) # flat, tree
     description = models.TextField()
 
 #==============================================
@@ -138,34 +138,37 @@ class ecServers_auth(models.Model):
     delete      = models.BooleanField(default=False)
 
 class ecCCResources(models.Model):
-    ccmac0         = models.CharField(max_length=20)
-    ccname         = models.CharField(max_length=100)
-    cc_usage          = models.CharField(max_length=20) #lvd, rvd, vss, app
+    ccmac0              = models.CharField(max_length=20)
+    ccname              = models.CharField(max_length=100)
+    cc_usage            = models.CharField(max_length=20) #lvd, rvd, vss, app
 
     # below are necessary for vds
-    rdp_port_pool_def  = models.CharField(max_length=100) # port1-port2
-    rdp_port_pool_list = models.TextField()  # [port1, port2, port3, ... ... ]
-    used_rdp_ports     = models.TextField()  # [port1, port2, ports, ... ... ]
+    rdp_port_pool_def   = models.CharField(max_length=100) # port1-port2
+    rdp_port_pool_list  = models.TextField()  # [port1, port2, port3, ... ... ]
+    used_rdp_ports      = models.TextField()  # [port1, port2, ports, ... ... ]
 
-    # when networkmode is not Flat, need define more field for cc forward rule
-    # for networkmode = Tree or Forest
-    ## define service port forward rule
+    network_mode        = models.CharField(max_length=20) # default = flat, or tree
+    dhcp_service        = models.CharField(max_length=20) # default = public, or private
 
-    ## define desktop port forward rule
+    # if dhcp service is private and cc_usage is vs, or app
+    dhcp_pool_def       = models.CharField(max_length=100) # port1-port2
+    dhcp_interface      = models.CharField(max_length=20)  # default is cc's eth0
+
+    # valid only if network_mode is tree and cc_usage is vs, app
+    web_port_pool_def   = models.CharField(max_length=100) # default 8000-8099
+    web_port_pool_list  = models.TextField()  # [port1, port2, port3, ... ... ]
+    used_web_ports      = models.TextField()
 
 class ecPortForwardRules(models.Model):
-    ccname                = models.CharField(max_length=100) # example: gloabl, 'ccname'
+    ccname                = models.CharField(max_length=100)
     srcip                 = models.CharField(max_length=20)
     dstip                 = models.CharField(max_length=20)
     srcport               = models.IntegerField(default=0)
     dstport               = models.IntegerField(default=0)
     insid                 = models.CharField(max_length=20)
 
-class ecDHCPRes(models.Model):
-    ccname                = models.CharField(max_length=100) # example: gloabl, 'ccname'
-    dhcp_range_def        = models.CharField(max_length=100)
-
 class ecDHCPEthers(models.Model):
+    # valid only if cc_usage is vs, app
     ccname                = models.CharField(max_length=100)
     mac                   = models.CharField(max_length=20)
     ip                    = models.CharField(max_length=20)
@@ -370,7 +373,7 @@ class ectaskTransaction(models.Model):
     message     = models.TextField()
     completed   = models.BooleanField(default=False)
 
-class ectaskTransactionauth(models.Model):
+class ectaskTransaction_auth(models.Model):
     tid         = models.CharField(max_length=100, unique=True)
     role_value  = models.CharField(max_length=100)
     read        = models.BooleanField(default=False)

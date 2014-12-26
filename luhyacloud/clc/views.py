@@ -21,7 +21,7 @@ from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 from luhyaapi.settings import *
-
+from sortedcontainers import SortedList
 import requests, memcache
 
 logger = getclclogger()
@@ -81,7 +81,7 @@ def findLazyCC(srcid):
 }
 '''
 def findBuildResource(srcid):
-    from sortedcontainers import SortedList
+
     l = SortedList()
 
     _ccip = None
@@ -111,7 +111,8 @@ def findBuildResource(srcid):
     # and compare all these selected ncs, find the best one
     for cc in ccs:
         # get list of ncs
-        ncs = ecServers.objects.filter(ccname=cc.ccname , role='nc')
+        ccobj = ecServers.objects.get(ccname=cc.ccname, role='cc')
+        ncs   = ecServers.objects.filter(ccname=cc.ccname , role='nc')
         for nc in ncs:
             key = str( 'nc#%s#status' % nc.mac0 )
             try:
@@ -122,7 +123,8 @@ def findBuildResource(srcid):
                     payload = json.loads(payload)
                     data = payload['hardware_data']
                     data['xncip'] = nc.ip0
-                    data['xccip'] = cc.ip0
+                    data['xccip'] = ccobj.ip0
+                    logger.error(json.dumps(data))
                     l.add(data)
             except Exception as e:
                 continue
@@ -131,12 +133,13 @@ def findBuildResource(srcid):
     for index in range(0, len(l)):
         data = l[index]
         avail_cpu = 100 - data['cpu_usage']
-        avail_mem  = data['mem']  * (100 - data['mem_usage'])
-        avail_disk = data['disk'] * (100 - data['disk_usage'])
+        avail_mem  = data['mem']  * (1 - data['mem_usage']/100.0)
+        avail_disk = data['disk'] * (1 - data['disk_usage']/100.0)
         if avail_cpu > cpu and avail_mem > mem and avail_disk > disk:
             _ccip = data['xccip']
             _ncip = data['xncip']
             _msg = ''
+            logger.error("get best node : ip = %s" % _ncip)
             break;
 
     return _ccip, _ncip, _msg
@@ -595,11 +598,9 @@ def cc_mgr_ccname(request, ccname):
 
     htmlstr = htmlstr.replace('{{hardware_data.cpus}}',        str(hardware_data['cpus']))
     htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
-    htmlstr = htmlstr.replace('{{hardware_data.free_mem}}',    str(hardware_data['free_mem']))
     htmlstr = htmlstr.replace('{{hardware_data.mem_usage}}',   str(hardware_data['mem_usage']))
 
     htmlstr = htmlstr.replace('{{hardware_data.disk}}',        str(hardware_data['disk']))
-    htmlstr = htmlstr.replace('{{hardware_data.free_disk}}',   str(hardware_data['free_disk']))
     htmlstr = htmlstr.replace('{{hardware_data.disk_usage}}',  str(hardware_data['disk_usage']))
 
     htmlstr = htmlstr.replace('{{host_ips.eip}}', host_ips['eip'])
@@ -691,11 +692,9 @@ def nc_mgr_mac(request, ccname, mac):
     htmlstr = htmlstr.replace('{{hardware_data.cpus}}',        str(hardware_data['cpus']))
 
     htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
-    htmlstr = htmlstr.replace('{{hardware_data.free_mem}}',    str(hardware_data['free_mem']))
     htmlstr = htmlstr.replace('{{hardware_data.mem_usage}}',   str(hardware_data['mem_usage']))
 
     htmlstr = htmlstr.replace('{{hardware_data.disk}}',        str(hardware_data['disk']))
-    htmlstr = htmlstr.replace('{{hardware_data.free_disk}}',   str(hardware_data['free_disk']))
     htmlstr = htmlstr.replace('{{hardware_data.disk_usage}}',  str(hardware_data['disk_usage']))
 
     htmlstr = htmlstr.replace('{{host_ips.eip}}', host_ips['exip'])
@@ -1032,6 +1031,11 @@ def cc_modify_resources(request, cc_name):
 #     ]
 # }
 
+def getIPandMacFromePool(ccname):
+    pass
+
+def getServicePortfromCC(ccname):
+    pass
 
 def genRuntimeOptionForImageBuild(transid):
     logger.error("--- --- --- genRuntimeOptionForImageBuild")
@@ -1043,44 +1047,48 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['networkcards']  = []
 
     # prepare runtime option
-    img_info = ecImages.objects.get(ecid = tidrec.srcimgid)
-    runtime_option['ostype']     = img_info.ostype
-    runtime_option['usage']      = img_info.img_usage
+    img_info                        = ecImages.objects.get(ecid = tidrec.srcimgid)
+    runtime_option['ostype']        = img_info.ostype
+    runtime_option['usage']         = img_info.img_usage
     if img_info.img_usage == "desktop":
         vmtype = 'vdmedium'
     else:
         vmtype = 'vssmall'
-    vmtype_info = ecVMTypes.objects.get(name=vmtype)
-    runtime_option['memory']     = vmtype_info.memory
-    runtime_option['cpus']       = vmtype_info.cpus
-    ostype_info = ecOSTypes.objects.get(ec_ostype = img_info.ostype)
-    nic_type                     = ostype_info.ec_nic_type
-    runtime_option['disk_type']  = ostype_info.ec_disk_type
-    runtime_option['audio_para'] = ostype_info.ec_audio_para
+
+    vmtype_info                     = ecVMTypes.objects.get(name=vmtype)
+    runtime_option['memory']        = vmtype_info.memory
+    runtime_option['cpus']          = vmtype_info.cpus
+    ostype_info                     = ecOSTypes.objects.get(ec_ostype = img_info.ostype)
+    nic_type                        = ostype_info.ec_nic_type
+    runtime_option['disk_type']     = ostype_info.ec_disk_type
+    runtime_option['audio_para']    = ostype_info.ec_audio_para
 
     #################################
     # now allocate network resource
     #################################
-
-    ccres_info = ecCCResources.objects.get(ccip = tidrec.ccip)
-    network_mode       = ccres_info.network_mode
+    ccobj       = ecServers.objects.get(ip0=tidrec.ccip, role='cc')
+    ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
+    networkMode = ccres_info.network_mode
 
     ###########################
     # 1. allocate rpd port
 
-    available_rdp_port = json.loads(ccres_info.available_rdp_ports)
+    available_rdp_port = json.loads(ccres_info.rdp_port_pool_list)
     used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
 
     available_rdp_port, used_rdp_ports, newport = allocate_rdp_port(available_rdp_port, used_rdp_ports)
 
-    runtime_option['rdp_port'] = newport
-    ccres_info.available_rdp_ports = json.dumps(available_rdp_port)
-    ccres_info.used_rdp_ports      = json.dumps(used_rdp_ports)
+    runtime_option['rdp_port']      = newport
+    ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
+    ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
     ccres_info.save()
+
+    iptables = []
 
     ############################
     # 2. allocate ips, macs
     if ccres_info.cc_usage == 'rvd':
+        # set NIC type is enough
         networkcards = []
         netcard = {}
         netcard['nic_type'] = nic_type
@@ -1090,62 +1098,54 @@ def genRuntimeOptionForImageBuild(transid):
         networkcards.append(netcard)
         runtime_option['networkcards'] = networkcards
 
-        if network_mode == "PUBLIC":
+        # based on ecNetworkMode, flat, tree, forest
+        if networkMode == 'flat':
             runtime_option['publicIP']  = tidrec.ncip
             runtime_option['privateIP'] = tidrec.ncip
-        elif network_mode == "PRIVATE":
+        else:
+            # proxy by cc
             runtime_option['publicIP']  = tidrec.ccip
             runtime_option['privateIP'] = tidrec.ncip
+            # add iptable rule on CC
+            # ccip:newport to ncip:newport
+            ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], runtime_option['rdp_port'])
+            iptables.append(ipt)
 
     elif ccres_info.cc_usage == 'vs':
-        available_ips_macs = json.loads(ccres_info.available_ips_macs)
-        used_ips_macs      = json.loads(ccres_info.used_ips_macs)
-
-        available_ips_macs, used_ips_macs, new_ips_macs = allocate_ip_macs(available_ips_macs, used_ips_macs)
+        # set NIC type and {MAC, IP} pair
+        mac, ip = getIPandMacFromePool()
 
         networkcards = []
         netcard = {}
         netcard['nic_type']     = nic_type
-        netcard['nic_mac']      = new_ips_macs['mac']
-        netcard['nic_pubip']    = new_ips_macs['pubip']
-        netcard['nic_privip']   = new_ips_macs['prvip']
+        netcard['nic_mac']      = mac
+        netcard['nic_pubip']    = ip
+        netcard['nic_privip']   = ip
         networkcards.append(netcard)
         runtime_option['networkcards'] = networkcards
 
-        ccres_info.available_ips_macs = json.dumps(available_ips_macs)
-        ccres_info.used_ips_macs      = json.dumps(used_ips_macs)
-        ccres_info.save()
-
-        service_ports = ccres_info.service_ports
-        if service_ports != '':
-            runtime_option['services_ports'] = json.loads(service_ports)
+        # based on ecNetworkMode, flat, tree, forest
+        if networkMode == 'flat':
+            runtime_option['publicIP']  = tidrec.ncip
+            runtime_option['privateIP'] = tidrec.ncip
         else:
-            runtime_option['services_ports'] = ''
-
-        if network_mode == "MANUAL":
-            runtime_option['iptable_rules'] = []
-            runtime_option['publicIP']  = tidrec.ncip
-            runtime_option['privateIP'] = tidrec.ncip
-        elif network_mode == "PUBLIC":
-            runtime_option['iptable_rules'] = []
-            runtime_option['publicIP']  = tidrec.ncip
-            runtime_option['privateIP'] = tidrec.ncip
-        elif network_mode == "PRIVATE":
+            # proxy by cc
             runtime_option['publicIP']  = tidrec.ccip
             runtime_option['privateIP'] = tidrec.ncip
 
-            iptables = []
-            # generate rdp port iptable
-            ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], runtime_option['rdp_port'])
+            # add iptable rule on CC
+            # add RDP rule ccip:newport to ncip:newport
+            ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], runtime_option['rdp_port'], runtime_option['rdp_port'])
             iptables.append(ipt)
 
-            # generate service port iptable
-            if len(runtime_option['services_ports']) > 0:
-                for sport in runtime_option['services_ports']:
-                    ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], sport)
-                    iptables.append(ipt)
-            runtime_option['iptable_rules'] = iptables
+            # add web rule
+            runtime_option['web_port'] = getServicePortfromCC(ccres_info.ccname)
+            ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], runtime_option['web_port'], 80)
+            iptables.append(ipt)
 
+        runtime_option['accessURL'] = 'http://%s:%s' % (runtime_option['publicIP'], runtime_option['web_port'])
+
+    runtime_option['iptable_rules'] = iptables
     runtime_option['mgr_accessURL'] = "luhyavm://%s:%s" % (runtime_option['publicIP'], runtime_option['rdp_port'])
     return runtime_option
 
@@ -2770,10 +2770,23 @@ def add_new_server(request):
 
     if request.POST['role'] == 'cc':
         res_rec = ecCCResources(
-            ccmac0        = request.POST['mac0'],
-            ccname      = request.POST['ccname'],
-            cc_usage       = "lvd",
+            ccmac0              = request.POST['mac0'],
+            ccname              = request.POST['ccname'],
+            cc_usage            = "rvd",
+
             rdp_port_pool_def   = "3389-4389",
+            rdp_port_pool_list  = json.dumps(SortedList(range(3389,4389)).as_list()),
+            used_rdp_ports      = json.dumps([]),
+
+            network_mode        = 'flat',
+
+            dhcp_service        = 'public',
+            dhcp_pool_def       = '192.168.0.100-192.168.0.254',
+            dhcp_interface      = 'eth0',
+
+            web_port_pool_def   = '8000-8099',
+            web_port_pool_list  = json.dumps(SortedList(range(8000,8099)).as_list()),
+            used_web_ports      = json.dumps([]),
         )
         res_rec.save()
 
