@@ -155,9 +155,11 @@ class ecCCResources(models.Model):
     dhcp_interface      = models.CharField(max_length=20)  # default is cc's eth0
 
     # valid only if network_mode is tree and cc_usage is vs, app
-    web_port_pool_def   = models.CharField(max_length=100) # default 8000-8099
-    web_port_pool_list  = models.TextField()  # [port1, port2, port3, ... ... ]
-    used_web_ports      = models.TextField()
+    # all these pub ip will be configured on cc's network card, say eth0.0, eth0.1, etc
+    # and followed by iptable rule to redirect traffic on this interface to nc's vm's web_ip
+    pub_ip_pool_def   = models.CharField(max_length=100)
+    pub_ip_pool_list  = models.TextField()
+    used_pub_ip       = models.TextField()
 
 class ecPortForwardRules(models.Model):
     ccname                = models.CharField(max_length=100)

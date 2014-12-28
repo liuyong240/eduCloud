@@ -2784,9 +2784,9 @@ def add_new_server(request):
             dhcp_pool_def       = '192.168.0.100-192.168.0.254',
             dhcp_interface      = 'eth0',
 
-            web_port_pool_def   = '8000-8099',
-            web_port_pool_list  = json.dumps(SortedList(range(8000,8099)).as_list()),
-            used_web_ports      = json.dumps([]),
+            pub_ip_pool_def     = '192.168.0.100-192.168.0.254',
+            pub_ip_pool_list    = '',
+            used_pub_ip         = '',
         )
         res_rec.save()
 
