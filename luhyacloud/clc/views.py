@@ -1752,6 +1752,12 @@ def jtable_active_accounts(request):
 def jtable_inactive_accounts(request):
     return render(request, 'clc/jtable/inactive_account_table.html', {})
 
+def jtable_ethers(request, cc_name):
+    context = {
+        'ccname' : cc_name
+    }
+    return render(request, 'clc/jtable/ethers_table.html', context)
+
 #################################################################################
 # API Version 1.0 for accessing data model by POST request
 #################################################################################
@@ -2496,6 +2502,80 @@ def update_servers(request):
 def create_servers(request):
     pass
 
+
+def list_ethers(request, cc_name):
+    response = {}
+    data = []
+
+    recs = ecDHCPEthers.objects.filter(ccname=cc_name)
+
+    for rec in recs:
+        jrec = {}
+        jrec['id']      = rec.id
+        jrec['ccname']  = rec.ccname
+        jrec['mac']     = rec.mac
+        jrec['ip']      = rec.ip
+        jrec['insid']   = rec.insid
+
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_ethers(request):
+    response = {}
+
+    rec = ecDHCPEthers.objects.get(id=request.POST['id'])
+    rec.delete()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_ethers(request):
+    response = {}
+
+    rec = ecDHCPEthers.objects.get(id=request.POST['id'])
+    rec.mac     = request.POST['mac']
+    rec.ip      = request.POST['ip']
+
+    rec.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def create_ethers(request, cc_name):
+    response = {}
+    data = []
+
+    rec = ecDHCPEthers(
+        ccname  = cc_name,
+        ip      = request.POST['ip'],
+        mac     = randomMAC(),
+        insid   = '',
+    )
+    rec.save()
+
+    jrec = {}
+    jrec['id']      = rec.id
+    jrec['ccname']  = rec.ccname
+    jrec['mac']     = rec.mac
+    jrec['ip']      = rec.ip
+    jrec['insid']   = rec.insid
+
+    data.append(jrec)
+
+    response['Record'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
 # core tables for tasks
 # ------------------------------------
 def list_tasks(request):

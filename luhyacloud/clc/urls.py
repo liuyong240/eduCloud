@@ -102,6 +102,8 @@ urlpatterns = patterns('',
     url(r'^jt/account/actived$',            views.jtable_active_accounts,                name='jtable_active_accounts'),
     url(r'^jt/account/inactive$',           views.jtable_inactive_accounts,              name='jtable_inactive_accounts'),
 
+    url(r'^jt/ethers/(?P<cc_name>\w+)$',    views.jtable_ethers,                  name='jtable_ethers_view'),
+
     # API v1.0
     # system setting table ops by POST
     url(r'^api/1.0/settings/listauthpath$',      views.list_authpath,               name='list_authpath_view'),
@@ -170,6 +172,12 @@ urlpatterns = patterns('',
     url(r'^api/1.0/account/active/delete$',        views.delete_active_account,               name='delete_active_account_view'),
     url(r'^api/1.0/account/active/update$',        views.update_active_account,               name='update_active_account_view'),
     url(r'^api/1.0/account/inactive/list$',        views.list_inactive_account,                 name='list_active_account_view'),
+
+
+    url(r'^api/1.0/ethers/list/(?P<cc_name>\w+)$',         views.list_ethers,                 name='list_ethers_view'),
+    url(r'^api/1.0/ethers/delete$',        views.delete_ethers,               name='delete_ethers_view'),
+    url(r'^api/1.0/ethers/update$',        views.update_ethers,               name='update_ethers_view'),
+    url(r'^api/1.0/ethers/create/(?P<cc_name>\w+)$',        views.create_ethers,               name='create_ethers_view'),
 
     #
     # url(r'^api/1.0/vapp/list$',          views.list_vapp,                 name='list_vapp_view'),
