@@ -947,49 +947,105 @@ def software_operation(request):
 ###################################################################################
 # Form
 ###################################################################################
-def generateAvailableResourceforCC(cc_name):
+def generateAvailableResourceforCC(request, cc_name):
     rec = ecCCResources.objects.get(ccname=cc_name)
     emptyarray = []
 
-    if rec.cc_usage == 'lvd':
-        rec.rdp_port_pool_list          = ''
-        rec.used_rdp_ports              = ''
+    if request.POST['usage'] == 'lvd':
+        rec.cc_usage = 'lvd'
 
-    elif rec.cc_usage == 'rvd': # only need port range
-        rec.rdp_port_pool_list          = ''
-        rec.used_rdp_ports              = ''
+    elif request.POST['usage'] == 'rvd':
+        rec.cc_usage            = 'rvd'
+        rec.network_mode        = request.POST['network_mode']
 
-        portrange = rec.rdp_port_pool_def.split('-')
-        portrange = range(int(portrange[0]), int(portrange[1]))
-        rec.rdp_port_pool_list = json.dumps(portrange)
-        rec.used_rdp_ports = json.dumps(emptyarray)
-
-    elif rec.cc_usage == 'vs':
-        rec.rdp_port_pool_list          = ''
-        rec.used_rdp_ports              = ''
+        rec.rdp_port_pool_def   = request.POST['rdp_port_def']
 
         portrange = rec.rdp_port_pool_def.split('-')
         portrange = range(int(portrange[0]), int(portrange[1]))
-        rec.rdp_port_pool_list = json.dumps(portrange)
-        rec.used_rdp_ports = json.dumps(emptyarray)
+
+        rec.rdp_port_pool_list  = json.dumps(portrange)
+        rec.used_rdp_ports      = json.dumps(emptyarray)
+
+    elif request.POST['usage'] == 'vs':
+        if request.POST['network_mode'] == 'flat':
+            if request.POST['dhcp_type'] == 'external':
+                rec.cc_usage            = 'vs'
+                rec.network_mode        = 'flat'
+                rec.dhcp_service        = 'external'
+
+                rec.rdp_port_pool_def   = request.POST['rdp_port_def']
+                portrange = rec.rdp_port_pool_def.split('-')
+                portrange = range(int(portrange[0]), int(portrange[1]))
+
+                rec.rdp_port_pool_list  = json.dumps(portrange)
+                rec.used_rdp_ports      = json.dumps(emptyarray)
+
+            if request.POST['dhcp_type'] == 'private':
+                rec.cc_usage            = 'vs'
+                rec.network_mode        = 'flat'
+                rec.dhcp_service        = 'private'
+
+                rec.rdp_port_pool_def   = request.POST['rdp_port_def']
+                portrange = rec.rdp_port_pool_def.split('-')
+                portrange = range(int(portrange[0]), int(portrange[1]))
+                rec.rdp_port_pool_list  = json.dumps(portrange)
+                rec.used_rdp_ports      = json.dumps(emptyarray)
+
+                rec.dhcp_interface      = request.POST['dhcp_if']
+                rec.dhcp_pool_def       = request.POST['dhcp_ip_def']
+
+
+        if request.POST['network_mode'] == 'tree':
+            if request.POST['dhcp_type'] == 'external':
+                rec.cc_usage            = 'vs'
+                rec.network_mode        = 'tree'
+                rec.dhcp_service        = 'external'
+
+                rec.rdp_port_pool_def   = request.POST['rdp_port_def']
+                portrange = rec.rdp_port_pool_def.split('-')
+                portrange = range(int(portrange[0]), int(portrange[1]))
+                rec.rdp_port_pool_list  = json.dumps(portrange)
+                rec.used_rdp_ports      = json.dumps(emptyarray)
+
+                rec.pub_ip_pool_def       = request.POST['pub_ip_def']
+                pubiprange                = rec.pub_ip_pool_def.split('-')
+                pubiprange                = ipRange(pubiprange[0], pubiprange[1])
+                rec.pub_ip_pool_list      = json.dumps(pubiprange)
+                rec.used_pub_ip           = json.dumps(emptyarray)
+
+            if request.POST['dhcp_type'] == 'private':
+                rec.cc_usage            = 'vs'
+                rec.network_mode        = 'tree'
+                rec.dhcp_service        = 'private'
+
+                rec.rdp_port_pool_def   = request.POST['rdp_port_def']
+                portrange = rec.rdp_port_pool_def.split('-')
+                portrange = range(int(portrange[0]), int(portrange[1]))
+                rec.rdp_port_pool_list  = json.dumps(portrange)
+                rec.used_rdp_ports      = json.dumps(emptyarray)
+
+                rec.dhcp_interface      = request.POST['dhcp_if']
+                rec.dhcp_pool_def       = request.POST['dhcp_ip_def']
+
+                rec.pub_ip_pool_def       = request.POST['pub_ip_def']
+                pubiprange                = rec.pub_ip_pool_def.split('-')
+                pubiprange                = ipRange(pubiprange[0], pubiprange[1])
+                rec.pub_ip_pool_list      = json.dumps(pubiprange)
+                rec.used_pub_ip           = json.dumps(emptyarray)
 
     rec.save()
 
 @login_required
 def cc_modify_resources(request, cc_name):
-    rec = ecCCResources.objects.get(ccname=cc_name)
     if request.method == 'POST':
-        rec.cc_usage                    = request.POST['usage']
-        rec.rdp_port_pool_def           = request.POST['port_range']
-        rec.save()
-
-        generateAvailableResourceforCC(cc_name)
+        generateAvailableResourceforCC(request, cc_name)
 
         response = {}
         response['Result'] = 'OK'
 
         return HttpResponse(json.dumps(response), mimetype="application/json")
     else:
+        rec = ecCCResources.objects.get(ccname=cc_name)
         context = {
             'pagetitle' : "Configure CC Network Resources",
             'ccres' : rec,
@@ -2780,7 +2836,7 @@ def add_new_server(request):
 
             network_mode        = 'flat',
 
-            dhcp_service        = 'public',
+            dhcp_service        = 'external',   # {none, external, private}
             dhcp_pool_def       = '192.168.0.100-192.168.0.254',
             dhcp_interface      = 'eth0',
 

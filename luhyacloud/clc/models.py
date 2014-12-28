@@ -148,9 +148,11 @@ class ecCCResources(models.Model):
     used_rdp_ports      = models.TextField()  # [port1, port2, ports, ... ... ]
 
     network_mode        = models.CharField(max_length=20) # default = flat, or tree
+
+    # valid only if usage is vs, app
     dhcp_service        = models.CharField(max_length=20) # default = public, or private
 
-    # if dhcp service is private and cc_usage is vs, or app
+    # valid only if dhcp service is private and cc_usage is vs, or app
     dhcp_pool_def       = models.CharField(max_length=100) # port1-port2
     dhcp_interface      = models.CharField(max_length=20)  # default is cc's eth0
 
