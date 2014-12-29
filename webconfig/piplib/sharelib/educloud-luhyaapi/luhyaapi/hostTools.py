@@ -163,26 +163,20 @@ def free_rdp_port(avail_port, used_port, port):
     avail_port.append(port)
     return avail_port, used_port
 
-def allocate_ip_macs(avail_ip_masc, used_ip_macs):
-    if len(avail_ip_masc) > 0:
-        newipmacs = avail_ip_masc[0]
-        avail_ip_masc.remove(newipmacs)
-        used_ip_macs.append(newipmacs)
+def allocate_web_ip(availabe_web_ips, used_web_ips):
+    if len(availabe_web_ips) > 0:
+        new_web_ip = availabe_web_ips[0]
+        availabe_web_ips.remove(new_web_ip)
+        used_web_ips.append(new_web_ip)
     else:
-        newipmacs = {
-            'mac': '',
-            'pubip': '',
-            'prvip': ''
-        }
+        new_web_ip = ''
 
-    return avail_ip_masc, used_ip_macs, newipmacs
+    return availabe_web_ips, used_web_ips, new_web_ip
 
-def free_ip_macs(avail_ip_macs, used_ip_macs, ipmacs):
-    used_ip_macs.remove(ipmacs)
-    avail_ip_macs.append(ipmacs)
-
-    return avail_ip_macs, used_ip_macs
-
+def free_web_ip(availabe_web_ips, used_web_ips, web_ip):
+    used_web_ips.remove(web_ip)
+    availabe_web_ips.append(web_ip)
+    return availabe_web_ips, used_web_ips
 
 def getSysCpuUtil():
     import commands

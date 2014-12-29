@@ -1058,33 +1058,46 @@ def cc_modify_resources(request, cc_name):
 ###################################################################################
 
 # {
-#     # general
+#     # 1. general
 #     'ostype'            :
 #     'usage'             :
-#     # hardware
+#
+#     # 2. hardware
 #     'memeory'           :
 #     'cpus'              :
 #     'disk_type'         :
 #     'audio_para'        :
-#     # network
-#     'netwowrkcards'     :
+#
+#     # 3. network
+#     3.1 'rdp_port'          :
+#     3.2 'netwowrkcards'     :
 #     [
-#         { 'nic_type': "", 'nic_mac': "" , 'nic_pubip': "", 'nic_prvip'},
+#         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+#         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+#         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
 #         ... ...
 #     ]
+#     3.3 pub_ip, prv_ip, iptable
 #     'publicIP'          :
 #     'privateIP'         :
-#     'rdp_port'          :
-#     'services_ports'    : [ ... ...]
-#     'accessURL'         :
-#     'mgr_accessURL'     :
-#     'run_with_snapshot' : 1, 0
+#     'web_ip'            :
+#
 #     'iptable_rules'     :
 #     [
 #         'rule1',
 #         'rule2',
 #         ... ...
 #     ]
+#     3.4
+#     'web_accessURL'     :
+#     'mgr_accessURL'     :
+
+#     # 4. related to issuer
+#     'run_with_snapshot' : 1, 0
+#     'pds' : 20G # 0 means no pds
+#     'sds' : yes or no  # means shared data storage
+#     'poweroff_mode' : auto | manual,
+#     'poweroff_time' : 1h, 1d, 1w # valid only if power_mode is auto
 # }
 
 def getIPandMacFromePool(ccname):
@@ -1093,17 +1106,17 @@ def getIPandMacFromePool(ccname):
 def getServicePortfromCC(ccname):
     pass
 
-def genRuntimeOptionForImageBuild(transid):
+def genRuntimeOptionForImageBuild(transid, ccip, ncip):
     logger.error("--- --- --- genRuntimeOptionForImageBuild")
-    tidrec = ectaskTransaction.objects.get(tid=transid)
+    tid_info = transid.split(':')
+    src_imgid = tid_info[0]
+    dst_imgid = tid_info[1]
+    ins_id    = tid_info[2]
 
     runtime_option = {}
-    runtime_option['run_with_snapshot'] = 1
-    runtime_option['iptable_rules'] = []
-    runtime_option['networkcards']  = []
 
-    # prepare runtime option
-    img_info                        = ecImages.objects.get(ecid = tidrec.srcimgid)
+    # 1. general option
+    img_info                        = ecImages.objects.get(ecid = src_imgid)
     runtime_option['ostype']        = img_info.ostype
     runtime_option['usage']         = img_info.img_usage
     if img_info.img_usage == "desktop":
@@ -1111,98 +1124,99 @@ def genRuntimeOptionForImageBuild(transid):
     else:
         vmtype = 'vssmall'
 
+    # 2. hardware option
     vmtype_info                     = ecVMTypes.objects.get(name=vmtype)
     runtime_option['memory']        = vmtype_info.memory
     runtime_option['cpus']          = vmtype_info.cpus
     ostype_info                     = ecOSTypes.objects.get(ec_ostype = img_info.ostype)
-    nic_type                        = ostype_info.ec_nic_type
     runtime_option['disk_type']     = ostype_info.ec_disk_type
     runtime_option['audio_para']    = ostype_info.ec_audio_para
 
-    #################################
-    # now allocate network resource
-    #################################
-    ccobj       = ecServers.objects.get(ip0=tidrec.ccip, role='cc')
+    # 3 network option
+    ccobj       = ecServers.objects.get(ip0=ccip, role='cc')
     ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
     networkMode = ccres_info.network_mode
 
-    ###########################
-    # 1. allocate rpd port
-
+    # 3.1 allocate rpd port
     available_rdp_port = json.loads(ccres_info.rdp_port_pool_list)
     used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
 
     available_rdp_port, used_rdp_ports, newport = allocate_rdp_port(available_rdp_port, used_rdp_ports)
+    runtime_option['rdp_port']                  = newport
 
-    runtime_option['rdp_port']      = newport
     ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
     ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
+
     ccres_info.save()
 
+    # 3.2 set netcard in vm
+    networkcards = []
+    netcard = {}
+    netcard['nic_type'] = ostype_info.ec_nic_type
+    if ccres_info.cc_usage == 'rvd':
+        netcard['nic_mac']  = ''
+        netcard['nic_ip']   = ''
+    if ccres_info.cc_usage == 'vs':
+        netcard['nic_mac'], netcard['nic_ip'] = ethers_allocate(ccres_info.ccname, ins_id)
+        runtime_option['web_ip'] = netcard['nic_ip']
+
+
+    networkcards.append(netcard)
+    runtime_option['networkcards'] = networkcards
+
+    # 3.3 set public ip and private ip and iptable
     iptables = []
 
-    ############################
-    # 2. allocate ips, macs
-    if ccres_info.cc_usage == 'rvd':
-        # set NIC type is enough
-        networkcards = []
-        netcard = {}
-        netcard['nic_type'] = nic_type
-        netcard['nic_mac']  = ''
-        netcard['nic_pubip']   = ''
-        netcard['nic_prvip']   = ''
-        networkcards.append(netcard)
-        runtime_option['networkcards'] = networkcards
+    if networkMode == 'flat':
+        runtime_option['publicIP']  = ncip
+        runtime_option['privateIP'] = ncip
+    if networkMode == 'tree':
+        # proxy by cc
+        runtime_option['publicIP']  = ccip
+        runtime_option['privateIP'] = ncip
 
-        # based on ecNetworkMode, flat, tree, forest
-        if networkMode == 'flat':
-            runtime_option['publicIP']  = tidrec.ncip
-            runtime_option['privateIP'] = tidrec.ncip
-        else:
-            # proxy by cc
-            runtime_option['publicIP']  = tidrec.ccip
-            runtime_option['privateIP'] = tidrec.ncip
-            # add iptable rule on CC
-            # ccip:newport to ncip:newport
-            ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], runtime_option['rdp_port'])
+        # set iptable rule for rdp access
+        ipt = {
+            'src_ip': ccip,
+            'dst_ip': ncip,
+            'src_port': newport,
+            'dst_port': newport,
+            'ins_id'  : ins_id,
+        }
+        iptables.append(ipt)
+
+        # set iptable rule for web service
+        if ccres_info.cc_usage == 'vs':
+            # allocate web ip
+            availabe_web_ips = json.loads(ccres_info.pub_ip_pool_list)
+            used_web_ips     = json.loads(ccres_info.used_pub_ip)
+
+            availabe_web_ips, userd_web_ips, new_web_ip = allocate_web_ip(availabe_web_ips, used_web_ips)
+            runtime_option['web_ip'] = new_web_ip
+
+            ccres_info.pub_ip_pool_list = json.dumps(availabe_web_ips)
+            ccres_info.used_pub_ip      = json.dumps(used_web_ips)
+
+            ipt['src_ip'] = runtime_option['web_ip']
+            ipt['dst_ip'] = netcard['nic_ip']
+            ipt['src_port'] = 0  # port 0 means all port
+            ipt['dst_port'] = 0
             iptables.append(ipt)
-
-    elif ccres_info.cc_usage == 'vs':
-        # set NIC type and {MAC, IP} pair
-        mac, ip = getIPandMacFromePool()
-
-        networkcards = []
-        netcard = {}
-        netcard['nic_type']     = nic_type
-        netcard['nic_mac']      = mac
-        netcard['nic_pubip']    = ip
-        netcard['nic_privip']   = ip
-        networkcards.append(netcard)
-        runtime_option['networkcards'] = networkcards
-
-        # based on ecNetworkMode, flat, tree, forest
-        if networkMode == 'flat':
-            runtime_option['publicIP']  = tidrec.ncip
-            runtime_option['privateIP'] = tidrec.ncip
-        else:
-            # proxy by cc
-            runtime_option['publicIP']  = tidrec.ccip
-            runtime_option['privateIP'] = tidrec.ncip
-
-            # add iptable rule on CC
-            # add RDP rule ccip:newport to ncip:newport
-            ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], runtime_option['rdp_port'], runtime_option['rdp_port'])
-            iptables.append(ipt)
-
-            # add web rule
-            runtime_option['web_port'] = getServicePortfromCC(ccres_info.ccname)
-            ipt = genIPTablesRule(runtime_option['publicIP'], runtime_option['privateIP'], runtime_option['web_port'], 80)
-            iptables.append(ipt)
-
-        runtime_option['accessURL'] = 'http://%s:%s' % (runtime_option['publicIP'], runtime_option['web_port'])
 
     runtime_option['iptable_rules'] = iptables
-    runtime_option['mgr_accessURL'] = "luhyavm://%s:%s" % (runtime_option['publicIP'], runtime_option['rdp_port'])
+
+    # 3.4 set web_accessURL and mgr_accessURL
+    if ccres_info.cc_usage == 'rvd':
+        runtime_option['web_accessURL'] = ''
+        runtime_option['mgr_accessURL'] = "luhyavm://%s:%s" % (runtime_option['publicIP'], runtime_option['rdp_port'])
+
+    if ccres_info.cc_usage == 'vs':
+        runtime_option['web_accessURL'] = 'http://%s' % runtime_option['web_ip']
+        runtime_option['mgr_accessURL'] = "luhyavm://%s:%s" % (runtime_option['publicIP'],  runtime_option['rdp_port'])
+
+    # issuer's property
+    runtime_option['run_with_snapshot'] = 1
+
     return runtime_option
 
 def genIPTablesRule(fromip, toip, port):
@@ -1229,6 +1243,7 @@ def start_image_create_task(request, srcid):
         }
         return render(request, 'clc/error.html', context)
     else:
+        runtime_option = genRuntimeOptionForImageBuild(_tid, _ccip, _ncip)
         rec = ectaskTransaction(
              tid         = _tid,
              srcimgid    = _srcimgid,
@@ -1239,11 +1254,9 @@ def start_image_create_task(request, srcid):
              vmstatus    = "",
              progress    = 0,
              ccip        = _ccip,
-             ncip        = _ncip
+             ncip        = _ncip,
+             runtime_option = json.dumps(runtime_option),
         )
-        rec.save()
-
-        rec.runtime_option = json.dumps(genRuntimeOptionForImageBuild(_tid))
         rec.save()
 
         # open a window to monitor work progress
@@ -1757,6 +1770,13 @@ def jtable_ethers(request, cc_name):
         'ccname' : cc_name
     }
     return render(request, 'clc/jtable/ethers_table.html', context)
+
+def ethers_allocate(ccname, insid):
+    es = ecDHCPEthers.objects.filter(ccname=ccname, insid='')
+    e  = ecDHCPEthers.objects.get(mac=es[0].mac)
+    e.insid = insid
+    e.save()
+    return e.mac, e.ip
 
 #################################################################################
 # API Version 1.0 for accessing data model by POST request
@@ -2678,7 +2698,7 @@ def update_images(request):
     # if ostype == server, check existence of /storage/space/database/imgid/database
     if rec.img_usage == 'server':
         dst = '/storage/space/database/images/%s/database' % rec.ecid
-        if not os.path.exists(dst):
+        if not os.path.exists(os.path.dirname(dst)):
             # cp one database disk
             # from /storage/images/database to /storage/space/database/imgid/database
             os.makedirs('/storage/space/database/images/%s' % rec.ecid)

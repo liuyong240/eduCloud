@@ -581,11 +581,13 @@ result from cc to nc
     # general
     'ostype'            :
     'usage'             :
+
     # hardware
     'memeory'           :
     'cpus'              :
     'disk_type'         :
     'audio_para'        :
+
     # network
     'netwowrkcards'     :
     [
@@ -597,16 +599,18 @@ result from cc to nc
     'publicIP'          :
     'privateIP'         :
     'rdp_port'          :
-    'services_ports'    : [ ... ...]
     'accessURL'         : []
     'mgr_accessURL'     :
-    'run_with_snapshot' : 1, 0
     'iptable_rules'     :
     [
         'rule1',
         'rule2',
         ... ...
     ]
+
+    # related to issuer
+    'run_with_snapshot' : 1, 0
+
 }
 
 =========================================
