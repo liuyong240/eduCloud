@@ -432,15 +432,15 @@ class runImageTaskThread(threading.Thread):
                 try:
                     ostype_value = self.runtime_option['ostype']
                     ret, err = vboxmgr.createVM(ostype=ostype_value)
-                    logger.error("--- --- --- vboxmgr.createVM")
+                    logger.error("--- --- --- vboxmgr.createVM, error=%s" % err)
                     ret, err = vboxmgr.registerVM()
-                    logger.error("--- --- --- vboxmgr.registerVM")
+                    logger.error("--- --- --- vboxmgr.registerVM, error=%s" % err)
                     if self.runtime_option['disk_type'] == 'IDE':
                         ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
                     else:
                         ret, err = vboxmgr.addCtrl(" --name SATA --add sata ")
                         ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
-                    logger.error("--- --- --- vboxmgr.addCtrl")
+                    logger.error("--- --- --- vboxmgr.addCtrl, error=%s" % err)
 
                     ret, err = vboxmgr.attachHDD_c(storageCtl = self.runtime_option['disk_type'])
                     logger.error("--- --- --- vboxmgr.attachHDD_c")
@@ -448,15 +448,15 @@ class runImageTaskThread(threading.Thread):
                         snapshot_name = "thomas"
                         if not vboxmgr.isSnapshotExist(snapshot_name):
                             ret, err = vboxmgr.take_snapshot(snapshot_name)
-                            logger.error("--- --- --- vboxmgr.take_snapshot")
+                            logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % err)
 
                     ret, err = vboxmgr.attachHDD_shared_d(storageCtl = self.runtime_option['disk_type'])
-                    logger.error("--- --- --- vboxmgr.attachHDD_shared_d")
+                    logger.error("--- --- --- vboxmgr.attachHDD_shared_d, error=%s" % err)
 
                     # in server side, the SharedFolder is by default
                     # need to mount cc's /storage/data to each NC
                     ret, err = vboxmgr.attachSharedFolder(path="/storage/data")
-                    logger.error("--- --- --- vboxmgr.attachSharedFolder")
+                    logger.error("--- --- --- vboxmgr.attachSharedFolder, error=%s" % err)
 
                     # in servere side, each VM has 4G mem
                     _cpus    = self.runtime_option['cpus']
@@ -467,12 +467,12 @@ class runImageTaskThread(threading.Thread):
                         _network_para = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 %s " % self.runtime_option['networkcards'][0]['nic_type']
                     ostypepara_value = _network_para +  self.runtime_option['audio_para']
                     ret, err = vboxmgr.modifyVM(osTypeparam=ostypepara_value, cpus = _cpus, mem=_memory, )
-                    logger.error("--- --- --- vboxmgr.modifyVM")
+                    logger.error("--- --- --- vboxmgr.modifyVM, error=%s" % err)
 
                     # in server side, configure headless property
                     portNum = self.runtime_option['rdp_port']
                     ret, err = vboxmgr.addHeadlessProperty(port=portNum)
-                    logger.error("--- --- --- vboxmgr.addHeadlessProperty")
+                    logger.error("--- --- --- vboxmgr.addHeadlessProperty, error=%s" % err)
                 except Exception as e:
                     ret, err = vboxmgr.unregisterVM()
                     vboxmgr.deleteVMConfigFile()
@@ -502,6 +502,7 @@ class runImageTaskThread(threading.Thread):
         try:
             if not vboxmgr.isVMRunning():
                 ret, err = vboxmgr.runVM(headless=True)
+                logger.error("--- --- --- vboxmgr.runVM, error=%s" % err)
                 if err != "":
                     payload['failed'] = 1
                     payload['errormsg'] = err

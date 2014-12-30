@@ -266,6 +266,7 @@ class vboxWrapper():
                         str(device), '--type', 'hdd', '--medium', dest_diskd, '--mtype', mtype]
             ret, err = self._tool.runCMDline(cmd_line, False)
         else:
+            ret = ''
             err = "FileNotExist: /storage/images/diskd.vdi"
         return ret, err
 
