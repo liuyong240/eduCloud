@@ -3011,7 +3011,7 @@ def get_walrus_info(request):
     payload = {
         'role':   rec.role,
         'name':   rec.name,
-        'cpus':   rec.cpus,
+        'cpus':   rec.cpu_cores,
         'memory': rec.memory,
         'disk':   rec.disk,
         'ip0':    rec.ip0,
