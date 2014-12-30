@@ -3031,7 +3031,7 @@ def get_image_info(request, imgid):
         'ecid':              rec.ecid,
         'name':              rec.name,
         'ostype':            rec.ostype,
-        'usage':             rec.usage,
+        'usage':             rec.img_usage,
         'description':       rec.description,
         'version':           ReadImageVersionFile(rec.ecid),
         'size':              rec.size
