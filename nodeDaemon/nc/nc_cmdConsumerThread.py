@@ -518,9 +518,27 @@ class runImageTaskThread(threading.Thread):
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
 
+
+
     def run(self):
         if self.createvm():
             self.runvm()
+
+        # need to update nc's status at once
+        update_nc_running_status()
+
+def update_nc_running_status():
+    payload = { }
+    payload['type']             = 'nodestatus'
+    payload['service_data']     = getServiceStatus('nc')
+    payload['hardware_data']    = getHostHardware()
+    payload['net_data']         = getHostNetInfo()
+    payload['vm_data']          = getVMlist()
+
+    payload['nid']              = "nc#" + payload['net_data']['mac0'] + "#status"
+
+    ccip = getccipbyconf()
+    simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
 
 def nc_image_run_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_run_handle")
@@ -554,6 +572,9 @@ def nc_image_stop_handle(tid):
 
     ccip = getccipbyconf()
     simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
+
+    # need to update nc's status at once
+    update_nc_running_status()
 
 def nc_image_submit_handle(tid):
     logger.error("--- --- --- nc_image_submit_handle")
