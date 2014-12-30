@@ -1389,6 +1389,11 @@ def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
     rec.vmstatus = vmstatus
     rec.save()
 
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_getvmstatus")
 
