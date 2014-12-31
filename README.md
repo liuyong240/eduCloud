@@ -576,6 +576,12 @@ result from cc to nc
     'type'      : 'insstatus',
 }
 
+
+Phase:  init, preparing, editing, submitting
+State:  preparing : init,    downloading, done
+        editing   : stopped, running
+        submitting: init,    uploading, done
+
 6.1.3 VM runtime options
 {
     # general

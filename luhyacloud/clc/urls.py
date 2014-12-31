@@ -58,26 +58,26 @@ urlpatterns = patterns('',
     url(r'^user/activate/(?P<uid>\w+)$',                        views.activate_user,             name='activate_user'),
 
     # image create and modify URL
-    url(r'^image/create/task/begin/(?P<srcid>\w+)$',                                            views.start_image_create_task,            name='start_image_create_task'),
+    url(r'^image/create/task/begin/(?P<srcid>\w+)$',                                                            views.image_create_task_start,                  name='image_create_task_start'),
+    url(r'^image/create/task/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                            views.image_create_task_prepare,                name='image_create_task_prepare'),
+    url(r'^image/create/task/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                        views.image_create_task_getprogress,            name='image_create_task_getprogress'),
+    url(r'^image/create/task/prepare/success/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                    views.image_create_task_prepare_success,        name='image_create_task_prepare_success'),
+    url(r'^image/create/task/prepare/failure/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                    views.image_create_task_prepare_failure,        name='image_create_task_prepare_failure'),
 
-    url(r'^image/create/task/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',            views.prepare_image_create_task,          name='prepare_image_create_task'),
-    url(r'^image/create/task/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',        views.image_create_task_getprogress,      name='image_create_task_getprogress'),
-    url(r'^image/create/task/prepare/success/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',    views.image_create_task_prepare_success,  name='image_create_task_prepare_success'),
-    url(r'^image/create/task/prepare/failure/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',    views.image_create_task_prepare_failure,  name='image_create_task_prepare_failure'),
+    url(r'^image/create/task/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                                views.image_create_task_run,                    name='image_create_task_run'),
+    url(r'^image/create/task/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                               views.image_create_task_stop,                   name='image_create_task_stop'),
+    url(r'^image/create/task/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                        views.image_create_task_getvmstatus,            name='image_create_task_getvmstatus'),
+    url(r'^image/create/task/updatevmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)/(?P<vmstatus>\w+)$',   views.image_create_task_updatevmstatus,         name='image_create_task_updatevmstatus'),
 
-    url(r'^image/create/task/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                views.run_image_create_task,              name='run_image_create_task'),
-    url(r'^image/create/task/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',               views.stop_image_create_task,             name='stop_image_create_task'),
-    url(r'^image/create/task/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',        views.image_create_task_getvmstatus,      name='image_create_task_getvmstatus'),
-    url(r'^image/create/task/updatevmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)/(?P<vmstatus>\w+)$',        views.image_create_task_updatevmstatus,      name='image_create_task_updatevmstatus'),
+    url(r'^image/create/task/submit/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                             views.image_create_task_submit,                 name='submit_image_create_task'),
+    url(r'^image/create/task/getsubmitprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                  views.image_create_task_getsubmitprogress,      name='image_create_task_getsubmitprogress'),
+    url(r'^image/create/task/submit/failure/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                     views.image_create_task_submit_failure,         name='image_create_task_submit_failure'),
+    url(r'^image/create/task/submit/success/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                     views.image_create_task_submit_success,         name='image_create_task_submit_success'),
 
-    url(r'^image/create/task/submit/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',             views.submit_image_create_task,                 name='submit_image_create_task'),
-    url(r'^image/create/task/getsubmitprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',  views.image_create_task_getsubmitprogress,      name='image_create_task_getsubmitprogress'),
-    url(r'^image/create/task/submit/failure/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',     views.image_create_task_submit_failure,         name='image_create_task_submit_failure'),
-    url(r'^image/create/task/submit/success/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',     views.image_create_task_submit_success,         name='image_create_task_submit_success'),
+    url(r'^image/create/task/view/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                               views.image_create_task_view,                   name='view_image_create_task'),
 
-    url(r'^image/create/task/view/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.image_create_task_view,      name='view_image_create_task'),
+    url(r'^image/modify/task/begin/(?P<srcid>\w+)$',                                                            views.image_modify_task_start,                  name='image_modify_task_start'),
 
-    url(r'^image/modify/task/begin/(?P<srcid>\w+)$',    views.start_image_modify_task,              name='start_image_modify_task'),
     url(r'^image/permission/edit/(?P<srcid>\w+)$',      views.image_permission_edit,                name='image_permission_edit'),
 
     # form URLs

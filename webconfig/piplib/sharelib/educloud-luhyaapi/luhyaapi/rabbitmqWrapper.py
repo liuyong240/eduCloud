@@ -53,14 +53,14 @@ class RpcClient(object):
         if self.corr_id == props.correlation_id:
             self.response = body
 
-    def call(self, cmd, paras, timeout=0):
+    def call(self, cmd, tid, paras, timeout=0):
         self.response = None
         self.corr_id = str(uuid.uuid4())
 
         payload = {
-            'type'  :   'cmd',
             'op'    :   cmd,
-            'paras' :   paras
+            'tid'   :   tid,
+            'paras' :   paras,
         }
         payload = json.dumps(payload)
         self.channel.basic_publish(exchange='',

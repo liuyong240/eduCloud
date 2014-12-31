@@ -147,34 +147,38 @@ class cc_rpcServerThread(run4everThread):
         message = json.loads(body)
 
         if message['op'] in self.cc_rpc_handlers and self.cc_rpc_handlers[message['op']] != None:
-            self.cc_rpc_handlers[message['op']](ch, method, props, message['paras'])
+            self.cc_rpc_handlers[message['op']](ch, method, props, message['tid'], message['paras'])
         else:
             logger.error("unknow cmd : %s", message['op'])
 
-
-    def cc_rpc_handle_imageprepare(self, ch, method, props, tid):
+    def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_imageprepare")
+
+        prompt = 'Downloading file from Walrus to CC ... ...'
+        if paras == 'luhya':
+            prompt = 'Downloading image file from Walrus to CC ... ...'
+        if paras == 'db':
+            prompt = 'Downloading database file from Walrus to CC ... ...'
 
         if tid in self.tasks_status and self.tasks_status[tid] != None:
             worker = self.tasks_status[tid]
-            if worker.isFailed():
-                worker.start()
-            progress = worker.getprogress()
         else:
             progress = 0
             clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
             walrusinfo = getWalrusInfo(clcip)
             serverIP = walrusinfo['data']['ip0']
-            worker = downloadWorkerThread(serverIP, tid)
+            worker = downloadWorkerThread(serverIP, tid, paras)
             worker.start()
             self.tasks_status[tid] = worker
 
         payload = {
                 'type'      : 'taskstatus',
-                'phase'     : "downloading",
-                'progress'  : progress,
+                'phase'     : "prepare",
+                'state'     : 'downloading',
+                'progress'  : worker.getprogress(),
                 'tid'       : tid,
-                'errormsg'  : '',
+                'prompt'    : prompt,
+                'errormsg'  : worker.getErrorMsg(),
                 'failed'    : worker.isFailed()
         }
         payload = json.dumps(payload)
@@ -185,7 +189,7 @@ class cc_rpcServerThread(run4everThread):
                  body=payload)
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
-        if progress < 0:
+        if worker.isFailed():
             del self.tasks_status[tid]
 
     def cc_rpc_handle_imagesubmit(self, ch, method, props, tid):

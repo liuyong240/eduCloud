@@ -23,14 +23,11 @@ class clc_statusConsumerThread(run4everThread):
     def forwardMessage2Memcache(self, message):
         json_msg = json.loads(message)
         if json_msg['type'] == 'taskstatus':
-            logger.error("get task status msg: %s" % message)
             key = str(json_msg['tid'])
         elif json_msg['type'] == 'nodestatus':
-            logger.error("get node status msg: %s" % message)
             key = str(json_msg['nid'])
             logger.error("key = %s" % key)
         elif json_msg['type'] == 'ccstatus':
-            logger.error("get cc status msg: %s" % message)
             key = str(json_msg['ccid'])
             logger.error("key = %s" % key)
 

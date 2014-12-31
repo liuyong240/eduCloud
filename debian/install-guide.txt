@@ -167,16 +167,85 @@ vs-nc:  /storage/space/{software/* ,  pub-data/* , database/images/imgid/databas
 vd-cc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
 vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
 
-6.3.1 image build or modify
-- desktop image build
-  c: image disk, snapshotted
-  d: temp local vdi disk 1T, multi-attached
-  e: network disk of /storage/space/software/*
-- server image build
-  c: image disk, snapshotted
-  d: database disk, write-through, /storage/space/server-data/ins/insid-database,vdi
-  e: temp local vdi disk 1T, multi-attached
-  f: network disk of /storage/space/software/*
+6.3.1 Image Build
+
+- when image is uploade, its default usage is 'desktop'
+
+- when image{srcid} usage is changed to 'server'
+  > clc will clone /storage/images/database to /storage/space/database/images/imgid/database
+
+6.3.1.1 Image Build & Modify
+
+- desktop image MODIFY flow (srcid)
+  > image will be download from clc:/storage/images/srcid/machine to cc's /storage/images/srcid/machine
+  > image will be download from  cc:/storage/images/srcid/machine to nc's /storage/images/srcid/machine
+  > based on nc's /storage/images/srcid/machine to run vm
+  > run_time_option
+      c: /storage/images/srcid/machine, snapshoted
+      d: /storage/images/data.vdi, multi-attached
+      e: network folder of /storage/space/software/*
+  > when submitting
+    >> delete c's snapshot
+    >> upload nc's /storage/images/srcid/machine to  cc's /storage/images/srcid/machine
+    >> upload cc's /storage/images/srcid/machine to clc's /storage/images/srcid/machine, and version it
+
+- desktop image BUILD flow (srcid, dstid)
+  > image will be download from clc:/storage/images/srcid/machine to cc's /storage/images/srcid/machine
+  > image will be download from  cc:/storage/images/srcid/machine to nc's /storage/images/srcid/machine
+  > build a new one
+    nc will clone /storage/images/srcid/machine to /storage/tmp/images/dstid/machine
+    and based on it run vm
+  > run_time_option
+      c: /storage/tmp/images/dstid/machine, snapshoted
+      d: /storage/images/data.vdi, multi-attached
+      e: network folder of /storage/space/software/*
+  > when submitting
+    >> delete c's snapshot
+    >> upload nc's /storage/tmp/images/dstid/machine to cc's /storage/images/dstid/machine
+    >> upload cc's /storage/images/dstid/machine to clc's /storage/images/dstid/machine, and version it
+
+- server image MODIFY flow (src)
+  > image will be download from clc:/storage/images/srcid/machine to cc's /storage/images/srcid/machine
+  > image will be download from  cc:/storage/images/srcid/machine to nc's /storage/images/srcid/machine
+  > db    will be download from clc:/storage/space/database/srcid/database to cc:/storage/space/database/srcid/database
+  > cc:/storage/space/database/srcid/database will be shared to nc:/storage/space/database/srcid/database
+  > based on
+        nc:/storage/images/srcid/machine
+        nc:/storage/space/database/srcid/database
+        to run vm
+  > run_time_option
+      c: /storage/images/srcid/machine, snapshoted
+      d: /storage/space/database/srcid/database, write-through
+      e: /storage/images/data.vdi, multi-attached
+      f: network folder of /storage/space/software/*
+  > when submitting
+    >> delete c's snapshot
+    >> upload nc's /storage/images/srcid/machine to  cc's /storage/images/srcid/machine
+    >> upload cc's /storage/images/srcid/machine to clc's /storage/images/srcid/machine, and version it
+    >> upload cc's /storage/space/database/srcid/database to clc's /storage/space/database/srcid/database
+
+- server image BUILD flow (srcid, dstid)
+  > image will be download from clc:/storage/images/srcid/machine to cc's /storage/images/srcid/machine
+  > image will be download from  cc:/storage/images/srcid/machine to nc's /storage/images/srcid/machine
+  > db    will be download from clc:/storage/space/database/srcid/database to cc:/storage/space/database/srcid/database
+  > cc:/storage/space/database/srcid/database will be shared to nc:/storage/space/database/srcid/database
+  
+  > based on
+        nc:/storage/images/srcid/machine
+        nc:/storage/space/database/srcid/database
+        to run vm
+  > run_time_option
+      c: /storage/images/srcid/machine, snapshoted
+      d: /storage/space/database/srcid/database, write-through
+      e: /storage/images/data.vdi, multi-attached
+      f: network folder of /storage/space/software/*
+  > when submitting
+    >> delete c's snapshot
+    >> upload nc's /storage/images/srcid/machine to  cc's /storage/images/srcid/machine
+    >> upload cc's /storage/images/srcid/machine to clc's /storage/images/srcid/machine, and version it
+    >> upload cc's /storage/space/database/srcid/database to clc's /storage/space/database/srcid/database
+
+6.3.1.2 Image Running
 
 6.3.1 desktop vm instance
   c: image disk , snapshotted
@@ -300,17 +369,9 @@ incoming coding work
    Done - split web service into clc/walrus/cc by
           different settings.py
           add into install script : /etc/educloud/modules/{clc, walrus, cc, nc}
-   ing - add django app for DHCP service management
-         > configured with switch DHCP Server
-            >> configure global DHCP paras
-                { private IP range, public IP range, {mac, fixed-ip} pairs }
-            >> configure cc-owned DHCP paras
-                { private IP range, public IP range, {mac, fixed-ip} pairs }
-         > configured with private DHCP server
-            >> configure global DHCP paras
-                { private IP range, public IP range, {mac, fixed-ip} pairs }
-            >> configure cc-owned DHCP paras
-                { private IP range, public IP range, {mac, fixed-ip} pairs }
+   Igr - add django app for DHCP service management
+
+
    ing - re-test desktop build work flow
    ing - modify it to handle server build work flow
 

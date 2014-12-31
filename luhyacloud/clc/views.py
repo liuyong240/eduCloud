@@ -1223,7 +1223,7 @@ def genIPTablesRule(fromip, toip, port):
     return {}
 
 @login_required
-def start_image_create_task(request, srcid):
+def image_create_task_start(request, srcid):
     logger.error("--- --- --- start_image_create_task")
     # create ectaskTransation Record
     _srcimgid        = srcid
@@ -1250,8 +1250,8 @@ def start_image_create_task(request, srcid):
              dstimgid    = _dstimageid,
              insid       = _instanceid,
              user        = request.user.username,
-             phase       = 'init',
-             vmstatus    = "",
+             phase       = 'preparing',
+             state       = "init",
              progress    = 0,
              ccip        = _ccip,
              ncip        = _ncip,
@@ -1262,26 +1262,41 @@ def start_image_create_task(request, srcid):
         # open a window to monitor work progress
         imgobj = ecImages.objects.get(ecid = srcid)
 
+        managed_url = getVM_ManagedURL(request, _tid)
+
         context = {
             'pagetitle' : "image create",
-            'tid'       : _tid,
-            'srcid'     : _srcimgid,
-            'dstid'     : _dstimageid,
-            "insid"     : _instanceid,
+            'task'      : rec,
+            'rdp_url'   : managed_url,
             'imgobj'    : imgobj,
-            'steps'     : 0,
-            'vmstatus'  : 'stopped',
         }
 
         return render(request, 'clc/wizard/image_create_wizard.html', context)
 
-def prepare_image_create_task(request, srcid, dstid, insid):
+def getVM_ManagedURL(request, taskid):
+    rec = ectaskTransaction.objects.get(tid=taskid)
+    mgr_url = rec.runtime_option['mgr_accessURL']
+
+    # here add logic to check request comes from intranet or internet
+
+    return mgr_url
+
+def getVM_WebURL(request, taskid):
+    rec = ectaskTransaction.objects.get(tid=taskid)
+    web_url = rec.runtime_option['web_accessURL']
+
+    # here add logic to check request comes from intranet or internet
+
+    return web_url
+
+def image_create_task_prepare(request, srcid, dstid, insid):
     logger.error("--- --- --- prepare_image_create_task")
 
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "preparing"
+    rec.state = "init"
     rec.progress = 0
     rec.save()
 
@@ -1290,9 +1305,11 @@ def prepare_image_create_task(request, srcid, dstid, insid):
         url = 'http://%s:8000/cc/api/1.0/image/create/task/prepare' % rec.ccip
     else:
         url = 'http://%s/cc/api/1.0/image/create/task/prepare' % rec.ccip
+
     payload = {
-        'tid': _tid,
-        'ncip': rec.ncip
+        'tid'  :            _tid,
+        'ncip' :            rec.ncip,
+        'runtime_option' :  rec.runtime_option,
     }
     r = requests.post(url, data=payload)
     logger.error("--- --- --- " + url + ":" + r.content)
@@ -1332,7 +1349,7 @@ def image_create_task_prepare_failure(request, srcid, dstid, insid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
-def run_image_create_task(request, srcid, dstid, insid):
+def image_create_task_run(request, srcid, dstid, insid):
     logger.error("--- --- --- run_image_create_task")
 
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
@@ -1349,16 +1366,16 @@ def run_image_create_task(request, srcid, dstid, insid):
     else:
         url = 'http://%s/cc/api/1.0/image/create/task/run' % rec.ccip
     payload = {
-        'tid'  : _tid,
-        'ncip' : rec.ncip,
-        'runtime_option' : rec.runtime_option,
+        'tid'  :            _tid,
+        'ncip' :            rec.ncip,
+        'runtime_option' :  rec.runtime_option,
     }
     r = requests.post(url, data=payload)
     logger.error("--- --- --- " + url + ":" + r.content)
 
     return HttpResponse(r.content, mimetype="application/json")
 
-def stop_image_create_task(request, srcid, dstid, insid):
+def image_create_task_stop(request, srcid, dstid, insid):
     logger.error("--- --- --- stop_image_create_task")
 
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
@@ -1372,10 +1389,13 @@ def stop_image_create_task(request, srcid, dstid, insid):
         url = 'http://%s:8000/cc/api/1.0/image/create/task/stop' % rec.ccip
     else:
         url = 'http://%s/cc/api/1.0/image/create/task/stop' % rec.ccip
+
     payload = {
-        'tid': _tid,
-        'ncip' : rec.ncip,
+        'tid'  :            _tid,
+        'ncip' :            rec.ncip,
+        'runtime_option' :  rec.runtime_option,
     }
+
     r = requests.post(url, data=payload)
     logger.error("--- --- --- " + url + ":" + r.content)
 
@@ -1404,25 +1424,21 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
         payload = mc.get(str(_tid))
         if payload == None:
             payload = {
-                'type': 'taskstatus',
-                'phase': "editing",
-                'vmstatus': 'init',
+                'type' : 'taskstatus',
+                'phase': "booting",
+                'state': 'init',
                 'tid': _tid,
                 'failed' : 0
             }
         else:
             payload = json.loads(payload)
-            if payload['vmstatus'] == 'running':
-                rec = ectaskTransaction.objects.get(tid=_tid)
-                runtime_option = json.loads(rec.runtime_option)
-                payload['url'] = runtime_option['mgr_accessURL']
     except Exception as e:
         payload = {
-            'type': 'taskstatus',
+            'type' : 'taskstatus',
             'phase': "editing",
-            'vmstatus': 'init',
+            'state': 'booting',
             'tid': _tid,
-            'failed' : 0,
+            'failed' : 0
         }
 
     response = json.dumps(payload)
@@ -1436,31 +1452,37 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
         if payload == None:
             payload = {
                 'type': 'taskstatus',
-                'phase': "downloading",
+                'phase': "prepare",
+                'state': 'downloading',
                 'progress': 0,
                 'tid': tid,
-                'failed' : False
+                'prompt': '',
+                'errormsg': '',
+                'failed' : 0
             }
             response = json.dumps(payload)
         else:
             response = payload
             payload = json.loads(payload)
-            if payload['progress'] < 0 or payload['failed'] == 1:
+            if payload['failed'] == 1:
                 mc.delete(str(tid))
     except Exception as e:
         payload = {
             'type': 'taskstatus',
-            'phase': "downloading",
+            'phase': "prepare",
+            'state': 'downloading',
             'progress': 0,
             'tid': tid,
-            'failed' : False
+            'prompt': '',
+            'errormsg': '',
+            'failed' : 0
         }
         response = json.dumps(payload)
 
     logger.error("lkf: get progress = %s", response)
     return HttpResponse(response, mimetype="application/json")
 
-def submit_image_create_task(request, srcid, dstid, insid):
+def image_create_task_submit(request, srcid, dstid, insid):
     logger.error("--- --- --- submit_image_create_task")
 
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
@@ -1474,10 +1496,13 @@ def submit_image_create_task(request, srcid, dstid, insid):
         url = 'http://%s:8000/cc/api/1.0/image/create/task/submit' % rec.ccip
     else:
         url = 'http://%s/cc/api/1.0/image/create/task/submit' % rec.ccip
+
     payload = {
-        'tid': _tid,
-        'ncip': rec.ncip
+        'tid'  :            _tid,
+        'ncip' :            rec.ncip,
+        'runtime_option' :  rec.runtime_option,
     }
+
     r = requests.post(url, data=payload)
     logger.error("--- --- --- " + url + ":" + r.content)
 
@@ -1492,92 +1517,98 @@ def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
             payload = {
                 'type': 'taskstatus',
                 'phase': "submitting",
+                'state': 'uploading',
                 'progress': 0,
                 'tid': tid,
-                'failed' : False
+                'prompt': '',
+                'errormsg': '',
+                'failed' : 0
             }
             response = json.dumps(payload)
         else:
             response = payload
             payload = json.loads(payload)
+            if payload['failed'] == 1:
+                mc.delete(str(tid))
     except Exception as e:
         payload = {
             'type': 'taskstatus',
             'phase': "submitting",
+            'state': 'uploading',
             'progress': 0,
             'tid': tid,
-            'failed' : False
+            'prompt': '',
+            'errormsg': '',
+            'failed' : 0
         }
         response = json.dumps(payload)
 
     logger.error("lkf: get progress = %s", response)
     return HttpResponse(response, mimetype="application/json")
 
-def start_image_modify_task(request, srcid):
+def image_modify_task_start(request, srcid):
     # create ectaskTransation Record
     _srcimgid        = srcid
-    _dstimageid      = _srcimgid
+    _dstimageid      = srcid
     _instanceid      = 'TMPINS' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
     logger.error("tid=%s" % _tid)
 
-    _ccip, _ccname = findLazyCC(srcid)
-    _ncip = findLazyNC(_ccname)
+    _ccip, _ncip, _msg = findBuildResource(srcid)
 
-    rec = ectaskTransaction(
-         tid         = _tid,
-         srcimgid    = _srcimgid,
-         dstimgid    = _dstimageid,
-         insid       = _instanceid,
-         user        = request.user.username,
-         phase       = 'init',
-         vmstatus    = "",
-         progress    = 0,
-         ccip        = _ccip,
-         ncip        = _ncip
-    )
-    rec.save()
+    if _ncip == None:
+        # not find proper cc,nc for build image
+        context = {
+            'pagetitle'     : 'Error Report',
+            'error'         : _msg,
+        }
+        return render(request, 'clc/error.html', context)
+    else:
+        runtime_option = genRuntimeOptionForImageBuild(_tid, _ccip, _ncip)
+        rec = ectaskTransaction(
+             tid         = _tid,
+             srcimgid    = _srcimgid,
+             dstimgid    = _dstimageid,
+             insid       = _instanceid,
+             user        = request.user.username,
+             phase       = 'preparing',
+             state       = "init",
+             progress    = 0,
+             ccip        = _ccip,
+             ncip        = _ncip,
+             runtime_option = json.dumps(runtime_option),
+        )
+        rec.save()
 
-    rec.runtime_option = json.dumps(genRuntimeOptionForImageBuild(_tid))
-    rec.save()
+        # open a window to monitor work progress
+        imgobj = ecImages.objects.get(ecid = srcid)
 
-    # open a window to monitor work progress
-    imgobj = ecImages.objects.get(ecid = srcid)
+        managed_url = getVM_ManagedURL(request, _tid)
 
-    context = {
-        'pagetitle' : "image create",
-        'tid'       : _tid,
-        'srcid'     : _srcimgid,
-        'dstid'     : _dstimageid,
-        "insid"     : _instanceid,
-        'imgobj'    : imgobj,
-        'steps'     : 0,
-        'vmstatus'  : 'stopped',
-    }
+        context = {
+            'pagetitle' : "image create",
+            'task'      : rec,
+            'rdp_url'   : managed_url,
+            'imgobj'    : imgobj,
+        }
 
-    return render(request, 'clc/wizard/image_create_wizard.html', context)
+        return render(request, 'clc/wizard/image_create_wizard.html', context)
 
 def image_create_task_view(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    _srcimgid        = srcid
-    _dstimageid      = dstid
-    _instanceid      = insid
 
     rec = ectaskTransaction.objects.get(tid=_tid)
-    phase_array = ['init', 'preparing', 'editing', 'submitting']
-    steps = phase_array.index(rec.phase)
 
     imgobj = ecImages.objects.get(ecid = srcid)
+
+    managed_url = getVM_ManagedURL(request, _tid)
+
     context = {
         'pagetitle' : "image create",
-        'tid'       : _tid,
-        'srcid'     : _srcimgid,
-        'dstid'     : _dstimageid,
-        "insid"     : _instanceid,
+        'task'      : rec,
+        'rdp_url'   : managed_url,
         'imgobj'    : imgobj,
-        'steps'     : steps,
-        'vmstatus'  : rec.vmstatus,
     }
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)

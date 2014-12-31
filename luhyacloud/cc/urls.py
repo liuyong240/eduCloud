@@ -6,10 +6,11 @@ urlpatterns = patterns('',
 
     # API 1.0
     # this is a POST requtst, all data in POST section
-    url(r'^api/1.0/image/create/task/prepare$',     views.prepare_image_create_task,       name='prepare_image_create_task'),
-    url(r'^api/1.0/image/create/task/run$',         views.run_image_create_task,           name='run_image_create_task'),
-    url(r'^api/1.0/image/create/task/stop$',        views.stop_image_create_task,          name='stop_image_create_task'),
-    url(r'^api/1.0/image/create/task/submit$',      views.submit_image_create_task,        name='submit_image_create_task'),
+    url(r'^api/1.0/image/create/task/prepare$',     views.image_create_task_prepare,       name='image_create_task_prepare'),
+    url(r'^api/1.0/image/create/task/run$',         views.image_create_task_run,           name='image_create_task_run'),
+    url(r'^api/1.0/image/create/task/stop$',        views.image_create_task_stop,          name='image_create_task_stop'),
+    url(r'^api/1.0/image/create/task/submit$',      views.image_create_task_submit,        name='image_create_task_submit'),
+
     url(r'^api/1.0/image/create/task/removeIPtables$',      views.removeIPtables_image_create_task,        name='removeIPtables_image_create_task'),
 
     url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),

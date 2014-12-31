@@ -27,26 +27,6 @@ logger = getcclogger()
 #################################################################################
 import requests, memcache
 
-def prepare_image_create_task(request):
-    logger.error("--- --- --- prepare_image_create_task")
-
-    message = {}
-    message['type'] = "cmd"
-    message['op']   = 'image/prepare'
-    message['paras']= request.POST['tid']
-    message = json.dumps(message)
-
-    routing_send(logger, 'localhost', 'nc_cmd', message, request.POST['ncip'])
-    logger.error("--- --- --- send prepare cmd to nc sucessfully")
-
-    # return http response
-    response = {}
-    response['Result'] = 'OK'
-    response['tid'] = request.POST['tid']
-
-    retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
-
 def AddIPtableRule(ipt):
     # first need to check these iptables is already configured or not
     pass
@@ -69,7 +49,34 @@ def removeIPtables_image_create_task(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
-def run_image_create_task(request):
+
+#####################################
+## Image build functions
+#####################################
+
+
+def image_create_task_prepare(request):
+    logger.error("--- --- --- prepare_image_create_task")
+
+    message = {}
+    message['type']             = "cmd"
+    message['op']               = 'image/prepare'
+    message['tid']              = request.POST['tid']
+    message['runtime_option']   = request.POST['runtime_option']
+    message = json.dumps(message)
+
+    routing_send(logger, 'localhost', 'nc_cmd', message, request.POST['ncip'])
+    logger.error("--- --- --- send prepare cmd to nc sucessfully")
+
+    # return http response
+    response = {}
+    response['Result'] = 'OK'
+    response['tid'] = request.POST['tid']
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def image_create_task_run(request):
     logger.error("--- --- --- run_image_create_task")
 
     ncip = request.POST['ncip']
@@ -99,7 +106,7 @@ def run_image_create_task(request):
     return HttpResponse(retvalue, mimetype="application/json")
 
 
-def stop_image_create_task(request):
+def image_create_task_stop(request):
     logger.error("--- --- --- stop_image_create_task")
 
     ncip = request.POST['ncip']
@@ -121,7 +128,7 @@ def stop_image_create_task(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
-def submit_image_create_task(request):
+def image_create_task_submit(request):
     logger.error("--- --- --- submit_image_create_task")
 
     ncip = request.POST['ncip']
@@ -142,6 +149,9 @@ def submit_image_create_task(request):
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
+
+
+
 
 def register_host(request):
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
@@ -181,7 +191,6 @@ def register_server(request):
     }
     r = requests.post(url, data=payload)
     return HttpResponse(r.content, mimetype="application/json")
-
 
 def get_images_version(request, imgid):
     version = ReadImageVersionFile(imgid)

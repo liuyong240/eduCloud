@@ -73,100 +73,101 @@ class downloadWorkerThread(threading.Thread):
             self.progress = -100
 
 class prepareImageTaskThread(threading.Thread):
-    def __init__(self, tid):
+    def __init__(self, tid, runtime_option):
         threading.Thread.__init__(self)
         retval = tid.split(':')
         self.tid      = tid
         self.srcimgid = retval[0]
         self.dstimgid = retval[1]
+        self.runtime_option = json.loads(runtime_option)
         self.ccip     = getccipbyconf()
         self.download_rpc = RpcClient(logger, self.ccip)
 
     # RPC call to ask CC download image from walrus
-    def downloadFromWalrus2CC(self):
+    def downloadFromWalrus2CC(self, data):
         retvalue = "OK"
 
         while True:
-            response = self.download_rpc.call(cmd="image/prepare", paras=self.tid)
+            response = self.download_rpc.call(cmd=data['cmd'], tid=data['tid'], paras=data['rsync'])
             response = json.loads(response)
+
             if response['failed'] == 1:
                 retvalue = "FALURE"
                 self.forwardTaskStatus2CC(json.dumps(response))
-                self.download_rpc.call(cmd="image/prepare/failure", paras=self.tid)
                 break
             else:
-                if response['progress'] < 0:
-                    if response['progress'] == -100:
-                        response['progress'] = 50
-                        self.forwardTaskStatus2CC(json.dumps(response))
-                    else:
-                        retvalue = "FALURE"
-                        self.download_rpc.call(cmd="image/prepare/failure", paras=self.tid)
+                self.forwardTaskStatus2CC(json.dumps(response))
+                if response['progress'] == 100:
                     break
-                else:
-                    response['progress'] = response['progress']/2.0
-                    self.forwardTaskStatus2CC(json.dumps(response))
-                    logger.error("downlaod from walrus: %s", response['progress'])
-                    time.sleep(2)
+
+            time.sleep(2)
 
         return retvalue
 
     def forwardTaskStatus2CC(self, response):
         simple_send(logger, self.ccip, 'cc_status_queue', response)
 
-    def downloadFromCC2NC(self):
+    def downloadFromCC2NC(self, data):
         retvalue = "OK"
 
-        worker = downloadWorkerThread(self.ccip, self.tid)
+        paras = data['rsync']
+        prompt = 'Downloading file from Walrus to CC ... ...'
+        if paras == 'luhya':
+            prompt = 'Downloading image file from Walrus to CC ... ...'
+        if paras == 'db':
+            prompt = 'Downloading database file from Walrus to CC ... ...'
+
+        worker = downloadWorkerThread(self.ccip, self.tid, paras)
         worker.start()
 
         payload = {
                 'type'      : 'taskstatus',
                 'phase'     : "preparing",
+                'state'     : "downloading",
                 'progress'  : 0,
                 'tid'       : self.tid,
+                'prompt'    : prompt,
                 'errormsg'  : "",
                 'failed'    : 0
         }
 
         while True:
-            progress = worker.getprogress()
+            payload['progress'] = worker.getprogress()
             payload['failed']   = worker.isFailed()
             if worker.isFailed():
+                payload['failed']   = worker.isFailed()
+                payload['errormsg'] = worker.getErrorMsg()
+                payload['state']    = 'init'
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 retvalue = "FALURE"
-                self.download_rpc.call(cmd="image/prepare/failure", paras=self.tid)
                 break
             else:
-                if progress < 0:
-                    if progress == -100:
-                        progress = 90
-                        payload['progress'] = progress
-                        self.forwardTaskStatus2CC(json.dumps(payload))
-                    else:
-                        retvalue = "FALURE"
-                        self.download_rpc.call(cmd="image/prepare/failure", paras=self.tid)
-                    break;
-                else:
-                    progress = 50 + progress / 2.5
-                    payload['progress'] = progress
-                    self.forwardTaskStatus2CC(json.dumps(payload))
-                    logger.error("downlaod from cc: %s", payload['progress'])
-                    time.sleep(2)
+                self.forwardTaskStatus2CC(json.dumps(payload))
+                if payload['progress'] == 100:
+                    break
+
+            time.sleep(2)
 
         return retvalue
 
-    def cloneImage(self):
+    def cloneImage(self, data):
+        retvalue = "OK"
+
         payload = {
                 'type'      : 'taskstatus',
-                'phase'     : "cloning",
+                'phase'     : "prepare",
+                'state'     : "clone",
                 'progress'  : 0,
                 'tid'       : self.tid,
+                'prompt'    : '',
                 'errormsg'  : "",
                 'failed'    : 0,
         }
 
-        if self.srcimgid != self.dstimgid:
+        if self.srcimgid == self.dstimgid:
+            payload['progress'] = 100
+            self.forwardTaskStatus2CC(json.dumps(payload))
+        else:
             # call clone cmd
             srcfile  = "/storage/images/"      + self.srcimgid + "/machine"
             dstfile  = "/storage/tmp/images/"  + self.dstimgid + "/machine"
@@ -200,20 +201,55 @@ class prepareImageTaskThread(threading.Thread):
             else:
                 payload['progress'] = 100
                 self.forwardTaskStatus2CC(json.dumps(payload))
-        else:
-            payload['progress'] = 100
-            self.forwardTaskStatus2CC(json.dumps(payload))
 
-        payload['progress'] = -100
+
         self.forwardTaskStatus2CC(json.dumps(payload))
-        self.download_rpc.call(cmd="image/prepare/success", paras=self.tid)
+
 
         return "OK"
 
     def run(self):
-        if self.downloadFromWalrus2CC() == "OK":
-            if self.downloadFromCC2NC() == "OK":
-                self.cloneImage()
+        done_1 = False
+        done_2 = False
+
+        data = {}
+        data['cmd']     = 'image/prepare'
+        data['tid']     =  self.tid
+        data['rsync']   = 'luhya'
+
+        if self.downloadFromWalrus2CC(data) == "OK":
+            if self.downloadFromCC2NC(data) == "OK":
+                if self.cloneImage(data) == "OK":
+                    done_1 = True
+
+        if self.runtime_option['usage'] != 'desktop': # desktop, server, app
+            data['rsync'] = 'db'
+            if self.downloadFromWalrus2CC(data) == "OK":
+                done_2 = True
+        else:
+            done_2 = True
+
+        payload = {
+                'type'      : 'taskstatus',
+                'phase'     : "preparing",
+                'state'     : 'done',
+                'tid'       : self.tid,
+                'prompt'    : '',
+                'errormsg'  : '',
+                'failed'    : 0,
+        }
+
+        if done_1 == False or done_2 == False:
+            self.download_rpc.call(cmd="image/prepare/failure", tid=data['tid'], paras=data['rsync'])
+            # send mssage to notify prepare is done
+            payload['state']    = 'init'
+            payload['failed']   = 1
+        else:
+            self.download_rpc.call(cmd="image/prepare/success", tid=data['tid'], paras=data['rsync'])
+
+        payload = json.dumps(payload)
+        self.forwardTaskStatus2CC(payload)
+
 
 class submitWorkerThread(threading.Thread):
     def __init__(self, dstip, tid):
@@ -263,7 +299,7 @@ class submitWorkerThread(threading.Thread):
 
 
 class SubmitImageTaskThread(threading.Thread):
-    def __init__(self, tid):
+    def __init__(self, tid, runtime_option):
         threading.Thread.__init__(self)
         retval = tid.split(':')
         self.tid      = tid
@@ -271,6 +307,7 @@ class SubmitImageTaskThread(threading.Thread):
         self.dstimgid = retval[1]
         self.insid    = retval[2]
         self.ccip     = getccipbyconf()
+        self.runtime_option = json.loads(runtime_option)
         self.download_rpc = RpcClient(logger, self.ccip)
 
     # RPC call to ask CC download image from walrus
@@ -383,9 +420,9 @@ class SubmitImageTaskThread(threading.Thread):
             if self.submitFromCC2Walrus() == "OK":
                 self.task_finished()
 
-def nc_image_prepare_handle(tid):
+def nc_image_prepare_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_prepare_handle")
-    worker = prepareImageTaskThread(tid)
+    worker = prepareImageTaskThread(tid, runtime_option)
     worker.start()
     return worker
 
@@ -551,7 +588,7 @@ def PoweroffVM(insID):
     cmd = "vboxmanage controlvm %s poweroff" % insID
     out = commands.getoutput(cmd)
 
-def nc_image_stop_handle(tid):
+def nc_image_stop_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_stop_handle")
 
     retval   = tid.split(':')
@@ -576,10 +613,10 @@ def nc_image_stop_handle(tid):
     # need to update nc's status at once
     update_nc_running_status()
 
-def nc_image_submit_handle(tid):
+def nc_image_submit_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_submit_handle")
 
-    worker = SubmitImageTaskThread(tid)
+    worker = SubmitImageTaskThread(tid, runtime_option)
     worker.start()
     return worker
 
@@ -600,10 +637,7 @@ class nc_cmdConsumerThread(run4everThread):
         logger.error(" get command = %s" %  body)
         message = json.loads(body)
         if  message['op'] in  nc_cmd_handlers and nc_cmd_handlers[message['op']] != None:
-            if message['op'] == "image/run":
-                nc_image_run_handle(message['paras'], message['runtime_option'])
-            else:
-                nc_cmd_handlers[message['op']](message['paras'])
+                nc_cmd_handlers[message['op']](message['tid'], message['runtime_option'])
         else:
             logger.error("unknow cmd : %s", message['op'])
 
