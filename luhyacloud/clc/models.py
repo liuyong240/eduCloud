@@ -258,44 +258,14 @@ class ecVSS(models.Model):
     description = models.TextField()
 
     creator     = models.CharField(max_length=100)
-    run_user    = models.CharField(max_length=100)
 
-    phase       = models.CharField(max_length=100)
-    vmstatus    = models.CharField(max_length=100) # init, running, stopped(default)
-    progress    = models.IntegerField(default=0)   # 0(default)-100, -100, <0
-    message     = models.TextField()
+    cc_def      = models.CharField(max_length=100)
+    nc_def      = models.CharField(max_length=100)
 
-    user_accessURL  = models.CharField(max_length=500)
-    mgr_accessURL   = models.CharField(max_length=500)
+    cpus    = models.IntegerField(default=1)
+    memory  = models.IntegerField(default=2)
+    mac     = models.CharField(max_length=20)
 
-    defined_ccname = models.CharField(max_length=100)
-    defined_ncip   = models.CharField(max_length=100)
-    runtime_ccname = models.CharField(max_length=100)
-    runtime_ncip   = models.CharField(max_length=100)
-
-    # network(public IP, private IP, MAC port, etc)
-    # hardware para(cpus, memory, disktype, nictype, audio_para)
-    # iptable forward rule( )
-    # fullscreen = 1, minitoolbar = 0 auto_unregister
-    # {
-    #     'imagesID': xxxx,
-    #     'hardware': {
-    #         'mem': 4G,
-    #         'cpu': 1,
-    #         'diskd': 0/20G,     # private disk
-    #         'diskp': True/False # pubic disk
-    #     },
-    #     'cluster':  null || cc name or ip
-    #     'node':     null || node ip
-    #     'poweroff': manually || Auto (5 hour)
-    #     'desktop': {
-    #
-    #      }
-    #     'server' : {
-    #
-    #      }
-    # }
-    runtime_option = models.TextField()
 
 class ecVSS_auth(models.Model):
     insid       = models.CharField(max_length=20)
@@ -313,26 +283,12 @@ class ecVDS(models.Model):
     description = models.TextField()
 
     creator     = models.CharField(max_length=100)
-    run_user    = models.CharField(max_length=100)
 
-    phase       = models.CharField(max_length=100)
-    vmstatus    = models.CharField(max_length=100) # init, running, stopped(default)
-    progress    = models.IntegerField(default=0)   # 0(default)-100, -100, <0
-    message     = models.TextField()
+    cc_def      = models.CharField(max_length=100)
+    nc_def      = models.CharField(max_length=100)
 
-    accessURL   = models.CharField(max_length=500)
-
-    defined_ccname = models.CharField(max_length=100)
-    defined_ncip   = models.CharField(max_length=100)
-    runtime_ccname = models.CharField(max_length=100)
-    runtime_ncip   = models.CharField(max_length=100)
-
-    # access mode/para,  persistent/temperary,
-    # network(public IP, private IP, MAC port, etc)
-    # hardware para(cpus, memory, disktype, nictype, audio_para)
-    # iptable forward rule( )
-    # fullscreen = 1, minitoolbar = 0 auto_unregister
-    runtime_option = models.TextField()
+    cpus    = models.IntegerField(default=1)
+    memory  = models.IntegerField(default=2)
 
 class ecVDS_auth(models.Model):
     insid       = models.CharField(max_length=20)
@@ -346,6 +302,14 @@ class ecVDS_auth(models.Model):
 
 class ecLVDS(models.Model):
     insid       = models.CharField(max_length=20, unique=True)
+    imageid     = models.CharField(max_length=20)
+    name        = models.CharField(max_length=100)
+    description = models.TextField()
+
+    creator     = models.CharField(max_length=100)
+
+    cpus    = models.IntegerField(default=1)
+    memory  = models.IntegerField(default=2)
 
 class ecLVDS_auth(models.Model):
     insid       = models.CharField(max_length=20)

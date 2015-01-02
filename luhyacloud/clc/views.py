@@ -1820,6 +1820,26 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
+def image_add_vm(request, imgid):
+    imgobj = ecImages.objects.get(ecid = imgid)
+
+    _srcimgid        = imgid
+    _dstimageid      = imgid
+    if imgobj.img_usage == 'desktop':
+        _instanceid      = 'VD' + genHexRandom()
+    if imgobj.img_usage == 'server':
+        _instanceid      = 'VS' + genHexRandom()
+
+    _tid  = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
+
+    context = {
+            'pagetitle' : "VM Create",
+            'imgobj'    : imgobj,
+            'tid'       : _tid,
+    }
+
+    return render(request, 'clc/wizard/vs_create_wizard.html', context)
+
 
 #################################################################################
 # jTable views

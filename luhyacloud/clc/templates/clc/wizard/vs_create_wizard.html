@@ -1,0 +1,95 @@
+{% extends "clc/wizard/wizard.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block myjavascript %}
+<script>
+$(document).ready(function () {
+    $("#wizard").jWizard({
+        title: true,
+        menu: true,
+        progress: {
+            label: "count",
+            append: ""
+        },
+        cancel: function () {
+            window.close();
+        },
+        finish: function () {
+            window.close();
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block mywizard %}
+    <div id="tid"   style="display: none;">{{ task.tid }}</div>
+
+    <form id="wizard">
+        <fieldset>
+            <legend>{% trans "Basic Config" %}</legend>
+            <div class="form-group">
+                <label>Image Name</label>
+                <input class="form-control" type="text" value="{{ imgobj.name}}" disabled="">
+            </div>
+            <div class="form-group">
+                <label>VS VM Name</label>
+                <input class="form-control" id="vm_name" type="text" value="" >
+            </div>
+            <div class="form-group">
+                <label>VS VM Description</label>
+                <input class="form-control" id="vm_desc" type="text" value="" >
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>{% trans "Running Config" %}</legend>
+            <div class="form-group">
+                <label>Select Cluster</label>
+                <select class="form-control">
+                    <option selected value="any">Any</option>
+                    {% for cc in ccs %}
+                        <option value="{{ cc.ccname }}">{{ cc.ccname}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Select Node</label>
+                <select class="form-control">
+                    <option selected value="any">Any</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>{% trans "Hardware Config" %}</legend>
+            <div class="form-group">
+                <label>Select CPUs</label>
+                <select class="form-control">
+                    <option selected value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Select Memory(G)</label>
+                <select class="form-control">
+                    <option selected value="2">2G</option>
+                    <option value="4">4G</option>
+                    <option value="8">8G</option>
+                    <option value="16">16G</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Select MAC/IP</label>
+                <select class="form-control">
+                    <option selected value="any">Any</option>
+                    {% for macip in macips %}
+                        <option value="{{ macip.mac }}">{{ macip.mac }} - {{ macip.ip }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </fieldset>
+    </form>
+{% endblock %}
