@@ -413,6 +413,7 @@ class runImageTaskThread(threading.Thread):
                     index = 0
                     for disk in self.runtime_option['disks']:
                         ret, err = vboxmgr.attachHDD(self.runtime_option['disk_type'], disk['mtype'], disk['file'])
+                        logger.error("--- --- --- vboxmgr.attachHDD %s, error=%s" % (disk['file'], err))
                         if index == 0 and self.runtime_option['run_with_snapshot'] == 1:
                             snapshot_name = "thomas"
                             if not vboxmgr.isSnapshotExist(snapshot_name):
@@ -423,6 +424,7 @@ class runImageTaskThread(threading.Thread):
                     # add folders
                     for folder in self.runtime_option['folders']:
                         ret, err = vboxmgr.attachSharedFolder(folder)
+                        logger.error("--- --- --- vboxmgr.attachSharedFolder %s, error=%s" % (folder , err))
 
                     # in servere side, each VM has 4G mem
                     _cpus    = self.runtime_option['cpus']
@@ -538,10 +540,6 @@ def nc_image_run_handle(tid, runtime_option):
     worker.start()
     pass
 
-def PoweroffVM(insID):
-    cmd = "vboxmanage controlvm %s poweroff" % insID
-    out = commands.getoutput(cmd)
-
 def nc_image_stop_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_stop_handle")
 
@@ -550,7 +548,8 @@ def nc_image_stop_handle(tid, runtime_option):
     dstimgid = retval[1]
     insid    = retval[2]
 
-    PoweroffVM(insid)
+    cmd = "vboxmanage controlvm %s poweroff" % insid
+    out = commands.getoutput(cmd)
 
     payload = {
             'type'      : 'taskstatus',

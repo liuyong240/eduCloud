@@ -231,62 +231,28 @@ class vboxWrapper():
         return port, device
 
     def attachHDD(self, storageCtl, mtype, imgfile):
+        ret = ""
+        err = ""
         vm_name = self._tool._vmname
-        port, device = self.portDeviceNumberAdd(storageCtl)
-        cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device',
-                    str(device), '--type', 'hdd', '--medium', imgfile, '--mtype', mtype]
-        ret, err = self._tool.runCMDline(cmd_line, False)
-        return ret, err
-
-    def attachHDD_c(self, storageCtl="IDE", mtype="normal"):
-        vm_name = self._tool._vmname
-        vmfile = self._tool._image_file
-
-        port, device = self.portDeviceNumberAdd(storageCtl)
-        cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device',
-                    str(device), '--type', 'hdd', '--medium', vmfile, '--mtype', mtype]
-        ret, err = self._tool.runCMDline(cmd_line, False)
-        return ret, err
-
-    def attachHDD_d(self, storageCtl="IDE", mtype="writethrough"):
-        vm_name = self._tool._vmname
-
-        # clone diskd for imageID
-        origin_diskd = os.path.join(self._rootdir, "images", "diskd.vdi")
-        dest_diskd = os.path.join(self._rootdir, "images", vm_name, vm_name+"_d.vdi")
-        if not os.path.exists(dest_diskd):
-            cmd_line = ["vboxmanage", "clonehd", origin_diskd, dest_diskd]
-            ret, err = self._tool.runCMDline(cmd_line, False)
-
-        port, device = self.portDeviceNumberAdd()
-        cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', self._storagectltype, '--port', str(port), '--device',
-                    str(device), '--type', 'hdd', '--medium', dest_diskd, '--mtype', mtype]
-        ret, err = self._tool.runCMDline(cmd_line, False)
-        return ret, err
-
-    def attachHDD_shared_d(self, storageCtl="IDE", mtype="multiattach",  imgfile="/storage/images/diskd.vdi"):
-        vm_name = self._tool._vmname
-        dest_diskd = imgfile
-
-        if os.path.exists(dest_diskd):
-            port, device = self.portDeviceNumberAdd(storageCtl)
-            cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device',
-                        str(device), '--type', 'hdd', '--medium', dest_diskd, '--mtype', mtype]
-            ret, err = self._tool.runCMDline(cmd_line, False)
+        if not os.path.exists(imgfile):
+            err = "FileNotExist: " + imgfile
         else:
-            ret = ''
-            err = "FileNotExist: /storage/images/diskd.vdi"
+            port, device = self.portDeviceNumberAdd(storageCtl)
+            cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device', str(device), '--type', 'hdd', '--medium', imgfile, '--mtype', mtype]
+            ret, err = self._tool.runCMDline(cmd_line, False)
+
         return ret, err
 
     # vboxmanage storageattach test  --storagectl IDE --port 1 --device 0 --type dvddrive --medium host:/dev/sr0 --mtype readonly --passthrough on
     def attachDVD(self, storageCtl="IDE", mtype="readonly"):
         ret = ""
         err = ""
-        if os.path.exists("/dev/sr0"):
+        if not os.path.exists("/dev/sr0"):
+            err = "DVD Not Exist"
+        else:
             vm_name = self._tool._vmname
             port, device = self.portDeviceNumberAdd(storageCtl)
-            cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', self._storagectltype, '--port', str(port), '--device',
-                        str(device), '--type', 'dvddrive', '--medium', 'host:/dev/sr0', '--mtype', mtype, '--passthrough', 'on']
+            cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', self._storagectltype, '--port', str(port), '--device', str(device), '--type', 'dvddrive', '--medium', 'host:/dev/sr0', '--mtype', mtype, '--passthrough', 'on']
             ret, err = self._tool.runCMDline(cmd_line, False)
         return ret, err
 

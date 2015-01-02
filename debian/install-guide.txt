@@ -381,28 +381,24 @@ incoming coding work
           add into install script : /etc/educloud/modules/{clc, walrus, cc, nc}
    Igr - add django app for DHCP service management
 
+   TBDone - re-test desktop build work flow
+   TBDone - modify it to handle server build work flow
 
-   ing - re-test desktop build work flow
-   ing - modify it to handle server build work flow
-
-2. (12/16)GUI of vss definition
-3. (12/16)vss running server logic
-4. (12/17)permission control when login with different account
-5. (12/17)汉化
-6. (12/18)package for install
-7. (12/18)system testing
+2. ing    - GUI of vss definition
+3. TBDone - vss running server logic
+4. ing    - permission control when login with different account
+5. ing    - 汉化
+6. ing    - package for install
+7. ing    - system testing
 
 
-5. add vss, rvd, lvd instance creation wizard, one by one and batch creation
-   - and modify & delete instance
+8. add logic on both walrus, cc, nc to check
+   Done - is it stay wither others ?
+   Done - for pre-process of image download & submit
 
-6. add logic on both walrus, cc, nc to check
-   - is it stay wither others ?
-   - for pre-process of image download & submit
-
-7. add machine & vm status report & display
-8. delete tasks
-9. support iptable & dhcp automatically for new instance
+9. Done - add machine & vm status report & display
+10. delete tasks
+11. ing  - support iptable & dhcp automatically for new instance
 
 
 
