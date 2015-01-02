@@ -541,12 +541,6 @@ def PoweroffVM(insID):
     cmd = "vboxmanage controlvm %s poweroff" % insID
     out = commands.getoutput(cmd)
 
-    # build/modify insid is TMPxxxxx, when stopped, do nothing else
-
-    # running vd   insid is VDxxxx,   when stopped, delete all except image file
-
-    # running vs   insid is VSxxxx,   when stopped, delete all except image file
-
 def nc_image_stop_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_stop_handle")
 
@@ -572,6 +566,28 @@ def nc_image_stop_handle(tid, runtime_option):
 
     # need to update nc's status at once
     update_nc_running_status()
+
+    # process for different type instance
+    if srcimgid != dstimgid:
+        rootdir = "/storage/tmp"
+    else:
+        rootdir = "/storage"
+
+    vboxmgr = vboxWrapper(dstimgid, insid, rootdir)
+
+    # build/modify insid is TMPxxxxx, when stopped, do nothing else
+    if insid.find('TMP') == 0:
+        pass
+
+    # running vd   insid is VDxxxx,   when stopped, delete all except image file
+    if insid.find('VD') == 0:
+        vboxmgr.unregisterVM()
+        vboxmgr.deleteVMConfigFile()
+
+    # running vs   insid is VSxxxx,   when stopped, delete all except image file
+    if insid.find('VS') == 0:
+        vboxmgr.unregisterVM()
+        vboxmgr.deleteVMConfigFile()
 
 def nc_image_submit_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_submit_handle")

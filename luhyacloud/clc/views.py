@@ -1129,6 +1129,8 @@ def releaseRuntimeOptionForImageBuild(srcid, dstid, insid):
 
     # 2. release ip mac
 
+    ccres_info.save()
+
     # 3. release iptables
     if DAEMON_DEBUG == True:
         url = 'http://%s:8000/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
@@ -1140,12 +1142,6 @@ def releaseRuntimeOptionForImageBuild(srcid, dstid, insid):
     }
     r = requests.post(url, data=payload)
     logger.error("--- --- --- " + url + ":" + r.content)
-
-    tidrec.delete()
-    ccres_info.save()
-
-
-
 
 def genRuntimeOptionForImageBuild(transid, ccip, ncip):
     logger.error("--- --- --- genRuntimeOptionForImageBuild")
@@ -1679,6 +1675,7 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
     trec = ectaskTransaction.objects.get(tid=_tid)
     trec.phase = "submitting"
     trec.state = 'done'
+    trec.completed = True
     trec.progress = 100
     trec.save()
 
