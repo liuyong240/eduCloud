@@ -1077,7 +1077,22 @@ def cc_modify_resources(request, cc_name):
 #         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
 #         ... ...
 #     ]
-#     3.3 pub_ip, prv_ip, iptable
+#     3.3.1 'disks' : [
+#         {
+#           'file'      :  '/storage/images/imgid/machine'
+#           'mtype'     :  'normal'
+#         }
+#         {
+#           'file'      :  '/storage/space/database/imgid/database'
+#           'mtype'     :  'write-through'
+#         }
+#     ]
+#     3.3.2 'folders'   : [
+#         '/storage/space/software/',
+#         '/storage/space/prv-data/<user>/',
+#         '/storage/space/pub-data/'
+#     ]
+#     3.4 pub_ip, prv_ip, iptable
 #     'publicIP'          :
 #     'privateIP'         :
 #     'web_ip'            :
@@ -1088,7 +1103,7 @@ def cc_modify_resources(request, cc_name):
 #         'rule2',
 #         ... ...
 #     ]
-#     3.4
+#     3.5
 #     'web_accessURL'     :
 #     'mgr_accessURL'     :
 
@@ -1142,6 +1157,67 @@ def releaseRuntimeOptionForImageBuild(srcid, dstid, insid):
     }
     r = requests.post(url, data=payload)
     logger.error("--- --- --- " + url + ":" + r.content)
+
+def genVMDisks(tid, usage):
+    tid_info = tid.split(':')
+    src_imgid = tid_info[0]
+    dst_imgid = tid_info[1]
+    ins_id    = tid_info[2]
+
+    disks = []
+    disk = {}
+    if ins_id.find('TMP') == 0:
+        # add disk c
+        disk['file']    = '/storage/tmp/images/%s/machine' % dst_imgid
+        disk['mtype']   = 'normal'
+        disks.append(disk)
+
+        if usage == 'server':
+            disk['file']    = '/storage/space/database/%s/database' % dst_imgid
+            disk['mtype']   = 'writethrough'
+            disks.append(disk)
+
+        disk['file']    = '/storage/images/data'
+        disk['mtype']   = 'multiattach'
+        disks.append(disk)
+
+    if ins_id.find('VD') == 0:
+        disk['file']    = '/storage/tmp/images/%s/machine' % dst_imgid
+        disk['mtype']   = 'normal'
+        disks.append(disk)
+
+    if ins_id.find('VS') == 0:
+        disk['file']    = '/storage/tmp/images/%s/machine' % dst_imgid
+        disk['mtype']   = 'normal'
+        disks.append(disk)
+
+        disk['file']    = '/storage/space/database/%s/database' % dst_imgid
+        disk['mtype']   = 'writethrough'
+        disks.append(disk)
+
+    return disks
+
+def genVMFolders(tid, usage):
+    tid_info = tid.split(':')
+    src_imgid = tid_info[0]
+    dst_imgid = tid_info[1]
+    ins_id    = tid_info[2]
+
+    folders = []
+
+    if ins_id.find('TMP') == 0:
+        folders.append('/storage/space/software')
+
+    if ins_id.find('VD') == 0:
+        trec = ectaskTransaction.objects.get(tid=tid)
+        folders.append('/storage/space/prv-data/' % trec.user)
+        folders.append('/storage/space/pub-data')
+
+    if ins_id.find('VS') == 0:
+        folders.append('/storage/space/software')
+
+    return folders
+
 
 def genRuntimeOptionForImageBuild(transid, ccip, ncip):
     logger.error("--- --- --- genRuntimeOptionForImageBuild")
@@ -1197,11 +1273,14 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
         netcard['nic_mac'], netcard['nic_ip'] = ethers_allocate(ccres_info.ccname, ins_id)
         runtime_option['web_ip'] = netcard['nic_ip']
 
-
     networkcards.append(netcard)
     runtime_option['networkcards'] = networkcards
 
-    # 3.3 set public ip and private ip and iptable
+    # 3.3 add disks and folders
+    runtime_option['disks']     = genVMDisks(transid,   runtime_option['usage'])
+    runtime_option['folders']   = genVMFolders(transid, runtime_option['usage'])
+
+    # 3.4 set public ip and private ip and iptable
     iptables = []
 
     if networkMode == 'flat':

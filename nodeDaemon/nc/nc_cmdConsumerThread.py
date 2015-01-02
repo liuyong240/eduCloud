@@ -371,6 +371,7 @@ class runImageTaskThread(threading.Thread):
 
     # need to consider vd & vs creation
     # c: d: e: f:
+
     def createvm(self):
         flag = True
         payload = {
@@ -408,21 +409,20 @@ class runImageTaskThread(threading.Thread):
                         ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
                     logger.error("--- --- --- vboxmgr.addCtrl, error=%s" % err)
 
-                    ret, err = vboxmgr.attachHDD_c(storageCtl = self.runtime_option['disk_type'])
-                    logger.error("--- --- --- vboxmgr.attachHDD_c")
-                    if self.runtime_option['run_with_snapshot'] == 1:
-                        snapshot_name = "thomas"
-                        if not vboxmgr.isSnapshotExist(snapshot_name):
-                            ret, err = vboxmgr.take_snapshot(snapshot_name)
-                            logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % err)
+                    # add disks
+                    index = 0
+                    for disk in self.runtime_option['disks']:
+                        ret, err = vboxmgr.attachHDD(self.runtime_option['disk_type'], disk['mtype'], disk['file'])
+                        if index == 0 and self.runtime_option['run_with_snapshot'] == 1:
+                            snapshot_name = "thomas"
+                            if not vboxmgr.isSnapshotExist(snapshot_name):
+                                ret, err = vboxmgr.take_snapshot(snapshot_name)
+                                logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % err)
+                        index = index + 1
 
-                    ret, err = vboxmgr.attachHDD_shared_d(storageCtl = self.runtime_option['disk_type'])
-                    logger.error("--- --- --- vboxmgr.attachHDD_shared_d, error=%s" % err)
-
-                    # in server side, the SharedFolder is by default
-                    # need to mount cc's /storage/data to each NC
-                    ret, err = vboxmgr.attachSharedFolder(path="/storage/data")
-                    logger.error("--- --- --- vboxmgr.attachSharedFolder, error=%s" % err)
+                    # add folders
+                    for folder in self.runtime_option['folders']:
+                        ret, err = vboxmgr.attachSharedFolder(folder)
 
                     # in servere side, each VM has 4G mem
                     _cpus    = self.runtime_option['cpus']
@@ -509,13 +509,14 @@ class runImageTaskThread(threading.Thread):
             done_1 = True
             if self.runvm() == True:
                 done_2 = True
-                # need to update nc's status at once
-                update_nc_running_status()
 
         if done_1 == False or done_2 == False:
             self.rpcClient.call(cmd="image/edit/stopped", tid=self.tid, paras='')
         else:
             self.rpcClient.call(cmd="image/edit/running", tid=self.tid, paras='')
+
+        # need to update nc's status at once
+        update_nc_running_status()
 
 def update_nc_running_status():
     payload = { }

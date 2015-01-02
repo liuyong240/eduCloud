@@ -230,6 +230,14 @@ class vboxWrapper():
             device = self._sata_device
         return port, device
 
+    def attachHDD(self, storageCtl, mtype, imgfile):
+        vm_name = self._tool._vmname
+        port, device = self.portDeviceNumberAdd(storageCtl)
+        cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device',
+                    str(device), '--type', 'hdd', '--medium', imgfile, '--mtype', mtype]
+        ret, err = self._tool.runCMDline(cmd_line, False)
+        return ret, err
+
     def attachHDD_c(self, storageCtl="IDE", mtype="normal"):
         vm_name = self._tool._vmname
         vmfile = self._tool._image_file
