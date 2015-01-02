@@ -172,7 +172,7 @@ vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
 - when image is uploade, its default usage is 'desktop'
 
 - when image{srcid} usage is changed to 'server'
-  > clc will clone /storage/images/database to /storage/space/database/images/imgid/database
+  > clc will clone /storage/images/database to /storage/space/database/imgid/database
 
 6.3.1.1 Image Build & Modify
 

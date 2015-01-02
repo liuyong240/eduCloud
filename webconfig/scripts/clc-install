@@ -32,6 +32,7 @@ sudo touch /etc/educloud/modules/walrus
 
 #2 prepare dependented packages
 desc_step "2. prepare dependented packages"
+# also need to install virtual-box
 sudo apt-get install memcached libmemcached-tools mysql-server libmysqld-dev libmysqlclient-dev apache2 rabbitmq-server libapache2-mod-wsgi python-dev ifstat sysstat sudo openssh-server python-pip sshfs iperf
 
 #3 configure rabbitmq service

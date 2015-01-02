@@ -2810,13 +2810,12 @@ def update_images(request):
 
     # if ostype == server, check existence of /storage/space/database/imgid/database
     if rec.img_usage == 'server':
-        dst = '/storage/space/database/images/%s/database' % rec.ecid
-        if not os.path.exists(os.path.dirname(dst)):
-            # cp one database disk
+        dstfile = '/storage/space/database/%s/database' % rec.ecid
+        if not os.path.exists(dstfile):
             # from /storage/images/database to /storage/space/database/imgid/database
-            os.makedirs('/storage/space/database/images/%s' % rec.ecid)
-            src = '/storage/images/database'
-            shutil.copy2(src, dst)
+            srcfile = '/storage/images/database'
+            cmd_line = "VBoxManage clonehd %s %s" % (srcfile, dstfile)
+            commands.getoutput(cmd_line)
 
     response['Result'] = 'OK'
 
