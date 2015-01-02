@@ -99,7 +99,7 @@ function prepareUIUpdate(items) {
             $("#desclabel").css('display', 'block');
         }
     }
-    if (state == 'downloading') {
+    if (state == 'downloading' || state == "cloning") {
         $(".jw-button-next").attr("disabled", true);
         $("#btn_prepare").addClass("disabled");
 
@@ -109,6 +109,7 @@ function prepareUIUpdate(items) {
 
         setTimeout(getPrepareProgress, timer_interval);
     }
+
     if (state == 'done') {
         prepareDone();
     }

@@ -1,6 +1,6 @@
 # coding=UTF-8
 
-import pexpect
+import pexpect, threading
 
 # client: /opt/luhya/images/imageID/machine, attributes.conf
 # server: /var/www/images/imageID/machine, attributes.conf
@@ -46,4 +46,51 @@ class rsyncWrapper():
                 return self.returnZeroProgress()
         except:
             return self.returnZeroProgress()
+
+class rsyncWorkerThread(threading.Thread):
+    def __init__(self, logger, src, dst):
+        threading.Thread.__init__(self)
+
+        self.src        = src
+        self.dst        = dst
+        self.progress   = 0
+        self.failed     = 0
+        self.errormsg   = ''
+        self.logger     = logger
+
+    def isFailed(self):
+        return self.failed
+
+    def getprogress(self):
+        return self.progress
+
+    def getErrorMsg(self):
+        return self.errormsg
+
+    def run(self):
+        self.logger.error("rsyncWorkerThread is running ... ...")
+
+        self.progress = 0
+
+        rsync = rsyncWrapper(self.src, self.dst)
+        rsync.startRsync()
+
+        while rsync.isRsyncLive():
+            tmpfilesize, pct, bitrate, remain = rsync.getProgress()
+            msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
+            self.logger.error(msg)
+            self.progress = int(pct.split('%')[0])
+
+        exit_code = rsync.getExitStatus()
+        if exit_code == 0:
+            if self.progress == 100: # success
+                self.failed     = 0
+                self.errormsg   = "process exit with code=%s, progress=%s" % ( 0, 100)
+            else:                    # failed
+                self.failed     = 1
+                self.errormsg   = "process exit with code=%s, progress=%s" % ( 0, self.progress)
+        else:
+            self.failed   = 1
+            self.errormsg = "process exit with code=%s, progress=%s" % ( exit_code, self.progress)
+        self.logger.error(self.errormsg)
 

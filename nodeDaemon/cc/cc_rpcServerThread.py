@@ -154,20 +154,24 @@ class cc_rpcServerThread(run4everThread):
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_imageprepare")
 
-        prompt = 'Downloading file from Walrus to CC ... ...'
-        if paras == 'luhya':
-            prompt = 'Downloading image file from Walrus to CC ... ...'
-        if paras == 'db':
-            prompt = 'Downloading database file from Walrus to CC ... ...'
-
         if tid in self.tasks_status and self.tasks_status[tid] != None:
             worker = self.tasks_status[tid]
         else:
-            progress = 0
             clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
             walrusinfo = getWalrusInfo(clcip)
             serverIP = walrusinfo['data']['ip0']
-            worker = downloadWorkerThread(serverIP, tid, paras)
+
+            prompt = 'Downloading file from Walrus to CC ... ...'
+            if paras == 'luhya':
+                prompt = 'Downloading image file from Walrus to CC ... ...'
+                source      = "rsync://%s/%s/%s" % (serverIP, 'luhya', tid.split(':')[0])
+                destination = "/storage/images/"
+            if paras == 'db':
+                prompt = 'Downloading database file from Walrus to CC ... ...'
+                source      = "rsync://%s/%s/%s" % (serverIP, 'db', tid.split(':')[0])
+                destination = "/storage/space/database/"
+
+            worker = rsyncWorkerThread(logger, source, destination)
             worker.start()
             self.tasks_status[tid] = worker
 
@@ -192,29 +196,39 @@ class cc_rpcServerThread(run4everThread):
         if worker.isFailed():
             del self.tasks_status[tid]
 
-    def cc_rpc_handle_imagesubmit(self, ch, method, props, tid):
+    def cc_rpc_handle_imagesubmit(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_imagesubmit")
 
         if tid in self.submit_tasks and self.submit_tasks[tid] != None:
             worker = self.submit_tasks[tid]
-            if worker.isFailed():
-                worker.start()
-            progress = worker.getprogress()
         else:
-            progress = 0
             clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
             walrusinfo = getWalrusInfo(clcip)
             serverIP = walrusinfo['data']['ip0']
-            worker = submitWorkerThread(serverIP, tid)
+
+            prompt = 'Uploading file from CC to Walrus ... ...'
+            if paras == 'luhya':
+                prompt      = 'Uploading image file from CC to Walrus ... ...'
+                source      = "/storage/images/%s" % tid.split(':')[1]
+                destination = "rsync://%s/%s/" % (serverIP, 'luhya')
+            if paras == 'db':
+                prompt      = 'Uploading database file from CC to Walrus ... ...'
+                source      = '/storage/space/database/%s' %  tid.split(':')[1]
+                destination = "rsync://%s/%s/" % (serverIP, 'db')
+
+            worker = rsyncWorkerThread(logger, source, destination)
             worker.start()
             self.submit_tasks[tid] = worker
+
 
         payload = {
                 'type'      : 'taskstatus',
                 'phase'     : "submitting",
-                'progress'  : progress,
+                'state'     : 'uploading',
+                'progress'  : worker.getprogress(),
                 'tid'       : tid,
-                'errormsg'  : '',
+                'prompt'    : prompt,
+                'errormsg'  : worker.getErrorMsg(),
                 'failed'    : worker.isFailed()
         }
         payload = json.dumps(payload)
@@ -225,10 +239,10 @@ class cc_rpcServerThread(run4everThread):
                  body=payload)
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
-        if progress < 0:
+        if worker.isFailed():
             del self.submit_tasks[tid]
 
-    def cc_rpc_handle_prepare_failure(self, ch, method, props, tid):
+    def cc_rpc_handle_prepare_failure(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_prepare_failure")
 
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
@@ -242,7 +256,7 @@ class cc_rpcServerThread(run4everThread):
                  body=payload)
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
-    def cc_rpc_handle_prepare_success(self, ch, method, props, tid):
+    def cc_rpc_handle_prepare_success(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_prepare_success")
 
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
@@ -256,7 +270,7 @@ class cc_rpcServerThread(run4everThread):
                  body=payload)
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
-    def cc_rpc_handle_submit_failure(self, ch, method, props, tid):
+    def cc_rpc_handle_submit_failure(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_submit_failure")
 
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
@@ -270,7 +284,7 @@ class cc_rpcServerThread(run4everThread):
                  body=payload)
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
-    def cc_rpc_handle_submit_success(self, ch, method, props, tid):
+    def cc_rpc_handle_submit_success(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_submit_success")
 
         if tid in self.tasks_status and self.tasks_status[tid] != None:
@@ -297,7 +311,7 @@ class cc_rpcServerThread(run4everThread):
         newversionNo = IncreaseImageVersion(oldversionNo)
         WriteImageVersionFile(self.dstimgid,newversionNo)
 
-    def cc_rpc_handle_image_running(self, ch, method, props, tid):
+    def cc_rpc_handle_image_running(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_image_running")
 
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
@@ -311,7 +325,7 @@ class cc_rpcServerThread(run4everThread):
                  body=payload)
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
-    def cc_rpc_handle_image_stopped(self, ch, method, props, tid):
+    def cc_rpc_handle_image_stopped(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_image_stopped")
 
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)

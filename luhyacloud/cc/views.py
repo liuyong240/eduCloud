@@ -82,10 +82,10 @@ def image_create_task_run(request):
     ncip = request.POST['ncip']
 
     message = {}
-    message['type'] = "cmd"
-    message['op']   = 'image/run'
-    message['paras']= request.POST['tid']
-    message['runtime_option'] = request.POST['runtime_option']
+    message['type']             = "cmd"
+    message['op']               = 'image/run'
+    message['tid']              = request.POST['tid']
+    message['runtime_option']   = request.POST['runtime_option']
 
     _message = json.dumps(message)
     routing_send(logger, 'localhost', 'nc_cmd', _message, ncip)
@@ -112,13 +112,20 @@ def image_create_task_stop(request):
     ncip = request.POST['ncip']
 
     message = {}
-    message['type'] = "cmd"
-    message['op']   = 'image/stop'
-    message['paras']= request.POST['tid']
+    message['type']             = "cmd"
+    message['op']               = 'image/stop'
+    message['tid']              = request.POST['tid']
+    message['runtime_option']   = request.POST['runtime_option']
 
     _message = json.dumps(message)
     routing_send(logger, 'localhost', 'nc_cmd', _message, ncip)
     logger.error("--- --- --- send stop cmd to nc sucessfully")
+
+    # check for runtime_option for cc's side work
+    runtime_option = json.loads(message['runtime_option'])
+    if len(runtime_option['iptable_rules']) > 0:
+        for ipt in runtime_option['iptable_rules']:
+            RemoveIPtableRule(ipt)
 
     # return http response
     response = {}
@@ -134,9 +141,10 @@ def image_create_task_submit(request):
     ncip = request.POST['ncip']
 
     message = {}
-    message['type'] = "cmd"
-    message['op']   = 'image/submit'
-    message['paras']= request.POST['tid']
+    message['type']             = "cmd"
+    message['op']               = 'image/submit'
+    message['tid']              = request.POST['tid']
+    message['runtime_option']   = request.POST['runtime_option']
     message = json.dumps(message)
 
     routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
@@ -149,8 +157,6 @@ def image_create_task_submit(request):
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
-
-
 
 
 def register_host(request):

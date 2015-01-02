@@ -214,47 +214,57 @@ vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
         nc:/storage/space/database/srcid/database
         to run vm
   > run_time_option
-      c: /storage/images/srcid/machine, snapshoted
-      d: /storage/space/database/srcid/database, write-through
-      e: /storage/images/data.vdi, multi-attached
+      c: /storage/images/srcid/machine,             snapshoted
+      d: /storage/space/database/srcid/database,    write-through
+      e: /storage/images/data.vdi,                  multi-attached
       f: network folder of /storage/space/software/*
   > when submitting
     >> delete c's snapshot
+
     >> upload nc's /storage/images/srcid/machine to  cc's /storage/images/srcid/machine
     >> upload cc's /storage/images/srcid/machine to clc's /storage/images/srcid/machine, and version it
+
     >> upload cc's /storage/space/database/srcid/database to clc's /storage/space/database/srcid/database
 
 - server image BUILD flow (srcid, dstid)
   > image will be download from clc:/storage/images/srcid/machine to cc's /storage/images/srcid/machine
   > image will be download from  cc:/storage/images/srcid/machine to nc's /storage/images/srcid/machine
+  > nc will clone /storage/images/srcid/machine to /storage/tmp/images/dstid/machine
+
   > db    will be download from clc:/storage/space/database/srcid/database to cc:/storage/space/database/srcid/database
   > cc:/storage/space/database/srcid/database will be shared to nc:/storage/space/database/srcid/database
-  
+  > nc will clone /storage/space/database/srcid/database to /storage/space/database/dstid/database
+
   > based on
-        nc:/storage/images/srcid/machine
-        nc:/storage/space/database/srcid/database
+        nc:/storage/tmp/images/dstid/machine
+        nc:/storage/space/database/dstid/database
         to run vm
   > run_time_option
-      c: /storage/images/srcid/machine, snapshoted
-      d: /storage/space/database/srcid/database, write-through
-      e: /storage/images/data.vdi, multi-attached
+      c: /storage/tmp/images/dstid/machine,         snapshoted
+      d: /storage/space/database/dstid/database,    write-through
+      e: /storage/images/data.vdi,                  multi-attached
       f: network folder of /storage/space/software/*
   > when submitting
     >> delete c's snapshot
-    >> upload nc's /storage/images/srcid/machine to  cc's /storage/images/srcid/machine
-    >> upload cc's /storage/images/srcid/machine to clc's /storage/images/srcid/machine, and version it
-    >> upload cc's /storage/space/database/srcid/database to clc's /storage/space/database/srcid/database
+
+    >> upload nc's /storage/tmp/images/dstid/machine to  cc's /storage/images/dstid/machine
+    >> upload cc's /storage/images/dstid/machine     to clc's /storage/images/dstid/machine, and version it
+
+    >> upload cc's /storage/space/database/dstid/database to clc's /storage/space/database/dstid/database
 
 6.3.1.2 Image Running
 
-6.3.1 desktop vm instance
-  c: image disk , snapshotted
-  d: network disk of /storage/space/prv-d-data/user-id/*
-  e: network disk of /storage/space/pub-data/*
+- desktop vm instance  --> same as desktop image modify
+  > run_time_option
+      c: /storage/images/srcid/machine,                     snapshoted
+      d: netowrk folder of /storage/space/prv-data/<user>/
+      e: network folder of /storage/space/pub-data/
+- server  vm instance  --> same as server  image modify
+  > run_time_option
+      c: /storage/images/srcid/machine,                     snapshoted
+      d: /storage/space/database/srcid/database,            write-through
+      f: network folder of /storage/space/software/*
 
-6.3.3 server vm instance
-  c: image disk, snapshotted
-  d: database disk, write-through, /storage/space/server-data/insid/database,vdi
 
 ############################
 # 7. get server's CPU info 

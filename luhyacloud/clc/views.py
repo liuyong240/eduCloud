@@ -1106,6 +1106,47 @@ def getIPandMacFromePool(ccname):
 def getServicePortfromCC(ccname):
     pass
 
+def releaseRuntimeOptionForImageBuild(srcid, dstid, insid):
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+
+    tidrec = ectaskTransaction.objects.get(tid=_tid)
+    creator = tidrec.user
+
+    runtime_option = json.loads(tidrec.runtime_option)
+
+    ccres_info = ecCCResources.objects.get(ccip = tidrec.ccip)
+    # release CC Resource
+    # 1. rdp port
+    available_rdp_port = json.loads(ccres_info.rdp_port_pool_list)
+    used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
+
+    available_rdp_port, used_rdp_ports = free_rdp_port(available_rdp_port, used_rdp_ports, runtime_option['rdp_port'])
+
+    ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
+    ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
+
+    ccres_info.save()
+
+    # 2. release ip mac
+
+    # 3. release iptables
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
+    else:
+        url = 'http://%s/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
+
+    payload = {
+        'runtime_option' : tidrec.runtime_option
+    }
+    r = requests.post(url, data=payload)
+    logger.error("--- --- --- " + url + ":" + r.content)
+
+    tidrec.delete()
+    ccres_info.save()
+
+
+
+
 def genRuntimeOptionForImageBuild(transid, ccip, ncip):
     logger.error("--- --- --- genRuntimeOptionForImageBuild")
     tid_info = transid.split(':')
@@ -1228,7 +1269,7 @@ def image_create_task_start(request, srcid):
     # create ectaskTransation Record
     _srcimgid        = srcid
     _dstimageid      = 'IMG' + genHexRandom()
-    _instanceid      = 'TMPINS' + genHexRandom()
+    _instanceid      = 'TMP' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
     logger.error("tid=%s" % _tid)
@@ -1322,9 +1363,9 @@ def image_create_task_prepare_success(request, srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "editing"
-    rec.vmstatus = 'init'
-    rec.progress = 0
+    rec.phase = "prepare"
+    rec.state = 'done'
+    rec.progress = 100
     rec.save()
 
     response = {}
@@ -1339,8 +1380,8 @@ def image_create_task_prepare_failure(request, srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "init"
-    rec.vmstatus = ''
+    rec.phase = "prepare"
+    rec.state = 'init'
     rec.progress = 0
     rec.save()
 
@@ -1356,7 +1397,7 @@ def image_create_task_run(request, srcid, dstid, insid):
 
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "editing"
-    rec.vmstatus = 'init'
+    rec.state = 'booting'
     rec.progress = 0
     rec.save()
 
@@ -1381,7 +1422,7 @@ def image_create_task_stop(request, srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "editing"
-    rec.vmstatus = 'stopping'
+    rec.state = 'stopped'
     rec.progress = 0
     rec.save()
 
@@ -1406,7 +1447,7 @@ def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
 
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
     rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.vmstatus = vmstatus
+    rec.state = vmstatus
     rec.save()
 
     response = {}
@@ -1488,6 +1529,7 @@ def image_create_task_submit(request, srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "submitting"
+    rec.state = 'uploading'
     rec.progress = 0
     rec.save()
 
@@ -1550,7 +1592,7 @@ def image_modify_task_start(request, srcid):
     # create ectaskTransation Record
     _srcimgid        = srcid
     _dstimageid      = srcid
-    _instanceid      = 'TMPINS' + genHexRandom()
+    _instanceid      = 'TMP' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
     logger.error("tid=%s" % _tid)
@@ -1619,8 +1661,8 @@ def image_create_task_submit_failure(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
     rec = ectaskTransaction.objects.get(tid=_tid)
 
-    rec.phase = "editing"
-    rec.vmstatus = 'stopping'
+    rec.phase = "submitting"
+    rec.statue = 'init'
     rec.progress = 0
     rec.save()
 
@@ -1629,66 +1671,24 @@ def image_create_task_submit_failure(request,  srcid, dstid, insid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
-def image_create_task_submit_success(request,  srcid, dstid, insid):
+def image_create_task_submit_success(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_submit_success")
 
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
-    tidrec = ectaskTransaction.objects.get(tid=_tid)
-    creator = tidrec.user
+    trec = ectaskTransaction.objects.get(tid=_tid)
+    trec.phase = "submitting"
+    trec.state = 'done'
+    trec.progress = 100
+    trec.save()
 
-    runtime_option = json.loads(tidrec.runtime_option)
-
-    ccres_info = ecCCResources.objects.get(ccip = tidrec.ccip)
-    available_rdp_ports     = json.loads(ccres_info.available_rdp_ports)
-    used_rdp_ports          = json.loads(ccres_info.used_rdp_ports)
-    available_ips_macs      = json.loads(ccres_info.available_ips_macs)
-    used_ips_macs           = json.loads(ccres_info.used_ips_macs)
-
-    # Release network resource
-    # 1. release rdp port
-    available_rdp_ports, used_rdp_ports = free_rdp_port(available_rdp_ports, used_rdp_ports, runtime_option['rdp_port'])
-    ccres_info.available_rdp_ports = json.dumps(available_rdp_ports)
-    ccres_info.used_rdp_ports      = json.dumps(used_rdp_ports)
-    logger.error("--- --- --- release rdp port success")
-
-    # 2. release ip_mac
-    if runtime_option['usage'] != 'desktop':
-
-        networkcards = runtime_option['networkcards']
-        for netcard in networkcards:
-            ipmacs = {
-                'mac'   : netcard['nic_mac'],
-                'pubip' : netcard['nic_pubip'],
-                'prvip' : netcard['nic_prvip']
-            }
-            available_ips_macs, used_ips_macs = free_ip_macs(available_ips_macs, used_ips_macs, ipmacs)
-
-        ccres_info.available_ips_macs   = json.dumps(available_ips_macs)
-        ccres_info.used_ips_macs        = json.dumps(used_ips_macs)
-        logger.error("--- --- --- release ips-macs success")
-
-    # 3.update iptables
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
-    else:
-        url = 'http://%s/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
-
-    payload = {
-        'runtime_option' : tidrec.runtime_option
-    }
-    r = requests.post(url, data=payload)
-    logger.error("--- --- --- " + url + ":" + r.content)
-
-    tidrec.delete()
-    ccres_info.save()
+    releaseRuntimeOptionForImageBuild(srcid, dstid, insid)
+    imgfile_path = '/storage/images/' + dstid + "/machine"
+    imgfile_size = os.path.getsize(imgfile_path)
 
     # 4 update database
     if srcid != dstid:
         srcimgrec = ecImages.objects.get(ecid=srcid)
-
-        imgfile_path = '/storage/images/' + dstid + "/machine"
-        imgfile_size = os.path.getsize(imgfile_path)
 
         dstimgrec = ecImages(
             ecid    = dstid,
@@ -1711,7 +1711,7 @@ def image_create_task_submit_success(request,  srcid, dstid, insid):
         )
         rec.save()
 
-        rec = ecAccount.objects.get(userid=creator)
+        rec = ecAccount.objects.get(userid=trec.user)
         auth_name = rec.ec_authpath_name
         rec = ecAuthPath.objects.get(ec_authpath_name = auth_name)
         if rec.ec_authpath_value != 'eduCloud.admin':
@@ -1735,6 +1735,7 @@ def image_create_task_submit_success(request,  srcid, dstid, insid):
 
         dstimgrec = ecImages.objects.get(ecid=dstid)
         dstimgrec.version = newversionNo
+        dstimgrec.size    = imgfile_size
         dstimgrec.save()
         logger.error("--- --- --- update image record successfully")
 
