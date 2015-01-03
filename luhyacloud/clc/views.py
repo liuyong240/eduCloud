@@ -26,22 +26,6 @@ import requests, memcache
 
 logger = getclclogger()
 
-def findLazyNC(cc_name):
-    ncs = ecServers.objects.filter(ccname=cc_name, role='nc')
-    return ncs[0].ip0
-
-# this is simple algorith, just find the first cc in db
-def findLazyCC(srcid):
-    rec = ecImages.objects.get(ecid=srcid)
-    if rec.img_usage == "server":
-        filter = 'vs'
-    else:
-        filter = 'rvd'
-
-    ccs = ecCCResources.objects.filter(cc_usage=filter)
-    ccip = ccs[0].ccip
-    return ccip, ccs[0].ccname
-
 ''' Example of nc status data in memcache
 {
     "net_data": {
@@ -1831,11 +1815,12 @@ def image_add_vm(request, imgid):
         _instanceid      = 'VS' + genHexRandom()
 
     _tid  = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
-
+    ccs  = ecServers.objects.filter(role='cc')
     context = {
             'pagetitle' : "VM Create",
             'imgobj'    : imgobj,
             'tid'       : _tid,
+            'ccs'       : ccs,
     }
 
     return render(request, 'clc/wizard/vs_create_wizard.html', context)
