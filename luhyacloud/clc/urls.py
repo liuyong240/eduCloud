@@ -87,6 +87,8 @@ urlpatterns = patterns('',
     # iframe page
     url(r'^jt/images$',             views.jtable_images,                 name='jtable_images_view'),
     url(r'^jt/tasks$',              views.jtable_tasks,                  name='jtable_tasks_view'),
+    url(r'^jt/vss$',                views.jtable_vss,                    name='jtable_vss_view'),
+    url(r'^jt/vds$',                views.jtable_vds,                    name='jtable_vds_view'),
 
 
     url(r'^jt/settings/authpath$',  views.jtable_settings_for_authapth,  name='jtable_settings_authpath_view'),
@@ -186,15 +188,15 @@ urlpatterns = patterns('',
     # url(r'^api/1.0/vapp/update$',        views.update_vapp,               name='update_vapp_view'),
     # url(r'^api/1.0/vapp/create$',        views.create_vapp,               name='create_vapp_view'),
     #
-    # url(r'^api/1.0/vds/list$',          views.list_vds,                 name='list_vds_view'),
-    # url(r'^api/1.0/vds/delete$',        views.delete_vds,               name='delete_vds_view'),
-    # url(r'^api/1.0/vds/update$',        views.update_vds,               name='update_vds_view'),
-    # url(r'^api/1.0/vds/create$',        views.create_vds,               name='create_vds_view'),
+    url(r'^api/1.0/vds/list$',          views.list_vds,                 name='list_vds_view'),
+    url(r'^api/1.0/vds/delete$',        views.delete_vds,               name='delete_vds_view'),
+    url(r'^api/1.0/vds/update$',        views.update_vds,               name='update_vds_view'),
+    url(r'^api/1.0/vds/create$',        views.create_vds,               name='create_vds_view'),
     #
-    # url(r'^api/1.0/vss/list$',          views.list_vss,                 name='list_vss_view'),
-    # url(r'^api/1.0/vss/delete$',        views.delete_vss,               name='delete_vss_view'),
-    # url(r'^api/1.0/vss/update$',        views.update_vss,               name='update_vss_view'),
-    # url(r'^api/1.0/vss/create$',        views.create_vss,               name='create_vss_view'),
+    url(r'^api/1.0/vss/list$',          views.list_vss,                 name='list_vss_view'),
+    url(r'^api/1.0/vss/delete$',        views.delete_vss,               name='delete_vss_view'),
+    url(r'^api/1.0/vss/update$',        views.update_vss,               name='update_vss_view'),
+    url(r'^api/1.0/vss/create$',        views.create_vss,               name='create_vss_view'),
 
 
     # this is a POST requtst, all data in POST section

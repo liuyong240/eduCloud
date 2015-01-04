@@ -5,11 +5,41 @@
 {% block myjavascript %}
 <script>
 $(document).ready(function () {
+    function init_page() {
+        if ( '{{imgobj.img_usage }}' == 'desktop') {
+            $('#macip-config').css('display', 'none');
+        }
+    }
     function submit_new_vs() {
-        url = "/clc/api/1.0/vss/create";
+        vm_insid    = '{{ insid }}';
+        vm_imgid    = '{{ imgobj.ecid }}';
+        vm_name     = $('#vm_name').val();
+        vm_desc     = $('#vm_desc').val();
+
+        vm_cc       = $('#vm_cc').val();
+        vm_nc       = $('#vm_nc').val();
+
+        vm_cpus     = $('#vm_cpus').val();
+        vm_mems     = $('#vm_mems').val();
+        vm_macip    = $('#vm_macip').val();
+
+        if ( '{{imgobj.img_usage}}' == 'desktop') {
+            url = "/clc/api/1.0/vds/create";
+        }
+        if ( '{{imgobj.img_usage}}' == 'server') {
+            url = "/clc/api/1.0/vss/create";
+        }
+
         postdata = {
-            ccname          :  ccname,
-            ip              : '',
+            'insid'          :    vm_insid,
+            'imageid'        :    vm_imgid,
+            'name'           :    vm_name,
+            'description'    :    vm_desc,
+            'cc_def'         :    vm_cc,
+            'nc_def'         :    vm_nc,
+            'cpus'           :    vm_cpus,
+            'mems'           :    vm_mems,
+            'mac'            :    vm_macip,
         }
 
         $.post(url, postdata, function(data) {
@@ -18,17 +48,13 @@ $(document).ready(function () {
                 items[key] = val;
             });
             if (items['Result'] == "OK") {
-                // add option to select with id = vm_nc
-                ncs = items['Records'];
-                len = ncs.length;
-                $("#vm_nc").empty();
-                $("#vm_nc").append('<option selected value="any">Any</option>');
-                for (var index = 0; index < len; index++) {
-                    ip = ncs[index]['ip0'];
-                    $("#vm_nc").append('<option value="' + ip + '">' + ip +'</option>');
-                }
+                alert('create vm success! ');
             }
         });
+    }
+
+    function sleep(sleepTime) {
+        for (var start = Date.now(); Date.now() - start <= sleepTime;) {}
     }
 
     $("#wizard").jWizard({
@@ -38,11 +64,17 @@ $(document).ready(function () {
             label: "count",
             append: ""
         },
+        buttons: {
+            finish: {
+                type: "button",
+            }
+        },
         cancel: function () {
             window.close();
         },
         finish: function () {
-            //submit_new_vs();
+            submit_new_vs();
+            sleep(1000);
             window.close();
         }
     });
@@ -98,13 +130,13 @@ $(document).ready(function () {
 
     });
 
+    init_page();
+
 });
 </script>
 {% endblock %}
 
 {% block mywizard %}
-    <div id="tid"   style="display: none;">{{ tid }}</div>
-
     <form id="wizard">
         <fieldset>
             <legend>{% trans "Basic Config" %}</legend>
@@ -160,11 +192,13 @@ $(document).ready(function () {
                     <option value="16">16G</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Select MAC/IP</label>
-                <select class="form-control" id="vm_macip">
-                    <option selected value="any">Any</option>
-                </select>
+            <div id="macip-config">
+                <div class="form-group">
+                    <label>Select MAC/IP</label>
+                    <select class="form-control" id="vm_macip">
+                        <option selected value="any">Any</option>
+                    </select>
+                </div>
             </div>
         </fieldset>
     </form>

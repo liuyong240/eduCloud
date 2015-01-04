@@ -1807,19 +1807,16 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
 def image_add_vm(request, imgid):
     imgobj = ecImages.objects.get(ecid = imgid)
 
-    _srcimgid        = imgid
-    _dstimageid      = imgid
     if imgobj.img_usage == 'desktop':
         _instanceid      = 'VD' + genHexRandom()
     if imgobj.img_usage == 'server':
         _instanceid      = 'VS' + genHexRandom()
 
-    _tid  = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
     ccs  = ecServers.objects.filter(role='cc')
     context = {
             'pagetitle' : "VM Create",
             'imgobj'    : imgobj,
-            'tid'       : _tid,
+            'insid'     : _instanceid,
             'ccs'       : ccs,
     }
 
@@ -1837,6 +1834,15 @@ def jtable_images(request):
 @login_required
 def jtable_tasks(request):
     return render(request, 'clc/jtable/tasks_table.html', {})
+
+@login_required
+def jtable_vss(request):
+    return render(request, 'clc/jtable/vss_table.html', {})
+
+@login_required
+def jtable_vds(request):
+    return render(request, 'clc/jtable/vds_table.html', {})
+
 
 @login_required
 def jtable_settings_for_authapth(request):
@@ -2714,6 +2720,8 @@ def create_ethers(request, cc_name):
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
+
+# ------------------------------------
 # core tables for tasks
 # ------------------------------------
 def list_tasks(request):
@@ -2755,6 +2763,257 @@ def delete_tasks(request):
 
 # core tables for images
 # ------------------------------------
+def notify_ccs_delete_vm(ccip, ncip, type):
+    pass
+
+def list_vds(request):
+    response = {}
+    data = []
+
+    recs = ecVDS.objects.all()
+
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['insid'] = rec.insid
+        jrec['imageid'] = rec.imageid
+        jrec['name']=rec.name
+        jrec['creator'] = rec.creator
+        jrec['cc'] = rec.cc_def
+        jrec['nc'] = rec.nc_def
+        jrec['cpus'] = rec.cpus
+        jrec['memory'] = rec.memory
+
+        _tid = '%s:%s:%s' % (rec.imageid, rec.imageid, rec.insid)
+        tidrecs = ectaskTransaction.objects.filter(tid=_tid)
+        if tidrecs.count() == 0:
+            jrec['state'] = 'stopped'
+        else:
+            jrec['state'] = '%s:%s' % (tidrecs[0].phase, tidrecs[0].state)
+
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_vds(request):
+    response = {}
+
+    vds_rec = ecVDS.objects.get(id=request.POST['id'])
+    _tid = '%s:%s:%s' % (vds_rec.imageid, vds_rec.imageid, vds_rec.insid)
+
+    tid_rec = ectaskTransaction.objects.get(tid=_tid)
+    _cc = tid_rec.ccip
+    _nc = tid_rec.ncip
+
+    # notify all cc to stop & delete deleted vss
+    notify_ccs_delete_vm(_cc, _nc, 'vd')
+
+
+    vds_rec.delete()
+    tid_rec.delete()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_vds(request):
+    pass
+
+def create_vds(request):
+    response = {}
+    recs = ecVDS.objects.filter(insid = request.POST['insid'])
+    if recs.count() == 0:
+        new_vm = ecVDS(
+            insid       = request.POST['insid'],
+            imageid     = request.POST['imageid'],
+            name        = request.POST['name'],
+            description = request.POST['description'],
+            cc_def      = request.POST['cc_def'],
+            nc_def      = request.POST['nc_def'],
+            cpus        = request.POST['cpus'],
+            memory      = request.POST['mems'],
+        )
+        new_vm.save()
+
+        # update ecVDS_auth table
+        new_vm_auth = ecVDS_auth(
+            insid   =   request.POST['insid'],
+            role_value  =   'eduCloud.admin',
+            read        =   True,
+            write       =   True,
+            execute     =   True,
+            create      =   True,
+            delete      =   True,
+        )
+        new_vm_auth.save()
+
+        ua = ecAccount.objects.get(userid=request.user)
+        if ua.ec_authpath_name != 'eduCloud.admin':
+            new_vm_auth = ecVDS_auth(
+            insid   =   request.POST['insid'],
+            role_value  =   ua.ec_authpath_name,
+            read        =   True,
+            write       =   True,
+            execute     =   True,
+            create      =   True,
+            delete      =   True,
+        )
+        new_vm_auth.save()
+
+
+    else:
+        old_vm = ecVDS.objects.get(insid = request.POST['insid'])
+        old_vm.name        = request.POST['name']
+        old_vm.description = request.POST['description']
+        old_vm.cc_def      = request.POST['cc_def']
+        old_vm.nc_def      = request.POST['nc_def']
+        old_vm.cpus        = request.POST['cpus']
+        old_vm.memory      = request.POST['mems']
+        old_vm.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def list_vss(request):
+    response = {}
+    data = []
+
+    recs = ecVSS.objects.all()
+
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['insid'] = rec.insid
+        jrec['imageid'] = rec.imageid
+        jrec['name']=rec.name
+        jrec['creator'] = rec.creator
+        jrec['cc'] = rec.cc_def
+        jrec['nc'] = rec.nc_def
+        jrec['cpus'] = rec.cpus
+        jrec['memory'] = rec.memory
+        jrec['mac'] = rec.mac
+
+        _tid = '%s:%s:%s' % (rec.imageid, rec.imageid, rec.insid)
+        tidrecs = ectaskTransaction.objects.filter(tid=_tid)
+        if tidrecs.count() == 0:
+            jrec['state'] = 'stopped'
+        else:
+            jrec['state'] = '%s:%s' % (tidrecs[0].phase, tidrecs[0].state)
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def delete_vss(request):
+    response = {}
+
+    vss_rec = ecVSS.objects.get(id=request.POST['id'])
+    _tid = '%s:%s:%s' % (vss_rec.imageid, vss_rec.imageid, vss_rec.insid)
+
+    tid_rec = ectaskTransaction.objects.get(tid=_tid)
+    _cc = tid_rec.ccip
+    _nc = tid_rec.ncip
+
+    # notify all cc to stop & delete deleted vss
+    notify_ccs_delete_vm(_cc, _nc, 'vs')
+
+
+    vss_rec.delete()
+    tid_rec.delete()
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def update_vss(request):
+    pass
+
+def create_vss(request):
+    response = {}
+    recs = ecVSS.objects.filter(insid = request.POST['insid'])
+    if recs.count() == 0:
+        new_vm = ecVSS(
+            insid       = request.POST['insid'],
+            imageid     = request.POST['imageid'],
+            name        = request.POST['name'],
+            description = request.POST['description'],
+            cc_def      = request.POST['cc_def'],
+            nc_def      = request.POST['nc_def'],
+            cpus        = request.POST['cpus'],
+            memory        = request.POST['mems'],
+            mac         = request.POST['mac'],
+        )
+        new_vm.save()
+
+                # update ecVDS_auth table
+        new_vm_auth = ecVDS_auth(
+            insid   =   request.POST['insid'],
+            role_value  =   'eduCloud.admin',
+            read        =   True,
+            write       =   True,
+            execute     =   True,
+            create      =   True,
+            delete      =   True,
+        )
+        new_vm_auth.save()
+
+        ua = ecAccount.objects.get(userid=request.user)
+        if ua.ec_authpath_name != 'eduCloud.admin':
+            new_vm_auth = ecVDS_auth(
+                insid   =   request.POST['insid'],
+                role_value  =   ua.ec_authpath_name,
+                read        =   True,
+                write       =   True,
+                execute     =   True,
+                create      =   True,
+                delete      =   True,
+            )
+            new_vm_auth.save()
+
+        # update ecDHCPEthers table
+        if request.POST['mac'] != 'any':
+            ether = ecDHCPEthers.objects.get(mac=new_vm.mac)
+            ether.insid = new_vm.insid
+            ether.save()
+
+    else:
+        old_vm = ecVSS.objects.get(insid = request.POST['insid'])
+        old_mac = old_vm.mac
+        old_vm.name        = request.POST['name']
+        old_vm.description = request.POST['description']
+        old_vm.cc_def      = request.POST['cc_def']
+        old_vm.nc_def      = request.POST['nc_def']
+        old_vm.cpus        = request.POST['cpus']
+        old_vm.memory      = request.POST['mems']
+        old_vm.mac         = request.POST['mac']
+        old_vm.save()
+
+        # update ecDHCPEthers table
+        if old_mac != 'any':
+            ether = ecDHCPEthers.objects.get(mac=old_mac)
+            ether.insid = ''
+            ether.save()
+
+        if request.POST['mac'] != 'any':
+            ether = ecDHCPEthers.objects.get(mac=old_vm.mac)
+            ether.insid = old_vm.mac
+            ether.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
 def list_images(request):
     autoFindNewAddImage()
 
