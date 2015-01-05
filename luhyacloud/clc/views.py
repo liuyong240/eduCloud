@@ -64,6 +64,81 @@ logger = getclclogger()
     "type": "nodestatus"
 }
 '''
+
+
+def findVMRunningResource(insid):
+    l = SortedList()
+
+    ccip = None
+    ncip = None
+    msg = "Can't Find enough resource."
+
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+
+    if insid.find('VD') == 0:
+        vmrec = ecVDS.objects.get(insid=insid)
+        cpu = 20
+        disk = 20
+    if insid.find('VS') == 0:
+        vmrec = ecVSS.objects.get(insid=insid)
+        cpu = 10
+        disk = 10
+
+    cc_def = vmrec.cc_def
+    nc_def = vmrec.nc_def
+    mem = vmrec.memory + 2
+
+    ccobj = ecCCResources.objects.get(ccname=cc_def)
+
+    if nc_def == 'any':
+        ncs = ecServers.objects.filter(ccname=ccobj.ccname, role='nc')
+        for nc in ncs:
+            key = str('nc#%s#status' % nc.mac0)
+            try:
+                payload = mc.get(key)
+                if payload == None:
+                    continue
+                else:
+                    payload = json.loads(payload)
+                    data = payload['hardware_data']
+                    data['xncip'] = nc.ip0
+                    data['xccip'] = ccobj.ip0
+                    logger.error(json.dumps(data))
+                    l.add(data)
+            except Exception as e:
+                continue
+    else:
+        ncobj = ecServers.objects.get(ccname=cc_def, ip0=nc_def)
+        key = str('nc#%s#status' % ncobj.mac0)
+        try:
+            payload = mc.get(key)
+            if payload == None:
+                pass
+            else:
+                payload = json.loads(payload)
+                data = payload['hardware_data']
+                data['xncip'] = ncobj.ip0
+                data['xccip'] = ccobj.ip0
+                logger.error(json.dumps(data))
+                l.add(data)
+        except Exception as e:
+            pass
+
+    # now check sorted nc to find best one
+    for index in range(0, len(l)):
+        data = l[index]
+        avail_cpu = 100 - data['cpu_usage']
+        avail_mem = data['mem'] * (1 - data['mem_usage'] / 100.0)
+        avail_disk = data['disk'] * (1 - data['disk_usage'] / 100.0)
+        if avail_cpu > cpu and avail_mem > mem and avail_disk > disk:
+            ccip = data['xccip']
+            ncip = data['xncip']
+            msg = ''
+            logger.error("get best node : ip = %s" % _ncip)
+            break
+
+    return ccip, ncip, msg
+
 def findBuildResource(srcid):
 
     l = SortedList()
@@ -80,8 +155,8 @@ def findBuildResource(srcid):
     if rec.img_usage == "server":
         filter = 'vs'
         cpu = 10
-        mem = 4+2
         disk = 10
+        mem = 4+2
     else:
         filter = 'rvd'
         cpu = 20
@@ -1216,15 +1291,25 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
     img_info                        = ecImages.objects.get(ecid = src_imgid)
     runtime_option['ostype']        = img_info.ostype
     runtime_option['usage']         = img_info.img_usage
-    if img_info.img_usage == "desktop":
-        vmtype = 'vdmedium'
-    else:
-        vmtype = 'vssmall'
 
-    # 2. hardware option
-    vmtype_info                     = ecVMTypes.objects.get(name=vmtype)
-    runtime_option['memory']        = vmtype_info.memory
-    runtime_option['cpus']          = vmtype_info.cpus
+    if ins_id.find('TMP') == 0:
+        if img_info.img_usage == "desktop":
+            vmtype = 'vdmedium'
+        else:
+            vmtype = 'vssmall'
+
+        # 2. hardware option
+        vmtype_info                     = ecVMTypes.objects.get(name=vmtype)
+        runtime_option['memory']        = vmtype_info.memory
+        runtime_option['cpus']          = vmtype_info.cpus
+    else:
+        if ins_id.find('VS') == 0:
+            insobj = ecVSS.objects.get(insid=ins_id)
+        if ins_id.find('VD') == 0:
+            insobj = ecVDS.objects.get(insid=ins_id)
+        runtime_option['memory']    = insobj.memory
+        runtime_option['cpus']      = insobj.cpus
+
     ostype_info                     = ecOSTypes.objects.get(ec_ostype = img_info.ostype)
     runtime_option['disk_type']     = ostype_info.ec_disk_type
     runtime_option['audio_para']    = ostype_info.ec_audio_para
@@ -1321,6 +1406,59 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
 
 def genIPTablesRule(fromip, toip, port):
     return {}
+
+
+def vm_run(request, insid):
+    if insid.find('VD') == 0:
+        vmrec = ecVDS.objects.get(insid=insid)
+    elif insid.find('VS') == 0:
+        vmrec = ecVSS.objects.get(insid=insid)
+
+    _tid  = '%s:%s:%s' % (vmrec.imageid, vmrec.imageid, insid)
+    _ccip, _ncip, _msg = findVMRunningResource(insid)
+
+    if _ncip == None:
+        # not find proper cc,nc for build image
+        context = {
+            'pagetitle'     : 'Error Report',
+            'error'         : _msg,
+        }
+        return render(request, 'clc/error.html', context)
+    else:
+        taskrecs = ectaskTransaction.objects.filter(tid=_tid)
+        if taskrecs.count() == 0:
+            runtime_option = genRuntimeOptionForImageBuild(_tid, _ccip, _ncip)
+            rec = ectaskTransaction(
+                 tid         = _tid,
+                 srcimgid    = _srcimgid,
+                 dstimgid    = _dstimageid,
+                 insid       = _instanceid,
+                 user        = request.user.username,
+                 phase       = 'preparing',
+                 state       = "init",
+                 progress    = 0,
+                 ccip        = _ccip,
+                 ncip        = _ncip,
+                 runtime_option = json.dumps(runtime_option),
+            )
+            rec.save()
+        else:
+            rec = ectaskTransaction.objects.get(tid=_tid)
+
+        # open a window to monitor work progress
+        imgobj = ecImages.objects.get(ecid = srcid)
+
+        managed_url = getVM_ManagedURL(request, _tid)
+
+        context = {
+            'pagetitle' : "image create",
+            'task'      : rec,
+            'rdp_url'   : managed_url,
+            'imgobj'    : imgobj,
+        }
+
+        return render(request, 'clc/wizard/image_create_wizard.html', context)
+
 
 @login_required
 def image_create_task_start(request, srcid):
@@ -1809,10 +1947,11 @@ def image_add_vm(request, imgid):
 
     if imgobj.img_usage == 'desktop':
         _instanceid      = 'VD' + genHexRandom()
+        ccs  = ecCCResources.objects.filter(cc_usage='rvd')
     if imgobj.img_usage == 'server':
         _instanceid      = 'VS' + genHexRandom()
+        ccs  = ecCCResources.objects.filter(cc_usage='vs')
 
-    ccs  = ecServers.objects.filter(role='cc')
     context = {
             'pagetitle' : "VM Create",
             'imgobj'    : imgobj,
