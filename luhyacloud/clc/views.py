@@ -2791,6 +2791,7 @@ def list_vds(request):
         jrec['insid'] = rec.insid
         jrec['imageid'] = rec.imageid
         jrec['name']=rec.name
+        jrec['description'] = rec.description
         jrec['creator'] = rec.creator
         jrec['cc'] = rec.cc_def
         jrec['nc'] = rec.nc_def
@@ -2815,19 +2816,18 @@ def list_vds(request):
 def delete_vds(request):
     response = {}
 
-    vds_rec = ecVDS.objects.get(id=request.POST['id'])
+    vds_rec = ecVDS.objects.get(insid=request.POST['insid'])
     _tid = '%s:%s:%s' % (vds_rec.imageid, vds_rec.imageid, vds_rec.insid)
 
-    tid_rec = ectaskTransaction.objects.get(tid=_tid)
-    _cc = tid_rec.ccip
-    _nc = tid_rec.ncip
-
-
-
-    vds_rec.delete()
-    tid_rec.delete()
-
-    response['Result'] = 'OK'
+    tid_recs = ectaskTransaction.objects.filter(tid=_tid)
+    if tid_recs.count() != 0 :
+        response['Result'] = 'FAIL'
+        response['errormsg'] = "Need to delete this VM's running task first"
+    else:
+        # delete vds_auth records
+        ecVDS_auth.objects.filter(insid=request.POST['insid']).delete()
+        vds_rec.delete()
+        response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
@@ -2906,6 +2906,7 @@ def list_vss(request):
         jrec['insid'] = rec.insid
         jrec['imageid'] = rec.imageid
         jrec['name']=rec.name
+        jrect['description'] = rec.description
         jrec['creator'] = rec.creator
         jrec['cc'] = rec.cc_def
         jrec['nc'] = rec.nc_def
@@ -2944,6 +2945,8 @@ def delete_vss(request):
             ether.insid = ''
             ether.save()
 
+        # delete vds_auth records
+        ecVSS_auth.objects.filter(insid=request.POST['insid']).delete()
         vss_rec.delete()
         response['Result'] = 'OK'
 
@@ -3711,9 +3714,11 @@ def edit_vm_permission_view(request, insid):
 
     if insid.find('VS') == 0:
         permsObjs = ecVSS_auth.objects.filter(insid=insid)
+        sobj = ecVSS.objects.get(insid=insid)
         table = 'ecVSS'
     if insid.find('VD') == 0:
         permsObjs = ecVDS_auth.objects.filter(insid=insid)
+        sobj = ecVDS.objects.get(insid=insid)
         table = 'ecVDS'
 
     perms = []
@@ -3730,8 +3735,6 @@ def edit_vm_permission_view(request, insid):
         index += 1
 
     rows = len(perms)
-
-    sobj = ecVSS.objects.get(insid=insid)
 
     context = {
         'sobj':   sobj,
