@@ -27,6 +27,47 @@
                     edit: false,
                     create: false
                 },
+                //CHILD TABLE DEFINITION FOR "EXAMS"
+                mychild: {
+                    title: '',
+                    width: '3%',
+                    sorting: false,
+                    edit: false,
+                    create: false,
+                    display: function (vssData) {
+                        //Create an image that will be used to open child table
+                        var $img = $('<img src="/static/clc/pics/list_metro.png" />');
+                        //Open child table when user clicks the image
+                        $img.click(function () {
+                            $('#myjtable').jtable('openChildTable',
+                                    $img.closest('tr'), {
+                                    title: 'Cloud Server ' + vssData.record.name + ' Detail Description',
+                                    actions: {
+                                        listAction: function (postData, jtParams) {
+                                                return {
+                                                    "Result": "OK",
+                                                    "Records": [{ "description": vssData.record.description }],
+                                                    "TotalRecordCount": 1
+                                                };
+                                            }
+                                    },
+                                    fields: {
+                                        description: {
+                                            title: '',
+                                            display: function (data) {
+                                                return '<pre>' + data.record.description + '</pre>';
+                                            }
+                                        },
+
+                                    }
+                                }, function (data) { //opened handler
+                                    data.childTable.jtable('load');
+                                });
+                        });
+                        //Return image to show on the person row
+                        return $img;
+                    }
+                },
                 insid: {
                     title: 'Instance ID',
                     width: '10%',
@@ -80,6 +121,23 @@
                     width: '10%',
                     create: false,
                 },
+            },
+            //Register to selectionChanged event to hanlde events
+            selectionChanged: function () {
+                //Get all selected rows
+                var $selectedRows = $('#myjtable').jtable('selectedRows');
+
+                if ($selectedRows.length > 0) {
+                    $selectedRows.each(function () {
+                        //Show selected rows
+                        var record = $(this).data('record');
+                        window.parent.vssSelected(record.insid, record.imageid);
+
+                    });
+                } else {
+                    //No rows selected
+                    window.parent.vssSelected(null, null);
+                }
             },
         });
 

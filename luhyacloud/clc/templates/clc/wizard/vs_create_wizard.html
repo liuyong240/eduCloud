@@ -9,6 +9,19 @@ $(document).ready(function () {
         if ( '{{imgobj.img_usage }}' == 'desktop') {
             $('#macip-config').css('display', 'none');
         }
+
+        if ( '{{ vm.name }}' != '') {
+            $('#vm_name').val("{{ vm.name}}");
+            $('#vm_desc').val("{{ vm.description }}");
+            $('#vm_cc').val("{{ vm.cc_def}}");
+            $('#vm_cpus').val("{{ vm.cpus }}");
+            $('#vm_mems').val("{{ vm.memory }}");
+            $('#vm_cc').trigger('change');
+
+            $('#vm_nc').val("{{ vm.nc_def }}");
+            $('#vm_macip').val("{{ vm.mac }}");
+        }
+
     }
     function submit_new_vs() {
         vm_insid    = '{{ insid }}';
@@ -121,9 +134,11 @@ $(document).ready(function () {
                 $("#vm_macip").empty();
                 $("#vm_macip").append('<option selected value="any">Any</option>');
                 for (var index = 0; index < len; index++) {
-                    ip = macips[index]['ip'];
-                    mac = macips[index]['mac'];
-                    $("#vm_macip").append('<option value="' + mac + '">' + mac + '-' + ip +'</option>');
+                    if (macips[index]['insid'] == '') {
+                        ip = macips[index]['ip'];
+                        mac = macips[index]['mac'];
+                        $("#vm_macip").append('<option value="' + mac + '">' + mac + '-' + ip +'</option>');
+                    }
                 }
             }
         });
@@ -146,11 +161,11 @@ $(document).ready(function () {
             </div>
             <div class="form-group">
                 <label>VS VM Name</label>
-                <input id="vm_name" class="form-control" type="text" value="" >
+                <input id="vm_name" class="form-control" type="text" value="{{ vm.name }}" >
             </div>
             <div class="form-group">
                 <label>VS VM Description</label>
-                <input id="vm_desc" class="form-control" type="text" value="" >
+                <input id="vm_desc" class="form-control" type="text" value="{{ vm.description }}" >
             </div>
         </fieldset>
 
@@ -162,13 +177,13 @@ $(document).ready(function () {
                     <option selected value="any">Any</option>
                     {% for cc in ccs %}
                         <option value="{{ cc.ccname }}">{{ cc.ccname}}</option>
-                    {% endfor %}
+                    ß{% endfor %}
                 </select>
             </div>
             <div class="form-group">
                 <label>Select Node</label>
                 <select class="form-control" id="vm_nc">
-                    <option selected value="any">Any</option>
+                    <option value="any">any</option>
                 </select>
             </div>
         </fieldset>

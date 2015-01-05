@@ -31,7 +31,7 @@ urlpatterns = patterns('',
     url(r'^edit_eip/(?P<role>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',       views.edit_eip_view,         name='edit_eip_view'),
     url(r'^api/1.0/eip/update$',      views.eip_update,               name='eip_update'),
     url(r'^edit/server/permission/(?P<srole>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',       views.edit_server_permission_view,         name='edit_server_permission_view'),
-
+    url(r'^edit/vm/permission/(?P<insid>\w+)/$',       views.edit_vm_permission_view,         name='edit_vm_permission_view'),
 
     url(r'^hosts$',         views.hosts_view,                         name='hosts_view'),
     url(r'^settings$',      views.settings_view,                      name='settings_view'),
@@ -78,6 +78,7 @@ urlpatterns = patterns('',
 
     url(r'^image/modify/task/begin/(?P<srcid>\w+)$',                                                            views.image_modify_task_start,                  name='image_modify_task_start'),
     url(r'^image/addvm/(?P<imgid>\w+)$',                                                                        views.image_add_vm,                             name='image_add_vm'),
+    url(r'^image/editvm/(?P<imgid>\w+)/(?P<insid>\w+)$',                                                        views.image_edit_vm,                             name='image_edit_vm'),
 
     url(r'^image/permission/edit/(?P<srcid>\w+)$',      views.image_permission_edit,                name='image_permission_edit'),
 

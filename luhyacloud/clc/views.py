@@ -1818,10 +1818,26 @@ def image_add_vm(request, imgid):
             'imgobj'    : imgobj,
             'insid'     : _instanceid,
             'ccs'       : ccs,
+            'vm'        : None,
     }
 
     return render(request, 'clc/wizard/vs_create_wizard.html', context)
 
+def image_edit_vm(request, imgid, insid):
+
+    imgobj = ecImages.objects.get(ecid = imgid)
+
+    ccs  = ecServers.objects.filter(role='cc')
+    vm   = ecVSS.objects.get(insid=insid)
+    context = {
+            'pagetitle' : "VM Create",
+            'imgobj'    : imgobj,
+            'insid'     : insid,
+            'ccs'       : ccs,
+            'vm'        : vm,
+    }
+
+    return render(request, 'clc/wizard/vs_create_wizard.html', context)
 
 #################################################################################
 # jTable views
@@ -2763,9 +2779,6 @@ def delete_tasks(request):
 
 # core tables for images
 # ------------------------------------
-def notify_ccs_delete_vm(ccip, ncip, type):
-    pass
-
 def list_vds(request):
     response = {}
     data = []
@@ -2809,8 +2822,6 @@ def delete_vds(request):
     _cc = tid_rec.ccip
     _nc = tid_rec.ncip
 
-    # notify all cc to stop & delete deleted vss
-    notify_ccs_delete_vm(_cc, _nc, 'vd')
 
 
     vds_rec.delete()
@@ -2833,6 +2844,7 @@ def create_vds(request):
             imageid     = request.POST['imageid'],
             name        = request.POST['name'],
             description = request.POST['description'],
+            creator     = request.user,
             cc_def      = request.POST['cc_def'],
             nc_def      = request.POST['nc_def'],
             cpus        = request.POST['cpus'],
@@ -2853,17 +2865,18 @@ def create_vds(request):
         new_vm_auth.save()
 
         ua = ecAccount.objects.get(userid=request.user)
-        if ua.ec_authpath_name != 'eduCloud.admin':
+        role = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+        if role.ec_authpath_value != 'eduCloud.admin':
             new_vm_auth = ecVDS_auth(
-            insid   =   request.POST['insid'],
-            role_value  =   ua.ec_authpath_name,
-            read        =   True,
-            write       =   True,
-            execute     =   True,
-            create      =   True,
-            delete      =   True,
-        )
-        new_vm_auth.save()
+                insid   =   request.POST['insid'],
+                role_value  =   ua.ec_authpath_name,
+                read        =   True,
+                write       =   True,
+                execute     =   True,
+                create      =   True,
+                delete      =   True,
+            )
+            new_vm_auth.save()
 
 
     else:
@@ -2917,20 +2930,22 @@ def list_vss(request):
 def delete_vss(request):
     response = {}
 
-    vss_rec = ecVSS.objects.get(id=request.POST['id'])
+    vss_rec = ecVSS.objects.get(insid=request.POST['insid'])
     _tid = '%s:%s:%s' % (vss_rec.imageid, vss_rec.imageid, vss_rec.insid)
 
-    tid_rec = ectaskTransaction.objects.get(tid=_tid)
-    _cc = tid_rec.ccip
-    _nc = tid_rec.ncip
+    tid_recs = ectaskTransaction.objects.filter(tid=_tid)
+    if tid_recs.count() != 0 :
+        response['Result'] = 'FAIL'
+        response['errormsg'] = "Need to delete this VM's running task first"
+    else:
+        # release ip/mac resources
+        if vss_rec.mac != "any":
+            ether = ecDHCPEthers.objects.get(mac = vss_rec.mac)
+            ether.insid = ''
+            ether.save()
 
-    # notify all cc to stop & delete deleted vss
-    notify_ccs_delete_vm(_cc, _nc, 'vs')
-
-
-    vss_rec.delete()
-    tid_rec.delete()
-    response['Result'] = 'OK'
+        vss_rec.delete()
+        response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
@@ -2947,6 +2962,7 @@ def create_vss(request):
             imageid     = request.POST['imageid'],
             name        = request.POST['name'],
             description = request.POST['description'],
+            creator     = request.user,
             cc_def      = request.POST['cc_def'],
             nc_def      = request.POST['nc_def'],
             cpus        = request.POST['cpus'],
@@ -2955,8 +2971,7 @@ def create_vss(request):
         )
         new_vm.save()
 
-                # update ecVDS_auth table
-        new_vm_auth = ecVDS_auth(
+        new_vm_auth = ecVSS_auth(
             insid   =   request.POST['insid'],
             role_value  =   'eduCloud.admin',
             read        =   True,
@@ -2968,7 +2983,8 @@ def create_vss(request):
         new_vm_auth.save()
 
         ua = ecAccount.objects.get(userid=request.user)
-        if ua.ec_authpath_name != 'eduCloud.admin':
+        role = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+        if role.ec_authpath_value != 'eduCloud.admin':
             new_vm_auth = ecVDS_auth(
                 insid   =   request.POST['insid'],
                 role_value  =   ua.ec_authpath_name,
@@ -3535,6 +3551,81 @@ def server_perm_update(id, data):
                 )
                 rec.save()
 
+def vss_perm_update(id, data):
+
+    tflist = {
+        'true': True,
+        'false': False,
+    }
+
+    perms = data.split('#')
+    for perm in perms:
+        if len(perm) > 0:
+            auth = perm.split(':')
+            _role   = auth[0]
+            _read   = tflist[auth[1]]
+            _write  = tflist[auth[2]]
+            _execute= tflist[auth[3]]
+            _create = tflist[auth[4]]
+            _delete = tflist[auth[5]]
+
+            try:
+                rec = ecVSS_auth.objects.get(insid=id, role_value= _role)
+                rec.read    = _read
+                rec.write   = _write
+                rec.execute = _execute
+                rec.create  = _create
+                rec.delete  = _delete
+                rec.save()
+            except:
+                rec = ecVSS_auth(
+                    insid       = id,
+                    role_value  = _role,
+                    read        = _read,
+                    write       = _write,
+                    execute     = _execute,
+                    create      = _create,
+                    delete      = _delete,
+                )
+                rec.save()
+
+def vds_perm_update(id, data):
+
+    tflist = {
+        'true': True,
+        'false': False,
+    }
+
+    perms = data.split('#')
+    for perm in perms:
+        if len(perm) > 0:
+            auth = perm.split(':')
+            _role   = auth[0]
+            _read   = tflist[auth[1]]
+            _write  = tflist[auth[2]]
+            _execute= tflist[auth[3]]
+            _create = tflist[auth[4]]
+            _delete = tflist[auth[5]]
+
+            try:
+                rec = ecVDS_auth.objects.get(insid=id, role_value= _role)
+                rec.read    = _read
+                rec.write   = _write
+                rec.execute = _execute
+                rec.create  = _create
+                rec.delete  = _delete
+                rec.save()
+            except:
+                rec = ecVDS_auth(
+                    insid       = id,
+                    role_value  = _role,
+                    read        = _read,
+                    write       = _write,
+                    execute     = _execute,
+                    create      = _create,
+                    delete      = _delete,
+                )
+                rec.save()
 
 def perm_update(request):
     id = request.POST['id']
@@ -3545,6 +3636,10 @@ def perm_update(request):
         image_perm_update(id, data)
     elif table == "ecServers":
         server_perm_update(id, data)
+    elif table == "ecVSS":
+        vss_perm_update(id, data)
+    elif table == "ecVDS":
+        vds_perm_update(id, data)
 
     response = {}
     response['Result'] = "OK"
@@ -3604,4 +3699,47 @@ def edit_server_permission_view(request, srole, mac):
     }
     return render(request, 'clc/form/server_permission_edit.html', context)
 
+def edit_vm_permission_view(request, insid):
+    index = 0
+    authlist =  ecAuthPath.objects.all()
+    roles = []
+    for auth in authlist:
+        role={}
+        role['name']    = auth.ec_authpath_name
+        role['value']   = auth.ec_authpath_value
+        roles.append(role)
 
+    if insid.find('VS') == 0:
+        permsObjs = ecVSS_auth.objects.filter(insid=insid)
+        table = 'ecVSS'
+    if insid.find('VD') == 0:
+        permsObjs = ecVDS_auth.objects.filter(insid=insid)
+        table = 'ecVDS'
+
+    perms = []
+    for perm_obj in permsObjs:
+        perm = {}
+        perm['id'] = 'perm' +  str(index)
+        perm['role_value'] = perm_obj.role_value
+        perm['read'] =  perm_obj.read
+        perm['write'] = perm_obj.write
+        perm['execute'] = perm_obj.execute
+        perm['create'] = perm_obj.create
+        perm['delete'] = perm_obj.delete
+        perms.append(perm)
+        index += 1
+
+    rows = len(perms)
+
+    sobj = ecVSS.objects.get(insid=insid)
+
+    context = {
+        'sobj':   sobj,
+        'res':    "VM ",
+        'roles':  roles,
+        'lists':  range(0,rows),
+        'next':   rows,
+        'perms':  perms,
+        'table':  table,
+    }
+    return render(request, 'clc/form/vm_permission_edit.html', context)
