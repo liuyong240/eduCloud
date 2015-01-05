@@ -214,9 +214,9 @@ vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
         nc:/storage/space/database/srcid/database
         to run vm
   > run_time_option
-      c: /storage/images/srcid/machine,             snapshoted
-      d: /storage/space/database/srcid/database,    write-through
-      e: /storage/images/data.vdi,                  multi-attached
+      c: /storage/images/srcid/machine,                     normal+snapshot
+      d: /storage/space/database/images/srcid/database,     normal+snapshot
+      e: /storage/images/data.vdi,                          multi-attached
       f: network folder of /storage/space/software/*
   > when submitting
     >> delete c's snapshot
@@ -240,9 +240,9 @@ vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
         nc:/storage/space/database/dstid/database
         to run vm
   > run_time_option
-      c: /storage/tmp/images/dstid/machine,         snapshoted
-      d: /storage/space/database/dstid/database,    write-through
-      e: /storage/images/data.vdi,                  multi-attached
+      c: /storage/tmp/images/dstid/machine,                 normal+snapshot
+      d: /storage/space/database/images/dstid/database,     normal+snapshot
+      e: /storage/images/data.vdi,                          multi-attached
       f: network folder of /storage/space/software/*
   > when submitting
     >> delete c's snapshot
@@ -256,13 +256,13 @@ vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
 
 - desktop vm instance  --> same as desktop image modify
   > run_time_option
-      c: /storage/images/srcid/machine,                     snapshoted
+      c: /storage/images/srcid/machine,                         snapshoted
       d: netowrk folder of /storage/space/prv-data/<user>/
       e: network folder of /storage/space/pub-data/
 - server  vm instance  --> same as server  image modify
   > run_time_option
-      c: /storage/images/srcid/machine,                     snapshoted
-      d: /storage/space/database/srcid/database,            write-through
+      c: /storage/images/srcid/machine,                         snapshoted
+      d: /storage/space/database/instances/insid/database,      write-through
       f: network folder of /storage/space/software/*
 
 

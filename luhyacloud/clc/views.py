@@ -88,7 +88,7 @@ def findVMRunningResource(insid):
     nc_def = vmrec.nc_def
     mem = vmrec.memory + 2
 
-    ccobj = ecCCResources.objects.get(ccname=cc_def)
+    ccobj = ecServers.objects.get(ccname=cc_def, role='cc')
 
     if nc_def == 'any':
         ncs = ecServers.objects.filter(ccname=ccobj.ccname, role='nc')
@@ -134,7 +134,7 @@ def findVMRunningResource(insid):
             ccip = data['xccip']
             ncip = data['xncip']
             msg = ''
-            logger.error("get best node : ip = %s" % _ncip)
+            logger.error("get best node : ip = %s" % ncip)
             break
 
     return ccip, ncip, msg
@@ -1232,7 +1232,7 @@ def genVMDisks(tid, usage):
         disks.append(disk)
 
         if usage == 'server':
-            disk['file']    = '/storage/space/database/%s/database' % dst_imgid
+            disk['file']    = '/storage/space/database/images/%s/database' % dst_imgid
             disk['mtype']   = 'writethrough'
             disks.append(disk)
 
@@ -1241,16 +1241,16 @@ def genVMDisks(tid, usage):
         disks.append(disk)
 
     if ins_id.find('VD') == 0:
-        disk['file']    = '/storage/tmp/images/%s/machine' % dst_imgid
+        disk['file']    = '/storage/images/%s/machine' % dst_imgid
         disk['mtype']   = 'normal'
         disks.append(disk)
 
     if ins_id.find('VS') == 0:
-        disk['file']    = '/storage/tmp/images/%s/machine' % dst_imgid
+        disk['file']    = '/storage/images/%s/machine' % dst_imgid
         disk['mtype']   = 'normal'
         disks.append(disk)
 
-        disk['file']    = '/storage/space/database/%s/database' % dst_imgid
+        disk['file']    = '/storage/space/database/instances/%s/database' % ins_id
         disk['mtype']   = 'writethrough'
         disks.append(disk)
 
@@ -1269,7 +1269,7 @@ def genVMFolders(tid, usage):
 
     if ins_id.find('VD') == 0:
         trec = ectaskTransaction.objects.get(tid=tid)
-        folders.append('/storage/space/prv-data/' % trec.user)
+        folders.append('/storage/space/prv-data/%s' % trec.user)
         folders.append('/storage/space/pub-data')
 
     if ins_id.find('VS') == 0:
@@ -1427,26 +1427,27 @@ def vm_run(request, insid):
     else:
         taskrecs = ectaskTransaction.objects.filter(tid=_tid)
         if taskrecs.count() == 0:
-            runtime_option = genRuntimeOptionForImageBuild(_tid, _ccip, _ncip)
             rec = ectaskTransaction(
                  tid         = _tid,
-                 srcimgid    = _srcimgid,
-                 dstimgid    = _dstimageid,
-                 insid       = _instanceid,
+                 srcimgid    = vmrec.imageid,
+                 dstimgid    = vmrec.imageid,
+                 insid       = insid,
                  user        = request.user.username,
                  phase       = 'preparing',
                  state       = "init",
                  progress    = 0,
                  ccip        = _ccip,
                  ncip        = _ncip,
-                 runtime_option = json.dumps(runtime_option),
             )
+            rec.save()
+            runtime_option = genRuntimeOptionForImageBuild(_tid, _ccip, _ncip)
+            rec.runtime_option = json.dumps(runtime_option)
             rec.save()
         else:
             rec = ectaskTransaction.objects.get(tid=_tid)
 
         # open a window to monitor work progress
-        imgobj = ecImages.objects.get(ecid = srcid)
+        imgobj = ecImages.objects.get(ecid = vmrec.imageid)
 
         managed_url = getVM_ManagedURL(request, _tid)
 
@@ -1513,7 +1514,8 @@ def image_create_task_start(request, srcid):
 
 def getVM_ManagedURL(request, taskid):
     rec = ectaskTransaction.objects.get(tid=taskid)
-    mgr_url = rec.runtime_option['mgr_accessURL']
+    runtime_option = json.loads(rec.runtime_option)
+    mgr_url = runtime_option['mgr_accessURL']
 
     # here add logic to check request comes from intranet or internet
 
@@ -1521,7 +1523,8 @@ def getVM_ManagedURL(request, taskid):
 
 def getVM_WebURL(request, taskid):
     rec = ectaskTransaction.objects.get(tid=taskid)
-    web_url = rec.runtime_option['web_accessURL']
+    runtime_option = json.loads(rec.runtime_option)
+    web_url = runtime_option['web_accessURL']
 
     # here add logic to check request comes from intranet or internet
 
@@ -2893,7 +2896,7 @@ def list_tasks(request):
         jrec['insid']    = rec.insid
         jrec['user']     = rec.user
         jrec['phase']    = rec.phase
-        jrec['vmstatus'] = rec.vmstatus
+        jrec['state']    = rec.state
         jrec['completed']= rec.completed
         data.append(jrec)
 
