@@ -1205,7 +1205,11 @@ def releaseRuntimeOptionForImageBuild(srcid, dstid, insid):
 
     ccres_info.save()
 
-    # 3. release iptables
+    # 3. release ether if it is VS
+    if insid.find('VS') == 0:
+        ethers_free(insid)
+
+    # 4. release iptables
     if DAEMON_DEBUG == True:
         url = 'http://%s:8000/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
     else:
@@ -1224,35 +1228,37 @@ def genVMDisks(tid, usage):
     ins_id    = tid_info[2]
 
     disks = []
-    disk = {}
+    c = {}
+    d = {}
+    e = {}
     if ins_id.find('TMP') == 0:
         # add disk c
-        disk['file']    = '/storage/tmp/images/%s/machine' % dst_imgid
-        disk['mtype']   = 'normal'
-        disks.append(disk)
+        c['file']    = '/storage/tmp/images/%s/machine' % dst_imgid
+        c['mtype']   = 'normal'
+        disks.append(c)
 
         if usage == 'server':
-            disk['file']    = '/storage/space/database/images/%s/database' % dst_imgid
-            disk['mtype']   = 'writethrough'
-            disks.append(disk)
+            d['file']    = '/storage/space/database/images/%s/database' % dst_imgid
+            d['mtype']   = 'writethrough'
+            disks.append(d)
 
-        disk['file']    = '/storage/images/data'
-        disk['mtype']   = 'multiattach'
-        disks.append(disk)
+        e['file']    = '/storage/images/data'
+        e['mtype']   = 'multiattach'
+        disks.append(e)
 
     if ins_id.find('VD') == 0:
-        disk['file']    = '/storage/images/%s/machine' % dst_imgid
-        disk['mtype']   = 'normal'
-        disks.append(disk)
+        c['file']    = '/storage/images/%s/machine' % dst_imgid
+        c['mtype']   = 'normal'
+        disks.append(c)
 
     if ins_id.find('VS') == 0:
-        disk['file']    = '/storage/images/%s/machine' % dst_imgid
-        disk['mtype']   = 'normal'
-        disks.append(disk)
+        c['file']    = '/storage/images/%s/machine' % dst_imgid
+        c['mtype']   = 'normal'
+        disks.append(c)
 
-        disk['file']    = '/storage/space/database/instances/%s/database' % ins_id
-        disk['mtype']   = 'writethrough'
-        disks.append(disk)
+        d['file']    = '/storage/space/database/instances/%s/database' % ins_id
+        d['mtype']   = 'writethrough'
+        disks.append(d)
 
     return disks
 
@@ -2059,6 +2065,11 @@ def ethers_allocate(ccname, insid):
     e.insid = insid
     e.save()
     return e.mac, e.ip
+
+def ethers_free(insid):
+    e = ecDHCPEthers.objects.get(insid=insid)
+    e.insid = ''
+    e.save()
 
 #################################################################################
 # API Version 1.0 for accessing data model by POST request

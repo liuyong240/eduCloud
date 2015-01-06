@@ -69,6 +69,7 @@ class rsyncWorkerThread(threading.Thread):
 
     def run(self):
         self.logger.error("rsyncWorkerThread is running ... ...")
+        self.logger.error('src=%s, dst=%s' % (self.src, self.dst))
 
         self.progress = 0
 
