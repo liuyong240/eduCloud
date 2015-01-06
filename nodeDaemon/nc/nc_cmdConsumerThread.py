@@ -19,9 +19,11 @@ class prepareImageTaskThread(threading.Thread):
         self.runtime_option = json.loads(runtime_option)
         self.ccip     = getccipbyconf()
         self.download_rpc = RpcClient(logger, self.ccip)
+        logger.error('prepareImageTaskThread inited, tid=%s' % tid)
 
     # RPC call to ask CC download image from walrus
     def downloadFromWalrus2CC(self, data):
+        logger.error('downloadFromWalrus2CC start ... ...')
         retvalue = "OK"
 
         while True:
@@ -29,14 +31,18 @@ class prepareImageTaskThread(threading.Thread):
             response = json.loads(response)
 
             if response['failed'] == 1:
+                logger.error(' ----- failed . ')
                 retvalue = "FALURE"
                 response['state'] = 'init'
                 self.forwardTaskStatus2CC(json.dumps(response))
                 break
-            else:
+            elif response['done'] == 1:
+                logger.error(' ----- done . ')
                 self.forwardTaskStatus2CC(json.dumps(response))
-                if response['progress'] == 100:
-                    break
+                break
+            else:
+                logger.error('progress = %s' % response['progress'])
+                self.forwardTaskStatus2CC(json.dumps(response))
 
             time.sleep(2)
 
@@ -46,6 +52,7 @@ class prepareImageTaskThread(threading.Thread):
         simple_send(logger, self.ccip, 'cc_status_queue', response)
 
     def downloadFromCC2NC(self, data):
+        logger.error('downloadFromCC2NC start ... ...')
         retvalue = "OK"
 
         paras = data['rsync']
@@ -70,29 +77,37 @@ class prepareImageTaskThread(threading.Thread):
                 'tid'       : self.tid,
                 'prompt'    : prompt,
                 'errormsg'  : "",
-                'failed'    : 0
+                'failed'    : 0,
+                'done'      : 0,
         }
 
         while True:
             payload['progress'] = worker.getprogress()
             payload['failed']   = worker.isFailed()
+            payload['done']     = worker.isDone()
             if worker.isFailed():
+                logger.error(' ----- failed . ')
                 payload['failed']   = worker.isFailed()
                 payload['errormsg'] = worker.getErrorMsg()
                 payload['state']    = 'init'
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 retvalue = "FALURE"
                 break
-            else:
+            elif worker.isDone():
+                logger.error(' ----- Done . ')
                 self.forwardTaskStatus2CC(json.dumps(payload))
-                if payload['progress'] == 100:
-                    break
+                break
+            else:
+                logger.error('progress = %s' % response['progress'])
+                self.forwardTaskStatus2CC(json.dumps(payload))
+
 
             time.sleep(2)
 
         return retvalue
 
     def cloneImage(self, data):
+        logger.error('cloneImage start ... ...')
         retvalue = "OK"
 
         payload = {
@@ -112,8 +127,8 @@ class prepareImageTaskThread(threading.Thread):
                 srcfile  = "/storage/images/%s/machine"      % self.srcimgid
                 dstfile  = "/storage/tmp/images/%s/machine"  % self.dstimgid
             if data['rsync'] == 'db':
-                srcfile  = "/storage/space/database/%s/database" % self.srcimgid
-                dstfile  = "/storage/space/database/%s/database" % self.dstimgid
+                srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
+                dstfile  = "/storage/space/database/images/%s/database" % self.dstimgid
 
             if os.path.exists(os.path.dirname(dstfile)):
                 shutil.rmtree(os.path.dirname(dstfile))
@@ -134,6 +149,7 @@ class prepareImageTaskThread(threading.Thread):
                 ratio = int(dst_size * 100.0 / src_size)
                 logger.info('current clone percentage is %d' % ratio)
                 payload['progress'] = ratio
+                logger.error('progress = %s' % response['progress'])
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 time.sleep(2)
 
@@ -141,6 +157,7 @@ class prepareImageTaskThread(threading.Thread):
                 payload['progress'] = 100
                 self.forwardTaskStatus2CC(json.dumps(payload))
             else:
+                logger.error(' ----- failed . ')
                 retvalue = "FAILURE"
                 payload['failed'] = 1
                 payload['state']  = 'init'
@@ -207,6 +224,7 @@ class SubmitImageTaskThread(threading.Thread):
 
     # RPC call to ask CC download image from walrus
     def submitFromCC2Walrus(self, data):
+        logger.error('submitFromCC2Walrus start ... ...')
         retvalue = "OK"
 
         while True:
@@ -214,13 +232,17 @@ class SubmitImageTaskThread(threading.Thread):
             response = json.loads(response)
 
             if response['failed'] == 1:
+                logger.error(' ----- failed . ')
                 retvalue = "FALURE"
                 self.forwardTaskStatus2CC(json.dumps(response))
                 break
-            else:
+            if response['done'] == 1:
+                logger.error(' ----- done . ')
                 self.forwardTaskStatus2CC(json.dumps(response))
-                if response['progress'] == 100:
-                    break
+                break
+            else:
+                logger.error('progress = %s' % response['progress'])
+                self.forwardTaskStatus2CC(json.dumps(response))
 
             time.sleep(2)
 
@@ -230,6 +252,7 @@ class SubmitImageTaskThread(threading.Thread):
         simple_send(logger, self.ccip, 'cc_status_queue', response)
 
     def submitFromNC2CC(self, data):
+        logger.error('submitFromNC2CC start ... ...')
         retvalue = "OK"
 
         paras = data['rsync']
@@ -254,23 +277,29 @@ class SubmitImageTaskThread(threading.Thread):
                 'tid'       : self.tid,
                 'prompt'    : prompt,
                 'errormsg'  : "",
-                'failed'    : 0
+                'failed'    : 0,
+                'done'      : 0,
         }
 
         while True:
             payload['progress'] = worker.getprogress()
             payload['failed']   = worker.isFailed()
+            payload['done']     = worker.isDone()
             if worker.isFailed():
+                logger.error(' ----- failed . ')
                 payload['failed']   = worker.isFailed()
                 payload['errormsg'] = worker.getErrorMsg()
                 payload['state']    = 'init'
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 retvalue = "FALURE"
                 break
-            else:
+            elif worker.isDone():
+                logger.error(' ----- Done . ')
                 self.forwardTaskStatus2CC(json.dumps(payload))
-                if payload['progress'] == 100:
-                    break
+                break
+            else:
+                logger.error('progress = %s' % response['progress'])
+                self.forwardTaskStatus2CC(json.dumps(payload))
 
         return retvalue
 
