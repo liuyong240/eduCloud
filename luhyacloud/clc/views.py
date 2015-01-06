@@ -656,6 +656,7 @@ def cc_mgr_ccname(request, ccname):
     htmlstr = htmlstr.replace('{{host_ips.location}}',    host_ips['location'])
 
     htmlstr = htmlstr.replace('{{hardware_data.cpus}}',        str(hardware_data['cpus']))
+    htmlstr = htmlstr.replace('{{hardware_data.cpu_usage}}',   str(hardware_data['cpu_usage']))
     htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
     htmlstr = htmlstr.replace('{{hardware_data.mem_usage}}',   str(hardware_data['mem_usage']))
 
@@ -749,6 +750,7 @@ def nc_mgr_mac(request, ccname, mac):
     htmlstr = htmlstr.replace('{{host_ips.location}}',    host_ips['location'])
 
     htmlstr = htmlstr.replace('{{hardware_data.cpus}}',        str(hardware_data['cpus']))
+    htmlstr = htmlstr.replace('{{hardware_data.cpu_usage}}',   str(hardware_data['cpu_usage']))
 
     htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
     htmlstr = htmlstr.replace('{{hardware_data.mem_usage}}',   str(hardware_data['mem_usage']))
