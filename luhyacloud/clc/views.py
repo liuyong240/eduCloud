@@ -1569,7 +1569,7 @@ def image_create_task_prepare_success(request, srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "prepare"
+    rec.phase = "preparing"
     rec.state = 'done'
     rec.progress = 100
     rec.save()
@@ -1586,7 +1586,7 @@ def image_create_task_prepare_failure(request, srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "prepare"
+    rec.phase = "preparing"
     rec.state = 'init'
     rec.progress = 0
     rec.save()

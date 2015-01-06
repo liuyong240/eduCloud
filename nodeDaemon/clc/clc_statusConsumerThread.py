@@ -15,7 +15,7 @@ class clc_statusConsumerThread(run4everThread):
     def save2Mem(self, key, msg):
         try:
             logger.error("start to save to memcache")
-            self.mc.set(key, msg)
+            self.mc.set(key, msg, 5*60)
             logger.error("add to memcaceh: %s" % msg)
         except Exception as e:
             logger.errro(e.message)

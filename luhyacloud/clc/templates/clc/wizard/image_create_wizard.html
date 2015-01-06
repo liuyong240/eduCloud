@@ -68,6 +68,7 @@ function prepareVM() {
     });
 
     items = {};
+    items['pahse'] = 'preparing';
     items['state'] = 'downloading';
     items['progress'] = 0;
     items['failed'] = 0;
@@ -77,11 +78,17 @@ function prepareVM() {
     prepareUIUpdate(items);
 }
 function prepareUIUpdate(items) {
+    phase    = items['phase'];
     state    = items['state'];
     failed   = items['failed'];
     progress = items['progress'];
     prompt   = items['prompt'];
     errormsg = items['errormsg'];
+
+    if (phase != 'preparing') {
+        setTimeout(getPrepareProgress, timer_interval);
+        return;
+    }
 
     if (state == 'init') {
         progress = 0;
@@ -113,6 +120,8 @@ function prepareUIUpdate(items) {
     if (state == 'done') {
         prepareDone();
     }
+
+    $("#runningstatus").text('stopped');
 }
 
 function getPrepareProgress() {
@@ -155,16 +164,22 @@ function runVM() {
     })
 
     items = {};
+    items['pahse'] = 'editing';
     items['state'] = 'booting';
     items['failed'] = 0;
     editPageUIupdate(items);
 }
 
 function editPageUIupdate(items) {
+    phase    = items['phase'];
     state    = items['state'];
     url      = '{{ rdp_url}}';
     failed   = items['failed'];
 
+    if (phase != 'editing') {
+        setTimeout(getVMStatus, timer_interval);
+        return;
+    }
     if (state == 'stopped') {
         $(".jw-button-next").removeAttr("disabled");
 
@@ -238,6 +253,7 @@ function stopVM() {
     });
 
     items = {};
+    items['pahse'] = 'editing';
     items['state'] = 'stopped';
     items['failed'] = 0;
     editPageUIupdate(items);
@@ -257,6 +273,7 @@ function submitVM() {
     });
 
     items = {};
+    items['pahse'] = 'submitting';
     items['state'] = 'uploading';
     items['progress'] =0;
     items['failed'] = 0;
@@ -264,11 +281,17 @@ function submitVM() {
 }
 
 function submitPageUIupdate(items) {
+    phase = items['phase'];
     state = items['state'];
     failed = items['failed'];
     progress = items['progress'];
     prompt   = items['prompt'];
     errormsg = items['errormsg'];
+
+    if (phase != 'submitting') {
+        setTimeout(getSubmitProgress, timer_interval);
+        return;
+    }
 
     if (state == 'init') {
         $(".jw-button-next").attr("disabled", true);
@@ -285,6 +308,7 @@ function submitPageUIupdate(items) {
         }
     }
     if (state == 'uploading') {
+
         $(".jw-button-next").attr("disabled", true);
         $('#btn_submit').addClass('disabled');
 
@@ -294,7 +318,7 @@ function submitPageUIupdate(items) {
 
         setTimeout(getSubmitProgress, timer_interval);
     }
-    if (state = 'done') {
+    if (state == 'done') {
         $(".jw-button-next").removeAttr("disabled");
         $('#btn_submit').addClass('disabled');
 
@@ -448,7 +472,7 @@ $(document).ready(function () {
                 <tbody>
                 <tr>
                     <td>{{ imgobj.name }}</td>
-                    <td id="runningstatus">{{ vmstatus }}</td>
+                    <td id="runningstatus"></td>
                 </tr>
                 </tbody>
             </table>
