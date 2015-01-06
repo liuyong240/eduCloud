@@ -56,7 +56,7 @@ class prepareImageTaskThread(threading.Thread):
         retvalue = "OK"
 
         paras = data['rsync']
-        prompt = 'Downloading file from Walrus to CC ... ...'
+        prompt = 'Downloading file from CC to NC ... ...'
         if paras == 'luhya':
             prompt      = 'Downloading image file from Walrus to CC ... ...'
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
@@ -129,13 +129,14 @@ class prepareImageTaskThread(threading.Thread):
                 srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
                 dstfile  = "/storage/space/database/images/%s/database" % self.dstimgid
 
-            if os.path.exists(os.path.dirname(dstfile)):
-                shutil.rmtree(os.path.dirname(dstfile))
+	    cmd = 'vboxmanage closemedium disk %s --delete' % dstfile
+	    pexpect.spawn(cmd)
+	    shutil.rmtree(os.path.dirname(dstfile))
 
             src_size = os.path.getsize(srcfile)
 
             cmd = "vboxmanage clonehd" + " " + srcfile + " " + dstfile
-            logger.info("cmd line = %s", cmd)
+            logger.error("cmd line = %s", cmd)
             ratio = 0
             procid = pexpect.spawn(cmd)
 
@@ -146,14 +147,14 @@ class prepareImageTaskThread(threading.Thread):
                     dst_size = 0
 
                 ratio = int(dst_size * 100.0 / src_size)
-                logger.info('current clone percentage is %d' % ratio)
+                logger.error('current clone percentage is %d' % ratio)
                 payload['progress'] = ratio
-                logger.error('progress = %s' % response['progress'])
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 time.sleep(2)
 
             if procid.status == 0:
                 payload['progress'] = 100
+		logger.error('current clone percentage is done')
                 self.forwardTaskStatus2CC(json.dumps(payload))
             else:
                 logger.error(' ----- failed . ')
@@ -199,8 +200,10 @@ class prepareImageTaskThread(threading.Thread):
         }
 
         if done_1 == False or done_2 == False:
+	    logger.error('send cmd image/prepare/failure ')
             self.download_rpc.call(cmd="image/prepare/failure", tid=data['tid'], paras=data['rsync'])
         else:
+	    logger.error('send cmd image/prepare/success ')
             self.download_rpc.call(cmd="image/prepare/success", tid=data['tid'], paras=data['rsync'])
             payload = json.dumps(payload)
             self.forwardTaskStatus2CC(payload)
