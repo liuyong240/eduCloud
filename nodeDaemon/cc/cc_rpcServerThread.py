@@ -71,7 +71,7 @@ class cc_rpcServerThread(run4everThread):
 
         payload = {
                 'type'      : 'taskstatus',
-                'phase'     : "prepare",
+                'phase'     : "preparing",
                 'state'     : 'downloading',
                 'progress'  : worker.getprogress(),
                 'tid'       : tid,

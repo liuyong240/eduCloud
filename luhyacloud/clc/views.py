@@ -1701,7 +1701,7 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
         if payload == None:
             payload = {
                 'type': 'taskstatus',
-                'phase': "prepare",
+                'phase': "preparing",
                 'state': 'downloading',
                 'progress': 0,
                 'tid': tid,
@@ -1719,7 +1719,7 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
     except Exception as e:
         payload = {
             'type': 'taskstatus',
-            'phase': "prepare",
+            'phase': "preparing",
             'state': 'downloading',
             'progress': 0,
             'tid': tid,

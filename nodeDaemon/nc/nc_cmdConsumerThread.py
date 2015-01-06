@@ -113,7 +113,7 @@ class prepareImageTaskThread(threading.Thread):
 
         payload = {
                 'type'      : 'taskstatus',
-                'phase'     : "prepare",
+                'phase'     : "preparing",
                 'state'     : "cloning",
                 'progress'  : 0,
                 'tid'       : self.tid,
@@ -132,6 +132,7 @@ class prepareImageTaskThread(threading.Thread):
                 dstfile  = "/storage/space/database/images/%s/database" % self.dstimgid
 
 	    cmd = 'vboxmanage closemedium disk %s --delete' % dstfile
+	    logger.error("cmd line = %s", cmd)
 	    pexpect.spawn(cmd)
 	    shutil.rmtree(os.path.dirname(dstfile))
 
