@@ -1711,6 +1711,7 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
         else:
             response = payload
             payload = json.loads(payload)
+            # logger.error("lkf: get progress = %s", payload['progress'])
             if payload['failed'] == 1:
                 mc.delete(str(tid))
     except Exception as e:
@@ -1726,7 +1727,6 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
         }
         response = json.dumps(payload)
 
-    logger.error("lkf: get progress = %s", response)
     return HttpResponse(response, mimetype="application/json")
 
 def image_create_task_submit(request, srcid, dstid, insid):
