@@ -38,6 +38,7 @@ class prepareImageTaskThread(threading.Thread):
                 break
             elif response['done'] == 1:
                 logger.error(' ----- done . ')
+		response['progress'] = 0
                 self.forwardTaskStatus2CC(json.dumps(response))
                 break
             else:
@@ -58,11 +59,11 @@ class prepareImageTaskThread(threading.Thread):
         paras = data['rsync']
         prompt = 'Downloading file from CC to NC ... ...'
         if paras == 'luhya':
-            prompt      = 'Downloading image file from Walrus to CC ... ...'
+            prompt      = 'Downloading image file from CC to NC ... ...'
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/images/"
         if paras == 'db':
-            prompt      = 'Downloading database file from Walrus to CC ... ...'
+            prompt      = 'Downloading database file from CC to NC ... ...'
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/space/database/"
 
@@ -95,6 +96,7 @@ class prepareImageTaskThread(threading.Thread):
                 break
             elif worker.isDone():
                 logger.error(' ----- Done . ')
+		payload['progress'] = 0
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 break
             else:
@@ -193,6 +195,7 @@ class prepareImageTaskThread(threading.Thread):
                 'type'      : 'taskstatus',
                 'phase'     : "preparing",
                 'state'     : 'done',
+		'progress'  :  0,
                 'tid'       : self.tid,
                 'prompt'    : '',
                 'errormsg'  : '',
@@ -240,6 +243,7 @@ class SubmitImageTaskThread(threading.Thread):
                 break
             if response['done'] == 1:
                 logger.error(' ----- done . ')
+		response['progress'] = 0
                 self.forwardTaskStatus2CC(json.dumps(response))
                 break
             else:
@@ -297,11 +301,13 @@ class SubmitImageTaskThread(threading.Thread):
                 break
             elif worker.isDone():
                 logger.error(' ----- Done . ')
+		payload['progress'] = 0
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 break
             else:
-                logger.error('progress = %s' % response['progress'])
+                logger.error('progress = %s' % payload['progress'])
                 self.forwardTaskStatus2CC(json.dumps(payload))
+            time.sleep(2)
 
         return retvalue
 
