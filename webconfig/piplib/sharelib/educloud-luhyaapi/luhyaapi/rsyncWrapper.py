@@ -83,7 +83,7 @@ class rsyncWorkerThread(threading.Thread):
         while rsync.isRsyncLive():
             tmpfilesize, pct, bitrate, remain = rsync.getProgress()
             msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
-            self.logger.error(msg)
+            # self.logger.error(msg)
             self.progress = int(pct.split('%')[0])
 
         exit_code = rsync.getExitStatus()

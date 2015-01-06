@@ -15,7 +15,7 @@ def simple_send(logger, serverIP, queue_name, message):
                           routing_key=queue_name,
                           body=message)
     connection.close()
-    logger.error("luhya: send message %s to %s in %s" % (message, queue_name, serverIP))
+    # logger.error("luhya: send message %s to %s in %s" % (message, queue_name, serverIP))
 
 def routing_send(logger, serverIP, exchangeName,  message, routingKey):
     connection = getConnection(serverIP)

@@ -98,9 +98,8 @@ class prepareImageTaskThread(threading.Thread):
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 break
             else:
-                logger.error('progress = %s' % response['progress'])
+                logger.error('progress = %s' % payload['progress'])
                 self.forwardTaskStatus2CC(json.dumps(payload))
-
 
             time.sleep(2)
 
