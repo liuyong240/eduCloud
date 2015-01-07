@@ -42,15 +42,15 @@ class cc_rpcServerThread(run4everThread):
 
     def on_request(self, ch, method, props, body):
         logger.error("get rpc cmd = %s" % body)
-	try:
+        try:
             message = json.loads(body)
 
             if message['op'] in self.cc_rpc_handlers and self.cc_rpc_handlers[message['op']] != None:
                 self.cc_rpc_handlers[message['op']](ch, method, props, message['tid'], message['paras'])
             else:
                 logger.error("unknow cmd : %s", message['op'])
-	except Exception as e:
-	    logger("error msg = %s with body=%s" %(e.message, body))
+        except Exception as e:
+            logger("error msg = %s with body=%s" % (e.message, body))
 
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_imageprepare")
@@ -193,7 +193,7 @@ class cc_rpcServerThread(run4everThread):
         clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
         payload = submitImageFinished(clcip, tid)
 
-	logger.error("submitImageFinished with result = %s" % payload)
+        logger.error("submitImageFinished with result = %s" % payload)
         payload = json.dumps(payload)
         ch.basic_publish(
                  exchange='',
@@ -205,6 +205,7 @@ class cc_rpcServerThread(run4everThread):
         oldversionNo = ReadImageVersionFile(self.dstimgid)
         newversionNo = IncreaseImageVersion(oldversionNo)
         WriteImageVersionFile(self.dstimgid,newversionNo)
+        logger.error("image %s version = %s" % (self.dstimgid, newversionNo))
 
     def cc_rpc_handle_image_running(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_image_running")

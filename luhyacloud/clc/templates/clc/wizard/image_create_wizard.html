@@ -50,7 +50,7 @@ var vmstatus;
 
 var retrytimes = 0;
 var maxRetryTimes = 100;
-var timer_interval = 1000;
+var timer_interval = 3000;
 
 function sleep(sleepTime) {
     for (var start = Date.now(); Date.now() - start <= sleepTime;) {}
@@ -322,6 +322,9 @@ function submitPageUIupdate(items) {
         setTimeout(getSubmitProgress, timer_interval);
     }
     if (state == 'done') {
+        $('#btn_run').addClass('disabled');
+        $('#btn_stop').addClass('disabled');
+
         // $(".jw-button-next").removeAttr("disabled");
         $('#btn_submit').addClass('disabled');
 
@@ -423,7 +426,7 @@ $(document).ready(function () {
     data['failed']  = 0;
     data['progress']= 0;
 
-    setTimeout(init_displayWebPage(data), timer_interval);
+    init_displayWebPage(data);
 });
 </script>
 {% endblock %}
@@ -471,7 +474,7 @@ $(document).ready(function () {
                 <tbody>
                 <tr>
                     <td>{{ imgobj.name }}</td>
-                    <td id="runningstatus"></td>
+                    <td id="runningstatus">stopped</td>
                 </tr>
                 </tbody>
             </table>
