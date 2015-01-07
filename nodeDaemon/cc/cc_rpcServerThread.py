@@ -202,10 +202,13 @@ class cc_rpcServerThread(run4everThread):
                  body=payload)
         ch.basic_ack(delivery_tag = method.delivery_tag)
 
-        oldversionNo = ReadImageVersionFile(self.dstimgid)
+        _tid = tid.split(':')
+        dstimgid = _tid[1]
+
+        oldversionNo = ReadImageVersionFile(dstimgid)
         newversionNo = IncreaseImageVersion(oldversionNo)
-        WriteImageVersionFile(self.dstimgid,newversionNo)
-        logger.error("image %s version = %s" % (self.dstimgid, newversionNo))
+        WriteImageVersionFile(dstimgid,newversionNo)
+        logger.error("image %s version = %s" % (dstimgid, newversionNo))
 
     def cc_rpc_handle_image_running(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_image_running")
