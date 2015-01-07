@@ -58,7 +58,11 @@ class cc_rpcServerThread(run4everThread):
         srcimgid = tid.split(':')[1]
         clc_img_info   = getImageInfo(self.clcip, srcimgid)
         cc_img_version = ReadImageVersionFile(srcimgid)
-        cc_img_size    = os.path.getsize('/storage/images/%s/machine' % srcimgid)
+        imgfile = '/storage/images/%s/machine' % srcimgid
+        if os.path.exists(imgfile):
+            cc_img_size    = os.path.getsize(imgfile)
+        else:
+            cc_img_size     = 0
 
         if clc_img_info['data']['version'] == cc_img_version and clc_img_info['data']['size'] == cc_img_size:
             payload = {
@@ -67,7 +71,7 @@ class cc_rpcServerThread(run4everThread):
                 'state'     : 'downloading',
                 'progress'  : 100,
                 'tid'       : tid,
-                'prompt'    : prompt,
+                'prompt'    : '',
                 'errormsg'  : '',
                 'failed'    : 0,
                 'done'      : 1,
