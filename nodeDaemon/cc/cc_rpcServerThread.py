@@ -18,8 +18,8 @@ class cc_rpcServerThread(run4everThread):
         self.channel.queue_declare(queue='rpc_queue')
         self.channel.basic_qos(prefetch_count=1)
 
-        clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
-        walrusinfo = getWalrusInfo(clcip)
+        self.clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+        walrusinfo = getWalrusInfo(self.clcip)
         self.serverIP = walrusinfo['data']['ip0']
 
         self.cc_rpc_handlers = {
@@ -54,6 +54,32 @@ class cc_rpcServerThread(run4everThread):
 
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_imageprepare")
+
+        srcimgid = tid.split(':')[1]
+        clc_img_info   = getImageInfo(self.clcip, srcimgid)
+        cc_img_version = ReadImageVersionFile(srcimgid)
+        cc_img_size    = os.path.getsize('/storage/images/%s/machine' % srcimgid)
+
+        if clc_img_info['data']['version'] == cc_img_version and clc_img_info['data']['size'] == cc_img_size:
+            payload = {
+                'type'      : 'taskstatus',
+                'phase'     : "preparing",
+                'state'     : 'downloading',
+                'progress'  : 100,
+                'tid'       : tid,
+                'prompt'    : prompt,
+                'errormsg'  : '',
+                'failed'    : 0,
+                'done'      : 1,
+            }
+            payload = json.dumps(payload)
+            ch.basic_publish(
+                     exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                     body=payload)
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+            return
 
         prompt = 'Downloading file from Walrus to CC ... ...'
         if paras == 'luhya':

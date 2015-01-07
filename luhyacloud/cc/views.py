@@ -205,7 +205,6 @@ def get_images_version(request, imgid):
     size = os.path.getsize(path)
 
     payload = {
-        'imgid':             imgid,
         'version':           version,
         'size':              size,
     }

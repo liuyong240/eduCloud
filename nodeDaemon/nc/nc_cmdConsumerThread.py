@@ -56,6 +56,25 @@ class prepareImageTaskThread(threading.Thread):
         logger.error('downloadFromCC2NC start ... ...')
         retvalue = "OK"
 
+        cc_img_info    = getImageVersionFromCC(self.ccip, self.srcimgid)
+        nc_img_version = ReadImageVersionFile(self.srcimgid)
+        nc_img_size    = os.path.getsize('/storage/images/%s/machine' % self.srcimgid)
+
+        if cc_img_info['data']['version'] == nc_img_version and cc_img_info['data']['size'] == nc_img_size:
+            payload = {
+                'type'      : 'taskstatus',
+                'phase'     : "preparing",
+                'state'     : 'downloading',
+                'progress'  : 100,
+                'tid'       : self.tid,
+                'prompt'    : '',
+                'errormsg'  : '',
+                'failed'    : 0,
+                'done'      : 1,
+            }
+            self.forwardTaskStatus2CC(json.dumps(payload))
+            return retvalue
+
         paras = data['rsync']
         prompt = 'Downloading file from CC to NC ... ...'
         if paras == 'luhya':

@@ -3578,11 +3578,6 @@ def get_walrus_info(request):
 def get_image_info(request, imgid):
     rec = ecImages.objects.get(ecid=imgid)
     payload = {
-        'ecid':              rec.ecid,
-        'name':              rec.name,
-        'ostype':            rec.ostype,
-        'usage':             rec.img_usage,
-        'description':       rec.description,
         'version':           ReadImageVersionFile(rec.ecid),
         'size':              rec.size
     }
