@@ -83,6 +83,7 @@ class cc_rpcServerThread(run4everThread):
                      properties=pika.BasicProperties(correlation_id = props.correlation_id),
                      body=payload)
             ch.basic_ack(delivery_tag = method.delivery_tag)
+            logger.error("walru's image is same as cc's image, no rsync now. ")
             return
 
         prompt = 'Downloading file from Walrus to CC ... ...'

@@ -77,6 +77,7 @@ class prepareImageTaskThread(threading.Thread):
                 'done'      : 1,
             }
             self.forwardTaskStatus2CC(json.dumps(payload))
+            logger.error("cc's image is same as nc's image, no rsync now. ")
             return retvalue
 
         paras = data['rsync']
