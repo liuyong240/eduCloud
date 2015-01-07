@@ -1573,7 +1573,7 @@ def image_create_task_prepare_success(request, srcid, dstid, insid):
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "preparing"
     rec.state = 'done'
-    rec.progress = 100
+    rec.progress = 0
     rec.save()
 
     response = {}
@@ -1793,7 +1793,7 @@ def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
         }
         response = json.dumps(payload)
 
-    logger.error("lkf: get progress = %s", response)
+    # logger.error("lkf: get progress = %s", response)
     return HttpResponse(response, mimetype="application/json")
 
 def image_modify_task_start(request, srcid):
@@ -1887,11 +1887,11 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
     trec = ectaskTransaction.objects.get(tid=_tid)
     trec.phase = "submitting"
     trec.state = 'done'
-    trec.completed = True
-    trec.progress = 100
+    # trec.completed = True
+    trec.progress = 0
     trec.save()
 
-    releaseRuntimeOptionForImageBuild(srcid, dstid, insid)
+    # releaseRuntimeOptionForImageBuild(srcid, dstid, insid)
     imgfile_path = '/storage/images/' + dstid + "/machine"
     imgfile_size = os.path.getsize(imgfile_path)
 
@@ -1911,7 +1911,7 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
 
         rec = ecImages_auth(
             ecid = dstid,
-            roel_value = 'eduCloud.admin',
+            role_value = 'eduCloud.admin',
             read = True,
             write = True,
             execute = True,
@@ -1926,7 +1926,7 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
         if rec.ec_authpath_value != 'eduCloud.admin':
             newrec = ecImages_auth(
                 ecid = dstid,
-                roel_value = rec.ec_authpath_value,
+                role_value = rec.ec_authpath_value,
                 read = True,
                 write = True,
                 execute = True,

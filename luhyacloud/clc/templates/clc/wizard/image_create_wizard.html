@@ -52,6 +52,9 @@ var retrytimes = 0;
 var maxRetryTimes = 100;
 var timer_interval = 1000;
 
+function sleep(sleepTime) {
+    for (var start = Date.now(); Date.now() - start <= sleepTime;) {}
+}
 
 /////////////////////////////
 // Prepare Phase functions
@@ -92,7 +95,7 @@ function prepareUIUpdate(items) {
 
     if (state == 'init') {
         progress = 0;
-        $(".jw-button-next").attr("disabled", true);
+        // $(".jw-button-next").attr("disabled", true);
         $("#btn_prepare").removeClass("disabled");
         $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
 
@@ -107,7 +110,7 @@ function prepareUIUpdate(items) {
         }
     }
     if (state == 'downloading' || state == "cloning") {
-        $(".jw-button-next").attr("disabled", true);
+        // $(".jw-button-next").attr("disabled", true);
         $("#btn_prepare").addClass("disabled");
 
         $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
@@ -147,7 +150,7 @@ function prepareDone() {
     $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
     $("#desclabel").css('color', 'green');
 
-    $(".jw-button-next").removeAttr("disabled");
+    // $(".jw-button-next").removeAttr("disabled");
 }
 
 /////////////////////////////
@@ -181,7 +184,7 @@ function editPageUIupdate(items) {
         return;
     }
     if (state == 'stopped') {
-        $(".jw-button-next").removeAttr("disabled");
+        // $(".jw-button-next").removeAttr("disabled");
 
         $("#btn_run").removeClass("disabled");
         $('#btn_stop').addClass('disabled');
@@ -198,7 +201,7 @@ function editPageUIupdate(items) {
         }
     }
     if (state == 'booting') {
-        $(".jw-button-next").attr("disabled", true);
+        // $(".jw-button-next").attr("disabled", true);
 
         $('#btn_run').addClass('disabled');
         $('#btn_stop').addClass('disabled');
@@ -210,7 +213,7 @@ function editPageUIupdate(items) {
         setTimeout(getVMStatus, timer_interval);
     }
     if (state == 'running') {
-        $(".jw-button-next").attr("disabled", true);
+        // $(".jw-button-next").attr("disabled", true);
 
         $('#btn_run').addClass('disabled');
         $('#btn_stop').removeClass('disabled');
@@ -294,7 +297,7 @@ function submitPageUIupdate(items) {
     }
 
     if (state == 'init') {
-        $(".jw-button-next").attr("disabled", true);
+        // $(".jw-button-next").attr("disabled", true);
         $('#btn_submit').removeClass('disabled');
 
         progress = 0;
@@ -309,7 +312,7 @@ function submitPageUIupdate(items) {
     }
     if (state == 'uploading') {
 
-        $(".jw-button-next").attr("disabled", true);
+        // $(".jw-button-next").attr("disabled", true);
         $('#btn_submit').addClass('disabled');
 
         $("#submit_progressbar").progressbar({"value": progress}).children("#submit_prlabel").html(progress + ' %');
@@ -319,7 +322,7 @@ function submitPageUIupdate(items) {
         setTimeout(getSubmitProgress, timer_interval);
     }
     if (state == 'done') {
-        $(".jw-button-next").removeAttr("disabled");
+        // $(".jw-button-next").removeAttr("disabled");
         $('#btn_submit').addClass('disabled');
 
         progress = 100;
@@ -360,9 +363,6 @@ function init_displayWebPage(data) {
     if (phase == 'submitting') {
         prepareDone();
         $(".jw-button-next").click();
-
-        $(".jw-button-next").click();
-
         submitPageUIupdate(data);
     }
 }
@@ -423,8 +423,7 @@ $(document).ready(function () {
     data['failed']  = 0;
     data['progress']= 0;
 
-    init_displayWebPage(data);
-
+    setTimeout(init_displayWebPage(data), timer_interval);
 });
 </script>
 {% endblock %}
