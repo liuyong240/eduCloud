@@ -134,7 +134,8 @@ class prepareImageTaskThread(threading.Thread):
 	    cmd = 'vboxmanage closemedium disk %s --delete' % dstfile
 	    logger.error("cmd line = %s", cmd)
 	    pexpect.spawn(cmd)
-	    shutil.rmtree(os.path.dirname(dstfile))
+	    if os.path.exists(os.path.dirname(dstfile)):
+	        shutil.rmtree(os.path.dirname(dstfile))
 
             src_size = os.path.getsize(srcfile)
 
@@ -206,6 +207,10 @@ class prepareImageTaskThread(threading.Thread):
         if done_1 == False or done_2 == False:
 	    logger.error('send cmd image/prepare/failure ')
             self.download_rpc.call(cmd="image/prepare/failure", tid=data['tid'], paras=data['rsync'])
+	    payload['state']    = 'init'
+            payload['failed']   = 1
+	    payload = json.dumps(payload)
+            self.forwardTaskStatus2CC(payload)
         else:
 	    logger.error('send cmd image/prepare/success ')
             self.download_rpc.call(cmd="image/prepare/success", tid=data['tid'], paras=data['rsync'])
@@ -324,6 +329,7 @@ class SubmitImageTaskThread(threading.Thread):
             logger.error("luhya: delete snapshort with result - out=%s - err=%s", out, err)
 
     def task_finished(self):
+	logger.error(' -------- task_finished')
         if self.srcimgid != self.dstimgid:
             self.vboxmgr.unregisterVM(delete=True)
             self.vboxmgr.deleteVMConfigFile()
@@ -354,7 +360,7 @@ class SubmitImageTaskThread(threading.Thread):
             if self.submitFromCC2Walrus(data) == "OK":
                 done_1 = True
 
-        if done_2 == True:
+        if done_1 == True:
             if self.runtime_option['usage'] == 'server':
                 data['rsync'] = 'db'
                 if self.submitFromCC2Walrus(data) == "OK":
@@ -366,6 +372,7 @@ class SubmitImageTaskThread(threading.Thread):
                 'type'      : 'taskstatus',
                 'phase'     : "submitting",
                 'state'     : 'done',
+		'progress'  :  0,
                 'tid'       : self.tid,
                 'prompt'    : '',
                 'errormsg'  : '',
@@ -373,16 +380,21 @@ class SubmitImageTaskThread(threading.Thread):
         }
 
         if done_1 == False or done_2 == False:
+            logger.error('send cmd image/submit/failure ')
             self.download_rpc.call(cmd="image/submit/failure", tid=data['tid'], paras=data['rsync'])
             # send mssage to notify prepare is done
             payload['state']    = 'init'
             payload['failed']   = 1
             payload = json.dumps(payload)
             self.forwardTaskStatus2CC(payload)
+
+	    self.download_rpc.call(cmd="image/submit/failure", tid=data['tid'], paras=data['rsync'])
         else:
+	    payload = json.dumps(payload)
+	    self.forwardTaskStatus2CC(payload)
+            
+	    logger.error('send cmd image/submit/success whith payload=%s' % payload)
             self.download_rpc.call(cmd="image/submit/success", tid=data['tid'], paras=data['rsync'])
-            payload = json.dumps(payload)
-            self.forwardTaskStatus2CC(payload)
 
             self.task_finished()
 
