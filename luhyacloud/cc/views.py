@@ -214,4 +214,17 @@ def get_images_version(request, imgid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
+def verify_clc_cc_file_ver(request, imgid):
+    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+
+    clc_img_info = getImageInfo(clcip, imgid)
+    cc_img_info  = get_images_version(request, imgid)
+
+    response = {}
+    response['Result']  = "OK"
+    response['clc']     = clc_img_info['data']
+    response['cc']      = cc_img_info['data']
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
 

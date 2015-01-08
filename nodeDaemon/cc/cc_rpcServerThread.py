@@ -55,37 +55,6 @@ class cc_rpcServerThread(run4everThread):
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_imageprepare")
 
-
-        srcimgid = tid.split(':')[1]
-        clc_img_info   = getImageInfo(self.clcip, srcimgid)
-        cc_img_version, cc_img_size = getLocalImageInfo(srcimgid)
-        cc_dbsize = getLocalDatabaseInfo(srcimgid)
-
-        if clc_img_info['data']['version'] == cc_img_version and \
-           clc_img_info['data']['size']    == cc_img_size and \
-           clc_img_info['data']['dbsize']  == cc_dbsize:
-            payload = {
-                'type'      : 'taskstatus',
-                'phase'     : "preparing",
-                'state'     : 'downloading',
-                'progress'  : 100,
-                'tid'       : tid,
-                'prompt'    : '',
-                'errormsg'  : '',
-                'failed'    : 0,
-                'done'      : 1,
-            }
-            payload = json.dumps(payload)
-            ch.basic_publish(
-                     exchange='',
-                     routing_key=props.reply_to,
-                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
-                     body=payload)
-            ch.basic_ack(delivery_tag = method.delivery_tag)
-            logger.error("walru's image is same as cc's image, no rsync now. ")
-            return
-
-
         prompt = 'Downloading file from Walrus to CC ... ...'
         if paras == 'luhya':
             prompt = 'Downloading image file from Walrus to CC ... ...'
@@ -94,7 +63,7 @@ class cc_rpcServerThread(run4everThread):
         if paras == 'db':
             prompt = 'Downloading database file from Walrus to CC ... ...'
             source      = "rsync://%s/%s/%s" % (self.serverIP, 'db', tid.split(':')[0])
-            destination = "/storage/space/database/"
+            destination = "/storage/space/database/images/"
 
         if tid in self.tasks_status and self.tasks_status[tid] != None:
             worker = self.tasks_status[tid]
@@ -135,7 +104,7 @@ class cc_rpcServerThread(run4everThread):
             destination = "rsync://%s/%s/" % (self.serverIP, 'luhya')
         if paras == 'db':
             prompt      = 'Uploading database file from CC to Walrus ... ...'
-            source      = '/storage/space/database/%s' %  tid.split(':')[1]
+            source      = '/storage/space/database/images/%s' %  tid.split(':')[1]
             destination = "rsync://%s/%s/" % (self.serverIP, 'db')
 
         if tid in self.submit_tasks and self.submit_tasks[tid] != None:

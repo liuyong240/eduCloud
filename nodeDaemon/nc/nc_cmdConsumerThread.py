@@ -12,19 +12,43 @@ logger = getncdaemonlogger()
 class prepareImageTaskThread(threading.Thread):
     def __init__(self, tid, runtime_option):
         threading.Thread.__init__(self)
-        retval = tid.split(':')
-        self.tid      = tid
-        self.srcimgid = retval[0]
-        self.dstimgid = retval[1]
-        self.runtime_option = json.loads(runtime_option)
-        self.ccip     = getccipbyconf()
-        self.download_rpc = RpcClient(logger, self.ccip)
+        retval                  = tid.split(':')
+        self.tid                = tid
+        self.srcimgid           = retval[0]
+        self.dstimgid           = retval[1]
+        self.insid              = retval[2]
+        self.runtime_option     = json.loads(runtime_option)
+        self.ccip               = getccipbyconf()
+        self.download_rpc       = RpcClient(logger, self.ccip)
+        self.cc_img_info        = getImageVersionFromCC(self.ccip, self.srcimgid)
+        self.nc_img_version, self.nc_img_size = getLocalImageInfo(self.srcimgid)
+        self.nc_dbsize          = getLocalDatabaseInfo(self.srcimgid)
         logger.error('prepareImageTaskThread inited, tid=%s' % tid)
+
+    def checkCLCandCCFile(self, paras):
+        result = verify_clc_cc_image_info(self.ccip, self.srcimgid)
+
+        if paras == 'luhya':
+            if result['clc']['version'] == result['cc']['version'] and \
+               result['clc']['size']    == result['cc']['size']:
+                return 'NO'
+            else:
+                return "YES"
+
+        if paras == 'db':
+            if result['clc']['dbsize'] == result['cc']['dbsize']:
+                return 'NO'
+            else:
+                return 'YES'
 
     # RPC call to ask CC download image from walrus
     def downloadFromWalrus2CC(self, data):
         logger.error('downloadFromWalrus2CC start ... ...')
         retvalue = "OK"
+
+        needDownloading = self.checkCLCandCCFile(data['rsync'])
+        if needDownloading == 'NO':
+            return retvalue
 
         while True:
             response = self.download_rpc.call(cmd=data['cmd'], tid=data['tid'], paras=data['rsync'])
@@ -56,53 +80,49 @@ class prepareImageTaskThread(threading.Thread):
         logger.error('downloadFromCC2NC start ... ...')
         retvalue = "OK"
 
-        cc_img_info    = getImageVersionFromCC(self.ccip, self.srcimgid)
-        nc_img_version, nc_img_size = getLocalImageInfo(self.srcimgid)
-        nc_dbsize   = getLocalDatabaseInfo(self.srcimgid)
-
-        if cc_img_info['data']['version'] == nc_img_version and \
-           cc_img_info['data']['size'] == nc_img_size and \
-           cc_img_info['data']['dbsize'] == nc_dbsize:
-            payload = {
-                'type'      : 'taskstatus',
-                'phase'     : "preparing",
-                'state'     : 'downloading',
-                'progress'  : 100,
-                'tid'       : self.tid,
-                'prompt'    : '',
-                'errormsg'  : '',
-                'failed'    : 0,
-                'done'      : 1,
-            }
-            self.forwardTaskStatus2CC(json.dumps(payload))
-            logger.error("cc's image is same as nc's image, no rsync now. ")
-            return retvalue
+        payload = {
+            'type'      : 'taskstatus',
+            'phase'     : "preparing",
+            'state'     : "downloading",
+            'progress'  : 0,
+            'tid'       : self.tid,
+            'prompt'    : '',
+            'errormsg'  : "",
+            'failed'    : 0,
+            'done'      : 0,
+        }
 
         paras = data['rsync']
-        prompt = 'Downloading file from CC to NC ... ...'
         if paras == 'luhya':
             prompt      = 'Downloading image file from CC to NC ... ...'
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/images/"
+
+            if self.cc_img_info['data']['version'] == self.nc_img_version and \
+               self.cc_img_info['data']['size'] == self.nc_img_size:
+                payload['progress'] = 0
+                payload['done']     = 1
+                self.forwardTaskStatus2CC(json.dumps(payload))
+                logger.error("cc's image is same as nc's image, no rsync now. ")
+                return retvalue
+            else:
+                payload['prompt'] = prompt
+
         if paras == 'db':
             prompt      = 'Downloading database file from CC to NC ... ...'
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
-            destination = "/storage/space/database/"
+            destination = "/storage/space/database/images/"
+            if self.cc_img_info['data']['dbsize'] == self.nc_dbsize:
+                payload['progress'] = 0
+                payload['done']     = 1
+                self.forwardTaskStatus2CC(json.dumps(payload))
+                logger.error("cc's database is same as nc's database, no rsync now. ")
+                return retvalue
+            else:
+                payload['prompt'] = prompt
 
         worker = rsyncWorkerThread(logger, source, destination)
         worker.start()
-
-        payload = {
-                'type'      : 'taskstatus',
-                'phase'     : "preparing",
-                'state'     : "downloading",
-                'progress'  : 0,
-                'tid'       : self.tid,
-                'prompt'    : prompt,
-                'errormsg'  : "",
-                'failed'    : 0,
-                'done'      : 0,
-        }
 
         while True:
             payload['progress'] = worker.getprogress()
@@ -142,17 +162,22 @@ class prepareImageTaskThread(threading.Thread):
                 'prompt'    : 'Cloning the file ... ...',
                 'errormsg'  : "",
                 'failed'    : 0,
+                'done'      : 0,
         }
 
-        if self.srcimgid != self.dstimgid:
-            # call clone cmd
-            if data['rsync'] == 'luhya':
-                srcfile  = "/storage/images/%s/machine"      % self.srcimgid
-                dstfile  = "/storage/tmp/images/%s/machine"  % self.dstimgid
-            if data['rsync'] == 'db':
-                srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
+        if data['rsync'] == 'luhya':
+            srcfile  = "/storage/images/%s/machine"      % self.srcimgid
+            dstfile  = "/storage/tmp/images/%s/machine"  % self.dstimgid
+        if data['rsync'] == 'db':
+            srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
+            dstfile  = None
+            if self.insid.find('TMP') == 0:
                 dstfile  = "/storage/space/database/images/%s/database" % self.dstimgid
+            if self.insid.find('VS')  == 0:
+                dstfile  = "/storage/space/database/instances/%s/database" % self.insid
 
+        if self.srcimgid != self.dstimgid and dstfile != None :
+            # call clone cmd
             cmd = 'vboxmanage closemedium disk %s --delete' % dstfile
             logger.error("cmd line = %s", cmd)
             pexpect.spawn(cmd)
@@ -180,6 +205,7 @@ class prepareImageTaskThread(threading.Thread):
 
             if procid.status == 0:
                 payload['progress'] = 100
+                payload['done'] = 1
                 logger.error('current clone percentage is done')
                 self.forwardTaskStatus2CC(json.dumps(payload))
             else:

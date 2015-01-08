@@ -1144,7 +1144,7 @@ def cc_modify_resources(request, cc_name):
 #           'mtype'     :  'normal'
 #         }
 #         {
-#           'file'      :  '/storage/space/database/imgid/database'
+#           'file'      :  '/storage/space/database/images/imgid/database'
 #           'mtype'     :  'write-through'
 #         }
 #     ]
@@ -1241,7 +1241,7 @@ def genVMDisks(tid, usage):
 
         if usage == 'server':
             d['file']    = '/storage/space/database/images/%s/database' % dst_imgid
-            d['mtype']   = 'writethrough'
+            d['mtype']   = 'normal'
             disks.append(d)
 
         e['file']    = '/storage/images/data'
@@ -3247,11 +3247,9 @@ def update_images(request):
     rec.description = request.POST['description']
     rec.save()
 
-    # if ostype == server, check existence of /storage/space/database/imgid/database
     if rec.img_usage == 'server':
-        dstfile = '/storage/space/database/%s/database' % rec.ecid
+        dstfile = '/storage/space/database/images/%s/database' % rec.ecid
         if not os.path.exists(dstfile):
-            # from /storage/images/database to /storage/space/database/imgid/database
             srcfile = '/storage/images/database'
             cmd_line = "VBoxManage clonehd %s %s" % (srcfile, dstfile)
             commands.getoutput(cmd_line)
