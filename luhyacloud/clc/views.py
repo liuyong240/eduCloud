@@ -2596,7 +2596,8 @@ def autoFindNewAddImage():
             pass
         else:
             imgfile_path = '/storage/images/' + local_image + "/machine"
-            imgfile_size = os.path.getsize(imgfile_path)
+            imgfile_size = os.path.getsize(imgfile_path) / (1024.0 * 1024 * 1024)
+            imgfile_size = round(imgfile_size, 2)
             rec = ecImages(
                 ecid = local_image,
                 name = local_image,
@@ -3577,9 +3578,13 @@ def get_walrus_info(request):
 
 def get_image_info(request, imgid):
     rec = ecImages.objects.get(ecid=imgid)
+
+    path = '/storage/images/' + imgid + "/machine"
+    size = os.path.getsize(path)
+
     payload = {
         'version':           ReadImageVersionFile(rec.ecid),
-        'size':              rec.size
+        'size':              size,
     }
     response = {}
     response['Result'] = "OK"

@@ -224,7 +224,7 @@ class ecImages(models.Model):
 
     description = models.TextField()
     version = models.CharField(max_length=10)
-    size = models.IntegerField(default=0)
+    size = models.FloatField(default=0)
 
 class ecImages_auth(models.Model):
     ecid        = models.CharField(max_length=20)
