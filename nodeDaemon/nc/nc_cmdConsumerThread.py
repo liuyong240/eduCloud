@@ -20,9 +20,6 @@ class prepareImageTaskThread(threading.Thread):
         self.runtime_option     = json.loads(runtime_option)
         self.ccip               = getccipbyconf()
         self.download_rpc       = RpcClient(logger, self.ccip)
-        self.cc_img_info        = getImageVersionFromCC(self.ccip, self.srcimgid)
-        self.nc_img_version, self.nc_img_size = getLocalImageInfo(self.srcimgid)
-        self.nc_dbsize          = getLocalDatabaseInfo(self.srcimgid)
         logger.error('prepareImageTaskThread inited, tid=%s' % tid)
 
     def checkCLCandCCFile(self, paras):
@@ -105,13 +102,19 @@ class prepareImageTaskThread(threading.Thread):
         }
 
         paras = data['rsync']
+
+        self.cc_img_info        = getImageVersionFromCC(self.ccip, self.srcimgid)
+        self.nc_img_version, self.nc_img_size = getLocalImageInfo(self.srcimgid)
+        self.nc_dbsize          = getLocalDatabaseInfo(self.srcimgid)
+
         if paras == 'luhya':
             prompt      = 'Downloading image file from CC to NC ... ...'
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/images/"
 
             if self.cc_img_info['data']['version'] == self.nc_img_version and \
-               self.cc_img_info['data']['size'] == self.nc_img_size:
+               self.cc_img_info['data']['size'] == self.nc_img_size and \
+               self.nc_img_size > 0:
                 payload['progress'] = 0
                 payload['done']     = 1
                 self.forwardTaskStatus2CC(json.dumps(payload))
@@ -124,7 +127,8 @@ class prepareImageTaskThread(threading.Thread):
             prompt      = 'Downloading database file from CC to NC ... ...'
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/space/database/images/"
-            if self.cc_img_info['data']['dbsize'] == self.nc_dbsize:
+            if self.cc_img_info['data']['dbsize'] == self.nc_dbsize and \
+               self.nc_dbsize > 0:
                 payload['progress'] = 0
                 payload['done']     = 1
                 self.forwardTaskStatus2CC(json.dumps(payload))

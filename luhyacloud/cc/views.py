@@ -17,6 +17,7 @@ from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 from luhyaapi.rabbitmqWrapper import *
+from luhyaapi.clcAPIWrapper import *
 
 
 logger = getcclogger()
@@ -218,7 +219,7 @@ def verify_clc_cc_file_ver(request, imgid):
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
     clc_img_info = getImageInfo(clcip, imgid)
-    cc_img_info  = get_images_version(request, imgid)
+    cc_img_info  = getImageVersionFromCC('localhost', imgid)
 
     response = {}
     response['Result']  = "OK"
