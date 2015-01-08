@@ -57,14 +57,12 @@ class prepareImageTaskThread(threading.Thread):
         retvalue = "OK"
 
         cc_img_info    = getImageVersionFromCC(self.ccip, self.srcimgid)
-        nc_img_version = ReadImageVersionFile(self.srcimgid)
-        imgfile = '/storage/images/%s/machine' % self.srcimgid
-        if os.path.exists(imgfile):
-            nc_img_size    = os.path.getsize(imgfile)
-        else:
-            nc_img_size    = 0
+        nc_img_version, nc_img_size = getLocalImageInfo(self.srcimgid)
+        nc_dbsize   = getLocalDatabaseInfo(self.srcimgid)
 
-        if cc_img_info['data']['version'] == nc_img_version and cc_img_info['data']['size'] == nc_img_size:
+        if cc_img_info['data']['version'] == nc_img_version and \
+           cc_img_info['data']['size'] == nc_img_size and \
+           cc_img_info['data']['dbsize'] == nc_dbsize:
             payload = {
                 'type'      : 'taskstatus',
                 'phase'     : "preparing",

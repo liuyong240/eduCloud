@@ -55,16 +55,15 @@ class cc_rpcServerThread(run4everThread):
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
         logger.error("--- --- --- cc_rpc_handle_imageprepare")
 
+
         srcimgid = tid.split(':')[1]
         clc_img_info   = getImageInfo(self.clcip, srcimgid)
-        cc_img_version = ReadImageVersionFile(srcimgid)
-        imgfile = '/storage/images/%s/machine' % srcimgid
-        if os.path.exists(imgfile):
-            cc_img_size    = os.path.getsize(imgfile)
-        else:
-            cc_img_size     = 0
+        cc_img_version, cc_img_size = getLocalImageInfo(srcimgid)
+        cc_dbsize = getLocalDatabaseInfo(srcimgid)
 
-        if clc_img_info['data']['version'] == cc_img_version and clc_img_info['data']['size'] == cc_img_size:
+        if clc_img_info['data']['version'] == cc_img_version and \
+           clc_img_info['data']['size']    == cc_img_size and \
+           clc_img_info['data']['dbsize']  == cc_dbsize:
             payload = {
                 'type'      : 'taskstatus',
                 'phase'     : "preparing",
@@ -85,6 +84,7 @@ class cc_rpcServerThread(run4everThread):
             ch.basic_ack(delivery_tag = method.delivery_tag)
             logger.error("walru's image is same as cc's image, no rsync now. ")
             return
+
 
         prompt = 'Downloading file from Walrus to CC ... ...'
         if paras == 'luhya':

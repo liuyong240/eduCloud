@@ -3577,15 +3577,15 @@ def get_walrus_info(request):
     return HttpResponse(retvalue, mimetype="application/json")
 
 def get_image_info(request, imgid):
-    rec = ecImages.objects.get(ecid=imgid)
-
-    path = '/storage/images/' + imgid + "/machine"
-    size = os.path.getsize(path)
+    version, size = getLocalImageInfo(imgid)
+    dbsize = getLocalDatabaseInfo(imgid)
 
     payload = {
-        'version':           ReadImageVersionFile(rec.ecid),
+        'version':           version,
         'size':              size,
+        'dbsize':            dbsize,
     }
+
     response = {}
     response['Result'] = "OK"
     response['data'] = payload

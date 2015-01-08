@@ -199,14 +199,14 @@ def register_server(request):
     return HttpResponse(r.content, mimetype="application/json")
 
 def get_images_version(request, imgid):
-    version = ReadImageVersionFile(imgid)
 
-    path = '/storage/images/' + imgid + "/machine"
-    size = os.path.getsize(path)
+    version, size = getLocalImageInfo(imgid)
+    dbsize = getLocalDatabaseInfo(imgid)
 
     payload = {
         'version':           version,
         'size':              size,
+        'dbsize':            dbsize,
     }
     response = {}
     response['Result'] = "OK"

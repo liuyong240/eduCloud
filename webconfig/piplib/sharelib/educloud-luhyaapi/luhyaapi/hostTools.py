@@ -69,6 +69,27 @@ def IncreaseImageVersion(versionStr):
 
     return ("%d.%d.%d" % (major, minor, build))
 
+def getLocalImageInfo(imgid):
+    path = '/storage/images/' + imgid + "/machine"
+
+    if os.path.exists(path):
+        version = ReadImageVersionFile(imgid)
+        size = os.path.getsize(path)
+    else:
+        version = '0.0.0'
+        size = 0
+
+    return version, size
+
+def getLocalDatabaseInfo(imgid):
+    path = '/storage/space/database/images/' + imgid + "/database"
+
+    if os.path.exists(path):
+        size = os.path.getsize(path)
+    else:
+        size = 0
+
+    return size
 
 def randomMAC():
 	mac = [ 0x00, 0x16, 0x3e,
