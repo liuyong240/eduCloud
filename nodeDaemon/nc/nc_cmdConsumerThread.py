@@ -48,28 +48,40 @@ class prepareImageTaskThread(threading.Thread):
 
         needDownloading = self.checkCLCandCCFile(data['rsync'])
         if needDownloading == 'NO':
-            return retvalue
+            response = {
+                'type'      : 'taskstatus',
+                'phase'     : "preparing",
+                'state'     : 'downloading',
+                'progress'  : 0,
+                'tid'       : self.tid,
+                'prompt'    : '',
+                'errormsg'  : '',
+                'failed'    : 0,
+                'done'      : 1,
+            }
+            self.forwardTaskStatus2CC(json.dumps(response))
+            logger.error('image in walrus info is SAME as that in cc.')
+        else:
+            while True:
+                response = self.download_rpc.call(cmd=data['cmd'], tid=data['tid'], paras=data['rsync'])
+                response = json.loads(response)
 
-        while True:
-            response = self.download_rpc.call(cmd=data['cmd'], tid=data['tid'], paras=data['rsync'])
-            response = json.loads(response)
+                if response['failed'] == 1:
+                    logger.error(' ----- failed . ')
+                    retvalue = "FALURE"
+                    response['state'] = 'init'
+                    self.forwardTaskStatus2CC(json.dumps(response))
+                    break
+                elif response['done'] == 1:
+                    logger.error(' ----- done . ')
+                    response['progress'] = 0
+                    self.forwardTaskStatus2CC(json.dumps(response))
+                    break
+                else:
+                    logger.error('progress = %s' % response['progress'])
+                    self.forwardTaskStatus2CC(json.dumps(response))
 
-            if response['failed'] == 1:
-                logger.error(' ----- failed . ')
-                retvalue = "FALURE"
-                response['state'] = 'init'
-                self.forwardTaskStatus2CC(json.dumps(response))
-                break
-            elif response['done'] == 1:
-                logger.error(' ----- done . ')
-                response['progress'] = 0
-                self.forwardTaskStatus2CC(json.dumps(response))
-                break
-            else:
-                logger.error('progress = %s' % response['progress'])
-                self.forwardTaskStatus2CC(json.dumps(response))
-
-            time.sleep(2)
+                time.sleep(2)
 
         return retvalue
 
@@ -103,7 +115,7 @@ class prepareImageTaskThread(threading.Thread):
                 payload['progress'] = 0
                 payload['done']     = 1
                 self.forwardTaskStatus2CC(json.dumps(payload))
-                logger.error("cc's image is same as nc's image, no rsync now. ")
+                logger.error("image in cc is SAME as that in nc. ")
                 return retvalue
             else:
                 payload['prompt'] = prompt
@@ -116,7 +128,7 @@ class prepareImageTaskThread(threading.Thread):
                 payload['progress'] = 0
                 payload['done']     = 1
                 self.forwardTaskStatus2CC(json.dumps(payload))
-                logger.error("cc's database is same as nc's database, no rsync now. ")
+                logger.error("database in cc is SAME as that in nc. ")
                 return retvalue
             else:
                 payload['prompt'] = prompt
@@ -165,12 +177,12 @@ class prepareImageTaskThread(threading.Thread):
                 'done'      : 0,
         }
 
+        dstfile  = None
         if data['rsync'] == 'luhya':
             srcfile  = "/storage/images/%s/machine"      % self.srcimgid
             dstfile  = "/storage/tmp/images/%s/machine"  % self.dstimgid
         if data['rsync'] == 'db':
             srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
-            dstfile  = None
             if self.insid.find('TMP') == 0:
                 dstfile  = "/storage/space/database/images/%s/database" % self.dstimgid
             if self.insid.find('VS')  == 0:
