@@ -216,17 +216,17 @@ def user_login(request):
             login(request, user)
             response['status'] = "SUCCESS"
             response['url'] = "/clc/settings"
-            return HttpResponse(json.dumps(response), mimetype='application/json')
+            return HttpResponse(json.dumps(response), content_type='application/json')
         else:
             # Return a 'disabled account' error message
             response['status'] = "FAILURE"
             response['reason'] = "account is disabled"
-            return HttpResponse(json.dumps(response), mimetype='application/json')
+            return HttpResponse(json.dumps(response), content_type='application/json')
     else:
         # Return an 'invalid login' error message.
         response['status'] = "FAILURE"
         response['reason'] = "account is invalid"
-        return HttpResponse(json.dumps(response), mimetype='application/json')
+        return HttpResponse(json.dumps(response), content_type='application/json')
 
 def user_logout(request):
     logout(request)
@@ -257,7 +257,7 @@ def account_create(request):
     if num > 0 :
         response['Result'] = 'FAIL'
         response['errormsg'] = 'duplicated user name.'
-        return HttpResponse(json.dumps(response), mimetype="application/json")
+        return HttpResponse(json.dumps(response), content_type="application/json")
 
     # 2. start to create new account
     user = User.objects.create_user(request.POST['userid'], request.POST['email'], request.POST['password'])
@@ -276,7 +276,7 @@ def account_create(request):
     rec.save()
 
     response['Result'] = 'OK'
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 @login_required
 def admin_batch_add_new_accounts(request):
@@ -315,7 +315,7 @@ def account_create_batch(request):
         if num > 0:
             response['Result'] = 'FAIL'
             response['errormsg'] = 'duplicated user name: ' + newname
-            return HttpResponse(json.dumps(response), mimetype="application/json")
+            return HttpResponse(json.dumps(response), content_type="application/json")
 
     for u in user_list:
         user = User.objects.create_user(u, email, password)
@@ -330,7 +330,7 @@ def account_create_batch(request):
         rec.save()
 
     response['Result'] = 'OK'
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 def request_new_account(request):
     context = {}
@@ -351,7 +351,7 @@ def account_request(request):
     if num > 0 :
         response['Result'] = 'FAIL'
         response['errormsg'] = 'duplicated user name.'
-        return HttpResponse(json.dumps(response), mimetype="application/json")
+        return HttpResponse(json.dumps(response), content_type="application/json")
 
     # 2. start to create new account
     user = User.objects.create_user(userid, email, password)
@@ -372,7 +372,7 @@ def account_request(request):
     rec.save()
 
     response['Result'] = 'OK'
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 def restore_password(request):
     context = {}
@@ -428,7 +428,7 @@ def account_update_profile(request):
 
     response = {}
     response['Result'] = 'OK'
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 def edit_password(request, uid):
     context = {
@@ -442,7 +442,7 @@ def activate_user(request, uid):
     u.save()
 
     Message = " user %s is activated now." % uid
-    return HttpResponse(Message, mimetype="application/json")
+    return HttpResponse(Message, content_type="application/json")
 
 def account_reset_password(request):
     uid = request.POST['userid']
@@ -457,12 +457,12 @@ def account_reset_password(request):
         user.set_password(newpw)
         user.save()
         response['Result'] = "OK"
-        return HttpResponse(json.dumps(response), mimetype='application/json')
+        return HttpResponse(json.dumps(response), content_type='application/json')
     else:
         # Return an 'invalid login' error message.
         response['Result'] = "FAILURE"
         response['errormsg'] = "Password is not correct!"
-        return HttpResponse(json.dumps(response), mimetype='application/json')
+        return HttpResponse(json.dumps(response), content_type='application/json')
 
 ##########################################################################
 ##########################################################################
@@ -677,7 +677,7 @@ def cc_mgr_ccname(request, ccname):
     response = {}
     response['Result'] = 'OK'
     response['data'] = htmlstr
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 @login_required
 def nc_mgr_view(request):
@@ -720,7 +720,7 @@ def nc_mgr_mac(request, ccname, mac):
         response = {}
         response['Result'] = 'OK'
         response['data'] = '<div class="col-lg-6"><p>detail information is NOT available.</p></div>'
-        return HttpResponse(json.dumps(response), mimetype="application/json")
+        return HttpResponse(json.dumps(response), content_type="application/json")
 
     htmlstr = NC_DETAIL_TEMPLATE
     vmstr   = VM_LIST_GROUP_ITEM
@@ -773,7 +773,7 @@ def nc_mgr_mac(request, ccname, mac):
     response = {}
     response['Result'] = 'OK'
     response['data'] = htmlstr
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 
 @login_required
@@ -973,7 +973,7 @@ def tools_list_dir_software(request):
             node['name'] = name
         ret.append(node)
 
-    return HttpResponse(json.dumps(ret), mimetype="application/json")
+    return HttpResponse(json.dumps(ret), content_type="application/json")
 
 def software_operation(request):
     op   = request.POST['cmd']
@@ -1004,7 +1004,7 @@ def software_operation(request):
 
     ret={}
     ret['Result'] = 'OK'
-    return HttpResponse(json.dumps(ret), mimetype="application/json")
+    return HttpResponse(json.dumps(ret), content_type="application/json")
 
 ###################################################################################
 # Form
@@ -1105,7 +1105,7 @@ def cc_modify_resources(request, cc_name):
         response = {}
         response['Result'] = 'OK'
 
-        return HttpResponse(json.dumps(response), mimetype="application/json")
+        return HttpResponse(json.dumps(response), content_type="application/json")
     else:
         rec = ecCCResources.objects.get(ccname=cc_name)
         context = {
@@ -1616,7 +1616,7 @@ def image_create_task_prepare(request, srcid, dstid, insid):
     r = requests.post(url, data=payload)
     logger.error("--- --- --- " + url + ":" + r.content)
 
-    return HttpResponse(r.content, mimetype="application/json")
+    return HttpResponse(r.content, content_type="application/json")
 
 def image_create_task_prepare_success(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_prepare_success")
@@ -1635,7 +1635,7 @@ def image_create_task_prepare_success(request, srcid, dstid, insid):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 def image_create_task_prepare_failure(request, srcid, dstid, insid):
@@ -1655,7 +1655,7 @@ def image_create_task_prepare_failure(request, srcid, dstid, insid):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def image_create_task_run(request, srcid, dstid, insid):
     logger.error("--- --- --- run_image_create_task")
@@ -1688,7 +1688,7 @@ def image_create_task_run(request, srcid, dstid, insid):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def image_create_task_stop(request, srcid, dstid, insid):
     logger.error("--- --- --- stop_image_create_task")
@@ -1720,7 +1720,7 @@ def image_create_task_stop(request, srcid, dstid, insid):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
     logger.error("--- --- --- image_create_task_updatevmstatus")
@@ -1736,7 +1736,7 @@ def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
@@ -1767,7 +1767,7 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
         }
 
     response = json.dumps(payload)
-    return HttpResponse(response, mimetype="application/json")
+    return HttpResponse(response, content_type="application/json")
 
 def image_create_task_getprogress(request, srcid, dstid, insid):
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
@@ -1805,7 +1805,7 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
         }
         response = json.dumps(payload)
 
-    return HttpResponse(response, mimetype="application/json")
+    return HttpResponse(response, content_type="application/json")
 
 def image_create_task_submit(request, srcid, dstid, insid):
     logger.error("--- --- --- submit_image_create_task")
@@ -1832,7 +1832,7 @@ def image_create_task_submit(request, srcid, dstid, insid):
     r = requests.post(url, data=payload)
     logger.error("--- --- --- " + url + ":" + r.content)
 
-    return HttpResponse(r.content, mimetype="application/json")
+    return HttpResponse(r.content, content_type="application/json")
 
 def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
@@ -1870,7 +1870,7 @@ def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
         response = json.dumps(payload)
 
     # logger.error("lkf: get progress = %s", response)
-    return HttpResponse(response, mimetype="application/json")
+    return HttpResponse(response, content_type="application/json")
 
 def image_modify_task_start(request, srcid):
     # create ectaskTransation Record
@@ -1966,7 +1966,7 @@ def image_create_task_submit_failure(request,  srcid, dstid, insid):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def image_create_task_submit_success(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_submit_success")
@@ -2046,7 +2046,7 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def image_add_vm(request, imgid):
     imgobj = ecImages.objects.get(ecid = imgid)
@@ -2198,7 +2198,7 @@ def list_authpath(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def authpath_optionlist(request):
     response = {}
@@ -2215,7 +2215,7 @@ def authpath_optionlist(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_authpath(request):
     response = {}
@@ -2226,7 +2226,7 @@ def delete_authpath(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_authpath(request):
     response = {}
@@ -2239,7 +2239,7 @@ def update_authpath(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_authpath(request):
     response = {}
@@ -2261,7 +2261,7 @@ def create_authpath(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # settings tables ecAuthPath
 # -----------------------------------
@@ -2283,7 +2283,7 @@ def list_ostypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def ostype_optionlist(request):
     response = {}
@@ -2300,7 +2300,7 @@ def ostype_optionlist(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_ostypes(request):
     response = {}
@@ -2312,7 +2312,7 @@ def delete_ostypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_ostypes(request):
     response = {}
@@ -2327,7 +2327,7 @@ def update_ostypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_ostypes(request):
     response = {}
@@ -2354,7 +2354,7 @@ def create_ostypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 # settings tables ecRBAC
@@ -2377,7 +2377,7 @@ def list_rbac(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_rbac(request):
     response = {}
@@ -2388,7 +2388,7 @@ def delete_rbac(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_rbac(request):
     response = {}
@@ -2403,7 +2403,7 @@ def update_rbac(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_rbac(request):
     response = {}
@@ -2427,7 +2427,7 @@ def create_rbac(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # settings tables ecAuthPath
 # -----------------------------------
@@ -2447,7 +2447,7 @@ def list_serverrole(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def serverrole_optionlist(request):
     response = {}
@@ -2464,7 +2464,7 @@ def serverrole_optionlist(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_serverrole(request):
     response = {}
@@ -2475,7 +2475,7 @@ def delete_serverrole(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_serverrole(request):
     response = {}
@@ -2489,7 +2489,7 @@ def update_serverrole(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_serverrole(request):
     response = {}
@@ -2511,7 +2511,7 @@ def create_serverrole(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # settings tables ecVMTypes
 # -----------------------------------
@@ -2532,7 +2532,7 @@ def list_vmtypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def vmtpye_optionlist(request):
     response = {}
@@ -2549,7 +2549,7 @@ def vmtpye_optionlist(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 def delete_vmtypes(request):
@@ -2561,7 +2561,7 @@ def delete_vmtypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_vmtypes(request):
     response = {}
@@ -2575,7 +2575,7 @@ def update_vmtypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_vmtypes(request):
     response = {}
@@ -2599,7 +2599,7 @@ def create_vmtypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # settings tables ecVMUsage
 # -----------------------------------
@@ -2618,7 +2618,7 @@ def list_vmusage(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def vmusage_optionlist(request):
     response = {}
@@ -2635,7 +2635,7 @@ def vmusage_optionlist(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_vmusage(request):
     response = {}
@@ -2646,7 +2646,7 @@ def delete_vmusage(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_vmusage(request):
     response = {}
@@ -2657,7 +2657,7 @@ def update_vmusage(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_vmusage(request):
     response = {}
@@ -2677,7 +2677,7 @@ def create_vmusage(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 
@@ -2746,7 +2746,7 @@ def list_cc_resource_by_id(request, recid):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_cc_resource(request):
     response = {}
@@ -2770,7 +2770,7 @@ def list_cc_resource(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 def delete_cc_resource(request):
@@ -2782,7 +2782,7 @@ def delete_cc_resource(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # auto generate available resource for CC
 def udate_cc_resource_available_resource(id):
@@ -2805,7 +2805,7 @@ def update_cc_resource(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_cc_resource(request):
     pass
@@ -2855,7 +2855,7 @@ def list_servers_by_role(request, roletype):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_servers(request):
     response = {}
@@ -2889,7 +2889,7 @@ def list_servers(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_servers(request):
     response = {}
@@ -2900,7 +2900,7 @@ def delete_servers(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_servers(request):
     response = {}
@@ -2916,7 +2916,7 @@ def update_servers(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_servers(request):
     pass
@@ -2943,7 +2943,7 @@ def list_ethers(request, cc_name):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_ethers(request):
     response = {}
@@ -2954,7 +2954,7 @@ def delete_ethers(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_ethers(request):
     response = {}
@@ -2969,7 +2969,7 @@ def update_ethers(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_ethers(request, cc_name):
     response = {}
@@ -2997,7 +2997,7 @@ def create_ethers(request, cc_name):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # ------------------------------------
 # core tables for tasks
@@ -3024,7 +3024,7 @@ def list_tasks(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_tasks(request):
     response = {}
@@ -3036,7 +3036,7 @@ def update_tasks(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_tasks(request):
     response = {}
@@ -3047,7 +3047,7 @@ def delete_tasks(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 # core tables for images
@@ -3084,7 +3084,7 @@ def list_vds(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_vds(request):
     response = {}
@@ -3103,7 +3103,7 @@ def delete_vds(request):
         response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_vds(request):
     pass
@@ -3165,7 +3165,7 @@ def create_vds(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_vss(request):
     response = {}
@@ -3199,7 +3199,7 @@ def list_vss(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_vss(request):
     response = {}
@@ -3224,7 +3224,7 @@ def delete_vss(request):
         response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_vss(request):
     pass
@@ -3304,7 +3304,7 @@ def create_vss(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_images(request):
     autoFindNewAddImage()
@@ -3341,7 +3341,7 @@ def list_images(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_images(request):
     response = {}
@@ -3352,7 +3352,7 @@ def delete_images(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_images(request):
     response = {}
@@ -3374,7 +3374,7 @@ def update_images(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_images(request):
     response = {}
@@ -3406,7 +3406,7 @@ def create_images(request):
     response['Record'] = data
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_inactive_account(request):
     response = {}
@@ -3442,7 +3442,7 @@ def list_inactive_account(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_active_account(request):
     response = {}
@@ -3479,7 +3479,7 @@ def list_active_account(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_active_account(request):
     response = {}
@@ -3492,7 +3492,7 @@ def delete_active_account(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_active_account(request):
     response = {}
@@ -3514,7 +3514,7 @@ def update_active_account(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 #################################################################################
@@ -3524,7 +3524,7 @@ def register_host(request):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_ncs(request):
 
@@ -3537,7 +3537,7 @@ def list_ncs(request):
     response['Result'] = 'OK'
     response['ncs'] = ncsips
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_server_record(request, rec):
     rec.role   = request.POST['role']
@@ -3667,7 +3667,7 @@ def register_server(request):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 #################################################################################
 # some common APIs
@@ -3689,7 +3689,7 @@ def get_walrus_info(request):
     response['Result'] = "OK"
     response['data'] = payload
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def get_image_info(request, imgid):
     version, size = getLocalImageInfo(imgid)
@@ -3705,7 +3705,7 @@ def get_image_info(request, imgid):
     response['Result'] = "OK"
     response['data'] = payload
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def image_permission_edit(request, srcid):
     index = 0
@@ -3917,7 +3917,7 @@ def perm_update(request):
     response = {}
     response['Result'] = "OK"
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def eip_update(request):
     _eip = request.POST['eip']
@@ -3931,7 +3931,7 @@ def eip_update(request):
     response = {}
     response['Result'] = "OK"
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def edit_server_permission_view(request, srole, mac):
     index = 0

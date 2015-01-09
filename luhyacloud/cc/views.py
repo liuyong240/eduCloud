@@ -48,7 +48,7 @@ def removeIPtables_image_create_task(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 #####################################
@@ -75,7 +75,7 @@ def image_create_task_prepare(request):
     response['tid'] = request.POST['tid']
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def image_create_task_run(request):
     logger.error("--- --- --- run_image_create_task")
@@ -104,7 +104,7 @@ def image_create_task_run(request):
     response['tid'] = request.POST['tid']
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 def image_create_task_stop(request):
@@ -134,7 +134,7 @@ def image_create_task_stop(request):
     response['tid'] = request.POST['tid']
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def image_create_task_submit(request):
     logger.error("--- --- --- submit_image_create_task")
@@ -157,7 +157,7 @@ def image_create_task_submit(request):
     response['tid'] = request.POST['tid']
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 def register_host(request):
@@ -170,7 +170,7 @@ def register_host(request):
 
     }
     r = requests.post(url, data=payload)
-    return HttpResponse(r.content, mimetype="application/json")
+    return HttpResponse(r.content, content_type="application/json")
 
 def register_server(request):
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
@@ -197,7 +197,7 @@ def register_server(request):
         'ccname':   request.POST['ccname'],
     }
     r = requests.post(url, data=payload)
-    return HttpResponse(r.content, mimetype="application/json")
+    return HttpResponse(r.content, content_type="application/json")
 
 def get_images_version(request, imgid):
 
@@ -213,7 +213,7 @@ def get_images_version(request, imgid):
     response['Result'] = "OK"
     response['data'] = payload
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def verify_clc_cc_file_ver(request, imgid):
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
@@ -226,6 +226,6 @@ def verify_clc_cc_file_ver(request, imgid):
     response['clc']     = clc_img_info['data']
     response['cc']      = cc_img_info['data']
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
