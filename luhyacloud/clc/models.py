@@ -176,6 +176,7 @@ class ecDHCPEthers(models.Model):
     ccname                = models.CharField(max_length=100)
     mac                   = models.CharField(max_length=20)
     ip                    = models.CharField(max_length=20)
+    ex_web_proxy_port     = models.IntegerField(default=0)
     insid                 = models.CharField(max_length=20)
 
 # for all NCs that support LVD

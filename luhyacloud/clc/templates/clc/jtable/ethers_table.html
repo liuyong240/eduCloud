@@ -10,7 +10,7 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'ethers list',
+            title: 'ethers list for cluster {{ ccname }}',
             selecting: true, //Enable selecting
 
             sorting: true, //Enable sorting
@@ -45,6 +45,10 @@
                 },
                 ip: {
                     title: 'IP Addr',
+                    width: '30%',
+                },
+                ex_web_port: {
+                    title: 'External Web Port',
                     width: '30%',
                 },
                 insid: {

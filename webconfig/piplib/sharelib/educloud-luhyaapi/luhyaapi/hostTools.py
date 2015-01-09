@@ -92,7 +92,7 @@ def getLocalDatabaseInfo(imgid):
     return size
 
 def randomMAC():
-	mac = [ 0x00, 0x16, 0x3e,
+	mac = [ 0x08, 0x00, 0x27,
 		random.randint(0x00, 0x7f),
 		random.randint(0x00, 0xff),
 		random.randint(0x00, 0xff) ]
@@ -176,7 +176,7 @@ def allocate_rdp_port(avail_ports, used_ports):
         avail_ports.remove(newport)
         used_ports.append(newport)
     else:
-        newport = ''
+        newport = None
     return avail_ports, used_ports, newport
 
 def free_rdp_port(avail_port, used_port, port):

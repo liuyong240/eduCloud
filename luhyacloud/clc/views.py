@@ -1131,7 +1131,7 @@ def cc_modify_resources(request, cc_name):
 #
 #     # 3. network
 #     3.1 'rdp_port'          :
-#     3.2 'netwowrkcards'     :
+#     3.2 'netwowrkcards'     :  VM's network card property, ip/mac from table ecDHCPEthers
 #     [
 #         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
 #         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
@@ -1154,9 +1154,8 @@ def cc_modify_resources(request, cc_name):
 #         '/storage/space/pub-data/'
 #     ]
 #     3.4 pub_ip, prv_ip, iptable
-#     'publicIP'          :
-#     'privateIP'         :
-#     'web_ip'            :
+#     'rdp_ip'          :   used for vm management
+#     'web_ip'          :   used for accessing vm web server
 #
 #     'iptable_rules'     :
 #     [
@@ -1165,8 +1164,8 @@ def cc_modify_resources(request, cc_name):
 #         ... ...
 #     ]
 #     3.5
-#     'web_accessURL'     :
-#     'mgr_accessURL'     :
+#     'web_accessURL'     :  web_ip:80, or ex_ccip:xxxx
+#     'mgr_accessURL'     :  rdp_ip:rdp_port, or ex_ccip:rdp_port
 
 #     # 4. related to issuer
 #     'run_with_snapshot' : 1, 0
@@ -1182,34 +1181,47 @@ def getIPandMacFromePool(ccname):
 def getServicePortfromCC(ccname):
     pass
 
-def releaseRuntimeOptionForImageBuild(srcid, dstid, insid):
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+
+def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
 
     tidrec = ectaskTransaction.objects.get(tid=_tid)
     creator = tidrec.user
 
-    runtime_option = json.loads(tidrec.runtime_option)
+    if _runtime_option == None:
+        runtime_option = json.loads(tidrec.runtime_option)
+    else:
+        runtime_option = _runtime_option
 
     ccres_info = ecCCResources.objects.get(ccip = tidrec.ccip)
+
     # release CC Resource
     # 1. rdp port
-    available_rdp_port = json.loads(ccres_info.rdp_port_pool_list)
-    used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
+    if runtime_option['rdp_port']  != '':
+        available_rdp_port = json.loads(ccres_info.rdp_port_pool_list)
+        used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
 
-    available_rdp_port, used_rdp_ports = free_rdp_port(available_rdp_port, used_rdp_ports, runtime_option['rdp_port'])
+        available_rdp_port, used_rdp_ports = free_rdp_port(available_rdp_port, used_rdp_ports, runtime_option['rdp_port'])
 
-    ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
-    ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
+        ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
+        ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
 
-    ccres_info.save()
+        ccres_info.save()
 
-    # 2. release ip mac
+    # 2. release
+    if runtime_option['web_ip'] != '':
+        availabe_web_ips = json.loads(ccres_info.pub_ip_pool_list)
+        used_web_ips     = json.loads(ccres_info.used_pub_ip)
 
-    ccres_info.save()
+        availabe_web_ips, userd_web_ips = free_web_ip(availabe_web_ips, used_web_ips)
+
+        ccres_info.pub_ip_pool_list = json.dumps(availabe_web_ips)
+        ccres_info.used_pub_ip      = json.dumps(used_web_ips)
+
+        ccres_info.save()
 
     # 3. release ether if it is VS
-    if insid.find('VS') == 0:
-        ethers_free(insid)
+    if tidrec.insid.find('VS') == 0:
+        ethers_free(tidrec.insid)
 
     # 4. release iptables
     if DAEMON_DEBUG == True:
@@ -1286,12 +1298,17 @@ def genVMFolders(tid, usage):
     return folders
 
 
-def genRuntimeOptionForImageBuild(transid, ccip, ncip):
+def genRuntimeOptionForImageBuild(transid):
     logger.error("--- --- --- genRuntimeOptionForImageBuild")
     tid_info = transid.split(':')
     src_imgid = tid_info[0]
     dst_imgid = tid_info[1]
     ins_id    = tid_info[2]
+
+    tid_rec = ectaskTransaction.objects.get(tid=transid)
+
+    ccip = tid_rec.ccip
+    ncip = tid_rec.ncip
 
     runtime_option = {}
 
@@ -1332,12 +1349,14 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
     used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
 
     available_rdp_port, used_rdp_ports, newport = allocate_rdp_port(available_rdp_port, used_rdp_ports)
-    runtime_option['rdp_port']                  = newport
+    if newport == None:
+        runtime_option['rdp_port']  = ''
+        return None, 'Need more rdp port resources!.'
+    else:
+        runtime_option['rdp_port']                  = newport
 
     ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
     ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
-
-    ccres_info.save()
 
     # 3.2 set netcard in vm
     networkcards = []
@@ -1347,8 +1366,13 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
         netcard['nic_mac']  = ''
         netcard['nic_ip']   = ''
     if ccres_info.cc_usage == 'vs':
-        netcard['nic_mac'], netcard['nic_ip'] = ethers_allocate(ccres_info.ccname, ins_id)
-        runtime_option['web_ip'] = netcard['nic_ip']
+        netcard['nic_mac'], netcard['nic_ip'], web_port = ethers_allocate(ccres_info.ccname, ins_id)
+        if netcard['nic_mac'] == None:
+            releaseRuntimeOptionForImageBuild(transid, runtime_option)
+            return None, 'Need more ether resources.'
+        else:
+            runtime_option['web_ip'] = netcard['nic_ip']
+            runtime_option['web_port'] = web_port
 
     networkcards.append(netcard)
     runtime_option['networkcards'] = networkcards
@@ -1360,13 +1384,12 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
     # 3.4 set public ip and private ip and iptable
     iptables = []
 
+    runtime_option['ex_ip'] = ccobj.eip
     if networkMode == 'flat':
-        runtime_option['publicIP']  = ncip
-        runtime_option['privateIP'] = ncip
+        runtime_option['rdp_ip']  = ncip
     if networkMode == 'tree':
         # proxy by cc
-        runtime_option['publicIP']  = ccip
-        runtime_option['privateIP'] = ncip
+        runtime_option['rdp_ip']  = ccip
 
         # set iptable rule for rdp access
         ipt = {
@@ -1385,31 +1408,40 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
             used_web_ips     = json.loads(ccres_info.used_pub_ip)
 
             availabe_web_ips, userd_web_ips, new_web_ip = allocate_web_ip(availabe_web_ips, used_web_ips)
-            runtime_option['web_ip'] = new_web_ip
+            if new_web_ip == None:
+                runtime_option['web_ip'] = ''
+                releaseRuntimeOptionForImageBuild(transid, runtime_option)
+                return None, 'Need more Proxy Web IP resources for Cluster.'
+            else:
+                runtime_option['web_ip'] = new_web_ip
 
-            ccres_info.pub_ip_pool_list = json.dumps(availabe_web_ips)
-            ccres_info.used_pub_ip      = json.dumps(used_web_ips)
+                ccres_info.pub_ip_pool_list = json.dumps(availabe_web_ips)
+                ccres_info.used_pub_ip      = json.dumps(used_web_ips)
 
-            ipt['src_ip'] = runtime_option['web_ip']
-            ipt['dst_ip'] = netcard['nic_ip']
-            ipt['src_port'] = 0  # port 0 means all port
-            ipt['dst_port'] = 0
-            iptables.append(ipt)
+                ipt['src_ip'] = runtime_option['web_ip']
+                ipt['dst_ip'] = netcard['nic_ip']
+                ipt['src_port'] = 0  # port 0 means all port
+                ipt['dst_port'] = 0
+                iptables.append(ipt)
 
     runtime_option['iptable_rules'] = iptables
 
     # 3.4 set web_accessURL and mgr_accessURL
     if ccres_info.cc_usage == 'rvd':
-        runtime_option['web_accessURL'] = ''
-        runtime_option['mgr_accessURL'] = "luhyavm://%s:%s" % (runtime_option['publicIP'], runtime_option['rdp_port'])
-
+        runtime_option['web_accessURL']     = ''
+        rumtime_option['ex_web_accessURL']  = ''
+        runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
+        runtime_option['ex_mgr_accessURL']  = ''
     if ccres_info.cc_usage == 'vs':
-        runtime_option['web_accessURL'] = 'http://%s' % runtime_option['web_ip']
-        runtime_option['mgr_accessURL'] = "luhyavm://%s:%s" % (runtime_option['publicIP'],  runtime_option['rdp_port'])
+        runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
+        rumtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
+        runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
+        runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
 
     # issuer's property
     runtime_option['run_with_snapshot'] = 1
 
+    ccres_info.save()
     return runtime_option
 
 def genIPTablesRule(fromip, toip, port):
@@ -1448,9 +1480,17 @@ def vm_run(request, insid):
                  ncip        = _ncip,
             )
             rec.save()
-            runtime_option = genRuntimeOptionForImageBuild(_tid, _ccip, _ncip)
-            rec.runtime_option = json.dumps(runtime_option)
-            rec.save()
+            runtime_option, error = genRuntimeOptionForImageBuild(_tid)
+            if runtime_option == None:
+                rec.delete()
+                context = {
+                    'pagetitle'     : 'Error Report',
+                    'error'         : error,
+                }
+                return render(request, 'clc/error.html', context)
+            else:
+                rec.runtime_option = json.dumps(runtime_option)
+                rec.save()
         else:
             rec = ectaskTransaction.objects.get(tid=_tid)
 
@@ -1490,7 +1530,6 @@ def image_create_task_start(request, srcid):
         }
         return render(request, 'clc/error.html', context)
     else:
-        runtime_option = genRuntimeOptionForImageBuild(_tid, _ccip, _ncip)
         rec = ectaskTransaction(
              tid         = _tid,
              srcimgid    = _srcimgid,
@@ -1502,9 +1541,20 @@ def image_create_task_start(request, srcid):
              progress    = 0,
              ccip        = _ccip,
              ncip        = _ncip,
-             runtime_option = json.dumps(runtime_option),
         )
         rec.save()
+
+        runtime_option, error = genRuntimeOptionForImageBuild(_tid)
+        if runtime_option == None:
+                rec.delete()
+                context = {
+                    'pagetitle'     : 'Error Report',
+                    'error'         : error,
+                }
+                return render(request, 'clc/error.html', context)
+        else:
+            rec.runtime_option = json.dumps(runtime_option)
+            rec.save()
 
         # open a window to monitor work progress
         imgobj = ecImages.objects.get(ecid = srcid)
@@ -1815,7 +1865,6 @@ def image_modify_task_start(request, srcid):
         }
         return render(request, 'clc/error.html', context)
     else:
-        runtime_option = genRuntimeOptionForImageBuild(_tid, _ccip, _ncip)
         rec = ectaskTransaction(
              tid         = _tid,
              srcimgid    = _srcimgid,
@@ -1827,9 +1876,19 @@ def image_modify_task_start(request, srcid):
              progress    = 0,
              ccip        = _ccip,
              ncip        = _ncip,
-             runtime_option = json.dumps(runtime_option),
         )
         rec.save()
+        runtime_option, error = genRuntimeOptionForImageBuild(_tid)
+        if runtime_option == None:
+                rec.delete()
+                context = {
+                    'pagetitle'     : 'Error Report',
+                    'error'         : error,
+                }
+                return render(request, 'clc/error.html', context)
+        else:
+            rec.runtime_option = json.dumps(runtime_option)
+            rec.save()
 
         # open a window to monitor work progress
         imgobj = ecImages.objects.get(ecid = srcid)
@@ -1891,7 +1950,7 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
     trec.progress = 0
     trec.save()
 
-    # releaseRuntimeOptionForImageBuild(srcid, dstid, insid)
+    releaseRuntimeOptionForImageBuild(_tid)
     imgfile_path = '/storage/images/' + dstid + "/machine"
     imgfile_size = os.path.getsize(imgfile_path)
 
@@ -2827,11 +2886,12 @@ def list_ethers(request, cc_name):
 
     for rec in recs:
         jrec = {}
-        jrec['id']      = rec.id
-        jrec['ccname']  = rec.ccname
-        jrec['mac']     = rec.mac
-        jrec['ip']      = rec.ip
-        jrec['insid']   = rec.insid
+        jrec['id']          = rec.id
+        jrec['ccname']      = rec.ccname
+        jrec['mac']         = rec.mac
+        jrec['ip']          = rec.ip
+        jrec['ex_web_port'] = rec.ex_web_proxy_port
+        jrec['insid']       = rec.insid
 
         data.append(jrec)
 
@@ -2856,8 +2916,9 @@ def update_ethers(request):
     response = {}
 
     rec = ecDHCPEthers.objects.get(id=request.POST['id'])
-    rec.mac     = request.POST['mac']
-    rec.ip      = request.POST['ip']
+    rec.mac                 = request.POST['mac']
+    rec.ip                  = request.POST['ip']
+    rec.ex_web_proxy_port   = request.POST['ex_web_port']
 
     rec.save()
 
@@ -2874,6 +2935,7 @@ def create_ethers(request, cc_name):
         ccname  = cc_name,
         ip      = request.POST['ip'],
         mac     = randomMAC(),
+        ex_web_proxy_port = request.POST['ex_web_port'],
         insid   = '',
     )
     rec.save()
