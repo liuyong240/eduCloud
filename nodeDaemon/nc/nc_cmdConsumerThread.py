@@ -182,26 +182,43 @@ class prepareImageTaskThread(threading.Thread):
         }
 
         dstfile  = None
+        hdds = get_vm_hdds()
+        need_delete = False
+        need_clone  = False
+
         if data['rsync'] == 'luhya':
             srcfile  = "/storage/images/%s/machine"      % self.srcimgid
             dstfile  = "/storage/tmp/images/%s/machine"  % self.dstimgid
+            if self.srcimgid != self.dstimgid:
+                need_clone = True
+                if dstfile in hdds:
+                    need_delete = True
+
         if data['rsync'] == 'db':
             srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
             if self.insid.find('TMP') == 0:
                 dstfile  = "/storage/space/database/images/%s/database" % self.dstimgid
+                need_delete = True
+                need_clone  = True
+            if self.insid.find('VD')  == 0:
+                pass
             if self.insid.find('VS')  == 0:
                 dstfile  = "/storage/space/database/instances/%s/database" % self.insid
+                if dstfile in hdds:
+                    pass
+                else:
+                    need_clone = True
 
-        if self.srcimgid != self.dstimgid and dstfile != None :
-            # call clone cmd
+        if need_delete == True:
             cmd = 'vboxmanage closemedium disk %s --delete' % dstfile
             logger.error("cmd line = %s", cmd)
-            pexpect.spawn(cmd)
+            commands.getoutput(cmd)
+
             if os.path.exists(os.path.dirname(dstfile)):
                 shutil.rmtree(os.path.dirname(dstfile))
 
+        if need_clone == True:
             src_size = os.path.getsize(srcfile)
-
             cmd = "vboxmanage clonehd" + " " + srcfile + " " + dstfile
             logger.error("cmd line = %s", cmd)
             procid = pexpect.spawn(cmd)

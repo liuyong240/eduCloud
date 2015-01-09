@@ -3,6 +3,19 @@
 import os
 from luhyaTools import *
 
+def get_vm_hdds():
+    cmd = 'vboxmanage list hdds | grep Location'
+    output = commands.getoutput(cmd)
+
+    result = []
+    if len(output) > 0:
+        hdds = output.split()
+        num_of_hdds = len(hdds)/2
+        for x in range(0, num_of_hdds):
+            hd = hdds[2*x+1].strip()
+            result.append(hd)
+
+    return result
 
 def getVMlist():
     cmd = "VBoxManage list vms"
