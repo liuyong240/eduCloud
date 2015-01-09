@@ -438,7 +438,13 @@ class SubmitImageTaskThread(threading.Thread):
                 ret, err =self.vboxmgr.deleteVMConfigFile()
                 logger.error("--- vboxmgr.deleteVMConfigFile ret=%s, err=%s" % (ret, err))
 
+            hdds = get_vm_hdds()
             dstfile = '/storage/tmp/images/%s/machine' % self.dstimgid
+            if dstfile in hdds:
+                cmd = 'vboxmanage closemedium disk %s --delete' % dstfile
+                logger.error("cmd line = %s", cmd)
+                commands.getoutput(cmd)
+
             if os.path.exists(os.path.dirname(dstfile)):
                 logger.error('rm %s' % os.path.dirname(dstfile))
                 shutil.rmtree(os.path.dirname(dstfile))

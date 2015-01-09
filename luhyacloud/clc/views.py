@@ -2041,7 +2041,7 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
             logger.error("--- --- --- update image record successfully")
 
     except Exception as e:
-        logger.error('--- image_create_task_stop error = %s ' % e.message)
+        logger.error('--- image_create_task_submit_success error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
