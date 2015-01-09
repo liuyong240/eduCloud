@@ -99,9 +99,21 @@ class cc_rpcServerThread(run4everThread):
             logger.error("cc_rpc_handle_imageprepare Exception Error Message : %s" % e.message)
 
     def cc_rpc_handle_imagesubmit(self, ch, method, props, tid, paras):
+        payload = {
+            'type'      : 'taskstatus',
+            'phase'     : "submitting",
+            'state'     : 'uploading',
+            'progress'  : 0,
+            'tid'       : tid,
+            'prompt'    : '',
+            'errormsg'  : '',
+            'failed'    : 0,
+            'done'      : 0,
+        }
         try:
             logger.error("--- --- --- cc_rpc_handle_imagesubmit")
-
+            insid = tid.split(':')[2]
+            dstid = tid.split(':')[1]
             prompt = 'Uploading file from CC to Walrus ... ...'
             if paras == 'luhya':
                 prompt      = 'Uploading image file from CC to Walrus ... ...'
@@ -109,8 +121,22 @@ class cc_rpcServerThread(run4everThread):
                 destination = "rsync://%s/%s/" % (self.serverIP, 'luhya')
             if paras == 'db':
                 prompt      = 'Uploading database file from CC to Walrus ... ...'
-                source      = '/storage/space/database/images/%s' %  tid.split(':')[1]
                 destination = "rsync://%s/%s/" % (self.serverIP, 'db')
+                if insid.find('TMP') == 0:
+                    source      = '/storage/space/database/images/%s' %  dstid
+                if insid.find('VS')  == 0:
+                    payload['progress'] = 100
+                    payload['prompt']   = prompt
+                    payload['done']     = 1
+
+                    payload = json.dumps(payload)
+                    ch.basic_publish(
+                             exchange='',
+                             routing_key=props.reply_to,
+                             properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                             body=payload)
+                    ch.basic_ack(delivery_tag = method.delivery_tag)
+                    return
 
             if tid in self.submit_tasks and self.submit_tasks[tid] != None:
                 worker = self.submit_tasks[tid]
@@ -119,17 +145,11 @@ class cc_rpcServerThread(run4everThread):
                 worker.start()
                 self.submit_tasks[tid] = worker
 
-            payload = {
-                    'type'      : 'taskstatus',
-                    'phase'     : "submitting",
-                    'state'     : 'uploading',
-                    'progress'  : worker.getprogress(),
-                    'tid'       : tid,
-                    'prompt'    : prompt,
-                    'errormsg'  : worker.getErrorMsg(),
-                    'failed'    : worker.isFailed(),
-                    'done'      : worker.isDone(),
-            }
+            payload['progress'] = worker.getprogress()
+            payload['prompt']   = prompt
+            payload['errormsg'] = worker.getErrorMsg()
+            payload['failed']   = worker.isFailed()
+            payload['done']     = worker.isDone()
             payload = json.dumps(payload)
             ch.basic_publish(
                      exchange='',

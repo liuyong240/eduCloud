@@ -204,7 +204,7 @@ class prepareImageTaskThread(threading.Thread):
                 pass
             if self.insid.find('VS')  == 0:
                 dstfile  = "/storage/space/database/instances/%s/database" % self.insid
-                if dstfile in hdds:
+                if dstfile in hdds or os.path.exists(dstfile):
                     pass
                 else:
                     need_clone = True
@@ -351,6 +351,19 @@ class SubmitImageTaskThread(threading.Thread):
 
     def submitFromNC2CC(self, data):
         logger.error('submitFromNC2CC start ... ...')
+
+        payload = {
+            'type'      : 'taskstatus',
+            'phase'     : "submitting",
+            'state'     : 'uploading',
+            'progress'  : 0,
+            'tid'       : self.tid,
+            'prompt'    : '',
+            'errormsg'  : "",
+            'failed'    : 0,
+            'done'      : 0,
+        }
+
         retvalue = "OK"
 
         paras = data['rsync']
@@ -359,25 +372,17 @@ class SubmitImageTaskThread(threading.Thread):
             prompt      = 'Uploading image file from NC to CC ... ...'
             source      = self.root_dir + self.dstimgid
             destination = "rsync://%s/%s/" % (self.ccip, data['rsync'])
+            payload['prompt'] = prompt
         if paras == 'db':
             prompt      = 'Uploading database file from NC to CC ... ...'
-            source      = '/storage/space/database/' + self.dstimgid
-            destination = "rsync://%s/%s/" % (self.ccip, data['rsync'])
+            payload['prompt'] = prompt
+            payload['progress'] = 0
+            payload['done']   = 1
+            self.forwardTaskStatus2CC(json.dumps(payload))
+            return retvalue
 
         worker = rsyncWorkerThread(logger, source, destination)
         worker.start()
-
-        payload = {
-                'type'      : 'taskstatus',
-                'phase'     : "submitting",
-                'state'     : 'uploading',
-                'progress'  : 0,
-                'tid'       : self.tid,
-                'prompt'    : prompt,
-                'errormsg'  : "",
-                'failed'    : 0,
-                'done'      : 0,
-        }
 
         while True:
             payload['progress'] = worker.getprogress()
