@@ -20,7 +20,7 @@
             actions: {
                 listAction:   '/clc/api/1.0/tasks/list',
                 // deleteAction: '/clc/api/1.0/tasks/delete',
-                // updateAction: '/clc/api/1.0/tasks/update',
+                updateAction: '/clc/api/1.0/tasks/update',
                 // createAction: '/clc/api/1.0/tasks/create'
             },
             fields: {
@@ -37,32 +37,39 @@
                 },
                 srcimgid: {
                     title: 'Source ImageID',
-                    width: '10%'
+                    width: '10%',
+                    edit: false,
                 },
                 dstimgid: {
                     title: 'Destine ImageID',
-                    width: '10%'
+                    width: '10%',
+                    edit: false,
                 },
                 insid: {
                     title: 'Instance ID',
                     width: '10%',
+                    edit: false,
                 },
                 user: {
                     title: 'Owner',
                     width: '10%',
+                    edit: false,
                 },
                 phase: {
                     title: 'Current Phase',
                     width: '10%',
+                    edit: false,
                 },
                 state: {
                     title: "VM State",
                     width: '10%',
+                    edit: true,
                 },
                 completed: {
                     title: 'Completed',
                     width: '10%',
                     list:  false,
+                    edit: false,
                 },
             },
             //Register to selectionChanged event to hanlde events

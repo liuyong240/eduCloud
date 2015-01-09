@@ -155,6 +155,7 @@ urlpatterns = patterns('',
 
     url(r'^api/1.0/tasks/list$',          views.list_tasks,                 name='list_tasks_view'),
     url(r'^api/1.0/tasks/delete$',        views.delete_tasks,               name='delete_tasks_view'),
+    url(r'^api/1.0/tasks/update$',        views.update_tasks,               name='update_tasks_view'),
 
     # url(r'^api/1.0/hosts/list$',          views.list_hosts,                 name='list_hosts_view'),
     # url(r'^api/1.0/hosts/delete$',        views.delete_hosts,               name='delete_hosts_view'),

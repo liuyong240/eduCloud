@@ -146,9 +146,9 @@ class prepareImageTaskThread(threading.Thread):
             payload['done'] = worker.isDone()
             if worker.isFailed():
                 logger.error(' ----- failed . ')
-                payload['failed'] = worker.isFailed()
+                payload['failed']   = worker.isFailed()
                 payload['errormsg'] = worker.getErrorMsg()
-                payload['state'] = 'init'
+                payload['state']    = 'init'
                 self.forwardTaskStatus2CC(json.dumps(payload))
                 retvalue = "FALURE"
                 break
@@ -204,7 +204,6 @@ class prepareImageTaskThread(threading.Thread):
 
             cmd = "vboxmanage clonehd" + " " + srcfile + " " + dstfile
             logger.error("cmd line = %s", cmd)
-            ratio = 0
             procid = pexpect.spawn(cmd)
 
             while procid.isalive():
@@ -235,51 +234,56 @@ class prepareImageTaskThread(threading.Thread):
         return retvalue
 
     def run(self):
-        done_1 = False
-        done_2 = False
-
-        data = {}
-        data['cmd']     = 'image/prepare'
-        data['tid']     =  self.tid
-        data['rsync']   = 'luhya'
-
-        if self.downloadFromWalrus2CC(data) == "OK":
-            if self.downloadFromCC2NC(data) == "OK":
-                if self.cloneImage(data) == "OK":
-                    done_1 = True
-
-        if done_1 == True:
-            if self.runtime_option['usage'] == 'server': # desktop, server, app
-                data['rsync'] = 'db'
-                if self.downloadFromWalrus2CC(data) == "OK":
-                    if self.cloneImage(data) == "OK":
-                        done_2 = True
-            else:
-                done_2 = True
-
         payload = {
-                'type'      : 'taskstatus',
-                'phase'     : "preparing",
-                'state'     : 'done',
-		'progress'  :  0,
-                'tid'       : self.tid,
-                'prompt'    : '',
-                'errormsg'  : '',
-                'failed'    : 0,
+            'type'      : 'taskstatus',
+            'phase'     : "preparing",
+            'state'     : 'done',
+            'progress'  :  0,
+            'tid'       : self.tid,
+            'prompt'    : '',
+            'errormsg'  : '',
+            'failed'    : 0,
         }
+        try:
+            done_1 = False
+            done_2 = False
 
-        if done_1 == False or done_2 == False:
+            data = {}
+            data['cmd']     = 'image/prepare'
+            data['tid']     =  self.tid
+            data['rsync']   = 'luhya'
+
+            if self.downloadFromWalrus2CC(data) == "OK":
+                if self.downloadFromCC2NC(data) == "OK":
+                    if self.cloneImage(data) == "OK":
+                        done_1 = True
+
+            if done_1 == True:
+                if self.runtime_option['usage'] == 'server': # desktop, server, app
+                    data['rsync'] = 'db'
+                    if self.downloadFromWalrus2CC(data) == "OK":
+                        if self.cloneImage(data) == "OK":
+                            done_2 = True
+                else:
+                    done_2 = True
+
+            if done_1 == False or done_2 == False:
+                logger.error('send cmd image/prepare/failure ')
+                self.download_rpc.call(cmd="image/prepare/failure", tid=data['tid'], paras=data['rsync'])
+            else:
+                logger.error('send cmd image/prepare/success ')
+                self.download_rpc.call(cmd="image/prepare/success", tid=data['tid'], paras=data['rsync'])
+                payload = json.dumps(payload)
+                self.forwardTaskStatus2CC(payload)
+        except Exception as e:
+            logger.error("prepareImageTask Exception Error Message : %s" % e.message)
             logger.error('send cmd image/prepare/failure ')
             self.download_rpc.call(cmd="image/prepare/failure", tid=data['tid'], paras=data['rsync'])
-            payload['state'] = 'init'
+
             payload['failed'] = 1
-            payload = json.dumps(payload)
-            self.forwardTaskStatus2CC(payload)
-        else:
-            logger.error('send cmd image/prepare/success ')
-            self.download_rpc.call(cmd="image/prepare/success", tid=data['tid'], paras=data['rsync'])
-            payload = json.dumps(payload)
-            self.forwardTaskStatus2CC(payload)
+            payload['errormsg'] = e.message
+            payload['state'] = 'init'
+            self.forwardTaskStatus2CC(json.dumps(payload))
 
 class SubmitImageTaskThread(threading.Thread):
     def __init__(self, tid, runtime_option):
@@ -308,6 +312,7 @@ class SubmitImageTaskThread(threading.Thread):
 
             if response['failed'] == 1:
                 logger.error(' ----- failed . ')
+                response['state'] = 'init'
                 retvalue = "FALURE"
                 self.forwardTaskStatus2CC(json.dumps(response))
                 break
@@ -382,10 +387,12 @@ class SubmitImageTaskThread(threading.Thread):
         return retvalue
 
     def delete_snapshort(self):
+        logger.error(' -------- delete_snapshort')
         if self.srcimgid != self.dstimgid:
             rootdir = "/storage/tmp"
         else:
             rootdir = "/storage"
+
         self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, rootdir)
         snapshot_name = "thomas"
         if self.vboxmgr.isSnapshotExist(snapshot_name):
@@ -394,73 +401,92 @@ class SubmitImageTaskThread(threading.Thread):
 
     def task_finished(self):
         logger.error(' -------- task_finished')
-        if self.srcimgid != self.dstimgid:
-            self.vboxmgr.unregisterVM(delete=True)
-            self.vboxmgr.deleteVMConfigFile()
 
-            rootdir = "/storage/tmp"
-            if os.path.exists(rootdir + "/images/" + self.dstimgid):
-                shutil.rmtree(rootdir + "/images/" + self.dstimgid)
+        find_registered_vm = False
+        vminfo = getVMlist()
+        for vm in vminfo:
+            if vm['insid'] == self.insid:
+                find_registered_vm = True
+                break
+
+        if self.srcimgid != self.dstimgid:
+            if find_registered_vm == True:
+                ret, err = self.vboxmgr.unregisterVM(delete=True)
+                logger.error("--- vboxmgr.unregisterVM ret=%s, err=%s" % (ret, err))
+                ret, err =self.vboxmgr.deleteVMConfigFile()
+                logger.error("--- vboxmgr.deleteVMConfigFile ret=%s, err=%s" % (ret, err))
+
+            dstfile = '/storage/tmp/images/%s/machine' % self.dstimgid
+            if os.path.exists(os.path.dirname(dstfile)):
+                logger.error('rm %s' % os.path.dirname(dstfile))
+                shutil.rmtree(os.path.dirname(dstfile))
         else:
-            self.vboxmgr.unregisterVM()
-            self.vboxmgr.deleteVMConfigFile()
+            if find_registered_vm == True:
+                ret, err = self.vboxmgr.unregisterVM()
+                logger.error("--- vboxmgr.unregisterVM ret=%s, err=%s" % (ret, err))
+                ret, err = self.vboxmgr.deleteVMConfigFile()
+                logger.error("--- vboxmgr.deleteVMConfigFile ret=%s, err=%s" % (ret, err))
 
             oldversionNo = ReadImageVersionFile(self.dstimgid)
             newversionNo = IncreaseImageVersion(oldversionNo)
             WriteImageVersionFile(self.dstimgid, newversionNo)
+            logger.error("update version to %s" % newversionNo)
 
     def run(self):
-        done_1 = False
-        done_2 = False
-
-        data = {}
-        data['cmd']     = 'image/submit'
-        data['tid']     =  self.tid
-        data['rsync']   = 'luhya'
-
-        self.delete_snapshort()
-
-        if self.submitFromNC2CC(data) == "OK":
-            if self.submitFromCC2Walrus(data) == "OK":
-                done_1 = True
-
-        if done_1 == True:
-            if self.runtime_option['usage'] == 'server':
-                data['rsync'] = 'db'
-                if self.submitFromCC2Walrus(data) == "OK":
-                    done_2 = True
-            else:
-                done_2 = True
-
         payload = {
-                'type'      : 'taskstatus',
-                'phase'     : "submitting",
-                'state'     : 'done',
-		'progress'  :  0,
-                'tid'       : self.tid,
-                'prompt'    : '',
-                'errormsg'  : '',
-                'failed'    : 0,
+            'type'      : 'taskstatus',
+            'phase'     : "submitting",
+            'state'     : 'done',
+            'progress'  :  0,
+            'tid'       : self.tid,
+            'prompt'    : '',
+            'errormsg'  : '',
+            'failed'    : 0,
         }
 
-        if done_1 == False or done_2 == False:
+        try:
+            done_1 = False
+            done_2 = False
+
+            data = {}
+            data['cmd']     = 'image/submit'
+            data['tid']     =  self.tid
+            data['rsync']   = 'luhya'
+
+            self.delete_snapshort()
+
+            if self.submitFromNC2CC(data) == "OK":
+                if self.submitFromCC2Walrus(data) == "OK":
+                    done_1 = True
+
+            if done_1 == True:
+                if self.runtime_option['usage'] == 'server':
+                    data['rsync'] = 'db'
+                    if self.submitFromCC2Walrus(data) == "OK":
+                        done_2 = True
+                else:
+                    done_2 = True
+
+            if done_1 == False or done_2 == False:
+                logger.error('send cmd image/submit/failure ')
+                self.download_rpc.call(cmd="image/submit/failure", tid=data['tid'], paras=data['rsync'])
+            else:
+                self.task_finished()
+                payload = json.dumps(payload)
+                self.forwardTaskStatus2CC(payload)
+
+                logger.error('send cmd image/submit/success whith payload=%s' % payload)
+                self.download_rpc.call(cmd="image/submit/success", tid=data['tid'], paras=data['rsync'])
+
+        except Exception as e:
+            logger.error("submitImageTask Exception Error Message : %s" % e.message)
             logger.error('send cmd image/submit/failure ')
             self.download_rpc.call(cmd="image/submit/failure", tid=data['tid'], paras=data['rsync'])
-            # send mssage to notify prepare is done
-            payload['state'] = 'init'
+
             payload['failed'] = 1
-            payload = json.dumps(payload)
-            self.forwardTaskStatus2CC(payload)
-
-            self.download_rpc.call(cmd="image/submit/failure", tid=data['tid'], paras=data['rsync'])
-        else:
-            payload = json.dumps(payload)
-            self.forwardTaskStatus2CC(payload)
-
-            logger.error('send cmd image/submit/success whith payload=%s' % payload)
-            self.download_rpc.call(cmd="image/submit/success", tid=data['tid'], paras=data['rsync'])
-
-            self.task_finished()
+            payload['errormsg'] = e.message
+            payload['state'] = 'init'
+            self.forwardTaskStatus2CC(json.dumps(payload))
 
 def nc_image_prepare_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_prepare_handle")
@@ -601,38 +627,41 @@ class runImageTaskThread(threading.Thread):
         return flag
 
     def run(self):
-        done_1 = False
-        done_2 = False
+        try:
+            done_1 = False
+            done_2 = False
 
-        disks = []
+            disks = []
 
-        if self.runtime_option['usage'] == 'desktop':
-            if self.srcimgid == self.dstimgid :
-                # modify desktop
-                pass
+            if self.runtime_option['usage'] == 'desktop':
+                if self.srcimgid == self.dstimgid :
+                    # modify desktop
+                    pass
+                else:
+                    # build new desktop
+                    pass
+            if self.runtime_option['usage'] == 'server':
+                if self.srcimgid == self.dstimgid :
+                    # modify server
+                    pass
+                else:
+                    # build new server
+                    pass
+
+            if self.createvm(disks) == True:
+                done_1 = True
+                if self.runvm() == True:
+                    done_2 = True
+
+            if done_1 == False or done_2 == False:
+                self.rpcClient.call(cmd="image/edit/stopped", tid=self.tid, paras='')
             else:
-                # build new desktop
-                pass
-        if self.runtime_option['usage'] == 'server':
-            if self.srcimgid == self.dstimgid :
-                # modify server
-                pass
-            else:
-                # build new server
-                pass
+                self.rpcClient.call(cmd="image/edit/running", tid=self.tid, paras='')
 
-        if self.createvm(disks) == True:
-            done_1 = True
-            if self.runvm() == True:
-                done_2 = True
-
-        if done_1 == False or done_2 == False:
-            self.rpcClient.call(cmd="image/edit/stopped", tid=self.tid, paras='')
-        else:
-            self.rpcClient.call(cmd="image/edit/running", tid=self.tid, paras='')
-
-        # need to update nc's status at once
-        update_nc_running_status()
+            # need to update nc's status at once
+            update_nc_running_status()
+        except Exception as e:
+            logger.error("runImageTask Exception Error Message : %s" % e.message)
 
 def update_nc_running_status():
     payload = { }

@@ -71,7 +71,7 @@ def findVMRunningResource(insid):
 
     ccip = None
     ncip = None
-    msg = "Can't Find enough resource."
+    _msg  = "Can't Find appropriate cluster machine and node machine ."
 
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
@@ -145,7 +145,7 @@ def findBuildResource(srcid):
 
     _ccip = None
     _ncip = None
-    _msg  = "Can't Find enough resource."
+    _msg  = "Can't Find appropriate cluster machine and node machine ."
 
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
@@ -732,13 +732,14 @@ def nc_mgr_mac(request, ccname, mac):
             _vm = _vm.replace('{{vminfo.guest_os}}', vm['guest_os'])
             _vm = _vm.replace('{{vminfo.mem}}',      str(vm['mem']))
             _vm = _vm.replace('{{vminfo.vcpu}}',     str(vm['vcpu']))
+            _vm = _vm.replace('{{vminfo.state}}',    vm['state'])
             vms = vms + _vm
 
         htmlstr = htmlstr.replace('{{vminfos}}',  vms)
     else:
         novmstr = '''
                 <p class="list-group-item">
-                No Running VMs available
+                No VMs Information available
                 </p>
         '''
         htmlstr = htmlstr.replace('{{vminfos}}',  novmstr)
@@ -1192,11 +1193,12 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
     else:
         runtime_option = _runtime_option
 
-    ccres_info = ecCCResources.objects.get(ccip = tidrec.ccip)
+    ccobj       = ecServers.objects.get(ip0=tidrec.ccip, role='cc')
+    ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
 
     # release CC Resource
     # 1. rdp port
-    if runtime_option['rdp_port']  != '':
+    if 'rdp_port' in runtime_option.keys() and runtime_option['rdp_port']  != '':
         available_rdp_port = json.loads(ccres_info.rdp_port_pool_list)
         used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
 
@@ -1208,7 +1210,7 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
         ccres_info.save()
 
     # 2. release
-    if runtime_option['web_ip'] != '':
+    if 'web_ip' in runtime_option.keys() and runtime_option['web_ip'] != '':
         availabe_web_ips = json.loads(ccres_info.pub_ip_pool_list)
         used_web_ips     = json.loads(ccres_info.used_pub_ip)
 
@@ -1224,16 +1226,17 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
         ethers_free(tidrec.insid)
 
     # 4. release iptables
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
-    else:
-        url = 'http://%s/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
+    if 'iptable_rules' in runtime_option.keys() and runtime_option['iptable_rules'] != []:
+        if DAEMON_DEBUG == True:
+            url = 'http://%s:8000/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
+        else:
+            url = 'http://%s/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
 
-    payload = {
-        'runtime_option' : tidrec.runtime_option
-    }
-    r = requests.post(url, data=payload)
-    logger.error("--- --- --- " + url + ":" + r.content)
+        payload = {
+            'iptable_rules' : runtime_option['iptable_rules']
+        }
+        r = requests.post(url, data=payload)
+        logger.error("--- --- --- " + url + ":" + r.content)
 
 def genVMDisks(tid, usage):
     tid_info = tid.split(':')
@@ -1429,12 +1432,12 @@ def genRuntimeOptionForImageBuild(transid):
     # 3.4 set web_accessURL and mgr_accessURL
     if ccres_info.cc_usage == 'rvd':
         runtime_option['web_accessURL']     = ''
-        rumtime_option['ex_web_accessURL']  = ''
+        runtime_option['ex_web_accessURL']  = ''
         runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
         runtime_option['ex_mgr_accessURL']  = ''
     if ccres_info.cc_usage == 'vs':
         runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
-        rumtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
+        runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
         runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
         runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
 
@@ -1442,7 +1445,7 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['run_with_snapshot'] = 1
 
     ccres_info.save()
-    return runtime_option
+    return runtime_option, ''
 
 def genIPTablesRule(fromip, toip, port):
     return {}
@@ -1618,13 +1621,16 @@ def image_create_task_prepare(request, srcid, dstid, insid):
 def image_create_task_prepare_success(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_prepare_success")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "preparing"
-    rec.state = 'done'
-    rec.progress = 0
-    rec.save()
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        rec.phase = "preparing"
+        rec.state = 'done'
+        rec.progress = 0
+        rec.save()
+    except Exception as e:
+        logger.error('--- image_create_task_prepare_success error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
@@ -1635,13 +1641,16 @@ def image_create_task_prepare_success(request, srcid, dstid, insid):
 def image_create_task_prepare_failure(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_prepare_failure")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "preparing"
-    rec.state = 'init'
-    rec.progress = 0
-    rec.save()
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        rec.phase = "preparing"
+        rec.state = 'init'
+        rec.progress = 0
+        rec.save()
+    except Exception as e:
+        logger.error('--- image_create_task_prepare_failure error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
@@ -1651,67 +1660,84 @@ def image_create_task_prepare_failure(request, srcid, dstid, insid):
 def image_create_task_run(request, srcid, dstid, insid):
     logger.error("--- --- --- run_image_create_task")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "editing"
-    rec.state = 'booting'
-    rec.progress = 0
-    rec.save()
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        rec.phase = "editing"
+        rec.state = 'booting'
+        rec.progress = 0
+        rec.save()
 
-    # now everything is ready, start to run instance
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/image/create/task/run' % rec.ccip
-    else:
-        url = 'http://%s/cc/api/1.0/image/create/task/run' % rec.ccip
-    payload = {
-        'tid'  :            _tid,
-        'ncip' :            rec.ncip,
-        'runtime_option' :  rec.runtime_option,
-    }
-    r = requests.post(url, data=payload)
-    logger.error("--- --- --- " + url + ":" + r.content)
+        # now everything is ready, start to run instance
+        if DAEMON_DEBUG == True:
+            url = 'http://%s:8000/cc/api/1.0/image/create/task/run' % rec.ccip
+        else:
+            url = 'http://%s/cc/api/1.0/image/create/task/run' % rec.ccip
+        payload = {
+            'tid'  :            _tid,
+            'ncip' :            rec.ncip,
+            'runtime_option' :  rec.runtime_option,
+        }
+        r = requests.post(url, data=payload)
+        logger.error("--- --- --- " + url + ":" + r.content)
 
-    return HttpResponse(r.content, mimetype="application/json")
-
-def image_create_task_stop(request, srcid, dstid, insid):
-    logger.error("--- --- --- stop_image_create_task")
-
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "editing"
-    rec.state = 'stopped'
-    rec.progress = 0
-    rec.save()
-
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/image/create/task/stop' % rec.ccip
-    else:
-        url = 'http://%s/cc/api/1.0/image/create/task/stop' % rec.ccip
-
-    payload = {
-        'tid'  :            _tid,
-        'ncip' :            rec.ncip,
-        'runtime_option' :  rec.runtime_option,
-    }
-
-    r = requests.post(url, data=payload)
-    logger.error("--- --- --- " + url + ":" + r.content)
-
-    return HttpResponse(r.content, mimetype="application/json")
-
-def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
-    logger.error("--- --- --- image_create_task_updatevmstatus")
-
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.state = vmstatus
-    rec.save()
+    except Exception as e:
+        logger.error('--- image_create_task_stop error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
+
+def image_create_task_stop(request, srcid, dstid, insid):
+    logger.error("--- --- --- stop_image_create_task")
+
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        rec.phase = "editing"
+        rec.state = 'stopped'
+        rec.progress = 0
+        rec.save()
+
+        if DAEMON_DEBUG == True:
+            url = 'http://%s:8000/cc/api/1.0/image/create/task/stop' % rec.ccip
+        else:
+            url = 'http://%s/cc/api/1.0/image/create/task/stop' % rec.ccip
+
+        payload = {
+            'tid'  :            _tid,
+            'ncip' :            rec.ncip,
+            'runtime_option' :  rec.runtime_option,
+        }
+
+        r = requests.post(url, data=payload)
+        logger.error("--- --- --- " + url + ":" + r.content)
+    except Exception as e:
+        logger.error('--- image_create_task_stop error = %s ' % e.message)
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
+def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
+    logger.error("--- --- --- image_create_task_updatevmstatus")
+
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        rec.state = vmstatus
+        rec.save()
+    except Exception as e:
+        logger.error('--- image_create_task_stop error = %s ' % e.message)
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
+
 
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_getvmstatus")
@@ -1925,13 +1951,17 @@ def image_create_task_view(request,  srcid, dstid, insid):
 def image_create_task_submit_failure(request,  srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_submit_failure")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    rec = ectaskTransaction.objects.get(tid=_tid)
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
+        rec = ectaskTransaction.objects.get(tid=_tid)
 
-    rec.phase = "submitting"
-    rec.statue = 'init'
-    rec.progress = 0
-    rec.save()
+        rec.phase = "submitting"
+        rec.statue = 'init'
+        rec.progress = 0
+        rec.save()
+
+    except Exception as e:
+        logger.error('--- image_create_task_stop error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
@@ -1941,71 +1971,77 @@ def image_create_task_submit_failure(request,  srcid, dstid, insid):
 def image_create_task_submit_success(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_submit_success")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
-    trec = ectaskTransaction.objects.get(tid=_tid)
-    trec.phase = "submitting"
-    trec.state = 'done'
-    # trec.completed = True
-    trec.progress = 0
-    trec.save()
+        trec = ectaskTransaction.objects.get(tid=_tid)
+        trec.phase = "submitting"
+        trec.state = 'done'
+        # trec.completed = True
+        trec.progress = 0
+        trec.save()
 
-    releaseRuntimeOptionForImageBuild(_tid)
-    imgfile_path = '/storage/images/' + dstid + "/machine"
-    imgfile_size = os.path.getsize(imgfile_path)
+        releaseRuntimeOptionForImageBuild(_tid)
+        imgfile_path = '/storage/images/' + dstid + "/machine"
+        imgfile_size = os.path.getsize(imgfile_path) / (1024.0 * 1024 * 1024)
+        imgfile_size = round(imgfile_size, 2)
 
-    # 4 update database
-    if srcid != dstid:
-        srcimgrec = ecImages.objects.get(ecid=srcid)
+        # 4 update database
+        if srcid != dstid:
+            srcimgrec = ecImages.objects.get(ecid=srcid)
 
-        dstimgrec = ecImages(
-            ecid    = dstid,
-            name    = dstid,
-            ostype  = srcimgrec.ostype,
-            img_usage   = srcimgrec.img_usage,
-            version = "1.0.0",
-            size    = imgfile_size,
-        )
-        dstimgrec.save()
+            dstimgrec = ecImages(
+                ecid    = dstid,
+                name    = dstid,
+                ostype  = srcimgrec.ostype,
+                img_usage   = srcimgrec.img_usage,
+                version = "1.0.0",
+                size    = imgfile_size,
+            )
+            dstimgrec.save()
+            logger.error('create new image record: %s %s %s' % (dstid, srcimgrec.ostype, srcimgrec.img_usage))
 
-        rec = ecImages_auth(
-            ecid = dstid,
-            role_value = 'eduCloud.admin',
-            read = True,
-            write = True,
-            execute = True,
-            create = True,
-            delete = True,
-        )
-        rec.save()
-
-        rec = ecAccount.objects.get(userid=trec.user)
-        auth_name = rec.ec_authpath_name
-        rec = ecAuthPath.objects.get(ec_authpath_name = auth_name)
-        if rec.ec_authpath_value != 'eduCloud.admin':
-            newrec = ecImages_auth(
+            rec = ecImages_auth(
                 ecid = dstid,
-                role_value = rec.ec_authpath_value,
+                role_value = 'eduCloud.admin',
                 read = True,
                 write = True,
                 execute = True,
                 create = True,
-                delete = False,
+                delete = True,
             )
-            newrec.save()
+            rec.save()
 
-        WriteImageVersionFile(dstid, '1.0.0')
-        logger.error("--- --- --- create a new image record successfully")
-    else:
-        oldversionNo = ReadImageVersionFile(dstid)
-        newversionNo = IncreaseImageVersion(oldversionNo)
-        WriteImageVersionFile(dstid, newversionNo)
+            rec = ecAccount.objects.get(userid=trec.user)
+            auth_name = rec.ec_authpath_name
+            rec = ecAuthPath.objects.get(ec_authpath_name = auth_name)
+            if rec.ec_authpath_value != 'eduCloud.admin':
+                newrec = ecImages_auth(
+                    ecid = dstid,
+                    role_value = rec.ec_authpath_value,
+                    read = True,
+                    write = True,
+                    execute = True,
+                    create = True,
+                    delete = False,
+                )
+                newrec.save()
 
-        dstimgrec = ecImages.objects.get(ecid=dstid)
-        dstimgrec.version = newversionNo
-        dstimgrec.size    = imgfile_size
-        dstimgrec.save()
-        logger.error("--- --- --- update image record successfully")
+            WriteImageVersionFile(dstid, '1.0.0')
+            logger.error("--- --- --- create a new image record successfully")
+        else:
+            oldversionNo = ReadImageVersionFile(dstid)
+            newversionNo = IncreaseImageVersion(oldversionNo)
+            WriteImageVersionFile(dstid, newversionNo)
+
+            dstimgrec = ecImages.objects.get(ecid=dstid)
+            dstimgrec.version = newversionNo
+            dstimgrec.size    = imgfile_size
+            dstimgrec.save()
+            logger.error("--- --- --- update image record successfully")
+
+    except Exception as e:
+        logger.error('--- image_create_task_stop error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
@@ -2122,15 +2158,23 @@ def jtable_ethers(request, cc_name):
 
 def ethers_allocate(ccname, insid):
     es = ecDHCPEthers.objects.filter(ccname=ccname, insid='')
-    e  = ecDHCPEthers.objects.get(mac=es[0].mac)
-    e.insid = insid
-    e.save()
-    return e.mac, e.ip
+    if es.count() > 0:
+        e  = ecDHCPEthers.objects.get(mac=es[0].mac)
+        e.insid = insid
+        e.save()
+        return e.mac, e.ip, e.ex_web_proxy_port
+    else:
+        return None, None, None
 
 def ethers_free(insid):
-    e = ecDHCPEthers.objects.get(insid=insid)
-    e.insid = ''
-    e.save()
+    ecs = ecDHCPEthers.objects.filter(insid=insid)
+    if ecs.count() > 0:
+        e = ecDHCPEthers.objects.get(insid=insid)
+        e.insid = ''
+        e.save()
+    else:
+        logger.error('no ethers allocated to %s' % insid)
+
 
 #################################################################################
 # API Version 1.0 for accessing data model by POST request
@@ -2982,6 +3026,17 @@ def list_tasks(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, mimetype="application/json")
 
+def update_tasks(request):
+    response = {}
+
+    rec = ectaskTransaction.objects.get(id=request.POST['id'])
+    rec.state = request.POST['state']
+    rec.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, mimetype="application/json")
 
 def delete_tasks(request):
     response = {}

@@ -5,7 +5,7 @@ from luhyaTools import *
 
 
 def getVMlist():
-    cmd = "VBoxManage list runningvms"
+    cmd = "VBoxManage list vms"
     out, err = execute_cmd(cmd, True)
 
     result = []
@@ -24,6 +24,11 @@ def getVMlist():
             tmp            =  out[8].split(':')[1].strip()  # line 9
             vm['mem']      =  int(tmp.split('MB')[0])/1024
             vm['vcpu']     =  int(out[15].split(':')[1].strip()) # line 16
+            state          =  out[35].split(':')[1].strip()
+            if state.find('running') >= 0:
+                vm['state'] = 'Running'
+            else:
+                vm['state'] = 'Stopped'
 
             result.append(vm)
 

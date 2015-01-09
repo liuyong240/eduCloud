@@ -180,8 +180,9 @@ def allocate_rdp_port(avail_ports, used_ports):
     return avail_ports, used_ports, newport
 
 def free_rdp_port(avail_port, used_port, port):
-    used_port.remove(port)
-    avail_port.append(port)
+    if port in used_port:
+        used_port.remove(port)
+        avail_port.append(port)
     return avail_port, used_port
 
 def allocate_web_ip(availabe_web_ips, used_web_ips):
@@ -195,8 +196,9 @@ def allocate_web_ip(availabe_web_ips, used_web_ips):
     return availabe_web_ips, used_web_ips, new_web_ip
 
 def free_web_ip(availabe_web_ips, used_web_ips, web_ip):
-    used_web_ips.remove(web_ip)
-    availabe_web_ips.append(web_ip)
+    if web_ip in used_web_ips:
+        used_web_ips.remove(web_ip)
+        availabe_web_ips.append(web_ip)
     return availabe_web_ips, used_web_ips
 
 def getSysCpuUtil():
@@ -447,7 +449,7 @@ CC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
 VM_LIST_GROUP_ITEM = '''
         <p class="list-group-item">
             {{vminfo.insid}}
-            <span class="pull-right text-muted"><em>Running</em></span>
+            <span class="pull-right text-muted"><em>{{vminfo.state}}</em></span>
 
             <p class="list-group-item">
             Guest OS<span class="pull-right text-muted"><em>{{vminfo.guest_os}}</em></span>
