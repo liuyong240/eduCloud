@@ -198,8 +198,13 @@ class prepareImageTaskThread(threading.Thread):
             srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
             if self.insid.find('TMP') == 0:
                 dstfile  = "/storage/space/database/images/%s/database" % self.dstimgid
-                need_delete = True
-                need_clone  = True
+                if self.srcimgid != self.dstimgid:
+                    need_delete = True
+                    need_clone  = True
+                else:
+                    need_delete = False
+                    need_clone  = False
+
             if self.insid.find('VD')  == 0:
                 pass
             if self.insid.find('VS')  == 0:
