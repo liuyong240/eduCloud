@@ -7,6 +7,6 @@ import pika, json, time
 logger = getncdaemonlogger()
 
 download_rpc = RpcClient(logger, '192.168.56.101')
-response = download_rpc.call(cmd="image/download", paras="xp:imgid-abcd:insid-1234")
+response = download_rpc.call(cmd="image/prepare", paras="xp:imgid-abcd:insid-1234")
 print response
 

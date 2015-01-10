@@ -30,7 +30,20 @@ list of daemon and worker thread
 3.2  upload image to walrus
 
 '''
+def perform_mount():
+    # mount clc's /storage/space/{software, pub-data} to local
+    clcip = getclcipbyconf()
+    base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space/%s /storage/space/%s'
 
+    if not os.path.ismount('/storage/space/software'):
+        cmd1 = base_cmd % (clcip, 'software', 'software')
+        logger.error(cmd1)
+        os.system(cmd1)
+
+    if not os.path.ismount('/storage/space/pub-data'):
+        cmd2 = base_cmd % (clcip, 'pub-data', 'pub-data')
+        logger.error(cmd2)
+        os.system(cmd2)
 
 def registerMyselfasCC():
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
@@ -38,13 +51,17 @@ def registerMyselfasCC():
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()
-    url = 'http://%s/clc/api/1.0/register/server' % clcip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/clc/api/1.0/register/server' % clcip
+    else:
+        url = 'http://%s/clc/api/1.0/register/server' % clcip
     payload = {
         'role': 'cc',
         'name': hostname,
-        'cpus': hostcpus,
+        'cores': hostcpus,
         'memory': hostmem,
         'disk': hostdisk,
+        'exip': netlist['exip'],
         'ip0': netlist['ip0'],
         'ip1': netlist['ip1'],
         'ip2': netlist['ip2'],
@@ -63,9 +80,11 @@ def main():
     # read /storage/config/cc.conf to register itself to cc
     registerMyselfasCC()
 
+    perform_mount()
+
     # start main loop to start & monitor thread
     # thread_array = ['cc_statusPublisherThread', 'cc_statusConsumerThread', 'cc_rpcServerThread']
-    thread_array = ['cc_rpcServerThread', 'cc_statusConsumerThread']
+    thread_array = ['cc_rpcServerThread', 'cc_statusConsumerThread', 'cc_statusPublisherThread']
     bucket = Queue.Queue()
 
     for daemon in thread_array:

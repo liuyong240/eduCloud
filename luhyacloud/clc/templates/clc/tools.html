@@ -1,0 +1,404 @@
+{% extends "clc/clctemplate.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block myjs %}
+<script src="{% static "clc/plupload-2.1.2/js/plupload.full.min.js" %}"></script>
+<script src="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/jquery.plupload.queue.min.js" %}"></script>
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.core-3.5.js" %}"></script>
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.excheck-3.5.js" %}"></script>
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.exedit-3.5.js" %}"></script>
+<script type="text/javascript">
+
+/////////////////////////////////////////////////
+/////  script for software tree and uploader
+/////////////////////////////////////////////////
+
+var software_zNodes =[
+{% for img in image_list %}
+    {"name": '{{img}}', open:false },
+{% endfor %}
+];
+
+var software_setting = {
+    async: {
+        enable: true,
+        url: getUrl,
+        //otherParam: {"parent":"true", "child":"false"},
+    },
+    view: {
+        selectedMulti: false,
+        expandSpeed: "",
+    },
+    edit: {
+        enable: true,
+        showRemoveBtn: true,
+        showRenameBtn: true
+    },
+    data: {
+        keep: {
+            parent:true,
+            leaf:true
+        },
+        simpleData: {
+            enable: true
+        }
+    },
+    callback: {
+        onMouseDown:    sw_onMouseDown_handle,
+        beforeExpand:   sw_beforeExpand,
+        beforeRemove:   sw_beforeRemoveNode,
+        beforeRename:   sw_beforeRenameNode,
+        beforeDrag:     sw_beforeDrag,
+		onAsyncSuccess: sw_onAsyncSuccess,
+		onAsyncError:   sw_onAsyncError
+    }
+};
+
+function getUrl(treeId, treeNode) {
+    return "/clc/list_directory/software";
+}
+
+function sw_beforeDrag(treeId, treeNodes) {
+    return false;
+}
+function sw_beforeRemoveNode(treeId, treeNode) {
+    // get dir_name
+
+    url = '/clc/api/1.0/software/op';
+    postdata = {
+        cmd:         'rm',
+        opt:         '-rf',
+        arg1:        getFullPathbyNode(treeNode).toString()
+    };
+    $.post(url, postdata, function(data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        if (items['Result'] == "OK") {
+            return true;
+        } else {
+            return false;
+        }
+    });
+}
+
+function sw_beforeRenameNode(treeId, treeNode, newName, isCancel) {
+// send remove command to server
+    url = '/clc/api/1.0/software/op';
+
+    _arg1 = getFullPathbyNode(treeNode);
+    _arg2 = getFullPathbyNode(treeNode);
+    _arg2[_arg2.length-1] = newName;
+
+    postdata = {
+        cmd:         'mv',
+        opt:         '',
+        arg1:        _arg1.toString(),
+        arg2:        _arg2.toString(),
+    };
+    $.post(url, postdata, function(data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        if (items['Result'] == "OK") {
+            return true;
+        } else {
+            return false;
+        }
+    });
+}
+
+function getFullPathbyNode(treeNode) {
+    var start_node = treeNode;
+    var path_param = [];
+
+    while (start_node != null) {
+        path_param.unshift(start_node.name);
+        start_node = start_node.getParentNode();
+    }
+
+    return path_param;
+}
+
+function getOtherParam(treeNode) {
+
+    var param = {
+        'full_path': getFullPathbyNode(treeNode).toString()
+    }
+    return param;
+}
+
+function sw_beforeExpand(treeId, treeNode) {
+    var zTree = $.fn.zTree.getZTreeObj("software_tree");
+    zTree.setting.async.otherParam = getOtherParam(treeNode);
+    if (!treeNode.isAjaxing) {
+        ajaxGetNodes(treeNode, "refresh");
+        return true;
+    } else {
+        alert("zTree 正在下载数据中，请稍后展开节点。。。");
+        return false;
+    }
+}
+
+function ajaxGetNodes(treeNode, reloadType) {
+    var zTree = $.fn.zTree.getZTreeObj("software_tree");
+    if (reloadType == "refresh") {
+        //treeNode.icon = "{% static "clc/zTree_v3/css/zTreeStyle/img/loading.gif" %}"
+        zTree.updateNode(treeNode);
+    }
+    zTree.reAsyncChildNodes(treeNode, reloadType, true);
+}
+
+function sw_onAsyncSuccess(event, treeId, treeNode, msg) {
+    if (!msg || msg.length == 0) {
+        return;
+    }
+    //var zTree = $.fn.zTree.getZTreeObj("software_tree");
+    //treeNode.icon = "";
+    //zTree.updateNode(treeNode);
+
+}
+
+function sw_onAsyncError(event, treeId, treeNode, XMLHttpRequest, textStatus, errorThrown) {
+    var zTree = $.fn.zTree.getZTreeObj("software_tree");
+    //alert("异步获取数据出现异常。");
+    //treeNode.icon = "";
+    //zTree.updateNode(treeNode);
+}
+
+$("#add_software_node").click(function(){
+    var folder_name = prompt("Please enter new folder name", "NewFolder");
+    if (folder_name != null) {
+        var zTree = $.fn.zTree.getZTreeObj("software_tree")
+        var selectedNode = zTree.getSelectedNodes();
+        zTree.addNodes(selectedNode[0], { name:folder_name, isParent:true } );
+    }
+});
+
+function sw_onMouseDown_handle(event, treeId, treeNode) {
+    if (treeNode == null) {
+        $("#selected_software_folder").text('');
+        $("#software_uploader").show();
+        $("#add_software_node").show();
+
+        var zTree = $.fn.zTree.getZTreeObj("software_tree")
+        zTree.cancelSelectedNode();
+    }
+    else if (treeNode && treeNode.isParent) {
+        $("#selected_software_folder").text(treeNode.name);
+        $("#software_uploader").show();
+        $("#add_software_node").show();
+    } else {
+        $("#selected_software_folder").text('');
+        $("#software_uploader").hide();
+        $("#add_software_node").hide();
+    }
+};
+
+function add_software_leaf(parent_node_name, filename) {
+    var zTree = $.fn.zTree.getZTreeObj("software_tree")
+    var pnode = zTree.getNodeByParam("name", parent_node_name, null);
+    zTree.addNodes(pnode, { name:filename, isParent:false } );
+};
+
+/////////////////////////////////////////////////
+/////  script for image tree and uploader
+/////////////////////////////////////////////////
+
+var image_setting = {
+    view: {
+        selectedMulti: false,
+    },
+    edit: {
+        enable: true,
+        showRemoveBtn: true,
+        showRenameBtn: false
+    },
+    data: {
+        keep: {
+            parent:true,
+            leaf:true
+        },
+        simpleData: {
+            enable: true
+        }
+    },
+    callback: {
+        onMouseDown: image_onMouseDown_handle,
+    }
+};
+
+function image_onMouseDown_handle(event, treeId, treeNode) {
+    if (treeNode && treeNode.isParent) {
+        $("#selected_image_folder").text(treeNode.name);
+        $("#image_uploader").show();
+    } else {
+        $("#selected_image_folder").text('');
+        $("#image_uploader").hide();
+    }
+};
+
+var imag_zNodes =[];
+
+function add_image_leaf(parent_node_name) {
+    var zTree = $.fn.zTree.getZTreeObj("image_tree")
+    var pnode = zTree.getNodeByParam("name", parent_node_name, null);
+    zTree.addNodes(pnode, { name:'machine', isParent:false } );
+}
+
+$("#add_image_node").click(function(){
+    var folder_name = prompt("Please enter new folder name", "NewFolder");
+    if (folder_name != null) {
+        var zTree = $.fn.zTree.getZTreeObj("image_tree")
+        zTree.addNodes(null, { name:folder_name, isParent:true } );
+    }
+});
+
+$(document).ready(function(){
+    // Setup html5 version
+    $("#image_uploader").pluploadQueue({
+        // General settings
+        runtimes : 'html5,html4',
+        url : "/clc/tools/image_upload",
+        chunk_size : '10Mb',
+        rename: true,
+        drapgrop: true,
+
+        init : {
+            BeforeUpload: function(up, file) {
+                // Called right before the upload for a given file starts, can be used to cancel it if required
+                var folder_name = $("#selected_image_folder").text();
+                up.setOption('multipart_params', {'image_path': '/storage/images/' + folder_name });
+            },
+            UploadComplete: function(up, file) {
+                var folder_name = $("#selected_image_folder").text();
+                add_image_leaf(folder_name);
+            },
+        }
+      });
+
+    // Setup html4 version
+    $("#software_uploader").pluploadQueue({
+        // General settings
+        runtimes : 'html5,html4',
+        url : "/clc/tools/file_upload",
+        chunk_size : '10Mb',
+        rename: true,
+        drapgrop: true,
+
+        init : {
+            BeforeUpload: function(up, file) {
+                // Called right before the upload for a given file starts, can be used to cancel it if required
+                var zTree = $.fn.zTree.getZTreeObj("software_tree")
+                var selectedNode = zTree.getSelectedNodes();
+                up.setOption('multipart_params', getOtherParam(selectedNode[0]));
+            },
+            UploadComplete: function(up, file) {
+                var zTree = $.fn.zTree.getZTreeObj("software_tree")
+                var selectedNode = zTree.getSelectedNodes();
+                zTree.reAsyncChildNodes(selectedNode[0], "refresh", false)
+            },
+        }
+    });
+
+    $.fn.zTree.init($("#image_tree"), image_setting, imag_zNodes);
+    $.fn.zTree.init($("#software_tree"), software_setting, software_zNodes);
+
+    $("#image_uploader").hide();
+    $("#software_uploader").hide();
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<link href="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/css/jquery.plupload.queue.css" %}" rel="stylesheet">
+<link href="{% static "clc/zTree_v3/css/zTreeStyle/zTreeStyle.css" %}" rel="stylesheet">
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <!-- .panel-heading -->
+            <div class="panel-body">
+                <div class="panel-group" id="accordion">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                                   class="collapsed">Upload Raw Images</a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse" style="height: 0px;">
+                            <div class="panel-body">
+                                <div class="col-lg-6">
+                                    <p>Step 1: create and select directory</p>
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            Image Directory in Server
+                                            <div class="pull-right">
+                                                <div class="btn-group">
+                                                    <button id="add_image_node" type="button" class="btn btn-default btn-xs">Add</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.panel-heading -->
+                                        <div class="panel-body">
+                                            <div id="selected_image_folder" style="display:none"></div>
+                                            <ul id="image_tree" class="ztree" style="height:250px; overflow:auto;"></ul>
+                                        </div>
+                                        <!-- .panel-body -->
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <p>Step 2: Select image file to upload</p>
+                                        <div id="image_uploader" style="height:330px; overflow:auto;">Your browser doesn't support HTML5.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
+                                   class="collapsed">Upload Software</a>
+                            </h4>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse" style="height: 0px;">
+                            <div class="panel-body">
+                                <div class="col-lg-6">
+                                    <p>Step 1: create and select directory</p>
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            Software Directory in Server
+                                            <div class="pull-right">
+                                                <div class="btn-group">
+                                                    <button id="add_software_node" type="button" class="btn btn-default btn-xs">Add</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.panel-heading -->
+                                        <div class="panel-body">
+                                            <div id="selected_software_folder" style="display:none"></div>
+                                            <ul id="software_tree" class="ztree" style="height:250px; overflow:auto;"></ul>
+                                        </div>
+                                        <!-- .panel-body -->
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <p>Step 2: select files to upload</p>
+                                    <div id="software_uploader" style="height:330px; overflow:auto;">Your browser doesn't support HTML5.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- .panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "clc/jtable/template.html" %}
+{% load i18n %}
+
+
+{% block myjs %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myjtable').jtable({
+            jqueryuiTheme: true,
+
+            title: 'ethers list for cluster {{ ccname }}',
+            selecting: true, //Enable selecting
+
+            sorting: true, //Enable sorting
+            defaultSorting: 'Name ASC', //Set default sorting
+
+            actions: {
+                listAction:    '/clc/api/1.0/ethers/list/{{ccname}}',
+                createAction:  '/clc/api/1.0/ethers/create/{{ccname}}',
+                updateAction:  '/clc/api/1.0/ethers/update',
+                deleteAction:  '/clc/api/1.0/ethers/delete'
+            },
+
+            fields: {
+                id: {
+                    key: true,
+                    list: false,
+                    edit: false,
+                    create: false
+                },
+                cc_name: {
+                    title: 'ccname',
+                    width: '10%',
+                    edit: false,
+                    list: false,
+                    create: false,
+                },
+                mac: {
+                    title: 'MAC Addr',
+                    width: '30%',
+                    edit: false,
+                    create: false,
+                },
+                ip: {
+                    title: 'IP Addr',
+                    width: '30%',
+                },
+                ex_web_port: {
+                    title: 'External Web Port',
+                    width: '30%',
+                },
+                insid: {
+                    title: 'Instance ID',
+                    width: '30%',
+                    edit: false,
+                    create: false,
+                },
+            },
+
+        });
+
+        //Load student list from server
+        $('#myjtable').jtable('load');
+    });
+
+</script>
+{% endblock %}

@@ -27,13 +27,17 @@ def registerMyselfasCLC():
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()
-    url = 'http://%s/clc/api/1.0/register/server' % clcip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/clc/api/1.0/register/server' % clcip
+    else:
+        url = 'http://%s/clc/api/1.0/register/server' % clcip
     payload = {
         'role': 'clc',
         'name': hostname,
-        'cpus': hostcpus,
+        'cores': hostcpus,
         'memory': hostmem,
         'disk': hostdisk,
+        'exip': netlist['exip'],
         'ip0': netlist['ip0'],
         'ip1': netlist['ip1'],
         'ip2': netlist['ip2'],
@@ -42,6 +46,7 @@ def registerMyselfasCLC():
         'mac1': netlist['mac1'],
         'mac2': netlist['mac2'],
         'mac3': netlist['mac3'],
+        'ccname':'',
     }
     r = requests.post(url, data=payload)
     return r.status_code

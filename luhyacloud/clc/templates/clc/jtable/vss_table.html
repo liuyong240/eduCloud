@@ -1,0 +1,149 @@
+{% extends "clc/jtable/template.html" %}
+{% load i18n %}
+
+
+{% block myjs %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myjtable').jtable({
+            jqueryuiTheme: true,
+
+            title: 'cloud server list',
+            selecting: true, //Enable selecting
+
+            sorting: true, //Enable sorting
+            defaultSorting: 'Name ASC', //Set default sorting
+
+            actions: {
+                listAction:    '/clc/api/1.0/vss/list',
+            },
+
+            fields: {
+                id: {
+                    key: true,
+                    list: false,
+                    edit: false,
+                    create: false
+                },
+                //CHILD TABLE DEFINITION FOR "EXAMS"
+                mychild: {
+                    title: '',
+                    width: '3%',
+                    sorting: false,
+                    edit: false,
+                    create: false,
+                    display: function (vssData) {
+                        //Create an image that will be used to open child table
+                        var $img = $('<img src="/static/clc/pics/list_metro.png" />');
+                        //Open child table when user clicks the image
+                        $img.click(function () {
+                            $('#myjtable').jtable('openChildTable',
+                                    $img.closest('tr'), {
+                                    title: 'Cloud Server ' + vssData.record.name + ' Detail Description',
+                                    actions: {
+                                        listAction: function (postData, jtParams) {
+                                                return {
+                                                    "Result": "OK",
+                                                    "Records": [{ "description": vssData.record.description }],
+                                                    "TotalRecordCount": 1
+                                                };
+                                            }
+                                    },
+                                    fields: {
+                                        description: {
+                                            title: '',
+                                            display: function (data) {
+                                                return '<pre>' + data.record.description + '</pre>';
+                                            }
+                                        },
+
+                                    }
+                                }, function (data) { //opened handler
+                                    data.childTable.jtable('load');
+                                });
+                        });
+                        //Return image to show on the person row
+                        return $img;
+                    }
+                },
+                insid: {
+                    title: 'Instance ID',
+                    width: '10%',
+                    edit: false,
+                    create: false,
+                },
+                imageid: {
+                    title: 'Image ID',
+                    width: '10%',
+                    edit: false,
+                    create: false,
+                },
+                name: {
+                    title: 'Name',
+                    width: '10%',
+                    create: false,
+                },
+                state: {
+                    title: 'VM State',
+                    width: '10%',
+                    create: false,
+                },
+                description: {
+                    title: 'Description',
+                    width: '10%',
+                    create: false,
+                    list: false,
+                },
+                cc: {
+                    title: 'Cluster',
+                    width: '10%',
+                    create: false,
+                },
+                nc: {
+                    title: 'Node',
+                    width: '10%',
+                    create: false,
+                },
+                cpus: {
+                    title: 'CPUs',
+                    width: '5%',
+                    create: false,
+                },
+                memory: {
+                    title: 'Memory',
+                    width: '5%',
+                    create: false,
+                },
+                mac: {
+                    title: 'MAC Addr',
+                    width: '10%',
+                    create: false,
+                },
+            },
+            //Register to selectionChanged event to hanlde events
+            selectionChanged: function () {
+                //Get all selected rows
+                var $selectedRows = $('#myjtable').jtable('selectedRows');
+
+                if ($selectedRows.length > 0) {
+                    $selectedRows.each(function () {
+                        //Show selected rows
+                        var record = $(this).data('record');
+                        window.parent.vssSelected(record.insid, record.imageid);
+
+                    });
+                } else {
+                    //No rows selected
+                    window.parent.vssSelected(null, null);
+                }
+            },
+        });
+
+        //Load student list from server
+        $('#myjtable').jtable('load');
+    });
+
+</script>
+{% endblock %}

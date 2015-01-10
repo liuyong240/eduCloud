@@ -47,19 +47,32 @@ list of daemon and worker thread
        - create & run vm
 '''
 
+def perform_mount():
+    # mount cc's /storage/space/ to local
+    ccip = getccipbyconf()
+    base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space  /storage/space'
+
+    if not os.path.ismount('/storage/space'):
+        cmd = base_cmd % (ccip)
+        os.system(cmd)
+
 def registerMyselfasNC():
     ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
     ccname = getccnamebyconf()
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()
-    url = 'http://%s/cc/api/1.0/register/server' % ccip
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/register/server' % ccip
+    else:
+        url = 'http://%s/cc/api/1.0/register/server' % ccip
     payload = {
         'role': 'nc',
         'name': hostname,
-        'cpus': hostcpus,
+        'cores': hostcpus,
         'memory': hostmem,
         'disk': hostdisk,
+        'exip': netlist['exip'],
         'ip0': netlist['ip0'],
         'ip1': netlist['ip1'],
         'ip2': netlist['ip2'],
@@ -71,15 +84,21 @@ def registerMyselfasNC():
         'ccname': ccname,
     }
     r = requests.post(url, data=payload)
-    return r.content
+    msg = json.loads(r.content)
+    if msg['Result'] == "OK":
+ 	logger.error("register NC %s succeed !" % netlist['ip0'])
+    else:
+	logger.error("register NC %s failed !" % netlist['ip0'])
 
 
 def main():
     # read /storage/config/cc.conf to register itself to cc
     registerMyselfasNC()
 
+    perform_mount()
+
     # start main loop to start & monitor thread
-    thread_array = ['nc_cmdConsumerThread']
+    thread_array = ['nc_cmdConsumerThread', 'nc_statusPublisherThread']
     bucket = Queue.Queue()
 
     for daemon in thread_array:

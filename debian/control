@@ -13,5 +13,5 @@ Description: educloud client package
 
 Package: educloud-server
 Architecture: all
-Depends: memcached, libmemcached-tools, mysql-server, libmysqld-dev, libmysqlclient-dev, apache2, rabbitmq-server, libapache2-mod-wsgi, python2.7, python-dev, ifstat, sudo,  openssh-server, python-pip
+Depends: memcached, libmemcached-tools, mysql-server, libmysqld-dev, libmysqlclient-dev, apache2, rabbitmq-server, libapache2-mod-wsgi, python2.7, python-dev, ifstat, sysstat, sudo, openssh-server, python-pip
 Description: educloud server package

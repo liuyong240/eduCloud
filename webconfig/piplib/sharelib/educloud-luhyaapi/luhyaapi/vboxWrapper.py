@@ -1,35 +1,63 @@
 # coding=UTF-8
 
 import os
+from luhyaTools import *
+
+def get_vm_hdds():
+    cmd = 'vboxmanage list hdds | grep Location'
+    output = commands.getoutput(cmd)
+
+    result = []
+    if len(output) > 0:
+        hdds = output.split()
+        num_of_hdds = len(hdds)/2
+        for x in range(0, num_of_hdds):
+            hd = hdds[2*x+1].strip()
+            result.append(hd)
+
+    return result
+
+def getVMlist():
+    cmd = "VBoxManage list vms"
+    out, err = execute_cmd(cmd, True)
+
+    result = []
+    if len(out) > 0:
+        vms = out.split()
+        num_of_vms = len(vms)/2
+        for x in range(0, num_of_vms):
+            vm = {}
+            vm['insid'] = vms[2*x].replace('"', '')
+            vm['uuid'] = vms[2*x+1].replace('{', '').replace('}', '')
+
+            vm_cmd = "vboxmanage showvminfo %s" % vm['insid']
+            out, err = execute_cmd(vm_cmd, True)
+            out = out.split('\n')
+            vm['guest_os'] =  out[2].split(':')[1].strip()  # line 3
+            tmp            =  out[8].split(':')[1].strip()  # line 9
+            vm['mem']      =  int(tmp.split('MB')[0])/1024
+            vm['vcpu']     =  int(out[15].split(':')[1].strip()) # line 16
+            state          =  out[35].split(':')[1].strip()
+            if state.find('running') >= 0:
+                vm['state'] = 'Running'
+            else:
+                vm['state'] = 'Stopped'
+
+            result.append(vm)
+
+    return result
 
 class vboxWrapper():
-    def __init__(self, imageID, rootdir):
+    def __init__(self, imageID, name, rootdir):
         self._rootdir = rootdir
         self._baseVMfolder = os.path.join(rootdir, "VMs")
         self._baseImagefolder = os.path.join(rootdir, "images")
-        self._tool = luhyaTools(imageID, rootdir)
+        self._tool = luhyaTools(imageID, name, rootdir)
 
         self._ide_port = 0
         self._ide_device = -1
         self._sata_port = -1
         self._sata_device = 0
-
-    def increaseVersionNo(self, version_no="1.0.0"):
-        major, minor, build = version_no.split('.')
-        major = int(major)
-        minor = int(minor)
-        build = int(build)
-
-        build += 1
-        if build > 100:
-            build = 0
-            minor += 1
-            if minor > 100:
-                minor = 0
-                major += 1
-
-        return ("%d.%d.%d" % (major, minor, build))
-
 
     def cloneImageFile(self, src, dst):
         cmd_line = "VBoxManage clonehd " + src + " " + dst
@@ -158,12 +186,15 @@ class vboxWrapper():
         ret, err = self._tool.runCMDline(cmd_line)
         return ret, err
 
-    def modifyVM(self, mem=1024, vram=128, osTypeparam=" "):
+    def modifyVM(self, osTypeparam, cpus=1, mem=1024, vram=128):
         vm_name = self._tool._vmname
 
         memstr = " --memory " + str(mem)
         vramstr = " --vram " + str(vram)
-        dstr = " --accelerate2dvideo on "
+        if "Windows" in self._ostype:
+            dstr = " --accelerate2dvideo on "
+        else:
+            dstr = " "
         bioslogfade = " --bioslogofadein off --bioslogofadeout off "
         bioslogimgpath = " --bioslogoimagepath " + os.path.join(self._rootdir, "bin", "res", "BiosLogo.bmp")
         bootorder = " --boot1 disk "
@@ -196,95 +227,57 @@ class vboxWrapper():
 
         return ostypepara
 
-    def addCtrl(self):
+    def addCtrl(self, storagectl):
         vm_name = self._tool._vmname
-        storagectl = self.getVMStorageCtrl(self._ostype)
-        self._storagectltype = storagectl.split()[1]
 
-        firstCtl = " --name IDE --add ide "
-        cmd_line = "VBoxManage storagectl " + vm_name + firstCtl
-        ret, err = self._tool.runCMDline(cmd_line)
-
-        secondCtl = " --name SATA --add sata "
-        cmd_line = "VBoxManage storagectl " + vm_name + secondCtl
+        cmd_line = "VBoxManage storagectl " + vm_name + storagectl
         ret, err = self._tool.runCMDline(cmd_line)
 
         return ret, err
 
-    def portDeviceNumberAdd(self, hddtype = ""):
-		if hddtype == "IDE" or self._storagectltype == "IDE":
-			self._ide_device += 1
-			return self._ide_port, self._ide_device
-		elif hddtype == "SATA" or self._storagectltype == "SATA":
-			self._sata_port += 1
-			return self._sata_port, self._sata_device
-		else:
-			return 100, 100
-
-    def attachHDD_c(self, storageCtl="IDE", mtype="normal", admin=False):
-        vm_name = self._tool._vmname
-        vmfile = self._tool._image_file
-
-        port, device = self.portDeviceNumberAdd()
-        cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', self._storagectltype, '--port', str(port), '--device',
-                    str(device), '--type', 'hdd', '--medium', vmfile, '--mtype', mtype]
-        ret, err = self._tool.runCMDline(cmd_line, False)
-        return ret, err
-
-    def attachHDD_d(self, storageCtl="IDE", mtype="writethrough"):
-        vm_name = self._tool._vmname
-
-        # clone diskd for imageID
-        origin_diskd = os.path.join(self._rootdir, "images", "diskd.vdi")
-        dest_diskd = os.path.join(self._rootdir, "images", vm_name, vm_name+"_d.vdi")
-        if not os.path.exists(dest_diskd):
-            cmd_line = ["vboxmanage", "clonehd", origin_diskd, dest_diskd]
-            ret, err = self._tool.runCMDline(cmd_line, False)
-
-        port, device = self.portDeviceNumberAdd()
-        cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', self._storagectltype, '--port', str(port), '--device',
-                    str(device), '--type', 'hdd', '--medium', dest_diskd, '--mtype', mtype]
-        ret, err = self._tool.runCMDline(cmd_line, False)
-        return ret, err
-
-    def attachHDD_shared_d(self, storageCtl="IDE", mtype="multiattach",
-                           imgfile="/storage/images/diskd.vdi"):
-        vm_name = self._tool._vmname
-        dest_diskd = imgfile
-
-        if self._storagectltype == "SATA":
-            return " ", " "
-
-        if os.path.exists(dest_diskd):
-            port, device = self.portDeviceNumberAdd("IDE")
-            cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', 'IDE', '--port', str(port), '--device',
-                        str(device), '--type', 'hdd', '--medium', dest_diskd, '--mtype', mtype]
-            ret, err = self._tool.runCMDline(cmd_line, False)
+    def portDeviceNumberAdd(self, hddtype):
+        port = 0
+        device = 0
+        if hddtype == "IDE":
+            self._ide_device += 1
+            port = self._ide_port
+            device = self._ide_device
         else:
-            err = "FileNotExist: /storage/images/diskd.vdi"
+            self._sata_port += 1
+            port =  self._sata_port
+            device = self._sata_device
+        return port, device
+
+    def attachHDD(self, storageCtl, mtype, imgfile):
+        ret = ""
+        err = ""
+        vm_name = self._tool._vmname
+        if not os.path.exists(imgfile):
+            err = "FileNotExist: " + imgfile
+        else:
+            port, device = self.portDeviceNumberAdd(storageCtl)
+            cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device', str(device), '--type', 'hdd', '--medium', imgfile, '--mtype', mtype]
+            ret, err = self._tool.runCMDline(cmd_line, False)
+
         return ret, err
 
     # vboxmanage storageattach test  --storagectl IDE --port 1 --device 0 --type dvddrive --medium host:/dev/sr0 --mtype readonly --passthrough on
     def attachDVD(self, storageCtl="IDE", mtype="readonly"):
         ret = ""
         err = ""
-        if os.path.exists("/dev/sr0"):
+        if not os.path.exists("/dev/sr0"):
+            err = "DVD Not Exist"
+        else:
             vm_name = self._tool._vmname
-            port, device = self.portDeviceNumberAdd()
-            cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', self._storagectltype, '--port', str(port), '--device',
-                        str(device), '--type', 'dvddrive', '--medium', 'host:/dev/sr0', '--mtype', mtype, '--passthrough', 'on']
+            port, device = self.portDeviceNumberAdd(storageCtl)
+            cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', self._storagectltype, '--port', str(port), '--device', str(device), '--type', 'dvddrive', '--medium', 'host:/dev/sr0', '--mtype', mtype, '--passthrough', 'on']
             ret, err = self._tool.runCMDline(cmd_line, False)
         return ret, err
 
-    def attachSharedFolder(self, path=None):
+    def attachSharedFolder(self, path):
         vm_name = self._tool._vmname
-        if path == None:
-            conf = configuration(self._tool._conf);
-            sharedfolder_path = conf.getvalue("sharedfolder", "hostpath")
-        else:
-            sharedfolder_path = path
 
-        cmd_line = "vboxmanage sharedfolder add " + vm_name + " --name software " + " --hostpath " + sharedfolder_path + " --automount "
+        cmd_line = "vboxmanage sharedfolder add " + vm_name + " --name software " + " --hostpath " + path + " --automount "
         ret, err = self._tool.runCMDline(cmd_line)
         return ret, err
 

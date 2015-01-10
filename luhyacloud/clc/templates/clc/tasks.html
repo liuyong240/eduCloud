@@ -3,33 +3,16 @@
 
 {% block content %}
             <div class="row">
-                <div class="col-lg-8">
+                <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <i class="fa fa-bar-chart-o fa-fw"></i> task Overview
-                            <div class="pull-right">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                                        Actions
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu pull-right" role="menu">
-                                        <li><a href="#">Action</a>
-                                        </li>
-                                        <li><a href="#">Another action</a>
-                                        </li>
-                                        <li><a href="#">Something else here</a>
-                                        </li>
-                                        <li class="divider"></li>
-                                        <li><a href="#">Separated link</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <div id="taskid" style="display: none;"></div>
+                            <button id="view"   type="button" class="btn btn-default disabled">View</button>
+                            <button id="delete" type="button" class="btn btn-default disabled">Delete</button>
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
-                            <div id="morris-area-chart"></div>
+                            <iframe id="myiframe" src="jt/tasks" frameborder="0" width="100%"></iframe>
                         </div>
                         <!-- /.panel-body -->
                     </div>
@@ -40,4 +23,46 @@
 
             </div>
             <!-- /.row -->
+{% endblock %}
+
+{% block myjs %}
+
+<script type="text/javascript" language="javascript">
+    $('#myiframe').css('height', $(window).height()+'px');
+</script>
+
+<script type="text/javascript" language="javascript">
+function taskSelected(taskid){
+    if (taskid == null) {
+        $('#view').addClass('disabled');
+        $('#delete').addClass('disabled');
+        $('#taskid').html(null);
+    } else {
+        $('#view').removeClass('disabled');
+        $('#delete').removeClass('disabled');
+        $('#taskid').html(taskid);
+    }
+}
+
+$(document).ready(function()
+{
+  $("#view").click(function(){
+        taskid=$("#taskid").text().split(':')
+
+        url="/clc/image/create/task/view/" + taskid[0] + '/' + taskid[1] + '/' + taskid[2];
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, '', 'height=350,width=800,left=' + left + ',top=' + top);
+
+  });
+
+  $("#delete").click(function(){
+        taskid=$("#taskid").text().split(':')
+
+        url="/clc/image/create/task/delete/" + taskid[0] + '/' + taskid[1] + '/' + taskid[2];
+
+  });
+});
+
+</script>
 {% endblock %}

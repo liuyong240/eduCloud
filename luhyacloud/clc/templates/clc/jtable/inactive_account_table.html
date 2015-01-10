@@ -1,0 +1,173 @@
+{% extends "clc/jtable/template.html" %}
+{% load i18n %}
+
+{% block myfilter %}
+<div class="filtering">
+    <form>
+        <p>
+           Name:<input type="text"  id="ec_username" />
+           Display Name:<input type="text" id="ec_displayname" />
+           <button type="submit" id="LoadRecordsButton">Filter Accounts</button>
+        </p>
+        <!--<p>
+            Email:<input type="text" id="ec_email" />
+            Phone:<input type="text" id="ec_phone" />
+        </p>
+        <p>
+        Admin:<input type="text" id="ec_supper_user" />
+        Role:<input type="text" id="ec_authpath_name" />
+        </p>-->
+
+    </form>
+</div>
+<p></p>
+{% endblock %}
+
+
+{% block myjs %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myjtable').jtable({
+            jqueryuiTheme: true,
+
+            title: 'Inactive Account List',
+            selecting: true, //Enable selecting
+
+            sorting: true, //Enable sorting
+            defaultSorting: 'Name ASC', //Set default sorting
+
+            actions: {
+                listAction:    '/clc/api/1.0/account/inactive/list',
+                updateAction:  '/clc/api/1.0/account/active/update',
+                deleteAction:  '/clc/api/1.0/account/active/delete'
+            },
+
+            fields: {
+                id: {
+                    key: true,
+                    list: false,
+                    edit: false,
+                    create: false
+                },
+                //CHILD TABLE DEFINITION FOR "EXAMS"
+                mychild: {
+                    title: '',
+                    width: '3%',
+                    sorting: false,
+                    edit: false,
+                    create: false,
+                    display: function (accountData) {
+                        var $img = $('<img src="/static/clc/pics/list_metro.png" />');
+                        //Open child table when user clicks the image
+                        $img.click(function () {
+                            $('#myjtable').jtable('openChildTable',
+                                    $img.closest('tr'), {
+                                    title: accountData.record.ec_username + '\'s Cloud Desktop Parameters',
+                                    actions: {
+                                        listAction: function (postData, jtParams) {
+                                                return {
+                                                    "Result": "OK",
+                                                    "Records": [{ "vdpara":  accountData.record.vdpara,
+                                                                  "ec_desc": accountData.record.ec_desc, }],
+                                                    "TotalRecordCount": 1
+                                                };
+                                            }
+                                    },
+                                    fields: {
+                                        vdpara: {
+                                            title: '',
+                                            display: function (data) {
+                                                return '<pre>' + data.record.vdpara + '</pre>';
+                                            }
+                                        },
+                                        ec_desc: {
+                                            title:'description',
+                                            display: function (data) {
+                                                return '<pre>' + data.record.ec_desc + '</pre>';
+                                            }
+                                        }
+                                    }
+                                }, function (data) { //opened handler
+                                    data.childTable.jtable('load');
+                                });
+                        });
+                        //Return image to show on the person row
+                        return $img;
+                    }
+                },
+                ec_username: {
+                    title: 'name',
+                    width: '10%',
+                    edit: false,
+                },
+                ec_displayname: {
+                    title: 'display name',
+                    width: '10%',
+                },
+                ec_email: {
+                    title: 'email',
+                    width: '10%',
+                },
+                ec_phone: {
+                    title: 'phone',
+                    width: '10%',
+                },
+                ec_supper_user: {
+                    title: 'supper',
+                    width: '10%',
+                },
+                ec_authpath_name: {
+                    title: 'role',
+                    width: '50%',
+                    options: '/clc/api/1.0/settings/authpath/option/list'
+                },
+                vdpara: {
+                    title: 'Parameters',
+                    type: 'textarea',
+                    list: false
+                },
+                ec_desc: {
+                    title: 'desc',
+                    type: 'textarea',
+                    list: false
+                },
+            },
+            //Register to selectionChanged event to handle events
+            selectionChanged: function () {
+                //Get all selected rows
+                var $selectedRows = $('#myjtable').jtable('selectedRows');
+
+                if ($selectedRows.length > 0) {
+                    $selectedRows.each(function () {
+                        //Show selected rows
+                        var record = $(this).data('record');
+                        window.parent.i_userSelected(record.ec_username);
+                    });
+                } else {
+                    //No rows selected
+                    window.parent.i_userSelected(null);
+                }
+            },
+        });
+
+        //Re-load records when user click 'load records' button.
+        $('#LoadRecordsButton').click(function (e) {
+            e.preventDefault();
+
+            $('#myjtable').jtable('load', {
+                ec_username: $("#ec_username").val(),
+                ec_displayname: $("#ec_displayname").val(),
+            });
+        });
+
+        //Load all records when page is first shown
+        $('#LoadRecordsButton').click();
+
+        //Load student list from server
+        //$('#myjtable').jtable('load');
+    });
+
+</script>
+{% endblock %}

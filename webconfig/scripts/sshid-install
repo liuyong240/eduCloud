@@ -1,0 +1,9 @@
+#! /bin/bash
+SRC_ROOT=/mnt/src/eduCloud
+sudo cp $SRC_ROOT/debian/fuse.conf /etc/
+
+sudo adduser $USER fuse
+ssh-keygen
+echo "Type the $1 ip address, followed by [ENTER]:"
+read ip
+ssh-copy-id $ip

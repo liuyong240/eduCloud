@@ -15,7 +15,7 @@ def simple_send(logger, serverIP, queue_name, message):
                           routing_key=queue_name,
                           body=message)
     connection.close()
-    logger.error("luhya: send message %s to %s" % (message, queue_name))
+    # logger.error("luhya: send message %s to %s in %s" % (message, queue_name, serverIP))
 
 def routing_send(logger, serverIP, exchangeName,  message, routingKey):
     connection = getConnection(serverIP)
@@ -53,14 +53,14 @@ class RpcClient(object):
         if self.corr_id == props.correlation_id:
             self.response = body
 
-    def call(self, cmd, paras, timeout=0):
+    def call(self, cmd, tid, paras, timeout=0):
         self.response = None
         self.corr_id = str(uuid.uuid4())
 
         payload = {
-            'type'  :   'cmd',
             'op'    :   cmd,
-            'paras' :   paras
+            'tid'   :   tid,
+            'paras' :   paras,
         }
         payload = json.dumps(payload)
         self.channel.basic_publish(exchange='',

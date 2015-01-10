@@ -7,6 +7,34 @@ from django.forms import ModelForm
 # Basic setting for system
 #==============================================
 
+# mysql> describe auth_user;
+# +--------------+--------------+------+-----+---------+----------------+
+# | Field        | Type         | Null | Key | Default | Extra          |
+# +--------------+--------------+------+-----+---------+----------------+
+# | id           | int(11)      | NO   | PRI | NULL    | auto_increment |
+# | password     | varchar(128) | NO   |     | NULL    |                |
+# | last_login   | datetime     | NO   |     | NULL    |                |
+# | is_superuser | tinyint(1)   | NO   |     | NULL    |                |
+# | username     | varchar(30)  | NO   | UNI | NULL    |                |
+# | first_name   | varchar(30)  | NO   |     | NULL    |                |
+# | last_name    | varchar(30)  | NO   |     | NULL    |                |
+# | email        | varchar(75)  | NO   |     | NULL    |                |
+# | is_staff     | tinyint(1)   | NO   |     | NULL    |                |
+# | is_active    | tinyint(1)   | NO   |     | NULL    |                |
+# | date_joined  | datetime     | NO   |     | NULL    |                |
+# +--------------+--------------+------+-----+---------+----------------+
+class ecAccount(models.Model):
+    userid              = models.CharField(max_length=30)
+    showname            = models.CharField(max_length=30)
+    ec_authpath_name    = models.CharField(max_length=100)
+    phone               = models.CharField(max_length=30)
+    description         = models.TextField()
+    vdpara              = models.TextField()
+
+# Auth Rule for ecAccount DB
+# - a.b.admin can manage all account with auth_name looks like a.b.*
+# - a.b.admin can get full control on all resource a.b.*
+
 class ecAuthPath(models.Model):
     ec_authpath_name = models.CharField(max_length=100)
     ec_authpath_value = models.CharField(max_length=100)
@@ -34,9 +62,10 @@ class ecOSTypes(models.Model):
     # Windows:  Windows XP, Windows 7, Windows 2003, Windows 2008, Windows 2012
     # Linux:    Ubuntu, Ubuntu_64
     # ostype already include 32/64bit information
-    ec_ostype = models.CharField(max_length=20)
-    ec_storagectl = models.CharField(max_length=500)
-    ec_waishe_para = models.CharField(max_length=500)
+    ec_ostype      = models.CharField(max_length=20)
+    ec_disk_type   = models.CharField(max_length=100)
+    ec_nic_type    = models.CharField(max_length=100)
+    ec_audio_para  = models.CharField(max_length=100)
 
 # currently only 2 value: Server and Desktop
 class ecVMUsages(models.Model):
@@ -65,11 +94,14 @@ class ecVMTypes(models.Model):
     memory = models.IntegerField(default=1)
     cpus = models.IntegerField(default=1)
 
+class ecNetworkMode(models.Model):
+    networkmode = models.CharField(max_length=100) # flat, tree
+    description = models.TextField()
+
 #==============================================
 # Core table definition
 #==============================================
 class ecServers(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
 
     # an array of roles' value, should be json string
     role = models.CharField(max_length=100)
@@ -78,6 +110,7 @@ class ecServers(models.Model):
     ip1 = models.CharField(max_length=20)
     ip2 = models.CharField(max_length=20)
     ip3 = models.CharField(max_length=20)
+    eip = models.CharField(max_length=20)
 
     # used for remote LAN-awake, or WAN-awake.
     mac0 = models.CharField(max_length=20)
@@ -88,15 +121,66 @@ class ecServers(models.Model):
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
 
-    cpus = models.IntegerField(default=0)
+    cpu_cores = models.IntegerField(default=0)
     memory = models.IntegerField(default=0)
     disk = models.IntegerField(default=0)
 
     ccname = models.CharField(max_length=100)
 
-class ecHosts(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
+class ecServers_auth(models.Model):
+    mac0        = models.CharField(max_length=20)
+    srole        = models.CharField(max_length=100)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
 
+class ecCCResources(models.Model):
+    ccmac0              = models.CharField(max_length=20)
+    ccname              = models.CharField(max_length=100)
+    cc_usage            = models.CharField(max_length=20) #lvd, rvd, vss, app
+
+    # below are necessary for vds
+    rdp_port_pool_def   = models.CharField(max_length=100) # port1-port2
+    rdp_port_pool_list  = models.TextField()  # [port1, port2, port3, ... ... ]
+    used_rdp_ports      = models.TextField()  # [port1, port2, ports, ... ... ]
+
+    network_mode        = models.CharField(max_length=20) # default = flat, or tree
+
+    # valid only if usage is vs, app
+    dhcp_service        = models.CharField(max_length=20) # default = public, or private
+
+    # valid only if dhcp service is private and cc_usage is vs, or app
+    dhcp_pool_def       = models.CharField(max_length=100) # port1-port2
+    dhcp_interface      = models.CharField(max_length=20)  # default is cc's eth0
+
+    # valid only if network_mode is tree and cc_usage is vs, app
+    # all these pub ip will be configured on cc's network card, say eth0.0, eth0.1, etc
+    # and followed by iptable rule to redirect traffic on this interface to nc's vm's web_ip
+    pub_ip_pool_def   = models.CharField(max_length=100)
+    pub_ip_pool_list  = models.TextField()
+    used_pub_ip       = models.TextField()
+
+class ecPortForwardRules(models.Model):
+    ccname                = models.CharField(max_length=100)
+    srcip                 = models.CharField(max_length=20)
+    dstip                 = models.CharField(max_length=20)
+    srcport               = models.IntegerField(default=0)
+    dstport               = models.IntegerField(default=0)
+    insid                 = models.CharField(max_length=20)
+
+class ecDHCPEthers(models.Model):
+    # valid only if cc_usage is vs, app
+    ccname                = models.CharField(max_length=100)
+    mac                   = models.CharField(max_length=20)
+    ip                    = models.CharField(max_length=20)
+    ex_web_proxy_port     = models.IntegerField(default=0)
+    insid                 = models.CharField(max_length=20)
+
+# for all NCs that support LVD
+class ecTerminal(models.Model):
     ip  = models.CharField(max_length=20)
     wip = models.CharField(max_length=20)
 
@@ -111,91 +195,159 @@ class ecHosts(models.Model):
     memory = models.IntegerField(default=0)
     disk = models.IntegerField(default=0)
 
-    # value as json formate, display value by a function
+    # auto_sync = 1,
+    # auto_poweroff=1
+    # offline_enabled=1
+    # is_pad=0
+    # auto_guest_attr_update=0
     runtime_option = models.TextField()
 
-class ecImages(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
+class ecTerminal_auth(models.Model):
+    mac0        = models.CharField(max_length=20)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
 
+#
+# Images
+#
+class ecImages(models.Model):
     ecid = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=100)
 
     ostype = models.CharField(max_length=20)
 
     # possible value are : desktop, server
-    usage = models.CharField(max_length=20)
+    img_usage = models.CharField(max_length=20)
 
     description = models.TextField()
     version = models.CharField(max_length=10)
-    size = models.IntegerField(default=0)
+    size = models.FloatField(default=0)
 
+class ecImages_auth(models.Model):
+    ecid        = models.CharField(max_length=20)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+
+#
+# Instance and VMs
+#
 class ecVAPP(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
+    appid = models.CharField(max_length=20, unique=True)
+
+class ecVAPP_auth(models.Model):
+    appid       = models.CharField(max_length=20)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
 
 
 class ecVSS(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
-
-    ecid = models.CharField(max_length=10, unique=True)
-    imageid = models.CharField(max_length=10)
-    name = models.CharField(max_length=100)
-
-    vmtypename = models.CharField(max_length=20)
-
-    # host server(IP or any), access mode/para,  persistent/temperary,
-    # network(manage IP, access IP, internal IP, etc)
-    # rdp port
-    # should be a json string
-    runtime_option = models.TextField()
-
+    insid       = models.CharField(max_length=20, unique=True)
+    imageid     = models.CharField(max_length=20)
+    name        = models.CharField(max_length=100)
     description = models.TextField()
+
+    creator     = models.CharField(max_length=100)
+
+    cc_def      = models.CharField(max_length=100)
+    nc_def      = models.CharField(max_length=100)
+
+    cpus    = models.IntegerField(default=1)
+    memory  = models.IntegerField(default=2)
+    mac     = models.CharField(max_length=20)
+
+
+class ecVSS_auth(models.Model):
+    insid       = models.CharField(max_length=20)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
 
 class ecVDS(models.Model):
-    ec_authpath_name = models.CharField(max_length=100)
-
-    ecid = models.CharField(max_length=10, unique=True)
-    imageid = models.CharField(max_length=10)
-    name = models.CharField(max_length=100)
-
-    vmtypename = models.CharField(max_length=20)
-    # host server(IP or any), access mode/para,  persistent/temperary,
-    # network(manage IP, access IP, internal IP, etc)
-    # should be a json string
-    runtime_option = models.TextField()
-
+    insid       = models.CharField(max_length=20, unique=True)
+    imageid     = models.CharField(max_length=20)
+    name        = models.CharField(max_length=100)
     description = models.TextField()
+
+    creator     = models.CharField(max_length=100)
+
+    cc_def      = models.CharField(max_length=100)
+    nc_def      = models.CharField(max_length=100)
+
+    cpus    = models.IntegerField(default=1)
+    memory  = models.IntegerField(default=2)
+
+class ecVDS_auth(models.Model):
+    insid       = models.CharField(max_length=20)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+
+
+class ecLVDS(models.Model):
+    insid       = models.CharField(max_length=20, unique=True)
+    imageid     = models.CharField(max_length=20)
+    name        = models.CharField(max_length=100)
+    description = models.TextField()
+
+    creator     = models.CharField(max_length=100)
+
+    cpus    = models.IntegerField(default=1)
+    memory  = models.IntegerField(default=2)
+
+class ecLVDS_auth(models.Model):
+    insid       = models.CharField(max_length=20)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+
 
 #==============================================
 # Run-time table definition
 #==============================================
 class ectaskTransaction(models.Model):
     tid         = models.CharField(max_length=100, unique=True)
+
     srcimgid    = models.CharField(max_length=20)
     dstimgid    = models.CharField(max_length=20)
     insid       = models.CharField(max_length=20)
     user        = models.CharField(max_length=100)
     phase       = models.CharField(max_length=100)
-    progress    = models.IntegerField(default=0)
-    accessURL   = models.CharField(max_length=500)
+    state       = models.CharField(max_length=100) # init, running, stopped(default)
+    progress    = models.IntegerField(default=0)   # 0(default)-100, -100, <0
     ccip        = models.CharField(max_length=100)
     ncip        = models.CharField(max_length=100)
+    runtime_option = models.TextField()
     message     = models.TextField()
     completed   = models.BooleanField(default=False)
 
-# class ecImageBuildTask(models.Model):
-#     # /tmp/ImageBuildTask/type/oldid/newid/id
-#     type=models.CharField(max_length=10) #{new_build, modify_build}
-#     oldimgid=models.CharField(max_length=10)
-#     newimgid=models.CharField(max_length=10, unique=True)
-#     status=models.CharField(max_length=50) #{cloned, pending, running}
-#     walrusip=models.GenericIPAddressField()
-#     ccip=models.GenericIPAddressField()
-#     ncip=models.GenericIPAddressField()
-#     acurl=models.CharField(max_length=100)
-#
-# class ecImageSyncTask(models.Model):
-#     destip=models.GenericIPAddressField()
-#     destid=models.CharField(max_length=10)
-#     srcfile=models.TextField()
-#     destfile=models.TextField()
-#     status=models.CharField(max_length=10)
+class ectaskTransaction_auth(models.Model):
+    tid         = models.CharField(max_length=100, unique=True)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+    fullctl     = models.BooleanField(default=False)
+

@@ -1,0 +1,99 @@
+{% extends "clc/jtable/template.html" %}
+{% load i18n %}
+
+{% block myjs %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myjtable').jtable({
+            jqueryuiTheme: true,
+
+            // title: 'Tasks List',
+
+            selecting: true, //Enable selecting
+            //selectingCheckboxes: true, //Show checkboxes on first column
+
+            sorting: true, //Enable sorting
+            defaultSorting: 'Name ASC', //Set default sorting
+
+            actions: {
+                listAction:   '/clc/api/1.0/tasks/list',
+                // deleteAction: '/clc/api/1.0/tasks/delete',
+                updateAction: '/clc/api/1.0/tasks/update',
+                // createAction: '/clc/api/1.0/tasks/create'
+            },
+            fields: {
+                id: {
+                    key: true,
+                    edit: false,
+                    create: false,
+                    list: false,
+                },
+                tid: {
+                    edit: false,
+                    create: false,
+                    list: false,
+                },
+                srcimgid: {
+                    title: 'Source ImageID',
+                    width: '10%',
+                    edit: false,
+                },
+                dstimgid: {
+                    title: 'Destine ImageID',
+                    width: '10%',
+                    edit: false,
+                },
+                insid: {
+                    title: 'Instance ID',
+                    width: '10%',
+                    edit: false,
+                },
+                user: {
+                    title: 'Owner',
+                    width: '10%',
+                    edit: false,
+                },
+                phase: {
+                    title: 'Current Phase',
+                    width: '10%',
+                    edit: false,
+                },
+                state: {
+                    title: "VM State",
+                    width: '10%',
+                    edit: true,
+                },
+                completed: {
+                    title: 'Completed',
+                    width: '10%',
+                    list:  false,
+                    edit: false,
+                },
+            },
+            //Register to selectionChanged event to hanlde events
+            selectionChanged: function () {
+                //Get all selected rows
+                var $selectedRows = $('#myjtable').jtable('selectedRows');
+
+                if ($selectedRows.length > 0) {
+                    $selectedRows.each(function () {
+                        //Show selected rows
+                        var record = $(this).data('record');
+                        window.parent.taskSelected(record.tid);
+                    });
+                } else {
+                    //No rows selected
+                    window.parent.taskSelected(null);
+                    //alert("no images selected!");
+                }
+            },
+        });
+
+        //Load student list from server
+        $('#myjtable').jtable('load');
+    });
+
+</script>
+{% endblock %}

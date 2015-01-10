@@ -8,6 +8,17 @@ GUEST_USERNAME = "Administrator"
 GUEST_PASSWORD = "luhya"
 SNAPSHOT_NAME = "luhya-thomas"
 
+def execute_cmd(cmd_line, needsplit=True):
+    import subprocess
+
+    if needsplit:
+        cmd = cmd_line.split()
+    else:
+        cmd = cmd_line
+
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
+    return out, err
 
 class configuration():
     def __init__(self, conf):
@@ -53,15 +64,10 @@ class vmattributes():
             return None
 
 class luhyaTools():
-    def __init__(self, imageID, rootdir):
-        self._vmname = imageID
-
-        self.server_conf = os.path.join(rootdir, "config", "server.conf" )
-        self.host_conf   = os.path.join(rootdir, "config", "host.conf" )
-        self.vm_conf     = os.path.join(rootdir, "config", self._vmname, "vm.conf" )
+    def __init__(self, imageID, name, rootdir):
+        self._vmname = name
 
         self._image_file = os.path.join(rootdir, "images", imageID, "machine")
-        self._image_attr_file = os.path.join(rootdir, "images", imageID, "attributes.conf")
 
     ########################################################
     # get VM property

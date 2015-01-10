@@ -57,13 +57,14 @@
             <ul class="nav navbar-top-links navbar-right">
                 <!-- /.dropdown -->
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ loginname }}
+                    <div id="uid"   style="display: none;">{{ uid }}</div>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="showname">{{ showname }}
                         <i class="fa fa-user fa-fw"></i><i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
-                        <li><a href="#"><i class="fa fa-user fa-fw"></i>{% trans " User Profile" %}</a>
+                        <li><a a href="JavaScript:void(0);" onclick="editUserProfile();"><i class="fa fa-user fa-fw"></i>{% trans " Edit User Profile" %}</a>
                         </li>
-                        <li><a href="#"><i class="fa fa-gear fa-fw"></i>{% trans " Settings" %}</a>
+                        <li><a a href="JavaScript:void(0);" onclick="editPassword();"><i class="fa fa-gear fa-fw"></i>{% trans " Edit Password" %}</a>
                         </li>
                         <li class="divider"></li>
                         <li><a href="/clc/user_logout"><i class="fa fa-sign-out fa-fw"></i>{% trans " Logout" %}</a>
@@ -77,29 +78,51 @@
 
             <div class="navbar-default sidebar" role="navigation">
                 <div class="sidebar-nav navbar-collapse">
-                    <ul class="nav" id="side-menu">  
+                    <ul class="nav" id="side-menu">
                         <li>
-                            <a  href="index"><i class="fa fa-cloud fa-fw"></i>{% trans " System Overview" %}</a>
+                            <a href="settings"><i class="fa fa-globe fa-fw"></i>{% trans " Settings" %}</a>
                         </li>
+
                         <li>
                             <a href="accounts"><i class="fa fa-user fa-fw"></i>{% trans " Accounts" %}</a>
                             <!-- /.nav-second-level -->
                         </li>
+
                         <li>
-                            <a href="#"><i class="fa fa-table fa-fw"></i> Resource<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-                                <li>
-                                    <a href="images"><i class="fa fa-hdd-o fa-fw"></i>{% trans " Images" %}</a>
-                                </li>
-                                <li>
-                                    <a href="hosts"><i class="fa fa-h-square fa-fw"></i>{% trans " Hosts" %}</a>
-                                </li>
-                                <li>
-                                    <a href="settings"><i class="fa fa-globe fa-fw"></i>{% trans " Settings" %}</a>
-                                </li>
-                            </ul>
-                            <!-- /.nav-second-level -->
+                            <a href="images"><i class="fa fa-hdd-o fa-fw"></i>{% trans " Images" %}</a>
                         </li>
+
+                        <li>
+                             <a href="#"><i class="fa fa-h-square fa-fw"></i>{% trans " Computers" %}<span class="fa arrow"></span></a>
+                             <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="clc_mgr"><i class="fa fa-hdd-o fa-fw"></i>{% trans " Cloud Contorl" %}</a>
+                                </li>
+
+
+                                <li>
+                                    <a href="walrus_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Walrus" %}</a>
+                                </li>
+
+                                <li>
+                                    <a href="cc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Cluster" %}</a>
+                                </li>
+
+                                 <li>
+                                    <a href="nc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Node" %}</a>
+                                </li>
+
+                                 <!--
+                                 <li>
+                                    <a href="lnc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Local Node" %}</a>
+                                </li>
+                                 <li>
+                                    <a href="terminal_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud terminal" %}</a>
+                                </li>
+                                -->
+                            </ul>
+                         </li>
+
                         <li>
                             <a href="#"><i class="fa fa-cogs fa-fw"></i>{% trans " Instance" %}<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
@@ -109,14 +132,19 @@
                                 <li>
                                     <a href="rvds"><i class="fa fa-tablet fa-fw"></i>{% trans " Remote Virtual Desktops" %}</a>
                                 </li>
+                                <!--
                                 <li>
                                     <a href="lvds"><i class="fa fa-desktop fa-fw"></i>{% trans " Local Virtual Desktops" %}</a>
                                 </li>
+                                -->
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
                             <a href="tasks"><i class="fa fa-tasks fa-fw"></i>{% trans " Tasks" %}</a>
+                        </li>
+                        <li>
+                            <a href="tools"><i class="fa fa-gear fa-fw"></i>{% trans " Tools" %}</a>
                         </li>
                         
                     </ul>
@@ -142,16 +170,9 @@
     </div>
     <!-- /#wrapper -->
 
-    <!-- jQuery Version 1.11.0 -->
     <script src="{% static "clc/js/jquery-1.11.0.js" %}"></script>
-
-    <!-- Bootstrap Core JavaScript -->
     <script src="{% static "clc/js/bootstrap.min.js" %}"></script>
-
-    <!-- Metis Menu Plugin JavaScript -->
     <script src="{% static "clc/js/plugins/metisMenu/metisMenu.min.js" %}"></script>
-
-    <!-- Morris Charts JavaScript -->
     <script src="{% static "clc/js/plugins/morris/raphael.min.js" %}"></script>
     <script src="{% static "clc/js/plugins/morris/morris.min.js" %}"></script>
     
@@ -159,8 +180,33 @@
     <script src="{% static "clc/js/plugins/morris/morris-data.js" %}"></script>
     -->
 
-    <!-- Custom Theme JavaScript -->
+    <!-- Flot Charts JavaScript -->
+
+    <script src="{% static "clc/js/plugins/flot/excanvas.min.js" %}"></script>
+    <script src="{% static "clc/js/plugins/flot/jquery.flot.js" %}"></script>
+    <script src="{% static "clc/js/plugins/flot/jquery.flot.pie.js" %}"></script>
+    <script src="{% static "clc/js/plugins/flot/jquery.flot.resize.js" %}"></script>
+    <script src="{% static "clc/js/plugins/flot/jquery.flot.tooltip.min.js" %}"></script>
+
     <script src="{% static "clc/js/sb-admin-2.js" %}"></script>
+
+    <script>
+    function editUserProfile() {
+        u_name = $('#uid').text()
+        url="/clc/user/edit_profile/" + u_name;
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, '', 'height=760,width=550,left=' + left + ',top=' + top);
+    }
+
+    function editPassword() {
+        u_name = $('#uid').text()
+        url="/clc/user/edit_password/" + u_name;
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, '', 'height=550,width=650,left=' + left + ',top=' + top);
+    }
+    </script>
 
     {% block myjs %}
     {% endblock %}

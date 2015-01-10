@@ -6,7 +6,8 @@ support both virtual desktop and virtual server, based on vbox, a simple eucalyp
 1.系统架构说明
 
 Luhya私有云平台同时提供了虚拟服务器和虚拟桌面两种服务。它的系统架构说明如下：
-- 系统由6个独立的模块组成，分别是CLC, walrus, cc, sc, nc, watch。 每个独立的模块可以安装在不同的机器上，也可以多个模块安装在一台机器上
+- 系统由6个独立的模块组成，分别是CLC, walrus, cc, sc, nc, watch。
+- 每个独立的模块可以安装在不同的机器上，也可以多个模块安装在一台机器上
 - 每个模块都表现为一个django app
 - 每个django app的数据库是mysql
 - 模块之间的访问是通过web service来实现的，url表现形式如下
@@ -116,10 +117,6 @@ Luhya私有云平台同时提供了虚拟服务器和虚拟桌面两种服务。
    2.1 
 
 
-
-
-
-
 3. 资源管理
    3.1 compute resource(hosts & instances)
    3.2 walrus resource (image)
@@ -144,9 +141,6 @@ Luhya私有云平台同时提供了虚拟服务器和虚拟桌面两种服务。
 7. CloudWatch Service
 7.1 instance Metrics & Dimension
 7.2 enable/disable monitoring
-
-
-
 
 
 Task List:
@@ -201,10 +195,6 @@ A few Typical Scenario
 4. list all images
 5. list all active instance
 6. list all tasks
-
-
-
-
 
 
 ------------------
@@ -497,7 +487,7 @@ V  Network management
 - user access VM from NC directely
 - VM access internet by NC (NC is able to access internet)
 
-5.2.2 Remote Virtual Desktop
+5.2.2 Remote Virtual Desktop(only need port resource allocation)
 
 - In PUBLIC mode, each NC has a public IP addr 
   - VM runs on NC in NAT mode
@@ -514,19 +504,310 @@ V  Network management
 
 Each VS has a PUBLIC IP assigned for access, and these public IP addr is managed by CC's DHCP 
 
-- In PUBLIC mode, each NC has a public IP addr 
+- In PUBLIC mode, each NC has a public IP addr
+  (need public IP pool for VM service, itself, managed by CC DHCP )
+  (need port resouce for VM management)
   - VM runs on NC in bridge mode with assigned Public IP & MAC
   - user access VM by pubIP:port(80)
   - VM access internet by NC (NC is able to access internet)
 
+
 - In PRIVATE mode, each NC has a private IP addr
+  sudo ifconfig eth0:1 10.0.0.100 broadcast 10.0.0.255 netmask 255.255.255.0
+  (need public IP pool for VM service, assigned to CC by IP alias cmd above )
+  (need private IP pool for VM service, managed by CC DHCP)
+  (need port resouce for VM management)
   - CC also manage VMs private IP & mac by its DHCP server
   - VM runs on NC in bridge mode with assigned Private IP & MAC
   - CC add interface alias with related Public IP addr
   - user access VM by CC.pubIP:port, and iptable forwarding it to NC.priIP:port
   - VM access internet by NC (NC is able to access internet)
 
+==========================
+VI Data structure
+==========================
+
+6.1 cmd definition
+
+6.1.1 cmd from cc to nc
+
+{
+    'type'  : 'cmd',
+    'op'    : 'image/create', 'image/modify', 'image/run', 'image/stop', 'image/submit',
+    'paras' :  tid
+}
+
+6.1.2 (RPC)
+cmd from nc to cc
+{
+    'type'  : 'cmd',
+    'op'    : 'image/prepare', 'image/run', 'image/stop', 'image/submit',
+    'paras' :  tid
+}
+result from cc to nc
+{
+    'type'      : 'taskstatus',
+    'phase'     : "downloading", "editing", "submitting"
+    'progress'  : progress,
+    'vmstatus'  : 'init', 'running', 'stopping', 'stopped'
+    'tid'       : tid
+    'errormsg'  : ''
+}
+
+6.1.3 status report message (from nc to cc, from cc to nc)
+{
+    'type'      : 'taskstatus',
+    'phase'     : "downloading", "editing", "submitting"
+    'progress'  : progress,
+    'vmstatus'  : 'init', 'running', 'stopping', 'stopped'
+    'tid'       : tid
+}
+{
+    'type'      : 'nodestatus',
+    'ip'        :
+    'role'      :
+
+}
+{
+    'type'      : 'hoststatus',
+
+}
+{
+    'type'      : 'insstatus',
+}
 
 
+Phase:  init, preparing, editing, submitting
+State:  preparing : init,    downloading, done
+        editing   : stopped, running
+        submitting: init,    uploading, done
+
+6.1.3 VM runtime options
+{
+    # general
+    'ostype'            :
+    'usage'             :
+
+    # hardware
+    'memeory'           :
+    'cpus'              :
+    'disk_type'         :
+    'audio_para'        :
+
+    # network
+    'netwowrkcards'     :
+    [
+        { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+        { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+        { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
+        ... ...
+    ]
+    'publicIP'          :
+    'privateIP'         :
+    'rdp_port'          :
+    'accessURL'         : []
+    'mgr_accessURL'     :
+    'iptable_rules'     :
+    [
+        'rule1',
+        'rule2',
+        ... ...
+    ]
+
+    # related to issuer
+    'run_with_snapshot' : 1, 0
+
+}
+
+=========================================
+VII CC's resource and network management
+=========================================
+
+Ubuntu RDP client : remmina
+
+5.1 core and clusters are in same LAN
+
+- The ip0 of each server(clc & cc & nc) is statically configured
+- at lease two cluster: one for vss, one for rvd
+
+5.1.1 for internal user
+* for accessing desktop vm
+  - desktop cluster server own a RDP port pool
+    -> each vm in node runs in
+       --- NAT mode
+       --- port from port pool
+    -> accessing/managed url is : nc_ip:rdp_port
+
+* for accessing server vm
+  - server cluster server own a DHCP service and a RDP port pool
+    -> each vm in node runs in
+       --- bridge mode
+       --- mac and IP addr from DHCP service (valid LAN IP pool)
+       --- port number from port pool
+    -> URL
+       --- manage URL:  nc_ip:rdp_port
+       --- service URL: lan_ip
+
+5.1.2 for external user
+* pre-requisite
+  - clc MUST be configured with a valid external IP: clc_eip
+  - cc  MUST be configured with a valid external IP: cc_eip
+
+* for accessing desktop vm
+  - desktop cluster server own a RDP port pool
+    -> each vm in node runs in
+       --- NAT mode
+       --- port from port pool
+    -> iptable route:     cc_eip:rdp_port ----> nc_ip:port
+    -> accessing url is : cc_eip:rdp_port
+
+* for accessing server vm
+  - server cluster server own a DHCP service and a RDP port pool
+  - server cluster server own a eip pool
+    -> each vm in node runs in
+       --- bridge mode
+       --- mac(lan_mac) and IP addr(lan_ip) from DHCP service (valid LAN IP pool)
+       --- port number from port pool
+    -> a new eip is assigned to cluster server: vm_eip
+    -> enable iptable for package forwarding:
+       --- service router :    vm_eip ----> lan_ip
+       --- manage router  :    cc_eip:rdp_port -> nc_ip:rdp_port
+    -> URL
+       --- manage URL:  cc_eip:rdp_port
+       --- service URL: vm_eip
+
+
+5.2 core and clusters are in different LAN
+
+- The internal ip0 of each server(clc & cc & nc) is statically configured
+- at lease two cluster: one for vss, one for rvd
+- clc MUST be configured with a valid external IP: clc_eip
+- cc  MUST be configured with a valid external IP: cc_eip
+
+5.2.1 for internal user
+* for accessing desktop vm
+  - desktop cluster server own a RDP port pool
+    -> each vm in node runs in
+       --- NAT mode
+       --- port from port pool
+    -> accessing/managed url is : nc_ip:rdp_port
+
+* for accessing server vm
+  - server cluster server own a DHCP service and a RDP port pool
+    -> each vm in node runs in
+       --- bridge mode
+       --- mac and IP addr from DHCP service (valid LAN IP pool)
+       --- port number from port pool
+    -> URL
+       --- manage URL:  nc_ip:rdp_port
+       --- service URL: lan_ip
+
+5.2.2 for external user
+* for accessing desktop vm
+  - desktop cluster server own a RDP port pool
+    -> each vm in node runs in
+       --- NAT mode
+       --- port from port pool
+    -> iptable route:     cc_eip:rdp_port ----> nc_ip:port
+    -> accessing url is : cc_eip:rdp_port
+
+* for accessing server vm
+  - server cluster server own a DHCP service and a RDP port pool
+  - server cluster server own a eip pool
+    -> each vm in node runs in
+       --- bridge mode
+       --- mac(lan_mac) and IP addr(lan_ip) from DHCP service (valid LAN IP pool)
+       --- port number from port pool
+    -> a new eip is assigned to cluster server: vm_eip
+    -> enable iptable for package forwarding:
+       --- service router :    vm_eip ----> lan_ip
+       --- manage router  :    cc_eip:rdp_port -> nc_ip:rdp_port
+    -> URL
+       --- manage URL:  cc_eip:rdp_port
+       --- service URL: vm_eip
+
+========================================
+VIII. What happens when you run a vm ?
+========================================
+
+8.1 when you create/modify a new image
+- select a image, click "create"/"modify" button
+- browser will send request /clc/image/create/task/begin/(?P<srcid>\w+) to clc
+- clc will do below things
+  - generate tid
+  - add a new record to ectaskTransaction
+  - display clc/wizard/image_create_wizard.html
+- then user click "prepare" button on wizard page
+  - send request /clc/image/create/task/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$ to clc
+  - clc pick a cc, and send request /cc/api/1.0/image/create/task/prepare to it with tid.
+  - cc response with picked nc ip, and clc save ccip & ncip into ectaskTransaction
+  - cc work together with nc to download from walrus to cc and then to nc
+    - during this time, nc will report progress status to cc, and cc forward to clc
+    - user can access status info by request /clc/image/create/task/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$
+- then user click "run" button on wizard page
+  - send request /clc/image/create/task/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$ to clc
+  - clc update ectaskTransaction records with new phase
+  - clc prepare the runtime_option and POST request /cc/api/1.0/image/create/task/run to cc
+    POST DATA = {tid, ncip, runtime_opiton}
+  - cc then do below things
+    - send 'image/run' command to nc with message {runtime_option}
+    - add iptable rules if there are
+  - nc get 'image/run' command
+    - downlaod image and report progress
+    - run image and report status
+
+
+
+8.2 when you define a new instance
+8.2.1 define VS
+8.2.2 define VD
+8.2.3 define LVD
+
+8.3 when you run a new instance
+8.3.1 run VS
+8.3.2 run VD
+8.3.3 run LVD
+
+
+lvd cluster - public
+
+rvd cluster
+  - public
+    prot range = ncip:port
+
+  - private
+    public IP + private IP + port = ccip:port => ncip:port
+
+vs cluster
+  - manual
+    => manual => vm public IP
+    => RDP URL : ncip:port
+    => server URL: vm publicIP:port
+
+  - public dhcp
+    public IP + port  =>
+    => vm mac => dhcp => vm public IP
+    => RDP URL : ncip:port
+    => server URL: publicIP:server port
+
+  - private dhcp
+    public IP + private IP + port
+
+
+
+
+
+Some Issues:
+- Doen: rvd need add public & provate network mode
+- Done: when vm get into running, stopped state, wizard web page need to update clc's db
+- Done:delete snapshot before submitting
+- wizard always contains 3 steps.
+- Done:when submit finished, nc send message to cc to
+  1. delete task thread in cc.tasks_status
+  2. delete task thread in cc.
+
+  cc then send rquest to clc, to
+  1. add a new image record, and set it properties
+  2. delete transaction record
 
 

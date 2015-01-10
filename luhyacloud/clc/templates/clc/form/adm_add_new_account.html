@@ -1,0 +1,196 @@
+{% extends "clc/form/form.html" %}
+{% load i18n %}
+
+{% block myjavascript %}
+<script type="text/javascript">
+    var userid;
+    var displayname;
+    var password1;
+    var password2;
+    var role;
+    var pds;
+    var sds;
+    var email;
+    var phone;
+    var desc;
+    var errormsg;
+
+    function verification() {
+        if (userid.length <= 0) {
+            $('.alert-danger').text("userid can't be empty.");
+            return false;
+        }
+        if (displayname.length <= 0) {
+            displayname = userid
+        }
+        if (password1.length <= 0 || password2.length <= 0) {
+            $('.alert-danger').text("password can't be empty.");
+            return false;
+        }
+        if ( password1 != password2 ) {
+            $('.alert-danger').text("password Not Match.");
+            return false;
+        }
+        return true;
+    }
+
+    function submit_resources() {
+        userid = $('#userid').val();
+        displayname = $('#displayname').val();
+        password1  = $('#password1').val();
+        password2  = $('#password2').val();
+        role = $('#role_list').val();
+        pds = $('#data_size').val();
+        r1 = $('#optionsRadios1').is(':checked');
+        if (r1 == true) {
+            sds = $('#optionsRadios1').val();
+        } else {
+            sds = $('#optionsRadios2').val();
+        }
+        email = $('#email').val();
+        phone = $('#phone').val();
+        desc  = $('#desc').val();
+
+        if (verification() == true) {
+            url = "/clc/api/1.0/account/create";
+            postdata = {
+                userid:         userid,
+                displayname:    displayname,
+                password:       password1,
+                role:           role,
+                pds:            pds,
+                sds:            sds,
+                email:          email,
+                phone:          phone,
+                desc:           desc,
+            }
+
+            $.post(url, postdata, function(data) {
+                var items = [];
+                $.each(data, function (key, val) {
+                    items[key] = val;
+                });
+                if (items['Result'] == "OK") {
+                    $('.alert-success').css('display', 'block');
+                    $('.alert-danger').css( 'display', 'none');
+                    $('.btn').addClass('disabled');
+                } else {
+                    $('.alert-success').css('display', 'none');
+                    $('.alert-danger').text(items['errormsg']);
+                    $('.alert-danger').css( 'display', 'block');
+                }
+            });
+        } else {
+            $('.alert-success').css('display', 'none');
+            $('.alert-danger').css( 'display', 'block');
+        }
+    }
+
+    $(document).ready(function () {
+        $("#mysubmit").click(function(){
+            submit_resources();
+        });
+
+        $("#myreset").click(function(){
+            location.reload();
+        });
+
+    });
+</script>
+{% endblock %}
+
+{% block myform %}
+<div class="row">
+<div class="col-lg-12">
+<div class="panel panel-default">
+<div class="panel-heading">
+    <h2>Add a New Account</h2>
+</div>
+<div class="panel-body">
+    <div class="row">
+        <div class="col-lg-6">
+            <!-- /.col-lg-6 (nested) -->
+            <div class="col-lg-6">
+                <div role="form">
+                    <div class="form-group">
+                        <label>User ID*</label>
+                        <input id="userid" class="form-control" type="text" placeholder="User ID" autofocus="">
+                    </div>
+                    <div class="form-group">
+                        <label>Display Name</label>
+                        <input id="displayname" class="form-control" type="text" placeholder="Display Name" >
+                    </div>
+                    <div class="form-group">
+                        <label>Password*</label>
+                        <input id="password1" class="form-control" type="password" placeholder="password" value>
+                    </div>
+                    <div class="form-group">
+                        <label>Password Again*</label>
+                        <input id="password2" class="form-control" type="password" placeholder="password" value>
+                    </div>
+                    <div class="form-group">
+                        <label>Role*</label>
+                        <select id="role_list" class="form-control">
+                            {% for role in  roles  %}
+                                <option value="{{ role }}">{{ role }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Private Data Storage*</label>
+                        <select id="data_size" class="form-control">
+                            <option value="0">0 G</option>
+                            <option value="10">10 G</option>
+                            <option value="20">20 G</option>
+                            <option value="50">50 G</option>
+                            <option value="100" >100 G</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Shared Data Storage</label>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="optionsRadios" id="optionsRadios1" value="no" checked="">No
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="optionsRadios" id="optionsRadios2" value="yes">Yes
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>E-Mail</label>
+                        <input id="email" class="form-control" placeholder="E-mail" name="email" type="email">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input id="phone" class="form-control" placeholder="phone number"  type="phone">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="desc" class="form-control" rows="5" placeholder="self description" ></textarea>
+                    </div>
+
+                    <button id="mysubmit" type="submit" class="btn btn-primary">Submit Button</button>
+                    <button id="myreset"  type="reset" class="btn btn-default">Reset Button</button>
+                </div>
+                <p></p>
+                <div class="alert alert-success" style="display: none">
+                      New Account is created Successfully.
+                </div>
+                <div class="alert alert-danger" style="display: none">
+                      Create new account Failed, try again.
+                </div>
+        </div>
+        <!-- /.col-lg-6 (nested) -->
+    </div>
+    <!-- /.row (nested) -->
+</div>
+<!-- /.panel-body -->
+</div>
+<!-- /.panel -->
+</div>
+<!-- /.col-lg-12 -->
+</div>
+{% endblock %}

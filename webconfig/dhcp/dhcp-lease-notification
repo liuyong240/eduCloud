@@ -1,0 +1,21 @@
+#! /usr/bin/python
+
+#['/usr/bin/dhcp-lease-notification', 'add', '08:00:27:dd:f8:e4', '192.168.56.222', 'ubuntuServer']
+#['/usr/bin/dhcp-lease-notification', 'del', '08:00:27:dd:f8:e4', '192.168.56.222', 'ubuntuServer']
+
+import sys
+
+# 1. get new instance's internal ip & mac
+# 2. get new instance's external ip
+# 3. create a iptable entry like :   eip ---> iip
+# no need ethers any more.
+
+f=open('/tmp/dhcp-lease', 'w')
+f.write(str(sys.argv))
+f.close() 
+
+
+# add 08:00:27:dd:f8:e4 192.168.56.222 ubuntuServer
+# del 08:00:27:dd:f8:e4 192.168.56.222 ubuntuServer
+# below is bash way
+#echo $@ > /tmp/dhcp-lease-notification

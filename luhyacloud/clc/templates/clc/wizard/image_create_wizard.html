@@ -46,10 +46,86 @@ var progressbar;
 var srcid;
 var dstid;
 var insid;
+var vmstatus;
 
 var retrytimes = 0;
 var maxRetryTimes = 100;
-var timer_interval = 1000;
+var timer_interval = 3000;
+
+function sleep(sleepTime) {
+    for (var start = Date.now(); Date.now() - start <= sleepTime;) {}
+}
+
+/////////////////////////////
+// Prepare Phase functions
+/////////////////////////////
+
+function prepareVM() {
+
+    url = "/clc/image/create/task/prepare/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    });
+
+    items = {};
+    items['pahse'] = 'preparing';
+    items['state'] = 'downloading';
+    items['progress'] = 0;
+    items['failed'] = 0;
+    items['errormsg'] = '';
+    items['prompt'] = '';
+
+    prepareUIUpdate(items);
+}
+function prepareUIUpdate(items) {
+    phase    = items['phase'];
+    state    = items['state'];
+    failed   = items['failed'];
+    progress = items['progress'];
+    prompt   = items['prompt'];
+    errormsg = items['errormsg'];
+
+    if (phase != 'preparing') {
+        setTimeout(getPrepareProgress, timer_interval);
+        return;
+    }
+
+    if (state == 'init') {
+        progress = 0;
+        // $(".jw-button-next").attr("disabled", true);
+        $("#btn_prepare").removeClass("disabled");
+        $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
+
+        $("#desclabel").text(prompt);
+        $("#desclabel").css('color', 'black');
+        $("#desclabel").css('display', 'block');
+
+        if (failed == 1) {
+            $("#desclabel").text(errormsg);
+            $("#desclabel").css('color', 'red');
+            $("#desclabel").css('display', 'block');
+        }
+    }
+    if (state == 'downloading' || state == "cloning") {
+        // $(".jw-button-next").attr("disabled", true);
+        $("#btn_prepare").addClass("disabled");
+
+        $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
+        $("#desclabel").text(prompt);
+        $("#desclabel").css('color', 'black');
+
+        setTimeout(getPrepareProgress, timer_interval);
+    }
+
+    if (state == 'done') {
+        prepareDone();
+    }
+
+    $("#runningstatus").text('stopped');
+}
 
 function getPrepareProgress() {
     url = "/clc/image/create/task/getprogress/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
@@ -59,28 +135,239 @@ function getPrepareProgress() {
             items[key] = val;
         });
 
-        phase = items['phase'];
-        progress = items['progress'];
-        console.log("phase is " + phase);
-        console.log("progress is" + progress);
+        prepareUIUpdate(items);
 
-        if (progress >= 0) {
-            $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
-            setTimeout(getPrepareProgress, timer_interval);
-        } else {
-            if (progress == -100) {
-                progress = 100;
-                $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
-                $(".jw-button-next").removeAttr("disabled");
-                $("#btn_prepare").addClass("disabled")
-                $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
-            } else {
-                $("#desclabel").text("{% trans "Sorry, Prepare Image failed. please click 'Prepare' button and try again." %}");
-            }
-        }
     }).error(function () {
         setTimeout(getPrepareProgress, timer_interval);
     });
+}
+
+function prepareDone() {
+    progress = 100;
+    $("#btn_prepare").addClass("disabled");
+    $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
+
+    $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
+    $("#desclabel").css('color', 'green');
+
+    // $(".jw-button-next").removeAttr("disabled");
+}
+
+/////////////////////////////
+// editing Phase functions
+/////////////////////////////
+
+function runVM() {
+    url = "/clc/image/create/task/run/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    })
+
+    items = {};
+    items['pahse'] = 'editing';
+    items['state'] = 'booting';
+    items['failed'] = 0;
+    editPageUIupdate(items);
+}
+
+function editPageUIupdate(items) {
+    phase    = items['phase'];
+    state    = items['state'];
+    url      = '{{ rdp_url}}';
+    failed   = items['failed'];
+
+    if (phase != 'editing') {
+        setTimeout(getVMStatus, timer_interval);
+        return;
+    }
+    if (state == 'stopped') {
+        // $(".jw-button-next").removeAttr("disabled");
+
+        $("#btn_run").removeClass("disabled");
+        $('#btn_stop').addClass('disabled');
+
+        $("#editdesc").css('display', 'none');
+        $("#luhyaVM").css("display", "none");
+
+        $("#runningstatus").text('stopped');
+
+        if (failed == 1) {
+            $("#editdesc").text("{% trans "Sorry, Run Image failed. please click 'Run' button and try again." %}");
+            $("#editdesc").css('color', 'red');
+            $("#editdesc").css('display', 'block');
+        }
+    }
+    if (state == 'booting') {
+        // $(".jw-button-next").attr("disabled", true);
+
+        $('#btn_run').addClass('disabled');
+        $('#btn_stop').addClass('disabled');
+
+        $("#editdesc").css('display', 'none');
+        $("#luhyaVM").css("display", "none");
+
+        $("#runningstatus").text('booting');
+        setTimeout(getVMStatus, timer_interval);
+    }
+    if (state == 'running') {
+        // $(".jw-button-next").attr("disabled", true);
+
+        $('#btn_run').addClass('disabled');
+        $('#btn_stop').removeClass('disabled');
+
+        $("#editdesc").css('display', 'none');
+        updateLuhyaVMURL(url);
+
+        $("#runningstatus").text('running');
+    }
+}
+
+function getVMStatus() {
+    url = "/clc/image/create/task/getvmstatus/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        editPageUIupdate(items);
+
+    }).error(function () {
+        setTimeout(getVMStatus, timer_interval);
+    });
+
+}
+
+function updateLuhyaVMURL(url) {
+    $("#luhyaVM a").attr("href", url);
+    $("#luhyaVM").css("display", "inline");
+}
+
+function stopVM() {
+    url = "/clc/image/create/task/stop/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    });
+
+    items = {};
+    items['pahse'] = 'editing';
+    items['state'] = 'stopped';
+    items['failed'] = 0;
+    editPageUIupdate(items);
+}
+
+/////////////////////////////
+// submitting Phase functions
+/////////////////////////////
+
+function submitVM() {
+    url = "/clc/image/create/task/submit/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    });
+
+    items = {};
+    items['pahse'] = 'submitting';
+    items['state'] = 'uploading';
+    items['progress'] =0;
+    items['failed'] = 0;
+    submitPageUIupdate(items);
+}
+
+function submitPageUIupdate(items) {
+    phase = items['phase'];
+    state = items['state'];
+    failed = items['failed'];
+    progress = items['progress'];
+    prompt   = items['prompt'];
+    errormsg = items['errormsg'];
+
+    if (phase != 'submitting') {
+        setTimeout(getSubmitProgress, timer_interval);
+        return;
+    }
+
+    if (state == 'init') {
+        // $(".jw-button-next").attr("disabled", true);
+        $('#btn_submit').removeClass('disabled');
+
+        progress = 0;
+        $("#submit_progressbar").progressbar({"value": progress}).children("#submit_prlabel").html(progress + ' %');
+        $("#submit_laber").text(prompt);
+        $("#submit_laber").css('color', 'black');
+
+        if (failed == 1) {
+            $("#submit_laber").text(errormsg);
+            $("#submit_laber").css('color', 'red');
+        }
+    }
+    if (state == 'uploading') {
+
+        // $(".jw-button-next").attr("disabled", true);
+        $('#btn_submit').addClass('disabled');
+
+        $("#submit_progressbar").progressbar({"value": progress}).children("#submit_prlabel").html(progress + ' %');
+        $("#submit_laber").text(prompt);
+        $("#submit_laber").css('color', 'black');
+
+        setTimeout(getSubmitProgress, timer_interval);
+    }
+    if (state == 'done') {
+        $('#btn_run').addClass('disabled');
+        $('#btn_stop').addClass('disabled');
+
+        // $(".jw-button-next").removeAttr("disabled");
+        $('#btn_submit').addClass('disabled');
+
+        progress = 100;
+        $("#submit_progressbar").progressbar({"value": progress}).children("#submit_prlabel").html(progress + ' %');
+
+        $("#submit_laber").text("{% trans "Submit Image Succeed. please click 'Next' button and finish it." %}");
+        $("#submit_laber").css('color', 'green');
+    }
+}
+
+function getSubmitProgress() {
+    url = "/clc/image/create/task/getsubmitprogress/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        submitPageUIupdate(items);
+
+    }).error(function () {
+        setTimeout(getSubmitProgress, timer_interval);
+    });
+}
+
+function init_displayWebPage(data) {
+    phase = data['phase'];
+    state = data['state'];
+
+    if (phase == 'preparing') {
+        prepareUIUpdate(data);
+    }
+    if (phase == 'editing') {
+        prepareDone();
+        $(".jw-button-next").click();
+        editPageUIupdate(data);
+    }
+    if (phase == 'submitting') {
+        prepareDone();
+        $(".jw-button-next").click();
+        submitPageUIupdate(data);
+    }
 }
 
 $(document).ready(function () {
@@ -114,41 +401,41 @@ $(document).ready(function () {
     });
 
     $("#btn_prepare").click(function () {
-        $(".jw-button-next").attr("disabled", true);
-
-        url = "/clc/image/create/task/prepare/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-        $.getJSON(url,function (data) {
-            var items = [];
-            $.each(data, function (key, val) {
-                items[key] = val;
-            });
-
-        });
-
-        setTimeout(getPrepareProgress, timer_interval);
+        prepareVM();
     });
 
     $("#btn_run").click(function () {
-        runImages();
+        runVM();
     });
 
     $("#btn_stop").click(function () {
-        stopImage();
+        stopVM();
     });
 
     $("#btn_submit").click(function () {
-        submitImage();
+        submitVM();
     });
 
+    //1- preparing, 2- editing, 3- submitting
+    var data = {};
+
+    data['phase']   = '{{task.phase}}';
+    data['state']   = '{{task.state}}';
+    data['promt']   = '';
+    data['errormsg']= '';
+    data['failed']  = 0;
+    data['progress']= 0;
+
+    init_displayWebPage(data);
 });
 </script>
 {% endblock %}
 
 {% block mywizard %}
-    <div id="tid"   style="display: none;">{{   tid }}</div>
-    <div id="srcid" style="display: none;">{{ srcid }}</div>
-    <div id="dstid" style="display: none;">{{ dstid }}</div>
-    <div id="insid" style="display: none;">{{ insid }}</div>
+    <div id="tid"   style="display: none;">{{ task.tid }}</div>
+    <div id="srcid" style="display: none;">{{ task.srcimgid }}</div>
+    <div id="dstid" style="display: none;">{{ task.dstimgid }}</div>
+    <div id="insid" style="display: none;">{{ task.insid }}</div>
 
     <form id="wizard">
         <fieldset>
@@ -168,6 +455,9 @@ $(document).ready(function () {
             <div class="opontable">
                 <button id="btn_run"    type="button" class="btn btn-primary">{% trans "Run" %}</button>
                 <button id="btn_stop"   type="button" class="btn btn-primary disabled">{% trans "Stop" %}</button>
+                <p> </p>
+                <p> </p>
+                <p id="editdesc" style="display: none;"></p>
                 <div id="luhyaVM" style="display: none;">
                     <a href="luhyavm://abcdefg" target="_blank">{% trans "Connect to Cloud Desktop" %}</a>
                 </div>
@@ -184,7 +474,7 @@ $(document).ready(function () {
                 <tbody>
                 <tr>
                     <td>{{ imgobj.name }}</td>
-                    <td id="runningstatus">{% trans "Stopped" %}</td>
+                    <td id="runningstatus">stopped</td>
                 </tr>
                 </tbody>
             </table>

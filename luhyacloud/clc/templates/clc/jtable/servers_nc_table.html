@@ -1,0 +1,126 @@
+{% extends "clc/jtable/template.html" %}
+{% load i18n %}
+
+{% block myfilter %}
+<div class="filtering">
+    <form>
+        <p>
+           Cluster Name:<input type="text"  id="ccname" />
+           IP:<input type="text" id="ip" />
+           <button type="submit" id="LoadRecordsButton">Filter Nodes</button>
+        </p>
+    </form>
+</div>
+<p></p>
+{% endblock %}
+
+{% block myjs %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myjtable').jtable({
+            jqueryuiTheme: true,
+
+            //title: 'Node Server List',
+
+            selecting: true, //Enable selecting
+            //selectingCheckboxes: true, //Show checkboxes on first column
+
+            sorting: true, //Enable sorting
+            defaultSorting: 'Name ASC', //Set default sorting
+
+            actions: {
+                listAction:     '/clc/api/1.0/servers/list/nc',
+                //deleteAction:   '/clc/api/1.0/servers/delete',
+                //updateAction:   '/clc/api/1.0/servers/update',
+                //createAction: '/clc/api/1.0/servers/create'
+            },
+            fields: {
+                id: {
+                    key: true,
+                    edit: false,
+                    create: false,
+                    list: false,
+                },
+                name: {
+                    title: 'Name',
+                    width: '15%'
+                },
+                ccname:{
+                    title: "Cluster Name",
+                    width: '15%',
+                    edit: false,
+                },
+                cores: {
+                    title: 'Cores',
+                    width: '5%',
+                    edit: false,
+                },
+                memory: {
+                    title: 'Mem(G)',
+                    width: '5%',
+                    edit: false,
+                },
+                disk: {
+                    title: "Disk(G)",
+                    width: '8%',
+                    edit: false,
+                },
+                eip: {
+                    title: "External IP",
+                    width: "10%",
+                },
+                ip0: {
+                    title: "IP0",
+                    width: '10%',
+                    edit: false,
+                },
+                mac0: {
+                    title: "MAC0",
+                    width: '10%',
+                    edit: false,
+                },
+                location: {
+                    title: "Location",
+                    width: '25%',
+                    list: false,
+                },
+            },
+            //Register to selectionChanged event to handle events
+            selectionChanged: function () {
+                //Get all selected rows
+                var $selectedRows = $('#myjtable').jtable('selectedRows');
+
+                if ($selectedRows.length > 0) {
+                    $selectedRows.each(function () {
+                        //Show selected rows
+                        var record = $(this).data('record');
+                        window.parent.ncSelected(record.ccname, record.mac0);
+                    });
+                } else {
+                    //No rows selected
+                    window.parent.ncSelected(null, null);
+                }
+            },
+        });
+
+        //Re-load records when user click 'load records' button.
+        $('#LoadRecordsButton').click(function (e) {
+            e.preventDefault();
+
+            $('#myjtable').jtable('load', {
+                ccname: $("#ccname").val(),
+                ip: $("#ip").val(),
+            });
+        });
+
+        //Load all records when page is first shown
+        $('#LoadRecordsButton').click();
+
+        //Load student list from server
+        //$('#myjtable').jtable('load');
+    });
+
+</script>
+{% endblock %}

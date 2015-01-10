@@ -3,33 +3,21 @@
 
 {% block content %}
             <div class="row">
-                <div class="col-lg-8">
+                <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <i class="fa fa-bar-chart-o fa-fw"></i> virtual server Overview
+                            <div id="insid" style="display: none;"></div>
+                            <div id="imageid" style="display: none;"></div>
+
+                            <!--<button id="modify" type="button" class="btn btn-primary disabled">Modify</button>-->
+                            <button id="permission" type="button" class="btn btn-primary disabled">Edit Permission</button>
                             <div class="pull-right">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                                        Actions
-                                        <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu pull-right" role="menu">
-                                        <li><a href="#">Action</a>
-                                        </li>
-                                        <li><a href="#">Another action</a>
-                                        </li>
-                                        <li><a href="#">Something else here</a>
-                                        </li>
-                                        <li class="divider"></li>
-                                        <li><a href="#">Separated link</a>
-                                        </li>
-                                    </ul>
-                                </div>
+                                <button id="delete" type="button" class="btn btn-primary disabled">Delete</button>
                             </div>
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
-                            <div id="morris-area-chart"></div>
+                            <iframe id="myiframe" src="jt/vss" frameborder="0" width="100%"></iframe>
                         </div>
                         <!-- /.panel-body -->
                     </div>
@@ -40,4 +28,79 @@
 
             </div>
             <!-- /.row -->
+{% endblock %}
+
+{% block myjs %}
+
+<script type="text/javascript" language="javascript">
+    $('#myiframe').css('height', $(window).height()+'px');
+</script>
+
+<script type="text/javascript" language="javascript">
+function vssSelected(insid, imageid){
+    if (insid == null) {
+        $('#delete').addClass('disabled');
+        $('#modify').addClass('disabled');
+        $('#permission').addClass('disabled');
+        $('#add_vm').addClass('disabled');
+
+        $('#insid').html(null);
+        $('#imageid').html(null);
+    } else {
+        $('#delete').removeClass('disabled');
+        $('#modify').removeClass('disabled');
+        $('#permission').removeClass('disabled');
+        $('#add_vm').removeClass('disabled');
+
+        $('#insid').html(insid);
+        $('#imageid').html(imageid);
+    }
+}
+
+$(document).ready(function()
+{
+  $("#delete").click(function(){
+        insid=$("#insid").text()
+
+        url="/clc/api/1.0/vss/delete";
+        postdata = {
+            'insid'          :    insid,
+        }
+        $.post(url, postdata, function(data) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+            if (items['Result'] == "OK") {
+                alert('Delete Virtual Server Success! ');
+                location.reload(true);
+            } else {
+                alert( items['errormsg'] );
+            }
+        });
+  });
+
+  $("#modify").click(function(){
+        insid=$("#insid").text()
+        imgid=$("#imageid").text()
+
+        url="/clc/image/editvm/" + imgid + "/" + insid;
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, '', 'height=350,width=800,left=' + left + ',top=' + top);
+
+  });
+
+  $("#permission").click(function(){
+        insid=$("#insid").text()
+
+        url="/clc/edit/vm/permission/" + insid;
+        var left = ($(window).width() / 2) - (800 / 2);
+        var top = ($(window).height() / 2) - (600 / 2);
+        window.open(url, '', 'height=1000,width=800,left=' + left + ',top=' + top);
+  });
+
+});
+
+</script>
 {% endblock %}

@@ -1,9 +1,21 @@
+##############################
+# 0. configure eth0
+##############################
+refer to /usr/share/doc/ifupdown/examples/network-interfaces
+
+##############################
+# 1. prepare /storage
+##############################
 sudo mkdir /var/log/educloud
 sudo mkdir /storage/
 cd /storage
 sudo mkdir images VMs config
 # copy image to /storage/images
 # create /storage/config/clc.conf, cc.conf
+
+#############################
+# 2. prepare rabbitmq
+#############################
 # make rabbitmq accept connection from outside
 0. add a new user and set it permissions:
    sudo rabbitmqctl add_user luhya luhya
@@ -13,3 +25,384 @@ sudo mkdir images VMs config
    sudo /usr/lib/rabbitmq/lib/rabbitmq_server-3.2.4/sbin/rabbitmq-plugins enable rabbitmq_management
    sudo service rabbitmq-server restart
    http://localhost:55672
+
+############################
+# 3. prepare rsync
+############################
+0. install modified version of rsyncd into CC and NC
+1. start rsyncd daemon
+
+############################
+# 4. system init
+############################
+4.1 clear all tables
+BEGIN;
+
+delete from auth_group;
+delete from auth_group_permissions;
+delete from auth_user;
+delete from auth_user_groups;
+delete from auth_user_user_permission;
+DROP TABLE `clc_ectasktransactionauth`;
+DROP TABLE `clc_ectasktransaction`;
+DROP TABLE `clc_ecvds_auth`;
+DROP TABLE `clc_ecvds`;
+DROP TABLE `clc_ecvss_auth`;
+DROP TABLE `clc_ecvss`;
+DROP TABLE `clc_ecvapp_auth`;
+DROP TABLE `clc_ecvapp`;
+DROP TABLE `clc_ecimages_auth`;
+DROP TABLE `clc_ecimages`;
+DROP TABLE `clc_echosts_auth`;
+DROP TABLE `clc_echosts`;
+DROP TABLE `clc_ecccresources`;
+DROP TABLE `clc_ecclusternetmode`;
+DROP TABLE `clc_ecservers_auth`;
+DROP TABLE `clc_ecservers`;
+DROP TABLE `clc_ecvmtypes`;
+DROP TABLE `clc_ecserverrole`;
+DROP TABLE `clc_ecvmusages`;
+DROP TABLE `clc_ecostypes`;
+DROP TABLE `clc_ecrbac`;
+DROP TABLE `clc_ecauthpath`;
+DROP TABLE `clc_ecaccount`;
+
+COMMIT;
+
+4.2 create supper user
+python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com
+python manage.py changepassword luhya
+
+4.3 add role to super user luhya
+./init_data.sh
+
+4.5 manually delete duplicated records.
+
+
+####################################
+# 5. upload very large file(>2G)
+####################################
+5.1 www.plupload.com
+5.2 github: bigupload
+
+############################
+# 6. prepare storage space
+############################
+6.1 storage diretory description
+
+-  /storage/space/software/*
+   used to store all software install package for image building
+   only visible to admin who can build new image
+   need set quota (option)
+   physically on clc/walrus, mounted to cc, nc via sshfs
+
+-  /storage/space/pub-data/*
+   used to store all public data that can be accessed by all desktop vm instances
+   full write & read permission
+   need set quota (option)
+   physically on clc/walrus, mounted to cc, nc via sshfs
+
+-  /storage/space/prv-data/user-id/*      :
+   used to store each user' private data in desktop vm instance
+   full write & read permission
+   physically on clc/warlus, mounted to cc, nc via sshfs
+
+-  /storage/space/server-data/imgid/database.vdi   :
+   for each server instance, there is such disk, all database  installed on this disk
+   physically on cc, mounted to nc
+   it is a dynamic size vdi file and attached in write-through mode
+
+   when using, it is only download to cc, and mount to nc
+
+6.2 how to use sshfs ?
+- usage & syntax
+    sshfs [user@]host:[dir] mountpoint [options]
+    前面和ssh命令一样，mountpoint是挂载点
+    options重点关注下：
+    -C 压缩，或者-o compression=yes
+    -o reconnect 自动重连
+    -o transform_symlinks 表示转换绝对链接符号为相对链接符号
+    -o follow_symlinks 沿用服务器上的链接符号
+    -o cache=yes
+    -o allow_other 这个参数最重要，必须写，否则任何文件都是Permission Deny
+
+    #相关代码
+    echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect user@xx.xx.xx.xx:/dir_remote ./dir_local
+    fusermount -u mountpoint
+
+- mount when server boot
+
+    script at startup of Ubuntu
+    --------------------------
+    Edit /etc/rc.local and add your commands
+    The script must always end with exit 0
+
+    To execute a script upon rebooting Ubuntu
+    -----------------------------------------
+    Put your script in /etc/rc0.d
+    Make it executable (sudo chmod +x myscript)
+    Note: The scripts in this directory are executed in alphabetical order
+
+    The name of your script must begin with K99 to run at the right time.
+
+    To execute a script at shutdown
+    --------------------------------
+    Put your script in /etc/rc6.d
+    Make it executable (sudo chmod +x myscript)
+    Note: The scripts in this directory are executed in alphabetical order
+
+    The name of your script must begin with K99 to run at the right time.
+
+6.3 storage architect
+
+clc:    /storage/space/{software/* ,  pub-data/*,  database/images/imgid/database.vdi}
+
+
+vs-cc:  /storage/space/{software/* ,  pub-data/* , database/images/imgid/database.vdi}
+                                                   database/vms/insid/database.vdi
+vs-nc:  /storage/space/{software/* ,  pub-data/* , database/images/imgid/database.vdi}
+                                                   database/vms/insid/database.vdi
+
+
+vd-cc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
+vd-nc:  /storage/space/{software/* ,  pub-data/* , prv-data/user-id/*}
+
+6.3.1 Image Build
+
+- when image is uploade, its default usage is 'desktop'
+
+- when image{srcid} usage is changed to 'server'
+  > clc will clone /storage/images/database to /storage/space/database/imgid/database
+
+6.3.1.1 Image Build & Modify
+
+- desktop image MODIFY flow (srcid)
+  > image will be download from clc:/storage/images/srcid/machine to cc's /storage/images/srcid/machine
+  > image will be download from  cc:/storage/images/srcid/machine to nc's /storage/images/srcid/machine
+  > based on nc's /storage/images/srcid/machine to run vm
+  > run_time_option
+      c: /storage/images/srcid/machine, snapshoted
+      d: /storage/images/data.vdi, multi-attached
+      e: network folder of /storage/space/software/*
+  > when submitting
+    >> delete c's snapshot
+    >> upload nc's /storage/images/srcid/machine to  cc's /storage/images/srcid/machine
+    >> upload cc's /storage/images/srcid/machine to clc's /storage/images/srcid/machine, and version it
+
+- desktop image BUILD flow (srcid, dstid)
+  > image will be download from clc:/storage/images/srcid/machine to cc's /storage/images/srcid/machine
+  > image will be download from  cc:/storage/images/srcid/machine to nc's /storage/images/srcid/machine
+  > build a new one
+    nc will clone /storage/images/srcid/machine to /storage/tmp/images/dstid/machine
+    and based on it run vm
+  > run_time_option
+      c: /storage/tmp/images/dstid/machine, snapshoted
+      d: /storage/images/data.vdi, multi-attached
+      e: network folder of /storage/space/software/*
+  > when submitting
+    >> delete c's snapshot
+    >> upload nc's /storage/tmp/images/dstid/machine to cc's /storage/images/dstid/machine
+    >> upload cc's /storage/images/dstid/machine to clc's /storage/images/dstid/machine, and version it
+
+- server image MODIFY flow (src)
+  > image will be download from clc:/storage/images/srcid/machine to cc's /storage/images/srcid/machine
+  > image will be download from  cc:/storage/images/srcid/machine to nc's /storage/images/srcid/machine
+  > db    will be download from clc:/storage/space/database/images/srcid/database to cc:/storage/space/database/images/srcid/database
+  > db    cc:/storage/space/database/images/srcid/database will be shared to nc:/storage/space/database/images/srcid/database
+  > based on
+        nc:/storage/images/srcid/machine
+        nc:/storage/space/database/images/srcid/database
+        to run vm
+  > run_time_option
+      c: /storage/images/srcid/machine,                     normal+snapshot
+      d: /storage/space/database/images/srcid/database,     normal+snapshot
+      e: /storage/images/data.vdi,                          multi-attached
+      f: network folder of /storage/space/software/*
+  > when submitting
+    >> delete c/d's snapshot
+
+    for image file
+    >> upload nc's /storage/images/srcid/machine to  cc's /storage/images/srcid/machine
+    >> upload cc's /storage/images/srcid/machine to clc's /storage/images/srcid/machine, and version it
+
+    for db file
+    >> upload cc's /storage/space/database/images/srcid/database to clc's /storage/space/database/images/srcid/database
+
+- server image BUILD flow (srcid, dstid)
+  > image will be download from clc:/storage/images/srcid/machine to cc's /storage/images/srcid/machine
+  > image will be download from  cc:/storage/images/srcid/machine to nc's /storage/images/srcid/machine
+  > nc will clone /storage/images/srcid/machine to /storage/tmp/images/dstid/machine
+
+  > db    will be download from clc:/storage/space/database/images/srcid/database to cc:/storage/space/database/images/srcid/database
+  > cc:/storage/space/database/images/srcid/database will be shared to nc:/storage/space/database/images/srcid/database
+  > nc will clone /storage/space/database/images/srcid/database to /storage/space/database/tmp/images/dstid/database
+
+  > based on
+        nc:/storage/tmp/images/dstid/machine
+        nc:/storage/space/database/tmp/images/dstid/database
+        to run vm
+  > run_time_option
+      c: /storage/tmp/images/dstid/machine,                     normal+snapshot
+      d: /storage/space/database/tmp/images/dstid/database,     normal+snapshot
+      e: /storage/images/data.vdi,                              multi-attached
+      f: network folder of /storage/space/software/*
+  > when submitting
+    >> delete c/d's snapshot
+
+    >> upload nc's /storage/tmp/images/dstid/machine to  cc's /storage/images/dstid/machine
+    >> upload cc's /storage/images/dstid/machine     to clc's /storage/images/dstid/machine, and version it
+
+    >> upload cc's /storage/space/database/tmp/images/dstid/database to clc's /storage/space/database/images/dstid/database
+
+6.3.1.2 Image Running
+
+- desktop vm instance  --> same as desktop image modify
+  > run_time_option
+      c: /storage/images/srcid/machine,                         snapshoted
+      d: netowrk folder of /storage/space/prv-data/<user>/
+      e: network folder of /storage/space/pub-data/
+- server  vm instance  --> same as server  image modify
+  > run_time_option
+      c: /storage/images/srcid/machine,                         snapshoted
+         clone /storage/space/database/images/srcid/database to /storage/space/database/instances/insid/databse
+      d: /storage/space/database/instances/insid/database,      write-through
+      f: network folder of /storage/space/software/*
+
+
+############################
+# 7. get server's CPU info 
+############################
+- find the number of physical CPUs:
+  cat /proc/cpuinfo | grep "^physical id" | sort | uniq | wc -l
+- find the number of cores per CPU:
+  cat /proc/cpuinfo | grep "^cpu cores" | uniq
+- find the total number of processors:
+  cat /proc/cpuinfo | grep "^processor" | wc -l
+
+############################
+# 8. Server installation
+############################
+- Ubuntu 14.04 Server 64bit
+- apt-get install xubuntu-desktop  #Xfce
+- configre DNS in ubuntu 14.04
+  $ sudo vim /etc/resolvconf/resolv.conf.d/base
+  nameserver 8.8.8.8
+  nameserver 8.8.4.4
+- DHCP should be a single installation package
+  it could be located on either clc or cc server
+  it could be located on either clc or cc server
+
+############################################
+# 9. network configuration for node & vms 
+############################################
+
+9.1 The network toplogy of cloud 
+flat   mode: all node & controller on same LAN
+tree   mode: all controller on same LAN, each cluster on its own LAN
+forest mode: controller distributed on different LAN(talk by public IP), each cluster on its own LAN
+
+9.2 IP addr allocation method
+Desktop VMs:  all get NAT address
+Server VMs:   all get IP via DHCP
+
+9.3 access mode
+9.3.1 access from inside
+Desktop VMs: 
+- (PUBLIC  mode)by ncip:port, 
+- (PRIVATE mode)by ccip:port -> ncip:port
+
+Server VMs:
+- (PUBLIC  mode)by vmip:port
+- (PUBLIC  mode)by ncip:port,
+
+- (PRIVATE mode)by ccip:port -> vmip:port
+- (PRIVATE mode)by ccip:port -> ncip:port
+
+9.3.2 access from outside
+- static port mapping
+  pre-defind & configure rules of port mapping
+- dynamic port mapping
+  deploy private firewall on clc
+
+9.4 DHCP Service:
+- deployed one for all VMs
+  * flat   mode:  on any physical server, prefer clc
+  * twins  mode:  on any physical server in node LAN
+- deployed one for each cluster
+  * tree   mode:  on any physical server in cluster LAN, prefer cc
+  * forest mode:  on any physical server in cluster LAN, prefer cc
+
+- deploy with switch's DHCP 
+  * require to enable fixed IP assignment by mac address
+- deploy with private DHCP
+  * use dnsmasq as DHCP server, with script to notify clc {add/del, IP, MAC} pair
+
+9.5 Summary
+- each vss vm is allocated with a private DHCP address
+- FLAT: public mode
+    * only one global DHCP server (private IP range, {mac,ip} pairs)
+    * vss in the same LAN as all servers
+    * access mode:
+        > from inside, directly access vss IP
+        > from outside, add port-forward on firewall
+
+- TREE: private mode
+    * each CC has its own DHCP server(private IP range, {mac,ip} pairs, forward port)
+    * vss in the same LAN as CC
+    * add port-forwarding rule on cc (ccip:8000 to vss:ip:80)
+- FOREST: private mode (TBD)
+    * each CC has its own DHCP server
+    * vss in the same LAN as CC
+
+access vss vm can be
+  * directly:
+    for inside user, access DHCP IP addr
+    for outside user, configure forward rule on system's firewall
+  * proxied by CC
+    pre-condition: CC will be assigned new IP per vss vm and configure forward rule
+    for inside user, access CC's new IP address
+    for outside user,
+       > CC's new IP addr is public IP
+       > add forward rule in system's firewall to CC's new IP addr
+
+
+-------------------------------------
+incoming coding work
+-------------------------------------
+0. (12/15)prepare mounted directory
+1. (12/15)vss build server logic, based on vd build logic
+   Done - create a database.vid
+   Done - re-install clc/cc/nc
+   Done - when updating image property
+          if it is server image, create /storage/space/database/imgid/database.vdi
+   Done - when cc daemon is running,
+          automaticall mount clc's /storage/{software, pub-data} to local
+   Done - when nc daemon is running
+          automatically mount cc's /storage/space/ to local /storage/space
+   Done - split web service into clc/walrus/cc by
+          different settings.py
+          add into install script : /etc/educloud/modules/{clc, walrus, cc, nc}
+   Igr - add django app for DHCP service management
+
+   Done - re-test desktop build work flow
+   TBDone - modify it to handle server build work flow
+
+2. Done    - GUI of vss definition
+3. ing     - vss running server logic
+4. ing    - permission control when login with different account
+5. ing    - 汉化
+6. ing    - package for install
+7. ing    - system testing
+
+
+8. add logic on both walrus, cc, nc to check
+   Done - is it stay wither others ?
+   Done - for pre-process of image download & submit
+
+9. Done - add machine & vm status report & display
+10. delete tasks
+11. ing  - support iptable & dhcp automatically for new instance
+
+
+
+

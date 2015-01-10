@@ -5,44 +5,9 @@ from luhyaapi.hostTools import *
 from luhyaapi.rsyncWrapper import *
 from luhyaapi.rabbitmqWrapper import *
 
-import time, pika, json
+import time, pika, json, os
 
 logger = getccdaemonlogger()
-
-class downloadWorkerThread(threading.Thread):
-    def __init__(self, dstip, tid):
-        threading.Thread.__init__(self)
-
-        self.dstip    = dstip
-        self.tid      = tid
-        retval = tid.split(':')
-        self.srcimgid = retval[0]
-        self.progress = 0
-
-    def getprogress(self):
-        return self.progress
-
-    def run(self):
-        logger.error("enter into downloadWorkerThread run()")
-        self.progress = 0
-
-        source = "rsync://%s/luhya/%s" % (self.dstip, self.srcimgid)
-        destination = "/storage/images/"
-        rsync = rsyncWrapper(source, destination)
-        rsync.startRsync()
-
-        while rsync.isRsyncLive():
-            tmpfilesize, pct, bitrate, remain = rsync.getProgress()
-            msg = "%s  %s %s %s" % (tmpfilesize, pct, bitrate, remain)
-            logger.error("luhya:%s", msg)
-            self.progress = int(pct.split('%')[0])
-
-        exit_code = rsync.getExitStatus()
-        if exit_code == 0:
-            self.progress = -100
-        else:
-            self.progress = exit_code
-        logger.error("%s: download thread exit with code=%s", self.tid, exit_code)
 
 class cc_rpcServerThread(run4everThread):
     def __init__(self, bucket):
@@ -53,11 +18,23 @@ class cc_rpcServerThread(run4everThread):
         self.channel.queue_declare(queue='rpc_queue')
         self.channel.basic_qos(prefetch_count=1)
 
+        self.clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+        walrusinfo = getWalrusInfo(self.clcip)
+        self.serverIP = walrusinfo['data']['ip0']
+
         self.cc_rpc_handlers = {
-            'image/download'    : self.cc_rpc_handle_imagedownload,
+            'image/prepare'             : self.cc_rpc_handle_imageprepare,
+            'image/submit'              : self.cc_rpc_handle_imagesubmit,
+            'image/prepare/failure'     : self.cc_rpc_handle_prepare_failure,
+            'image/prepare/success'     : self.cc_rpc_handle_prepare_success,
+            'image/submit/failure'      : self.cc_rpc_handle_submit_failure,
+            'image/submit/success'      : self.cc_rpc_handle_submit_success,
+            'image/edit/running'        : self.cc_rpc_handle_image_running,
+            'image/edit/stopped'        : self.cc_rpc_handle_image_stopped,
         }
 
         self.tasks_status = {}
+        self.submit_tasks = {}
 
     def run4ever(self):
         self.channel.basic_consume(self.on_request, queue='rpc_queue')
@@ -65,42 +42,244 @@ class cc_rpcServerThread(run4everThread):
 
     def on_request(self, ch, method, props, body):
         logger.error("get rpc cmd = %s" % body)
-        message = json.loads(body)
+        try:
+            message = json.loads(body)
 
-        if message['op'] in self.cc_rpc_handlers and self.cc_rpc_handlers[message['op']] != None:
-            self.cc_rpc_handlers[message['op']](ch, method, props, message['paras'])
-        else:
-            logger.error("unknow cmd : %s", message['op'])
+            if message['op'] in self.cc_rpc_handlers and self.cc_rpc_handlers[message['op']] != None:
+                self.cc_rpc_handlers[message['op']](ch, method, props, message['tid'], message['paras'])
+            else:
+                logger.error("unknow cmd : %s", message['op'])
+        except Exception as e:
+            logger("error msg = %s with body=%s" % (e.message, body))
 
+    def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
+        try:
+            logger.error("--- --- --- cc_rpc_handle_imageprepare")
 
-    def cc_rpc_handle_imagedownload(self, ch, method, props, tid):
-        if tid in self.tasks_status and self.tasks_status[tid] != None:
-            worker = self.tasks_status[tid]
-            progress = worker.getprogress()
-        else:
-            progress = 0
-            clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
-            walrusinfo = getWalrusInfo(clcip)
-            serverIP = walrusinfo['data']['ip0']
-            worker = downloadWorkerThread(serverIP, tid)
-            worker.start()
-            self.tasks_status[tid] = worker
+            prompt = 'Downloading file from Walrus to CC ... ...'
+            if paras == 'luhya':
+                prompt = 'Downloading image file from Walrus to CC ... ...'
+                source      = "rsync://%s/%s/%s" % (self.serverIP, 'luhya', tid.split(':')[0])
+                destination = "/storage/images/"
+            if paras == 'db':
+                prompt = 'Downloading database file from Walrus to CC ... ...'
+                source      = "rsync://%s/%s/%s" % (self.serverIP, 'db', tid.split(':')[0])
+                destination = "/storage/space/database/images/"
 
+            if tid in self.tasks_status and self.tasks_status[tid] != None:
+                worker = self.tasks_status[tid]
+            else:
+                worker = rsyncWorkerThread(logger, source, destination)
+                worker.start()
+                self.tasks_status[tid] = worker
+
+            payload = {
+                    'type'      : 'taskstatus',
+                    'phase'     : "preparing",
+                    'state'     : 'downloading',
+                    'progress'  : worker.getprogress(),
+                    'tid'       : tid,
+                    'prompt'    : prompt,
+                    'errormsg'  : worker.getErrorMsg(),
+                    'failed'    : worker.isFailed(),
+                    'done'      : worker.isDone(),
+            }
+            payload = json.dumps(payload)
+            ch.basic_publish(
+                     exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                     body=payload)
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+
+            if worker.isFailed() or worker.isDone():
+                del self.tasks_status[tid]
+
+        except Exception as e:
+            logger.error("cc_rpc_handle_imageprepare Exception Error Message : %s" % e.message)
+
+    def cc_rpc_handle_imagesubmit(self, ch, method, props, tid, paras):
         payload = {
-                'type'      : 'taskstatus',
-                'phase'     : "downloading",
-                'progress'  : progress,
-                'tid'       : tid
+            'type'      : 'taskstatus',
+            'phase'     : "submitting",
+            'state'     : 'uploading',
+            'progress'  : 0,
+            'tid'       : tid,
+            'prompt'    : '',
+            'errormsg'  : '',
+            'failed'    : 0,
+            'done'      : 0,
         }
-        payload = json.dumps(payload)
-        ch.basic_publish(
-                 exchange='',
-                 routing_key=props.reply_to,
-                 properties=pika.BasicProperties(correlation_id = props.correlation_id),
-                 body=payload)
-        ch.basic_ack(delivery_tag = method.delivery_tag)
+        try:
+            logger.error("--- --- --- cc_rpc_handle_imagesubmit")
+            insid = tid.split(':')[2]
+            dstid = tid.split(':')[1]
+            prompt = 'Uploading file from CC to Walrus ... ...'
+            if paras == 'luhya':
+                prompt      = 'Uploading image file from CC to Walrus ... ...'
+                source      = "/storage/images/%s" % tid.split(':')[1]
+                destination = "rsync://%s/%s/" % (self.serverIP, 'luhya')
+            if paras == 'db':
+                prompt      = 'Uploading database file from CC to Walrus ... ...'
+                destination = "rsync://%s/%s/" % (self.serverIP, 'db')
+                if insid.find('TMP') == 0:
+                    source      = '/storage/space/database/images/%s' %  dstid
+                if insid.find('VS')  == 0:
+                    payload['progress'] = 100
+                    payload['prompt']   = prompt
+                    payload['done']     = 1
 
-        if progress < 0:
-            del self.tasks_status[tid]
+                    payload = json.dumps(payload)
+                    ch.basic_publish(
+                             exchange='',
+                             routing_key=props.reply_to,
+                             properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                             body=payload)
+                    ch.basic_ack(delivery_tag = method.delivery_tag)
+                    return
 
+            if tid in self.submit_tasks and self.submit_tasks[tid] != None:
+                worker = self.submit_tasks[tid]
+            else:
+                worker = rsyncWorkerThread(logger, source, destination)
+                worker.start()
+                self.submit_tasks[tid] = worker
+
+            payload['progress'] = worker.getprogress()
+            payload['prompt']   = prompt
+            payload['errormsg'] = worker.getErrorMsg()
+            payload['failed']   = worker.isFailed()
+            payload['done']     = worker.isDone()
+            payload = json.dumps(payload)
+            ch.basic_publish(
+                     exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                     body=payload)
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+
+            if worker.isFailed() or worker.isDone():
+                del self.submit_tasks[tid]
+        except Exception as e:
+            logger.error("cc_rpc_handle_imagesubmit Exception Error Message : %s" % e.message)
+
+    def cc_rpc_handle_prepare_failure(self, ch, method, props, tid, paras):
+        try:
+            logger.error("--- --- --- cc_rpc_handle_prepare_failure")
+
+            clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+            payload = prepareImageFailed(clcip, tid)
+
+            payload = json.dumps(payload)
+            ch.basic_publish(
+                     exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                     body=payload)
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+        except Exception as e:
+            logger.error("cc_rpc_handle_prepare_failure Exception Error Message : %s" % e.message)
+
+    def cc_rpc_handle_prepare_success(self, ch, method, props, tid, paras):
+        try:
+            logger.error("--- --- --- cc_rpc_handle_prepare_success")
+
+            clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+            payload = prepareImageFinished(clcip, tid)
+
+            payload = json.dumps(payload)
+            ch.basic_publish(
+                     exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                     body=payload)
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+        except Exception as e:
+            logger.error("cc_rpc_handle_prepare_success Exception Error Message : %s" % e.message)
+
+    def cc_rpc_handle_submit_failure(self, ch, method, props, tid, paras):
+        try:
+            logger.error("--- --- --- cc_rpc_handle_submit_failure")
+
+            clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+            payload = submitImageFailed(clcip, tid)
+
+            payload = json.dumps(payload)
+            ch.basic_publish(
+                     exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                     body=payload)
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+        except Exception as e:
+            logger.error("cc_rpc_handle_submit_failure Exception Error Message : %s" % e.message)
+
+    def cc_rpc_handle_submit_success(self, ch, method, props, tid, paras):
+        try:
+            logger.error("--- --- --- cc_rpc_handle_submit_success")
+
+            if tid in self.tasks_status and self.tasks_status[tid] != None:
+                del self.tasks_status[tid]
+
+            if tid in self.submit_tasks and self.submit_tasks[tid] != None:
+                del self.submit_tasks[tid]
+
+            # send http request to clc to
+            #  1. add a new image record, and set it properties
+            #  2. delete transaction record
+            clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+            payload = submitImageFinished(clcip, tid)
+
+            logger.error("submitImageFinished with result = %s" % payload)
+            payload = json.dumps(payload)
+            ch.basic_publish(
+                     exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                     body=payload)
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+
+            _tid = tid.split(':')
+            dstimgid = _tid[1]
+
+            oldversionNo = ReadImageVersionFile(dstimgid)
+            newversionNo = IncreaseImageVersion(oldversionNo)
+            WriteImageVersionFile(dstimgid,newversionNo)
+            logger.error("image %s version = %s" % (dstimgid, newversionNo))
+        except Exception as e:
+            logger.error("cc_rpc_handle_submit_success Exception Error Message : %s" % e.message)
+
+    def cc_rpc_handle_image_running(self, ch, method, props, tid, paras):
+        try:
+            logger.error("--- --- --- cc_rpc_handle_image_running")
+
+            clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+            payload = updateVMStatus(clcip, tid, 'running')
+
+            payload = json.dumps(payload)
+            ch.basic_publish(
+                     exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                     body=payload)
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+        except Exception as e:
+            logger.error("cc_rpc_handle_image_running Exception Error Message : %s" % e.message)
+
+    def cc_rpc_handle_image_stopped(self, ch, method, props, tid, paras):
+        try:
+            logger.error("--- --- --- cc_rpc_handle_image_stopped")
+
+            clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+            payload = updateVMStatus(clcip, tid, 'stopped')
+
+            payload = json.dumps(payload)
+            ch.basic_publish(
+                     exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                     body=payload)
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+        except Exception as e:
+            logger.error("cc_rpc_handle_image_stopped Exception Error Message : %s" % e.message)
 
