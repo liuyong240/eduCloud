@@ -74,4 +74,4 @@ python manage.py changepassword luhya
 #8 init database 
 desc_step "8 init database data"
 cd $SRC_ROOT/luhyacloud/clc/sql
-./init_data.sh
+# ./init_data.sh
