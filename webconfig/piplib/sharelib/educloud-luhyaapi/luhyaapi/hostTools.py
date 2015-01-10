@@ -54,6 +54,9 @@ def ReadImageVersionFile(imgid):
         return '0.0.0'
 
 def IncreaseImageVersion(versionStr):
+    if versionStr == '0.0.0':
+        return '1.0.0'
+
     major, minor, build = versionStr.split('.')
     major = int(major)
     minor = int(minor)

@@ -1184,7 +1184,7 @@ def getServicePortfromCC(ccname):
 
 
 def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
-
+    logger.error(' --- releaseRuntimeOptionForImageBuild ... ...')
     tidrec = ectaskTransaction.objects.get(tid=_tid)
     creator = tidrec.user
 
@@ -1199,6 +1199,7 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
     # release CC Resource
     # 1. rdp port
     if 'rdp_port' in runtime_option.keys() and runtime_option['rdp_port']  != '':
+        logger.error('release rdp port %s' % runtime_option['rdp_port'])
         available_rdp_port = json.loads(ccres_info.rdp_port_pool_list)
         used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
 
@@ -1210,7 +1211,11 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
         ccres_info.save()
 
     # 2. release
-    if 'web_ip' in runtime_option.keys() and runtime_option['web_ip'] != '':
+    if 'web_ip' in runtime_option.keys() and \
+        runtime_option['web_ip'] != ''   and \
+        runtime_option['networkcards'] == 'tree' and \
+        ccres_info.cc_usage == 'vs' :
+        logger.error('release web ip %s' % runtime_option['web_ip'])
         availabe_web_ips = json.loads(ccres_info.pub_ip_pool_list)
         used_web_ips     = json.loads(ccres_info.used_pub_ip)
 
@@ -1227,6 +1232,7 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
 
     # 4. release iptables
     if 'iptable_rules' in runtime_option.keys() and runtime_option['iptable_rules'] != []:
+        logger.error('--- notify cc %s to release iptables ... ...' % tidrec.ccip)
         if DAEMON_DEBUG == True:
             url = 'http://%s:8000/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
         else:
@@ -2172,6 +2178,7 @@ def ethers_free(insid):
         e = ecDHCPEthers.objects.get(insid=insid)
         e.insid = ''
         e.save()
+        logger.error('release ethers %s %s %s' % (e.mac, e.ip, e.ex_web_proxy_port, insid))
     else:
         logger.error('no ethers allocated to %s' % insid)
 
