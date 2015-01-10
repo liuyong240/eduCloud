@@ -18,7 +18,7 @@ test -d "images"   || sudo mkdir images VMs config space
 cd /storage/space
 test -d "software" || sudo mkdir software pub-data prv-data database
 cd database
-test -d "images"   || sudo mkdir images
+test -d "images"   || sudo mkdir images instances
 
 sudo chown -R luhya:luhya /storage
 sudo chown -R luhya:luhya /var/log/educloud
@@ -32,6 +32,7 @@ sudo touch /etc/educloud/modules/walrus
 
 #2 prepare dependented packages
 desc_step "2. prepare dependented packages"
+# also need to install virtual-box
 sudo apt-get install memcached libmemcached-tools mysql-server libmysqld-dev libmysqlclient-dev apache2 rabbitmq-server libapache2-mod-wsgi python-dev ifstat sysstat sudo openssh-server python-pip sshfs iperf
 
 #3 configure rabbitmq service
@@ -73,4 +74,4 @@ python manage.py changepassword luhya
 #8 init database 
 desc_step "8 init database data"
 cd $SRC_ROOT/luhyacloud/clc/sql
-./init_data.sh
+# ./init_data.sh

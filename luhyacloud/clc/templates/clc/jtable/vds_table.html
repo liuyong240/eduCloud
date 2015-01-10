@@ -1,18 +1,6 @@
 {% extends "clc/jtable/template.html" %}
 {% load i18n %}
 
-{% block myfilter %}
-<div class="filtering">
-    <form>
-        <p>
-           Name:<input type="text"  id="name" />
-           OS Type:<input type="text" id="ostype" />
-           <button type="submit" id="LoadRecordsButton">Filter Images</button>
-        </p>
-    </form>
-</div>
-<p></p>
-{% endblock %}
 
 {% block myjs %}
 <script type="text/javascript">
@@ -22,26 +10,22 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'Images List',
-
+            title: 'cloud server list',
             selecting: true, //Enable selecting
-            //selectingCheckboxes: true, //Show checkboxes on first column
 
             sorting: true, //Enable sorting
             defaultSorting: 'Name ASC', //Set default sorting
 
             actions: {
-                listAction:   '/clc/api/1.0/images/list',
-                deleteAction: '/clc/api/1.0/images/delete',
-                updateAction: '/clc/api/1.0/images/update',
-                //createAction: '/clc/api/1.0/images/create'
+                listAction:    '/clc/api/1.0/vds/list',
             },
+
             fields: {
                 id: {
                     key: true,
-                    edit: false,
-                    create: false,
                     list: false,
+                    edit: false,
+                    create: false
                 },
                 //CHILD TABLE DEFINITION FOR "EXAMS"
                 mychild: {
@@ -50,19 +34,19 @@
                     sorting: false,
                     edit: false,
                     create: false,
-                    display: function (imagesData) {
+                    display: function (vdsData) {
                         //Create an image that will be used to open child table
                         var $img = $('<img src="/static/clc/pics/list_metro.png" />');
                         //Open child table when user clicks the image
                         $img.click(function () {
                             $('#myjtable').jtable('openChildTable',
                                     $img.closest('tr'), {
-                                    title: 'Image ' + imagesData.record.name + ' Detail Description',
+                                    title: 'Cloud Desktop ' + vdsData.record.name + ' Detail Description',
                                     actions: {
                                         listAction: function (postData, jtParams) {
                                                 return {
                                                     "Result": "OK",
-                                                    "Records": [{ "description": imagesData.record.description }],
+                                                    "Records": [{ "description": vdsData.record.description }],
                                                     "TotalRecordCount": 1
                                                 };
                                             }
@@ -84,39 +68,53 @@
                         return $img;
                     }
                 },
-                ecid: {
-                    title: 'ecID',
+                insid: {
+                    title: 'Instance ID',
                     width: '10%',
                     edit: false,
+                    create: false,
+                },
+                imageid: {
+                    title: 'Image ID',
+                    width: '10%',
+                    edit: false,
+                    create: false,
                 },
                 name: {
                     title: 'Name',
-                    width: '10%'
-                },
-                ostype: {
-                    title: 'OSType',
                     width: '10%',
-                    options: '/clc/api/1.0/settings/ostype/option/list'
+                    create: false,
                 },
-                usage: {
-                    title: 'Usage',
+                state: {
+                    title: 'VM State',
                     width: '10%',
-                    options: '/clc/api/1.0/settings/vmusage/option/list'
-                },
-                version: {
-                    title: "Version",
-                    width: '20%',
-                    edit: false,
-                },
-                size: {
-                    title: "Size(G)",
-                    width: '20%',
-                    edit: false,
+                    create: false,
                 },
                 description: {
-                    title: 'Desc',
-                    type: 'textarea',
-                    list: false
+                    title: 'Description',
+                    width: '10%',
+                    create: false,
+                    list: false,
+                },
+                cc: {
+                    title: 'Cluster',
+                    width: '10%',
+                    create: false,
+                },
+                nc: {
+                    title: 'Node',
+                    width: '10%',
+                    create: false,
+                },
+                cpus: {
+                    title: 'CPUs',
+                    width: '5%',
+                    create: false,
+                },
+                memory: {
+                    title: 'Memory',
+                    width: '5%',
+                    create: false,
                 },
             },
             //Register to selectionChanged event to hanlde events
@@ -128,32 +126,18 @@
                     $selectedRows.each(function () {
                         //Show selected rows
                         var record = $(this).data('record');
-                        window.parent.imageSelected(record.ecid);
-                        //alert("selected image " + record.ecid);
+                        window.parent.vssSelected(record.insid, record.imageid);
+
                     });
                 } else {
                     //No rows selected
-                    window.parent.imageSelected(null);
-                    //alert("no images selected!");
+                    window.parent.vssSelected(null, null);
                 }
             },
         });
 
-        //Re-load records when user click 'load records' button.
-        $('#LoadRecordsButton').click(function (e) {
-            e.preventDefault();
-
-            $('#myjtable').jtable('load', {
-                name: $("#name").val(),
-                ostype: $("#ostype").val(),
-            });
-        });
-
-        //Load all records when page is first shown
-        $('#LoadRecordsButton').click();
-
         //Load student list from server
-        //$('#myjtable').jtable('load');
+        $('#myjtable').jtable('load');
     });
 
 </script>

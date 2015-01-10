@@ -1,0 +1,218 @@
+{% extends "clc/wizard/wizard.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block myjavascript %}
+<script>
+$(document).ready(function () {
+    function init_page() {
+        if ( '{{imgobj.img_usage }}' == 'desktop') {
+            $('#macip-config').css('display', 'none');
+        }
+
+        if ( '{{ vm.name }}' != '') {
+            $('#vm_name').val("{{ vm.name}}");
+            $('#vm_desc').val("{{ vm.description }}");
+            $('#vm_cc').val("{{ vm.cc_def}}");
+            $('#vm_cpus').val("{{ vm.cpus }}");
+            $('#vm_mems').val("{{ vm.memory }}");
+            $('#vm_cc').trigger('change');
+
+            $('#vm_nc').val("{{ vm.nc_def }}");
+            $('#vm_macip').val("{{ vm.mac }}");
+        } else {
+            $('#vm_cc').trigger('change');
+        }
+    }
+    function submit_new_vs() {
+        vm_insid    = '{{ insid }}';
+        vm_imgid    = '{{ imgobj.ecid }}';
+        vm_name     = $('#vm_name').val();
+        vm_desc     = $('#vm_desc').val();
+
+        vm_cc       = $('#vm_cc').val();
+        vm_nc       = $('#vm_nc').val();
+
+        vm_cpus     = $('#vm_cpus').val();
+        vm_mems     = $('#vm_mems').val();
+        vm_macip    = $('#vm_macip').val();
+
+        if ( '{{imgobj.img_usage}}' == 'desktop') {
+            url = "/clc/api/1.0/vds/create";
+        }
+        if ( '{{imgobj.img_usage}}' == 'server') {
+            url = "/clc/api/1.0/vss/create";
+        }
+
+        postdata = {
+            'insid'          :    vm_insid,
+            'imageid'        :    vm_imgid,
+            'name'           :    vm_name,
+            'description'    :    vm_desc,
+            'cc_def'         :    vm_cc,
+            'nc_def'         :    vm_nc,
+            'cpus'           :    vm_cpus,
+            'mems'           :    vm_mems,
+            'mac'            :    vm_macip,
+        }
+
+        $.post(url, postdata, function(data) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+            if (items['Result'] == "OK") {
+                alert('create vm success! ');
+            }
+        });
+    }
+
+    function sleep(sleepTime) {
+        for (var start = Date.now(); Date.now() - start <= sleepTime;) {}
+    }
+
+    $("#wizard").jWizard({
+        title: true,
+        menu: true,
+        progress: {
+            label: "count",
+            append: ""
+        },
+        buttons: {
+            finish: {
+                type: "button",
+            }
+        },
+        cancel: function () {
+            window.close();
+        },
+        finish: function () {
+            submit_new_vs();
+            sleep(1000);
+            window.close();
+        }
+    });
+
+    $( "#vm_cc" ).change(function() {
+        ccname = $("#vm_cc").val()
+
+        url = "/clc/api/1.0/servers/list/nc";
+        postdata = {
+            ccname          :  ccname,
+            ip              : '',
+        }
+
+        $.post(url, postdata, function(data) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+            if (items['Result'] == "OK") {
+                // add option to select with id = vm_nc
+                ncs = items['Records'];
+                len = ncs.length;
+                $("#vm_nc").empty();
+                $("#vm_nc").append('<option selected value="any">Any</option>');
+                for (var index = 0; index < len; index++) {
+                    ip = ncs[index]['ip0'];
+                    $("#vm_nc").append('<option value="' + ip + '">' + ip +'</option>');
+                }
+            }
+        });
+
+        url = "/clc/api/1.0/ethers/list/" + ccname;
+        postdata = {}
+
+        $.post(url, postdata, function(data) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+            if (items['Result'] == "OK") {
+                // add option to select with id = vm_macip
+                macips = items['Records'];
+                len = macips.length;
+                $("#vm_macip").empty();
+                for (var index = 0; index < len; index++) {
+                    if (macips[index]['insid'] == '') {
+                        ip = macips[index]['ip'];
+                        mac = macips[index]['mac'];
+                        $("#vm_macip").append('<option value="' + mac + '">' + mac + '-' + ip +'</option>');
+                    }
+                }
+            }
+        });
+
+    });
+
+    init_page();
+
+});
+</script>
+{% endblock %}
+
+{% block mywizard %}
+    <form id="wizard">
+        <fieldset>
+            <legend>{% trans "Basic Config" %}</legend>
+            <div class="form-group">
+                <label>Image Name</label>
+                <input class="form-control" type="text" value="{{ imgobj.name}}" disabled="">
+            </div>
+            <div class="form-group">
+                <label>VS VM Name</label>
+                <input id="vm_name" class="form-control" type="text" value="{{ vm.name }}" >
+            </div>
+            <div class="form-group">
+                <label>VS VM Description</label>
+                <input id="vm_desc" class="form-control" type="text" value="{{ vm.description }}" >
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>{% trans "Running Config" %}</legend>
+            <div class="form-group">
+                <label>Select Cluster</label>
+                <select class="form-control" id="vm_cc">
+                    {% for cc in ccs %}
+                        <option value="{{ cc.ccname }}">{{ cc.ccname}}</option>
+                    ß{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Select Node</label>
+                <select class="form-control" id="vm_nc">
+                    <option value="any">any</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>{% trans "Hardware Config" %}</legend>
+            <div class="form-group">
+                <label>Select CPUs</label>
+                <select id="vm_cpus" class="form-control">
+                    <option selected value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Select Memory(G)</label>
+                <select id="vm_mems" class="form-control">
+                    <option selected value="2">2G</option>
+                    <option value="4">4G</option>
+                    <option value="8">8G</option>
+                    <option value="16">16G</option>
+                </select>
+            </div>
+            <div id="macip-config">
+                <div class="form-group">
+                    <label>Select MAC/IP</label>
+                    <select class="form-control" id="vm_macip">
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+{% endblock %}

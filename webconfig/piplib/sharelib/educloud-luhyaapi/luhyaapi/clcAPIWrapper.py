@@ -25,6 +25,14 @@ def getImageVersionFromCC(ccip, imgid):
     r = requests.get(url)
     return json.loads(r.content)
 
+def verify_clc_cc_image_info(ccip, imgid):
+    if DAEMON_DEBUG == True:
+        url = "http://%s:8000/cc/api/1.0/verify/clc/cc/file/ver/%s" % (ccip, imgid)
+    else:
+        url = "http://%s/cc/api/1.0/verify/clc/cc/file/ver/%s" % (ccip, imgid)
+    r = requests.get(url)
+    return json.loads(r.content)
+
 def prepareImageFailed(clcip, tid):
     retval = tid.split(':')
     srcid = retval[0]

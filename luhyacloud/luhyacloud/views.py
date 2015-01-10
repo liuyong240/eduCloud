@@ -28,7 +28,7 @@ def machine_cpu_util(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 def machine_mem_util(request):
@@ -37,7 +37,7 @@ def machine_mem_util(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def machine_net_util(request):
     response = {}
@@ -45,7 +45,7 @@ def machine_net_util(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def machine_disk_util(request):
     response = {}
@@ -53,15 +53,15 @@ def machine_disk_util(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def get_service_status(request):
     role = request.POST['role']
     result = getServiceStatus(role )
     retvalue = json.dumps(result)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def get_hardware_status(request):
     result = getHostHardware()
     retvalue = json.dumps(result)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")

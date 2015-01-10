@@ -26,22 +26,6 @@ import requests, memcache
 
 logger = getclclogger()
 
-def findLazyNC(cc_name):
-    ncs = ecServers.objects.filter(ccname=cc_name, role='nc')
-    return ncs[0].ip0
-
-# this is simple algorith, just find the first cc in db
-def findLazyCC(srcid):
-    rec = ecImages.objects.get(ecid=srcid)
-    if rec.img_usage == "server":
-        filter = 'vs'
-    else:
-        filter = 'rvd'
-
-    ccs = ecCCResources.objects.filter(cc_usage=filter)
-    ccip = ccs[0].ccip
-    return ccip, ccs[0].ccname
-
 ''' Example of nc status data in memcache
 {
     "net_data": {
@@ -80,13 +64,88 @@ def findLazyCC(srcid):
     "type": "nodestatus"
 }
 '''
+
+
+def findVMRunningResource(insid):
+    l = SortedList()
+
+    ccip = None
+    ncip = None
+    _msg  = "Can't Find appropriate cluster machine and node machine ."
+
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+
+    if insid.find('VD') == 0:
+        vmrec = ecVDS.objects.get(insid=insid)
+        cpu = 20
+        disk = 20
+    if insid.find('VS') == 0:
+        vmrec = ecVSS.objects.get(insid=insid)
+        cpu = 10
+        disk = 10
+
+    cc_def = vmrec.cc_def
+    nc_def = vmrec.nc_def
+    mem = vmrec.memory + 2
+
+    ccobj = ecServers.objects.get(ccname=cc_def, role='cc')
+
+    if nc_def == 'any':
+        ncs = ecServers.objects.filter(ccname=ccobj.ccname, role='nc')
+        for nc in ncs:
+            key = str('nc#%s#status' % nc.mac0)
+            try:
+                payload = mc.get(key)
+                if payload == None:
+                    continue
+                else:
+                    payload = json.loads(payload)
+                    data = payload['hardware_data']
+                    data['xncip'] = nc.ip0
+                    data['xccip'] = ccobj.ip0
+                    logger.error(json.dumps(data))
+                    l.add(data)
+            except Exception as e:
+                continue
+    else:
+        ncobj = ecServers.objects.get(ccname=cc_def, ip0=nc_def)
+        key = str('nc#%s#status' % ncobj.mac0)
+        try:
+            payload = mc.get(key)
+            if payload == None:
+                pass
+            else:
+                payload = json.loads(payload)
+                data = payload['hardware_data']
+                data['xncip'] = ncobj.ip0
+                data['xccip'] = ccobj.ip0
+                logger.error(json.dumps(data))
+                l.add(data)
+        except Exception as e:
+            pass
+
+    # now check sorted nc to find best one
+    for index in range(0, len(l)):
+        data = l[index]
+        avail_cpu = 100 - data['cpu_usage']
+        avail_mem = data['mem'] * (1 - data['mem_usage'] / 100.0)
+        avail_disk = data['disk'] * (1 - data['disk_usage'] / 100.0)
+        if avail_cpu > cpu and avail_mem > mem and avail_disk > disk:
+            ccip = data['xccip']
+            ncip = data['xncip']
+            msg = ''
+            logger.error("get best node : ip = %s" % ncip)
+            break
+
+    return ccip, ncip, msg
+
 def findBuildResource(srcid):
 
     l = SortedList()
 
     _ccip = None
     _ncip = None
-    _msg  = "Can't Find enough resource."
+    _msg  = "Can't Find appropriate cluster machine and node machine ."
 
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
@@ -96,8 +155,8 @@ def findBuildResource(srcid):
     if rec.img_usage == "server":
         filter = 'vs'
         cpu = 10
-        mem = 4+2
         disk = 10
+        mem = 4+2
     else:
         filter = 'rvd'
         cpu = 20
@@ -157,17 +216,17 @@ def user_login(request):
             login(request, user)
             response['status'] = "SUCCESS"
             response['url'] = "/clc/settings"
-            return HttpResponse(json.dumps(response), mimetype='application/json')
+            return HttpResponse(json.dumps(response), content_type='application/json')
         else:
             # Return a 'disabled account' error message
             response['status'] = "FAILURE"
             response['reason'] = "account is disabled"
-            return HttpResponse(json.dumps(response), mimetype='application/json')
+            return HttpResponse(json.dumps(response), content_type='application/json')
     else:
         # Return an 'invalid login' error message.
         response['status'] = "FAILURE"
         response['reason'] = "account is invalid"
-        return HttpResponse(json.dumps(response), mimetype='application/json')
+        return HttpResponse(json.dumps(response), content_type='application/json')
 
 def user_logout(request):
     logout(request)
@@ -198,7 +257,7 @@ def account_create(request):
     if num > 0 :
         response['Result'] = 'FAIL'
         response['errormsg'] = 'duplicated user name.'
-        return HttpResponse(json.dumps(response), mimetype="application/json")
+        return HttpResponse(json.dumps(response), content_type="application/json")
 
     # 2. start to create new account
     user = User.objects.create_user(request.POST['userid'], request.POST['email'], request.POST['password'])
@@ -217,7 +276,7 @@ def account_create(request):
     rec.save()
 
     response['Result'] = 'OK'
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 @login_required
 def admin_batch_add_new_accounts(request):
@@ -256,7 +315,7 @@ def account_create_batch(request):
         if num > 0:
             response['Result'] = 'FAIL'
             response['errormsg'] = 'duplicated user name: ' + newname
-            return HttpResponse(json.dumps(response), mimetype="application/json")
+            return HttpResponse(json.dumps(response), content_type="application/json")
 
     for u in user_list:
         user = User.objects.create_user(u, email, password)
@@ -271,7 +330,7 @@ def account_create_batch(request):
         rec.save()
 
     response['Result'] = 'OK'
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 def request_new_account(request):
     context = {}
@@ -292,7 +351,7 @@ def account_request(request):
     if num > 0 :
         response['Result'] = 'FAIL'
         response['errormsg'] = 'duplicated user name.'
-        return HttpResponse(json.dumps(response), mimetype="application/json")
+        return HttpResponse(json.dumps(response), content_type="application/json")
 
     # 2. start to create new account
     user = User.objects.create_user(userid, email, password)
@@ -313,7 +372,7 @@ def account_request(request):
     rec.save()
 
     response['Result'] = 'OK'
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 def restore_password(request):
     context = {}
@@ -369,7 +428,7 @@ def account_update_profile(request):
 
     response = {}
     response['Result'] = 'OK'
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 def edit_password(request, uid):
     context = {
@@ -383,7 +442,7 @@ def activate_user(request, uid):
     u.save()
 
     Message = " user %s is activated now." % uid
-    return HttpResponse(Message, mimetype="application/json")
+    return HttpResponse(Message, content_type="application/json")
 
 def account_reset_password(request):
     uid = request.POST['userid']
@@ -398,12 +457,12 @@ def account_reset_password(request):
         user.set_password(newpw)
         user.save()
         response['Result'] = "OK"
-        return HttpResponse(json.dumps(response), mimetype='application/json')
+        return HttpResponse(json.dumps(response), content_type='application/json')
     else:
         # Return an 'invalid login' error message.
         response['Result'] = "FAILURE"
         response['errormsg'] = "Password is not correct!"
-        return HttpResponse(json.dumps(response), mimetype='application/json')
+        return HttpResponse(json.dumps(response), content_type='application/json')
 
 ##########################################################################
 ##########################################################################
@@ -597,6 +656,7 @@ def cc_mgr_ccname(request, ccname):
     htmlstr = htmlstr.replace('{{host_ips.location}}',    host_ips['location'])
 
     htmlstr = htmlstr.replace('{{hardware_data.cpus}}',        str(hardware_data['cpus']))
+    htmlstr = htmlstr.replace('{{hardware_data.cpu_usage}}',   str(hardware_data['cpu_usage']))
     htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
     htmlstr = htmlstr.replace('{{hardware_data.mem_usage}}',   str(hardware_data['mem_usage']))
 
@@ -617,7 +677,7 @@ def cc_mgr_ccname(request, ccname):
     response = {}
     response['Result'] = 'OK'
     response['data'] = htmlstr
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 @login_required
 def nc_mgr_view(request):
@@ -660,7 +720,7 @@ def nc_mgr_mac(request, ccname, mac):
         response = {}
         response['Result'] = 'OK'
         response['data'] = '<div class="col-lg-6"><p>detail information is NOT available.</p></div>'
-        return HttpResponse(json.dumps(response), mimetype="application/json")
+        return HttpResponse(json.dumps(response), content_type="application/json")
 
     htmlstr = NC_DETAIL_TEMPLATE
     vmstr   = VM_LIST_GROUP_ITEM
@@ -672,13 +732,14 @@ def nc_mgr_mac(request, ccname, mac):
             _vm = _vm.replace('{{vminfo.guest_os}}', vm['guest_os'])
             _vm = _vm.replace('{{vminfo.mem}}',      str(vm['mem']))
             _vm = _vm.replace('{{vminfo.vcpu}}',     str(vm['vcpu']))
+            _vm = _vm.replace('{{vminfo.state}}',    vm['state'])
             vms = vms + _vm
 
         htmlstr = htmlstr.replace('{{vminfos}}',  vms)
     else:
         novmstr = '''
                 <p class="list-group-item">
-                No Running VMs available
+                No VMs Information available
                 </p>
         '''
         htmlstr = htmlstr.replace('{{vminfos}}',  novmstr)
@@ -690,6 +751,7 @@ def nc_mgr_mac(request, ccname, mac):
     htmlstr = htmlstr.replace('{{host_ips.location}}',    host_ips['location'])
 
     htmlstr = htmlstr.replace('{{hardware_data.cpus}}',        str(hardware_data['cpus']))
+    htmlstr = htmlstr.replace('{{hardware_data.cpu_usage}}',   str(hardware_data['cpu_usage']))
 
     htmlstr = htmlstr.replace('{{hardware_data.mem}}',         str(hardware_data['mem']))
     htmlstr = htmlstr.replace('{{hardware_data.mem_usage}}',   str(hardware_data['mem_usage']))
@@ -711,7 +773,7 @@ def nc_mgr_mac(request, ccname, mac):
     response = {}
     response['Result'] = 'OK'
     response['data'] = htmlstr
-    return HttpResponse(json.dumps(response), mimetype="application/json")
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 
 @login_required
@@ -911,7 +973,7 @@ def tools_list_dir_software(request):
             node['name'] = name
         ret.append(node)
 
-    return HttpResponse(json.dumps(ret), mimetype="application/json")
+    return HttpResponse(json.dumps(ret), content_type="application/json")
 
 def software_operation(request):
     op   = request.POST['cmd']
@@ -942,7 +1004,7 @@ def software_operation(request):
 
     ret={}
     ret['Result'] = 'OK'
-    return HttpResponse(json.dumps(ret), mimetype="application/json")
+    return HttpResponse(json.dumps(ret), content_type="application/json")
 
 ###################################################################################
 # Form
@@ -1043,7 +1105,7 @@ def cc_modify_resources(request, cc_name):
         response = {}
         response['Result'] = 'OK'
 
-        return HttpResponse(json.dumps(response), mimetype="application/json")
+        return HttpResponse(json.dumps(response), content_type="application/json")
     else:
         rec = ecCCResources.objects.get(ccname=cc_name)
         context = {
@@ -1070,17 +1132,31 @@ def cc_modify_resources(request, cc_name):
 #
 #     # 3. network
 #     3.1 'rdp_port'          :
-#     3.2 'netwowrkcards'     :
+#     3.2 'netwowrkcards'     :  VM's network card property, ip/mac from table ecDHCPEthers
 #     [
 #         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
 #         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
 #         { 'nic_type': "", 'nic_mac': "" , 'nic_ip': ""},
 #         ... ...
 #     ]
-#     3.3 pub_ip, prv_ip, iptable
-#     'publicIP'          :
-#     'privateIP'         :
-#     'web_ip'            :
+#     3.3.1 'disks' : [
+#         {
+#           'file'      :  '/storage/images/imgid/machine'
+#           'mtype'     :  'normal'
+#         }
+#         {
+#           'file'      :  '/storage/space/database/images/imgid/database'
+#           'mtype'     :  'write-through'
+#         }
+#     ]
+#     3.3.2 'folders'   : [
+#         '/storage/space/software/',
+#         '/storage/space/prv-data/<user>/',
+#         '/storage/space/pub-data/'
+#     ]
+#     3.4 pub_ip, prv_ip, iptable
+#     'rdp_ip'          :   used for vm management
+#     'web_ip'          :   used for accessing vm web server
 #
 #     'iptable_rules'     :
 #     [
@@ -1088,9 +1164,9 @@ def cc_modify_resources(request, cc_name):
 #         'rule2',
 #         ... ...
 #     ]
-#     3.4
-#     'web_accessURL'     :
-#     'mgr_accessURL'     :
+#     3.5
+#     'web_accessURL'     :  web_ip:80, or ex_ccip:xxxx
+#     'mgr_accessURL'     :  rdp_ip:rdp_port, or ex_ccip:rdp_port
 
 #     # 4. related to issuer
 #     'run_with_snapshot' : 1, 0
@@ -1106,12 +1182,142 @@ def getIPandMacFromePool(ccname):
 def getServicePortfromCC(ccname):
     pass
 
-def genRuntimeOptionForImageBuild(transid, ccip, ncip):
+
+def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
+    logger.error(' --- releaseRuntimeOptionForImageBuild ... ...')
+    tidrec = ectaskTransaction.objects.get(tid=_tid)
+    creator = tidrec.user
+
+    if _runtime_option == None:
+        runtime_option = json.loads(tidrec.runtime_option)
+    else:
+        runtime_option = _runtime_option
+
+    ccobj       = ecServers.objects.get(ip0=tidrec.ccip, role='cc')
+    ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
+
+    # release CC Resource
+    # 1. rdp port
+    if 'rdp_port' in runtime_option.keys() and runtime_option['rdp_port']  != '':
+        logger.error('release rdp port %s' % runtime_option['rdp_port'])
+        available_rdp_port = json.loads(ccres_info.rdp_port_pool_list)
+        used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
+
+        available_rdp_port, used_rdp_ports = free_rdp_port(available_rdp_port, used_rdp_ports, runtime_option['rdp_port'])
+
+        ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
+        ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
+
+        ccres_info.save()
+
+    # 2. release
+    if 'web_ip' in runtime_option.keys() and \
+        runtime_option['web_ip'] != ''   and \
+        runtime_option['networkcards'] == 'tree' and \
+        ccres_info.cc_usage == 'vs' :
+        logger.error('release web ip %s' % runtime_option['web_ip'])
+        availabe_web_ips = json.loads(ccres_info.pub_ip_pool_list)
+        used_web_ips     = json.loads(ccres_info.used_pub_ip)
+
+        availabe_web_ips, userd_web_ips = free_web_ip(availabe_web_ips, used_web_ips)
+
+        ccres_info.pub_ip_pool_list = json.dumps(availabe_web_ips)
+        ccres_info.used_pub_ip      = json.dumps(used_web_ips)
+
+        ccres_info.save()
+
+    # 3. release ether if it is VS
+    if ccres_info.cc_usage == 'vs':
+        ethers_free(tidrec.insid)
+
+    # 4. release iptables
+    if 'iptable_rules' in runtime_option.keys() and runtime_option['iptable_rules'] != []:
+        logger.error('--- notify cc %s to release iptables ... ...' % tidrec.ccip)
+        if DAEMON_DEBUG == True:
+            url = 'http://%s:8000/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
+        else:
+            url = 'http://%s/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
+
+        payload = {
+            'iptable_rules' : runtime_option['iptable_rules']
+        }
+        r = requests.post(url, data=payload)
+        logger.error("--- --- --- " + url + ":" + r.content)
+
+def genVMDisks(tid, usage):
+    tid_info = tid.split(':')
+    src_imgid = tid_info[0]
+    dst_imgid = tid_info[1]
+    ins_id    = tid_info[2]
+
+    disks = []
+    c = {}
+    d = {}
+    e = {}
+    if ins_id.find('TMP') == 0:
+        # add disk c
+        c['file']    = '/storage/tmp/images/%s/machine' % dst_imgid
+        c['mtype']   = 'normal'
+        disks.append(c)
+
+        if usage == 'server':
+            d['file']    = '/storage/space/database/images/%s/database' % dst_imgid
+            d['mtype']   = 'normal'
+            disks.append(d)
+
+        e['file']    = '/storage/images/data'
+        e['mtype']   = 'multiattach'
+        disks.append(e)
+
+    if ins_id.find('VD') == 0:
+        c['file']    = '/storage/images/%s/machine' % dst_imgid
+        c['mtype']   = 'normal'
+        disks.append(c)
+
+    if ins_id.find('VS') == 0:
+        c['file']    = '/storage/images/%s/machine' % dst_imgid
+        c['mtype']   = 'normal'
+        disks.append(c)
+
+        d['file']    = '/storage/space/database/instances/%s/database' % ins_id
+        d['mtype']   = 'writethrough'
+        disks.append(d)
+
+    return disks
+
+def genVMFolders(tid, usage):
+    tid_info = tid.split(':')
+    src_imgid = tid_info[0]
+    dst_imgid = tid_info[1]
+    ins_id    = tid_info[2]
+
+    folders = []
+
+    if ins_id.find('TMP') == 0:
+        folders.append('/storage/space/software')
+
+    if ins_id.find('VD') == 0:
+        trec = ectaskTransaction.objects.get(tid=tid)
+        folders.append('/storage/space/prv-data/%s' % trec.user)
+        folders.append('/storage/space/pub-data')
+
+    if ins_id.find('VS') == 0:
+        folders.append('/storage/space/software')
+
+    return folders
+
+
+def genRuntimeOptionForImageBuild(transid):
     logger.error("--- --- --- genRuntimeOptionForImageBuild")
     tid_info = transid.split(':')
     src_imgid = tid_info[0]
     dst_imgid = tid_info[1]
     ins_id    = tid_info[2]
+
+    tid_rec = ectaskTransaction.objects.get(tid=transid)
+
+    ccip = tid_rec.ccip
+    ncip = tid_rec.ncip
 
     runtime_option = {}
 
@@ -1119,15 +1325,25 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
     img_info                        = ecImages.objects.get(ecid = src_imgid)
     runtime_option['ostype']        = img_info.ostype
     runtime_option['usage']         = img_info.img_usage
-    if img_info.img_usage == "desktop":
-        vmtype = 'vdmedium'
-    else:
-        vmtype = 'vssmall'
 
-    # 2. hardware option
-    vmtype_info                     = ecVMTypes.objects.get(name=vmtype)
-    runtime_option['memory']        = vmtype_info.memory
-    runtime_option['cpus']          = vmtype_info.cpus
+    if ins_id.find('TMP') == 0:
+        if img_info.img_usage == "desktop":
+            vmtype = 'vdmedium'
+        else:
+            vmtype = 'vssmall'
+
+        # 2. hardware option
+        vmtype_info                     = ecVMTypes.objects.get(name=vmtype)
+        runtime_option['memory']        = vmtype_info.memory
+        runtime_option['cpus']          = vmtype_info.cpus
+    else:
+        if ins_id.find('VS') == 0:
+            insobj = ecVSS.objects.get(insid=ins_id)
+        if ins_id.find('VD') == 0:
+            insobj = ecVDS.objects.get(insid=ins_id)
+        runtime_option['memory']    = insobj.memory
+        runtime_option['cpus']      = insobj.cpus
+
     ostype_info                     = ecOSTypes.objects.get(ec_ostype = img_info.ostype)
     runtime_option['disk_type']     = ostype_info.ec_disk_type
     runtime_option['audio_para']    = ostype_info.ec_audio_para
@@ -1142,12 +1358,14 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
     used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
 
     available_rdp_port, used_rdp_ports, newport = allocate_rdp_port(available_rdp_port, used_rdp_ports)
-    runtime_option['rdp_port']                  = newport
+    if newport == None:
+        runtime_option['rdp_port']  = ''
+        return None, 'Need more rdp port resources!.'
+    else:
+        runtime_option['rdp_port']                  = newport
 
     ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
     ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
-
-    ccres_info.save()
 
     # 3.2 set netcard in vm
     networkcards = []
@@ -1157,23 +1375,30 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
         netcard['nic_mac']  = ''
         netcard['nic_ip']   = ''
     if ccres_info.cc_usage == 'vs':
-        netcard['nic_mac'], netcard['nic_ip'] = ethers_allocate(ccres_info.ccname, ins_id)
-        runtime_option['web_ip'] = netcard['nic_ip']
-
+        netcard['nic_mac'], netcard['nic_ip'], web_port = ethers_allocate(ccres_info.ccname, ins_id)
+        if netcard['nic_mac'] == None:
+            releaseRuntimeOptionForImageBuild(transid, runtime_option)
+            return None, 'Need more ether resources.'
+        else:
+            runtime_option['web_ip'] = netcard['nic_ip']
+            runtime_option['web_port'] = web_port
 
     networkcards.append(netcard)
     runtime_option['networkcards'] = networkcards
 
-    # 3.3 set public ip and private ip and iptable
+    # 3.3 add disks and folders
+    runtime_option['disks']     = genVMDisks(transid,   runtime_option['usage'])
+    runtime_option['folders']   = genVMFolders(transid, runtime_option['usage'])
+
+    # 3.4 set public ip and private ip and iptable
     iptables = []
 
+    runtime_option['ex_ip'] = ccobj.eip
     if networkMode == 'flat':
-        runtime_option['publicIP']  = ncip
-        runtime_option['privateIP'] = ncip
+        runtime_option['rdp_ip']  = ncip
     if networkMode == 'tree':
         # proxy by cc
-        runtime_option['publicIP']  = ccip
-        runtime_option['privateIP'] = ncip
+        runtime_option['rdp_ip']  = ccip
 
         # set iptable rule for rdp access
         ipt = {
@@ -1192,43 +1417,114 @@ def genRuntimeOptionForImageBuild(transid, ccip, ncip):
             used_web_ips     = json.loads(ccres_info.used_pub_ip)
 
             availabe_web_ips, userd_web_ips, new_web_ip = allocate_web_ip(availabe_web_ips, used_web_ips)
-            runtime_option['web_ip'] = new_web_ip
+            if new_web_ip == None:
+                runtime_option['web_ip'] = ''
+                releaseRuntimeOptionForImageBuild(transid, runtime_option)
+                return None, 'Need more Proxy Web IP resources for Cluster.'
+            else:
+                runtime_option['web_ip'] = new_web_ip
 
-            ccres_info.pub_ip_pool_list = json.dumps(availabe_web_ips)
-            ccres_info.used_pub_ip      = json.dumps(used_web_ips)
+                ccres_info.pub_ip_pool_list = json.dumps(availabe_web_ips)
+                ccres_info.used_pub_ip      = json.dumps(used_web_ips)
 
-            ipt['src_ip'] = runtime_option['web_ip']
-            ipt['dst_ip'] = netcard['nic_ip']
-            ipt['src_port'] = 0  # port 0 means all port
-            ipt['dst_port'] = 0
-            iptables.append(ipt)
+                ipt['src_ip'] = runtime_option['web_ip']
+                ipt['dst_ip'] = netcard['nic_ip']
+                ipt['src_port'] = 0  # port 0 means all port
+                ipt['dst_port'] = 0
+                iptables.append(ipt)
 
     runtime_option['iptable_rules'] = iptables
 
     # 3.4 set web_accessURL and mgr_accessURL
     if ccres_info.cc_usage == 'rvd':
-        runtime_option['web_accessURL'] = ''
-        runtime_option['mgr_accessURL'] = "luhyavm://%s:%s" % (runtime_option['publicIP'], runtime_option['rdp_port'])
-
+        runtime_option['web_accessURL']     = ''
+        runtime_option['ex_web_accessURL']  = ''
+        runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
+        runtime_option['ex_mgr_accessURL']  = ''
     if ccres_info.cc_usage == 'vs':
-        runtime_option['web_accessURL'] = 'http://%s' % runtime_option['web_ip']
-        runtime_option['mgr_accessURL'] = "luhyavm://%s:%s" % (runtime_option['publicIP'],  runtime_option['rdp_port'])
+        runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
+        runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
+        runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
+        runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
 
     # issuer's property
     runtime_option['run_with_snapshot'] = 1
 
-    return runtime_option
+    ccres_info.save()
+    return runtime_option, ''
 
 def genIPTablesRule(fromip, toip, port):
     return {}
 
+
+def vm_run(request, insid):
+    if insid.find('VD') == 0:
+        vmrec = ecVDS.objects.get(insid=insid)
+    elif insid.find('VS') == 0:
+        vmrec = ecVSS.objects.get(insid=insid)
+
+    _tid  = '%s:%s:%s' % (vmrec.imageid, vmrec.imageid, insid)
+    _ccip, _ncip, _msg = findVMRunningResource(insid)
+
+    if _ncip == None:
+        # not find proper cc,nc for build image
+        context = {
+            'pagetitle'     : 'Error Report',
+            'error'         : _msg,
+        }
+        return render(request, 'clc/error.html', context)
+    else:
+        taskrecs = ectaskTransaction.objects.filter(tid=_tid)
+        if taskrecs.count() == 0:
+            rec = ectaskTransaction(
+                 tid         = _tid,
+                 srcimgid    = vmrec.imageid,
+                 dstimgid    = vmrec.imageid,
+                 insid       = insid,
+                 user        = request.user.username,
+                 phase       = 'preparing',
+                 state       = "init",
+                 progress    = 0,
+                 ccip        = _ccip,
+                 ncip        = _ncip,
+            )
+            rec.save()
+            runtime_option, error = genRuntimeOptionForImageBuild(_tid)
+            if runtime_option == None:
+                rec.delete()
+                context = {
+                    'pagetitle'     : 'Error Report',
+                    'error'         : error,
+                }
+                return render(request, 'clc/error.html', context)
+            else:
+                rec.runtime_option = json.dumps(runtime_option)
+                rec.save()
+        else:
+            rec = ectaskTransaction.objects.get(tid=_tid)
+
+        # open a window to monitor work progress
+        imgobj = ecImages.objects.get(ecid = vmrec.imageid)
+
+        managed_url = getVM_ManagedURL(request, _tid)
+
+        context = {
+            'pagetitle' : "image create",
+            'task'      : rec,
+            'rdp_url'   : managed_url,
+            'imgobj'    : imgobj,
+        }
+
+        return render(request, 'clc/wizard/image_create_wizard.html', context)
+
+
 @login_required
-def start_image_create_task(request, srcid):
+def image_create_task_start(request, srcid):
     logger.error("--- --- --- start_image_create_task")
     # create ectaskTransation Record
     _srcimgid        = srcid
     _dstimageid      = 'IMG' + genHexRandom()
-    _instanceid      = 'TMPINS' + genHexRandom()
+    _instanceid      = 'TMP' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
     logger.error("tid=%s" % _tid)
@@ -1243,45 +1539,72 @@ def start_image_create_task(request, srcid):
         }
         return render(request, 'clc/error.html', context)
     else:
-        runtime_option = genRuntimeOptionForImageBuild(_tid, _ccip, _ncip)
         rec = ectaskTransaction(
              tid         = _tid,
              srcimgid    = _srcimgid,
              dstimgid    = _dstimageid,
              insid       = _instanceid,
              user        = request.user.username,
-             phase       = 'init',
-             vmstatus    = "",
+             phase       = 'preparing',
+             state       = "init",
              progress    = 0,
              ccip        = _ccip,
              ncip        = _ncip,
-             runtime_option = json.dumps(runtime_option),
         )
         rec.save()
+
+        runtime_option, error = genRuntimeOptionForImageBuild(_tid)
+        if runtime_option == None:
+                rec.delete()
+                context = {
+                    'pagetitle'     : 'Error Report',
+                    'error'         : error,
+                }
+                return render(request, 'clc/error.html', context)
+        else:
+            rec.runtime_option = json.dumps(runtime_option)
+            rec.save()
 
         # open a window to monitor work progress
         imgobj = ecImages.objects.get(ecid = srcid)
 
+        managed_url = getVM_ManagedURL(request, _tid)
+
         context = {
             'pagetitle' : "image create",
-            'tid'       : _tid,
-            'srcid'     : _srcimgid,
-            'dstid'     : _dstimageid,
-            "insid"     : _instanceid,
+            'task'      : rec,
+            'rdp_url'   : managed_url,
             'imgobj'    : imgobj,
-            'steps'     : 0,
-            'vmstatus'  : 'stopped',
         }
 
         return render(request, 'clc/wizard/image_create_wizard.html', context)
 
-def prepare_image_create_task(request, srcid, dstid, insid):
+def getVM_ManagedURL(request, taskid):
+    rec = ectaskTransaction.objects.get(tid=taskid)
+    runtime_option = json.loads(rec.runtime_option)
+    mgr_url = runtime_option['mgr_accessURL']
+
+    # here add logic to check request comes from intranet or internet
+
+    return mgr_url
+
+def getVM_WebURL(request, taskid):
+    rec = ectaskTransaction.objects.get(tid=taskid)
+    runtime_option = json.loads(rec.runtime_option)
+    web_url = runtime_option['web_accessURL']
+
+    # here add logic to check request comes from intranet or internet
+
+    return web_url
+
+def image_create_task_prepare(request, srcid, dstid, insid):
     logger.error("--- --- --- prepare_image_create_task")
 
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "preparing"
+    rec.state = "init"
     rec.progress = 0
     rec.save()
 
@@ -1290,109 +1613,137 @@ def prepare_image_create_task(request, srcid, dstid, insid):
         url = 'http://%s:8000/cc/api/1.0/image/create/task/prepare' % rec.ccip
     else:
         url = 'http://%s/cc/api/1.0/image/create/task/prepare' % rec.ccip
+
     payload = {
-        'tid': _tid,
-        'ncip': rec.ncip
+        'tid'  :            _tid,
+        'ncip' :            rec.ncip,
+        'runtime_option' :  rec.runtime_option,
     }
     r = requests.post(url, data=payload)
     logger.error("--- --- --- " + url + ":" + r.content)
 
-    return HttpResponse(r.content, mimetype="application/json")
+    return HttpResponse(r.content, content_type="application/json")
 
 def image_create_task_prepare_success(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_prepare_success")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "editing"
-    rec.vmstatus = 'init'
-    rec.progress = 0
-    rec.save()
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        rec.phase = "preparing"
+        rec.state = 'done'
+        rec.progress = 0
+        rec.save()
+    except Exception as e:
+        logger.error('--- image_create_task_prepare_success error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 def image_create_task_prepare_failure(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_prepare_failure")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "init"
-    rec.vmstatus = ''
-    rec.progress = 0
-    rec.save()
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        rec.phase = "preparing"
+        rec.state = 'init'
+        rec.progress = 0
+        rec.save()
+    except Exception as e:
+        logger.error('--- image_create_task_prepare_failure error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
-def run_image_create_task(request, srcid, dstid, insid):
+def image_create_task_run(request, srcid, dstid, insid):
     logger.error("--- --- --- run_image_create_task")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "editing"
-    rec.vmstatus = 'init'
-    rec.progress = 0
-    rec.save()
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        rec.phase = "editing"
+        rec.state = 'booting'
+        rec.progress = 0
+        rec.save()
 
-    # now everything is ready, start to run instance
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/image/create/task/run' % rec.ccip
-    else:
-        url = 'http://%s/cc/api/1.0/image/create/task/run' % rec.ccip
-    payload = {
-        'tid'  : _tid,
-        'ncip' : rec.ncip,
-        'runtime_option' : rec.runtime_option,
-    }
-    r = requests.post(url, data=payload)
-    logger.error("--- --- --- " + url + ":" + r.content)
+        # now everything is ready, start to run instance
+        if DAEMON_DEBUG == True:
+            url = 'http://%s:8000/cc/api/1.0/image/create/task/run' % rec.ccip
+        else:
+            url = 'http://%s/cc/api/1.0/image/create/task/run' % rec.ccip
+        payload = {
+            'tid'  :            _tid,
+            'ncip' :            rec.ncip,
+            'runtime_option' :  rec.runtime_option,
+        }
+        r = requests.post(url, data=payload)
+        logger.error("--- --- --- " + url + ":" + r.content)
 
-    return HttpResponse(r.content, mimetype="application/json")
+    except Exception as e:
+        logger.error('--- image_create_task_stop error = %s ' % e.message)
 
-def stop_image_create_task(request, srcid, dstid, insid):
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def image_create_task_stop(request, srcid, dstid, insid):
     logger.error("--- --- --- stop_image_create_task")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.phase = "editing"
-    rec.vmstatus = 'stopping'
-    rec.progress = 0
-    rec.save()
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        rec.phase = "editing"
+        rec.state = 'stopped'
+        rec.progress = 0
+        rec.save()
 
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/image/create/task/stop' % rec.ccip
-    else:
-        url = 'http://%s/cc/api/1.0/image/create/task/stop' % rec.ccip
-    payload = {
-        'tid': _tid,
-        'ncip' : rec.ncip,
-    }
-    r = requests.post(url, data=payload)
-    logger.error("--- --- --- " + url + ":" + r.content)
+        if DAEMON_DEBUG == True:
+            url = 'http://%s:8000/cc/api/1.0/image/create/task/stop' % rec.ccip
+        else:
+            url = 'http://%s/cc/api/1.0/image/create/task/stop' % rec.ccip
 
-    return HttpResponse(r.content, mimetype="application/json")
+        payload = {
+            'tid'  :            _tid,
+            'ncip' :            rec.ncip,
+            'runtime_option' :  rec.runtime_option,
+        }
+
+        r = requests.post(url, data=payload)
+        logger.error("--- --- --- " + url + ":" + r.content)
+    except Exception as e:
+        logger.error('--- image_create_task_stop error = %s ' % e.message)
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
 
 def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
     logger.error("--- --- --- image_create_task_updatevmstatus")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    rec = ectaskTransaction.objects.get(tid=_tid)
-    rec.vmstatus = vmstatus
-    rec.save()
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        rec.state = vmstatus
+        rec.save()
+    except Exception as e:
+        logger.error('--- image_create_task_stop error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
+
 
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_getvmstatus")
@@ -1404,29 +1755,25 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
         payload = mc.get(str(_tid))
         if payload == None:
             payload = {
-                'type': 'taskstatus',
-                'phase': "editing",
-                'vmstatus': 'init',
+                'type' : 'taskstatus',
+                'phase': "booting",
+                'state': 'init',
                 'tid': _tid,
                 'failed' : 0
             }
         else:
             payload = json.loads(payload)
-            if payload['vmstatus'] == 'running':
-                rec = ectaskTransaction.objects.get(tid=_tid)
-                runtime_option = json.loads(rec.runtime_option)
-                payload['url'] = runtime_option['mgr_accessURL']
     except Exception as e:
         payload = {
-            'type': 'taskstatus',
+            'type' : 'taskstatus',
             'phase': "editing",
-            'vmstatus': 'init',
+            'state': 'booting',
             'tid': _tid,
-            'failed' : 0,
+            'failed' : 0
         }
 
     response = json.dumps(payload)
-    return HttpResponse(response, mimetype="application/json")
+    return HttpResponse(response, content_type="application/json")
 
 def image_create_task_getprogress(request, srcid, dstid, insid):
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
@@ -1436,36 +1783,43 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
         if payload == None:
             payload = {
                 'type': 'taskstatus',
-                'phase': "downloading",
+                'phase': "preparing",
+                'state': 'downloading',
                 'progress': 0,
                 'tid': tid,
-                'failed' : False
+                'prompt': '',
+                'errormsg': '',
+                'failed' : 0
             }
             response = json.dumps(payload)
         else:
             response = payload
             payload = json.loads(payload)
-            if payload['progress'] < 0 or payload['failed'] == 1:
+            # logger.error("lkf: get progress = %s", payload['progress'])
+            if payload['failed'] == 1:
                 mc.delete(str(tid))
     except Exception as e:
         payload = {
             'type': 'taskstatus',
-            'phase': "downloading",
+            'phase': "preparing",
+            'state': 'downloading',
             'progress': 0,
             'tid': tid,
-            'failed' : False
+            'prompt': '',
+            'errormsg': '',
+            'failed' : 0
         }
         response = json.dumps(payload)
 
-    logger.error("lkf: get progress = %s", response)
-    return HttpResponse(response, mimetype="application/json")
+    return HttpResponse(response, content_type="application/json")
 
-def submit_image_create_task(request, srcid, dstid, insid):
+def image_create_task_submit(request, srcid, dstid, insid):
     logger.error("--- --- --- submit_image_create_task")
 
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "submitting"
+    rec.state = 'uploading'
     rec.progress = 0
     rec.save()
 
@@ -1474,14 +1828,17 @@ def submit_image_create_task(request, srcid, dstid, insid):
         url = 'http://%s:8000/cc/api/1.0/image/create/task/submit' % rec.ccip
     else:
         url = 'http://%s/cc/api/1.0/image/create/task/submit' % rec.ccip
+
     payload = {
-        'tid': _tid,
-        'ncip': rec.ncip
+        'tid'  :            _tid,
+        'ncip' :            rec.ncip,
+        'runtime_option' :  rec.runtime_option,
     }
+
     r = requests.post(url, data=payload)
     logger.error("--- --- --- " + url + ":" + r.content)
 
-    return HttpResponse(r.content, mimetype="application/json")
+    return HttpResponse(r.content, content_type="application/json")
 
 def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
@@ -1492,92 +1849,107 @@ def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
             payload = {
                 'type': 'taskstatus',
                 'phase': "submitting",
+                'state': 'uploading',
                 'progress': 0,
                 'tid': tid,
-                'failed' : False
+                'prompt': '',
+                'errormsg': '',
+                'failed' : 0
             }
             response = json.dumps(payload)
         else:
             response = payload
             payload = json.loads(payload)
+            if payload['failed'] == 1:
+                mc.delete(str(tid))
     except Exception as e:
         payload = {
             'type': 'taskstatus',
             'phase': "submitting",
+            'state': 'uploading',
             'progress': 0,
             'tid': tid,
-            'failed' : False
+            'prompt': '',
+            'errormsg': '',
+            'failed' : 0
         }
         response = json.dumps(payload)
 
-    logger.error("lkf: get progress = %s", response)
-    return HttpResponse(response, mimetype="application/json")
+    # logger.error("lkf: get progress = %s", response)
+    return HttpResponse(response, content_type="application/json")
 
-def start_image_modify_task(request, srcid):
+def image_modify_task_start(request, srcid):
     # create ectaskTransation Record
     _srcimgid        = srcid
-    _dstimageid      = _srcimgid
-    _instanceid      = 'TMPINS' + genHexRandom()
+    _dstimageid      = srcid
+    _instanceid      = 'TMP' + genHexRandom()
     _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
 
     logger.error("tid=%s" % _tid)
 
-    _ccip, _ccname = findLazyCC(srcid)
-    _ncip = findLazyNC(_ccname)
+    _ccip, _ncip, _msg = findBuildResource(srcid)
 
-    rec = ectaskTransaction(
-         tid         = _tid,
-         srcimgid    = _srcimgid,
-         dstimgid    = _dstimageid,
-         insid       = _instanceid,
-         user        = request.user.username,
-         phase       = 'init',
-         vmstatus    = "",
-         progress    = 0,
-         ccip        = _ccip,
-         ncip        = _ncip
-    )
-    rec.save()
+    if _ncip == None:
+        # not find proper cc,nc for build image
+        context = {
+            'pagetitle'     : 'Error Report',
+            'error'         : _msg,
+        }
+        return render(request, 'clc/error.html', context)
+    else:
+        rec = ectaskTransaction(
+             tid         = _tid,
+             srcimgid    = _srcimgid,
+             dstimgid    = _dstimageid,
+             insid       = _instanceid,
+             user        = request.user.username,
+             phase       = 'preparing',
+             state       = "init",
+             progress    = 0,
+             ccip        = _ccip,
+             ncip        = _ncip,
+        )
+        rec.save()
+        runtime_option, error = genRuntimeOptionForImageBuild(_tid)
+        if runtime_option == None:
+                rec.delete()
+                context = {
+                    'pagetitle'     : 'Error Report',
+                    'error'         : error,
+                }
+                return render(request, 'clc/error.html', context)
+        else:
+            rec.runtime_option = json.dumps(runtime_option)
+            rec.save()
 
-    rec.runtime_option = json.dumps(genRuntimeOptionForImageBuild(_tid))
-    rec.save()
+        # open a window to monitor work progress
+        imgobj = ecImages.objects.get(ecid = srcid)
 
-    # open a window to monitor work progress
-    imgobj = ecImages.objects.get(ecid = srcid)
+        managed_url = getVM_ManagedURL(request, _tid)
 
-    context = {
-        'pagetitle' : "image create",
-        'tid'       : _tid,
-        'srcid'     : _srcimgid,
-        'dstid'     : _dstimageid,
-        "insid"     : _instanceid,
-        'imgobj'    : imgobj,
-        'steps'     : 0,
-        'vmstatus'  : 'stopped',
-    }
+        context = {
+            'pagetitle' : "image create",
+            'task'      : rec,
+            'rdp_url'   : managed_url,
+            'imgobj'    : imgobj,
+        }
 
-    return render(request, 'clc/wizard/image_create_wizard.html', context)
+        return render(request, 'clc/wizard/image_create_wizard.html', context)
 
 def image_create_task_view(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    _srcimgid        = srcid
-    _dstimageid      = dstid
-    _instanceid      = insid
 
     rec = ectaskTransaction.objects.get(tid=_tid)
-    phase_array = ['init', 'preparing', 'editing', 'submitting']
-    steps = phase_array.index(rec.phase)
 
     imgobj = ecImages.objects.get(ecid = srcid)
+
+    managed_url = getVM_ManagedURL(request, _tid)
+
     context = {
         'pagetitle' : "image create",
-        'tid'       : _tid,
-        'srcid'     : _srcimgid,
-        'dstid'     : _dstimageid,
-        "insid"     : _instanceid,
+        'task'      : rec,
+        'rdp_url'   : managed_url,
         'imgobj'    : imgobj,
-        'steps'     : steps,
-        'vmstatus'  : rec.vmstatus,
     }
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -1585,133 +1957,138 @@ def image_create_task_view(request,  srcid, dstid, insid):
 def image_create_task_submit_failure(request,  srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_submit_failure")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
-    rec = ectaskTransaction.objects.get(tid=_tid)
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
+        rec = ectaskTransaction.objects.get(tid=_tid)
 
-    rec.phase = "editing"
-    rec.vmstatus = 'stopping'
-    rec.progress = 0
-    rec.save()
+        rec.phase = "submitting"
+        rec.statue = 'init'
+        rec.progress = 0
+        rec.save()
+
+    except Exception as e:
+        logger.error('--- image_create_task_stop error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
-def image_create_task_submit_success(request,  srcid, dstid, insid):
+def image_create_task_submit_success(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_submit_success")
 
-    _tid = "%s:%s:%s" % (srcid, dstid, insid)
+    try:
+        _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
-    tidrec = ectaskTransaction.objects.get(tid=_tid)
-    creator = tidrec.user
+        trec = ectaskTransaction.objects.get(tid=_tid)
+        trec.phase = "submitting"
+        trec.state = 'done'
+        # trec.completed = True
+        trec.progress = 0
+        trec.save()
 
-    runtime_option = json.loads(tidrec.runtime_option)
-
-    ccres_info = ecCCResources.objects.get(ccip = tidrec.ccip)
-    available_rdp_ports     = json.loads(ccres_info.available_rdp_ports)
-    used_rdp_ports          = json.loads(ccres_info.used_rdp_ports)
-    available_ips_macs      = json.loads(ccres_info.available_ips_macs)
-    used_ips_macs           = json.loads(ccres_info.used_ips_macs)
-
-    # Release network resource
-    # 1. release rdp port
-    available_rdp_ports, used_rdp_ports = free_rdp_port(available_rdp_ports, used_rdp_ports, runtime_option['rdp_port'])
-    ccres_info.available_rdp_ports = json.dumps(available_rdp_ports)
-    ccres_info.used_rdp_ports      = json.dumps(used_rdp_ports)
-    logger.error("--- --- --- release rdp port success")
-
-    # 2. release ip_mac
-    if runtime_option['usage'] != 'desktop':
-
-        networkcards = runtime_option['networkcards']
-        for netcard in networkcards:
-            ipmacs = {
-                'mac'   : netcard['nic_mac'],
-                'pubip' : netcard['nic_pubip'],
-                'prvip' : netcard['nic_prvip']
-            }
-            available_ips_macs, used_ips_macs = free_ip_macs(available_ips_macs, used_ips_macs, ipmacs)
-
-        ccres_info.available_ips_macs   = json.dumps(available_ips_macs)
-        ccres_info.used_ips_macs        = json.dumps(used_ips_macs)
-        logger.error("--- --- --- release ips-macs success")
-
-    # 3.update iptables
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
-    else:
-        url = 'http://%s/cc/api/1.0/image/create/task/removeIPtables' % tidrec.ccip
-
-    payload = {
-        'runtime_option' : tidrec.runtime_option
-    }
-    r = requests.post(url, data=payload)
-    logger.error("--- --- --- " + url + ":" + r.content)
-
-    tidrec.delete()
-    ccres_info.save()
-
-    # 4 update database
-    if srcid != dstid:
-        srcimgrec = ecImages.objects.get(ecid=srcid)
-
+        releaseRuntimeOptionForImageBuild(_tid)
         imgfile_path = '/storage/images/' + dstid + "/machine"
-        imgfile_size = os.path.getsize(imgfile_path)
+        imgfile_size = os.path.getsize(imgfile_path) / (1024.0 * 1024 * 1024)
+        imgfile_size = round(imgfile_size, 2)
 
-        dstimgrec = ecImages(
-            ecid    = dstid,
-            name    = dstid,
-            ostype  = srcimgrec.ostype,
-            img_usage   = srcimgrec.img_usage,
-            version = "1.0.0",
-            size    = imgfile_size,
-        )
-        dstimgrec.save()
+        # 4 update database
+        if srcid != dstid:
+            srcimgrec = ecImages.objects.get(ecid=srcid)
 
-        rec = ecImages_auth(
-            ecid = dstid,
-            roel_value = 'eduCloud.admin',
-            read = True,
-            write = True,
-            execute = True,
-            create = True,
-            delete = True,
-        )
-        rec.save()
+            dstimgrec = ecImages(
+                ecid    = dstid,
+                name    = dstid,
+                ostype  = srcimgrec.ostype,
+                img_usage   = srcimgrec.img_usage,
+                version = "1.0.0",
+                size    = imgfile_size,
+            )
+            dstimgrec.save()
+            logger.error('create new image record: %s %s %s' % (dstid, srcimgrec.ostype, srcimgrec.img_usage))
 
-        rec = ecAccount.objects.get(userid=creator)
-        auth_name = rec.ec_authpath_name
-        rec = ecAuthPath.objects.get(ec_authpath_name = auth_name)
-        if rec.ec_authpath_value != 'eduCloud.admin':
-            newrec = ecImages_auth(
+            rec = ecImages_auth(
                 ecid = dstid,
-                roel_value = rec.ec_authpath_value,
+                role_value = 'eduCloud.admin',
                 read = True,
                 write = True,
                 execute = True,
                 create = True,
-                delete = False,
+                delete = True,
             )
-            newrec.save()
+            rec.save()
 
-        WriteImageVersionFile(dstid, '1.0.0')
-        logger.error("--- --- --- create a new image record successfully")
-    else:
-        oldversionNo = ReadImageVersionFile(dstid)
-        newversionNo = IncreaseImageVersion(oldversionNo)
-        WriteImageVersionFile(dstid, newversionNo)
+            rec = ecAccount.objects.get(userid=trec.user)
+            auth_name = rec.ec_authpath_name
+            rec = ecAuthPath.objects.get(ec_authpath_name = auth_name)
+            if rec.ec_authpath_value != 'eduCloud.admin':
+                newrec = ecImages_auth(
+                    ecid = dstid,
+                    role_value = rec.ec_authpath_value,
+                    read = True,
+                    write = True,
+                    execute = True,
+                    create = True,
+                    delete = False,
+                )
+                newrec.save()
 
-        dstimgrec = ecImages.objects.get(ecid=dstid)
-        dstimgrec.version = newversionNo
-        dstimgrec.save()
-        logger.error("--- --- --- update image record successfully")
+            WriteImageVersionFile(dstid, '1.0.0')
+            logger.error("--- --- --- create a new image record successfully")
+        else:
+            oldversionNo = ReadImageVersionFile(dstid)
+            newversionNo = IncreaseImageVersion(oldversionNo)
+            WriteImageVersionFile(dstid, newversionNo)
+
+            dstimgrec = ecImages.objects.get(ecid=dstid)
+            dstimgrec.version = newversionNo
+            dstimgrec.size    = imgfile_size
+            dstimgrec.save()
+            logger.error("--- --- --- update image record successfully")
+
+    except Exception as e:
+        logger.error('--- image_create_task_submit_success error = %s ' % e.message)
 
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
+def image_add_vm(request, imgid):
+    imgobj = ecImages.objects.get(ecid = imgid)
+
+    if imgobj.img_usage == 'desktop':
+        _instanceid      = 'VD' + genHexRandom()
+        ccs  = ecCCResources.objects.filter(cc_usage='rvd')
+    if imgobj.img_usage == 'server':
+        _instanceid      = 'VS' + genHexRandom()
+        ccs  = ecCCResources.objects.filter(cc_usage='vs')
+
+    context = {
+            'pagetitle' : "VM Create",
+            'imgobj'    : imgobj,
+            'insid'     : _instanceid,
+            'ccs'       : ccs,
+            'vm'        : None,
+    }
+
+    return render(request, 'clc/wizard/vs_create_wizard.html', context)
+
+def image_edit_vm(request, imgid, insid):
+
+    imgobj = ecImages.objects.get(ecid = imgid)
+
+    ccs  = ecServers.objects.filter(role='cc')
+    vm   = ecVSS.objects.get(insid=insid)
+    context = {
+            'pagetitle' : "VM Create",
+            'imgobj'    : imgobj,
+            'insid'     : insid,
+            'ccs'       : ccs,
+            'vm'        : vm,
+    }
+
+    return render(request, 'clc/wizard/vs_create_wizard.html', context)
 
 #################################################################################
 # jTable views
@@ -1724,6 +2101,15 @@ def jtable_images(request):
 @login_required
 def jtable_tasks(request):
     return render(request, 'clc/jtable/tasks_table.html', {})
+
+@login_required
+def jtable_vss(request):
+    return render(request, 'clc/jtable/vss_table.html', {})
+
+@login_required
+def jtable_vds(request):
+    return render(request, 'clc/jtable/vds_table.html', {})
+
 
 @login_required
 def jtable_settings_for_authapth(request):
@@ -1778,10 +2164,24 @@ def jtable_ethers(request, cc_name):
 
 def ethers_allocate(ccname, insid):
     es = ecDHCPEthers.objects.filter(ccname=ccname, insid='')
-    e  = ecDHCPEthers.objects.get(mac=es[0].mac)
-    e.insid = insid
-    e.save()
-    return e.mac, e.ip
+    if es.count() > 0:
+        e  = ecDHCPEthers.objects.get(mac=es[0].mac)
+        e.insid = insid
+        e.save()
+        return e.mac, e.ip, e.ex_web_proxy_port
+    else:
+        return None, None, None
+
+def ethers_free(insid):
+    ecs = ecDHCPEthers.objects.filter(insid=insid)
+    if ecs.count() > 0:
+        e = ecDHCPEthers.objects.get(insid=insid)
+        e.insid = ''
+        e.save()
+        logger.error('release ethers %s %s %s %s' % (e.mac, e.ip, e.ex_web_proxy_port, insid))
+    else:
+        logger.error('no ethers allocated to %s' % insid)
+
 
 #################################################################################
 # API Version 1.0 for accessing data model by POST request
@@ -1805,7 +2205,7 @@ def list_authpath(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def authpath_optionlist(request):
     response = {}
@@ -1822,7 +2222,7 @@ def authpath_optionlist(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_authpath(request):
     response = {}
@@ -1833,7 +2233,7 @@ def delete_authpath(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_authpath(request):
     response = {}
@@ -1846,7 +2246,7 @@ def update_authpath(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_authpath(request):
     response = {}
@@ -1868,7 +2268,7 @@ def create_authpath(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # settings tables ecAuthPath
 # -----------------------------------
@@ -1890,7 +2290,7 @@ def list_ostypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def ostype_optionlist(request):
     response = {}
@@ -1907,7 +2307,7 @@ def ostype_optionlist(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_ostypes(request):
     response = {}
@@ -1919,7 +2319,7 @@ def delete_ostypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_ostypes(request):
     response = {}
@@ -1934,7 +2334,7 @@ def update_ostypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_ostypes(request):
     response = {}
@@ -1961,7 +2361,7 @@ def create_ostypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 # settings tables ecRBAC
@@ -1984,7 +2384,7 @@ def list_rbac(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_rbac(request):
     response = {}
@@ -1995,7 +2395,7 @@ def delete_rbac(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_rbac(request):
     response = {}
@@ -2010,7 +2410,7 @@ def update_rbac(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_rbac(request):
     response = {}
@@ -2034,7 +2434,7 @@ def create_rbac(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # settings tables ecAuthPath
 # -----------------------------------
@@ -2054,7 +2454,7 @@ def list_serverrole(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def serverrole_optionlist(request):
     response = {}
@@ -2071,7 +2471,7 @@ def serverrole_optionlist(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_serverrole(request):
     response = {}
@@ -2082,7 +2482,7 @@ def delete_serverrole(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_serverrole(request):
     response = {}
@@ -2096,7 +2496,7 @@ def update_serverrole(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_serverrole(request):
     response = {}
@@ -2118,7 +2518,7 @@ def create_serverrole(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # settings tables ecVMTypes
 # -----------------------------------
@@ -2139,7 +2539,7 @@ def list_vmtypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def vmtpye_optionlist(request):
     response = {}
@@ -2156,7 +2556,7 @@ def vmtpye_optionlist(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 def delete_vmtypes(request):
@@ -2168,7 +2568,7 @@ def delete_vmtypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_vmtypes(request):
     response = {}
@@ -2182,7 +2582,7 @@ def update_vmtypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_vmtypes(request):
     response = {}
@@ -2206,7 +2606,7 @@ def create_vmtypes(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # settings tables ecVMUsage
 # -----------------------------------
@@ -2225,7 +2625,7 @@ def list_vmusage(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def vmusage_optionlist(request):
     response = {}
@@ -2242,7 +2642,7 @@ def vmusage_optionlist(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_vmusage(request):
     response = {}
@@ -2253,7 +2653,7 @@ def delete_vmusage(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_vmusage(request):
     response = {}
@@ -2264,7 +2664,7 @@ def update_vmusage(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_vmusage(request):
     response = {}
@@ -2284,7 +2684,7 @@ def create_vmusage(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 
@@ -2306,7 +2706,8 @@ def autoFindNewAddImage():
             pass
         else:
             imgfile_path = '/storage/images/' + local_image + "/machine"
-            imgfile_size = os.path.getsize(imgfile_path)
+            imgfile_size = os.path.getsize(imgfile_path) / (1024.0 * 1024 * 1024)
+            imgfile_size = round(imgfile_size, 2)
             rec = ecImages(
                 ecid = local_image,
                 name = local_image,
@@ -2352,7 +2753,7 @@ def list_cc_resource_by_id(request, recid):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_cc_resource(request):
     response = {}
@@ -2376,7 +2777,7 @@ def list_cc_resource(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 def delete_cc_resource(request):
@@ -2388,7 +2789,7 @@ def delete_cc_resource(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 # auto generate available resource for CC
 def udate_cc_resource_available_resource(id):
@@ -2411,7 +2812,7 @@ def update_cc_resource(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_cc_resource(request):
     pass
@@ -2461,7 +2862,7 @@ def list_servers_by_role(request, roletype):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_servers(request):
     response = {}
@@ -2495,7 +2896,7 @@ def list_servers(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_servers(request):
     response = {}
@@ -2506,7 +2907,7 @@ def delete_servers(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_servers(request):
     response = {}
@@ -2522,7 +2923,7 @@ def update_servers(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_servers(request):
     pass
@@ -2536,11 +2937,12 @@ def list_ethers(request, cc_name):
 
     for rec in recs:
         jrec = {}
-        jrec['id']      = rec.id
-        jrec['ccname']  = rec.ccname
-        jrec['mac']     = rec.mac
-        jrec['ip']      = rec.ip
-        jrec['insid']   = rec.insid
+        jrec['id']          = rec.id
+        jrec['ccname']      = rec.ccname
+        jrec['mac']         = rec.mac
+        jrec['ip']          = rec.ip
+        jrec['ex_web_port'] = rec.ex_web_proxy_port
+        jrec['insid']       = rec.insid
 
         data.append(jrec)
 
@@ -2548,7 +2950,7 @@ def list_ethers(request, cc_name):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_ethers(request):
     response = {}
@@ -2559,21 +2961,22 @@ def delete_ethers(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_ethers(request):
     response = {}
 
     rec = ecDHCPEthers.objects.get(id=request.POST['id'])
-    rec.mac     = request.POST['mac']
-    rec.ip      = request.POST['ip']
+    rec.mac                 = request.POST['mac']
+    rec.ip                  = request.POST['ip']
+    rec.ex_web_proxy_port   = request.POST['ex_web_port']
 
     rec.save()
 
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_ethers(request, cc_name):
     response = {}
@@ -2583,6 +2986,7 @@ def create_ethers(request, cc_name):
         ccname  = cc_name,
         ip      = request.POST['ip'],
         mac     = randomMAC(),
+        ex_web_proxy_port = request.POST['ex_web_port'],
         insid   = '',
     )
     rec.save()
@@ -2600,7 +3004,9 @@ def create_ethers(request, cc_name):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
+
+# ------------------------------------
 # core tables for tasks
 # ------------------------------------
 def list_tasks(request):
@@ -2617,7 +3023,7 @@ def list_tasks(request):
         jrec['insid']    = rec.insid
         jrec['user']     = rec.user
         jrec['phase']    = rec.phase
-        jrec['vmstatus'] = rec.vmstatus
+        jrec['state']    = rec.state
         jrec['completed']= rec.completed
         data.append(jrec)
 
@@ -2625,8 +3031,19 @@ def list_tasks(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
+def update_tasks(request):
+    response = {}
+
+    rec = ectaskTransaction.objects.get(id=request.POST['id'])
+    rec.state = request.POST['state']
+    rec.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_tasks(request):
     response = {}
@@ -2637,11 +3054,265 @@ def delete_tasks(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 # core tables for images
 # ------------------------------------
+def list_vds(request):
+    response = {}
+    data = []
+
+    recs = ecVDS.objects.all()
+
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['insid'] = rec.insid
+        jrec['imageid'] = rec.imageid
+        jrec['name']=rec.name
+        jrec['description'] = rec.description
+        jrec['creator'] = rec.creator
+        jrec['cc'] = rec.cc_def
+        jrec['nc'] = rec.nc_def
+        jrec['cpus'] = rec.cpus
+        jrec['memory'] = rec.memory
+
+        _tid = '%s:%s:%s' % (rec.imageid, rec.imageid, rec.insid)
+        tidrecs = ectaskTransaction.objects.filter(tid=_tid)
+        if tidrecs.count() == 0:
+            jrec['state'] = 'stopped'
+        else:
+            jrec['state'] = '%s:%s' % (tidrecs[0].phase, tidrecs[0].state)
+
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def delete_vds(request):
+    response = {}
+
+    vds_rec = ecVDS.objects.get(insid=request.POST['insid'])
+    _tid = '%s:%s:%s' % (vds_rec.imageid, vds_rec.imageid, vds_rec.insid)
+
+    tid_recs = ectaskTransaction.objects.filter(tid=_tid)
+    if tid_recs.count() != 0 :
+        response['Result'] = 'FAIL'
+        response['errormsg'] = "Need to delete this VM's running task first"
+    else:
+        # delete vds_auth records
+        ecVDS_auth.objects.filter(insid=request.POST['insid']).delete()
+        vds_rec.delete()
+        response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def update_vds(request):
+    pass
+
+def create_vds(request):
+    response = {}
+    recs = ecVDS.objects.filter(insid = request.POST['insid'])
+    if recs.count() == 0:
+        new_vm = ecVDS(
+            insid       = request.POST['insid'],
+            imageid     = request.POST['imageid'],
+            name        = request.POST['name'],
+            description = request.POST['description'],
+            creator     = request.user,
+            cc_def      = request.POST['cc_def'],
+            nc_def      = request.POST['nc_def'],
+            cpus        = request.POST['cpus'],
+            memory      = request.POST['mems'],
+        )
+        new_vm.save()
+
+        # update ecVDS_auth table
+        new_vm_auth = ecVDS_auth(
+            insid   =   request.POST['insid'],
+            role_value  =   'eduCloud.admin',
+            read        =   True,
+            write       =   True,
+            execute     =   True,
+            create      =   True,
+            delete      =   True,
+        )
+        new_vm_auth.save()
+
+        ua = ecAccount.objects.get(userid=request.user)
+        role = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+        if role.ec_authpath_value != 'eduCloud.admin':
+            new_vm_auth = ecVDS_auth(
+                insid   =   request.POST['insid'],
+                role_value  =   ua.ec_authpath_name,
+                read        =   True,
+                write       =   True,
+                execute     =   True,
+                create      =   True,
+                delete      =   True,
+            )
+            new_vm_auth.save()
+
+
+    else:
+        old_vm = ecVDS.objects.get(insid = request.POST['insid'])
+        old_vm.name        = request.POST['name']
+        old_vm.description = request.POST['description']
+        old_vm.cc_def      = request.POST['cc_def']
+        old_vm.nc_def      = request.POST['nc_def']
+        old_vm.cpus        = request.POST['cpus']
+        old_vm.memory      = request.POST['mems']
+        old_vm.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def list_vss(request):
+    response = {}
+    data = []
+
+    recs = ecVSS.objects.all()
+
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['insid'] = rec.insid
+        jrec['imageid'] = rec.imageid
+        jrec['name']=rec.name
+        jrect['description'] = rec.description
+        jrec['creator'] = rec.creator
+        jrec['cc'] = rec.cc_def
+        jrec['nc'] = rec.nc_def
+        jrec['cpus'] = rec.cpus
+        jrec['memory'] = rec.memory
+        jrec['mac'] = rec.mac
+
+        _tid = '%s:%s:%s' % (rec.imageid, rec.imageid, rec.insid)
+        tidrecs = ectaskTransaction.objects.filter(tid=_tid)
+        if tidrecs.count() == 0:
+            jrec['state'] = 'stopped'
+        else:
+            jrec['state'] = '%s:%s' % (tidrecs[0].phase, tidrecs[0].state)
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def delete_vss(request):
+    response = {}
+
+    vss_rec = ecVSS.objects.get(insid=request.POST['insid'])
+    _tid = '%s:%s:%s' % (vss_rec.imageid, vss_rec.imageid, vss_rec.insid)
+
+    tid_recs = ectaskTransaction.objects.filter(tid=_tid)
+    if tid_recs.count() != 0 :
+        response['Result'] = 'FAIL'
+        response['errormsg'] = "Need to delete this VM's running task first"
+    else:
+        # release ip/mac resources
+        if vss_rec.mac != "any":
+            ether = ecDHCPEthers.objects.get(mac = vss_rec.mac)
+            ether.insid = ''
+            ether.save()
+
+        # delete vds_auth records
+        ecVSS_auth.objects.filter(insid=request.POST['insid']).delete()
+        vss_rec.delete()
+        response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def update_vss(request):
+    pass
+
+def create_vss(request):
+    response = {}
+    recs = ecVSS.objects.filter(insid = request.POST['insid'])
+    if recs.count() == 0:
+        new_vm = ecVSS(
+            insid       = request.POST['insid'],
+            imageid     = request.POST['imageid'],
+            name        = request.POST['name'],
+            description = request.POST['description'],
+            creator     = request.user,
+            cc_def      = request.POST['cc_def'],
+            nc_def      = request.POST['nc_def'],
+            cpus        = request.POST['cpus'],
+            memory        = request.POST['mems'],
+            mac         = request.POST['mac'],
+        )
+        new_vm.save()
+
+        new_vm_auth = ecVSS_auth(
+            insid   =   request.POST['insid'],
+            role_value  =   'eduCloud.admin',
+            read        =   True,
+            write       =   True,
+            execute     =   True,
+            create      =   True,
+            delete      =   True,
+        )
+        new_vm_auth.save()
+
+        ua = ecAccount.objects.get(userid=request.user)
+        role = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+        if role.ec_authpath_value != 'eduCloud.admin':
+            new_vm_auth = ecVDS_auth(
+                insid   =   request.POST['insid'],
+                role_value  =   ua.ec_authpath_name,
+                read        =   True,
+                write       =   True,
+                execute     =   True,
+                create      =   True,
+                delete      =   True,
+            )
+            new_vm_auth.save()
+
+        # update ecDHCPEthers table
+        if request.POST['mac'] != 'any':
+            ether = ecDHCPEthers.objects.get(mac=new_vm.mac)
+            ether.insid = new_vm.insid
+            ether.save()
+
+    else:
+        old_vm = ecVSS.objects.get(insid = request.POST['insid'])
+        old_mac = old_vm.mac
+        old_vm.name        = request.POST['name']
+        old_vm.description = request.POST['description']
+        old_vm.cc_def      = request.POST['cc_def']
+        old_vm.nc_def      = request.POST['nc_def']
+        old_vm.cpus        = request.POST['cpus']
+        old_vm.memory      = request.POST['mems']
+        old_vm.mac         = request.POST['mac']
+        old_vm.save()
+
+        # update ecDHCPEthers table
+        if old_mac != 'any':
+            ether = ecDHCPEthers.objects.get(mac=old_mac)
+            ether.insid = ''
+            ether.save()
+
+        if request.POST['mac'] != 'any':
+            ether = ecDHCPEthers.objects.get(mac=old_vm.mac)
+            ether.insid = old_vm.mac
+            ether.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
 def list_images(request):
     autoFindNewAddImage()
 
@@ -2677,7 +3348,7 @@ def list_images(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_images(request):
     response = {}
@@ -2688,7 +3359,7 @@ def delete_images(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_images(request):
     response = {}
@@ -2700,20 +3371,17 @@ def update_images(request):
     rec.description = request.POST['description']
     rec.save()
 
-    # if ostype == server, check existence of /storage/space/database/imgid/database
     if rec.img_usage == 'server':
-        dst = '/storage/space/database/images/%s/database' % rec.ecid
-        if not os.path.exists(os.path.dirname(dst)):
-            # cp one database disk
-            # from /storage/images/database to /storage/space/database/imgid/database
-            os.makedirs('/storage/space/database/images/%s' % rec.ecid)
-            src = '/storage/images/database'
-            shutil.copy2(src, dst)
+        dstfile = '/storage/space/database/images/%s/database' % rec.ecid
+        if not os.path.exists(dstfile):
+            srcfile = '/storage/images/database'
+            cmd_line = "VBoxManage clonehd %s %s" % (srcfile, dstfile)
+            commands.getoutput(cmd_line)
 
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_images(request):
     response = {}
@@ -2745,7 +3413,7 @@ def create_images(request):
     response['Record'] = data
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_inactive_account(request):
     response = {}
@@ -2781,7 +3449,7 @@ def list_inactive_account(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_active_account(request):
     response = {}
@@ -2818,7 +3486,7 @@ def list_active_account(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def delete_active_account(request):
     response = {}
@@ -2831,7 +3499,7 @@ def delete_active_account(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_active_account(request):
     response = {}
@@ -2853,7 +3521,7 @@ def update_active_account(request):
     response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 #################################################################################
@@ -2863,7 +3531,7 @@ def register_host(request):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def list_ncs(request):
 
@@ -2876,7 +3544,7 @@ def list_ncs(request):
     response['Result'] = 'OK'
     response['ncs'] = ncsips
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def update_server_record(request, rec):
     rec.role   = request.POST['role']
@@ -3006,7 +3674,7 @@ def register_server(request):
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 #################################################################################
 # some common APIs
@@ -3028,24 +3696,23 @@ def get_walrus_info(request):
     response['Result'] = "OK"
     response['data'] = payload
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def get_image_info(request, imgid):
-    rec = ecImages.objects.get(ecid=imgid)
+    version, size = getLocalImageInfo(imgid)
+    dbsize = getLocalDatabaseInfo(imgid)
+
     payload = {
-        'ecid':              rec.ecid,
-        'name':              rec.name,
-        'ostype':            rec.ostype,
-        'usage':             rec.img_usage,
-        'description':       rec.description,
-        'version':           ReadImageVersionFile(rec.ecid),
-        'size':              rec.size
+        'version':           version,
+        'size':              size,
+        'dbsize':            dbsize,
     }
+
     response = {}
     response['Result'] = "OK"
     response['data'] = payload
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def image_permission_edit(request, srcid):
     index = 0
@@ -3164,6 +3831,81 @@ def server_perm_update(id, data):
                 )
                 rec.save()
 
+def vss_perm_update(id, data):
+
+    tflist = {
+        'true': True,
+        'false': False,
+    }
+
+    perms = data.split('#')
+    for perm in perms:
+        if len(perm) > 0:
+            auth = perm.split(':')
+            _role   = auth[0]
+            _read   = tflist[auth[1]]
+            _write  = tflist[auth[2]]
+            _execute= tflist[auth[3]]
+            _create = tflist[auth[4]]
+            _delete = tflist[auth[5]]
+
+            try:
+                rec = ecVSS_auth.objects.get(insid=id, role_value= _role)
+                rec.read    = _read
+                rec.write   = _write
+                rec.execute = _execute
+                rec.create  = _create
+                rec.delete  = _delete
+                rec.save()
+            except:
+                rec = ecVSS_auth(
+                    insid       = id,
+                    role_value  = _role,
+                    read        = _read,
+                    write       = _write,
+                    execute     = _execute,
+                    create      = _create,
+                    delete      = _delete,
+                )
+                rec.save()
+
+def vds_perm_update(id, data):
+
+    tflist = {
+        'true': True,
+        'false': False,
+    }
+
+    perms = data.split('#')
+    for perm in perms:
+        if len(perm) > 0:
+            auth = perm.split(':')
+            _role   = auth[0]
+            _read   = tflist[auth[1]]
+            _write  = tflist[auth[2]]
+            _execute= tflist[auth[3]]
+            _create = tflist[auth[4]]
+            _delete = tflist[auth[5]]
+
+            try:
+                rec = ecVDS_auth.objects.get(insid=id, role_value= _role)
+                rec.read    = _read
+                rec.write   = _write
+                rec.execute = _execute
+                rec.create  = _create
+                rec.delete  = _delete
+                rec.save()
+            except:
+                rec = ecVDS_auth(
+                    insid       = id,
+                    role_value  = _role,
+                    read        = _read,
+                    write       = _write,
+                    execute     = _execute,
+                    create      = _create,
+                    delete      = _delete,
+                )
+                rec.save()
 
 def perm_update(request):
     id = request.POST['id']
@@ -3174,11 +3916,15 @@ def perm_update(request):
         image_perm_update(id, data)
     elif table == "ecServers":
         server_perm_update(id, data)
+    elif table == "ecVSS":
+        vss_perm_update(id, data)
+    elif table == "ecVDS":
+        vds_perm_update(id, data)
 
     response = {}
     response['Result'] = "OK"
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def eip_update(request):
     _eip = request.POST['eip']
@@ -3192,7 +3938,7 @@ def eip_update(request):
     response = {}
     response['Result'] = "OK"
     retvalue = json.dumps(response)
-    return HttpResponse(retvalue, mimetype="application/json")
+    return HttpResponse(retvalue, content_type="application/json")
 
 def edit_server_permission_view(request, srole, mac):
     index = 0
@@ -3233,4 +3979,47 @@ def edit_server_permission_view(request, srole, mac):
     }
     return render(request, 'clc/form/server_permission_edit.html', context)
 
+def edit_vm_permission_view(request, insid):
+    index = 0
+    authlist =  ecAuthPath.objects.all()
+    roles = []
+    for auth in authlist:
+        role={}
+        role['name']    = auth.ec_authpath_name
+        role['value']   = auth.ec_authpath_value
+        roles.append(role)
 
+    if insid.find('VS') == 0:
+        permsObjs = ecVSS_auth.objects.filter(insid=insid)
+        sobj = ecVSS.objects.get(insid=insid)
+        table = 'ecVSS'
+    if insid.find('VD') == 0:
+        permsObjs = ecVDS_auth.objects.filter(insid=insid)
+        sobj = ecVDS.objects.get(insid=insid)
+        table = 'ecVDS'
+
+    perms = []
+    for perm_obj in permsObjs:
+        perm = {}
+        perm['id'] = 'perm' +  str(index)
+        perm['role_value'] = perm_obj.role_value
+        perm['read'] =  perm_obj.read
+        perm['write'] = perm_obj.write
+        perm['execute'] = perm_obj.execute
+        perm['create'] = perm_obj.create
+        perm['delete'] = perm_obj.delete
+        perms.append(perm)
+        index += 1
+
+    rows = len(perms)
+
+    context = {
+        'sobj':   sobj,
+        'res':    "VM ",
+        'roles':  roles,
+        'lists':  range(0,rows),
+        'next':   rows,
+        'perms':  perms,
+        'table':  table,
+    }
+    return render(request, 'clc/form/vm_permission_edit.html', context)

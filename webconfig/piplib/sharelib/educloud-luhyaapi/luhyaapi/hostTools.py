@@ -54,6 +54,9 @@ def ReadImageVersionFile(imgid):
         return '0.0.0'
 
 def IncreaseImageVersion(versionStr):
+    if versionStr == '0.0.0':
+        return '1.0.0'
+
     major, minor, build = versionStr.split('.')
     major = int(major)
     minor = int(minor)
@@ -69,9 +72,30 @@ def IncreaseImageVersion(versionStr):
 
     return ("%d.%d.%d" % (major, minor, build))
 
+def getLocalImageInfo(imgid):
+    path = '/storage/images/' + imgid + "/machine"
+
+    if os.path.exists(path):
+        version = ReadImageVersionFile(imgid)
+        size = os.path.getsize(path)
+    else:
+        version = '0.0.0'
+        size = 0
+
+    return version, size
+
+def getLocalDatabaseInfo(imgid):
+    path = '/storage/space/database/images/' + imgid + "/database"
+
+    if os.path.exists(path):
+        size = os.path.getsize(path)
+    else:
+        size = 0
+
+    return size
 
 def randomMAC():
-	mac = [ 0x00, 0x16, 0x3e,
+	mac = [ 0x08, 0x00, 0x27,
 		random.randint(0x00, 0x7f),
 		random.randint(0x00, 0xff),
 		random.randint(0x00, 0xff) ]
@@ -155,12 +179,13 @@ def allocate_rdp_port(avail_ports, used_ports):
         avail_ports.remove(newport)
         used_ports.append(newport)
     else:
-        newport = ''
+        newport = None
     return avail_ports, used_ports, newport
 
 def free_rdp_port(avail_port, used_port, port):
-    used_port.remove(port)
-    avail_port.append(port)
+    if port in used_port:
+        used_port.remove(port)
+        avail_port.append(port)
     return avail_port, used_port
 
 def allocate_web_ip(availabe_web_ips, used_web_ips):
@@ -174,8 +199,9 @@ def allocate_web_ip(availabe_web_ips, used_web_ips):
     return availabe_web_ips, used_web_ips, new_web_ip
 
 def free_web_ip(availabe_web_ips, used_web_ips, web_ip):
-    used_web_ips.remove(web_ip)
-    availabe_web_ips.append(web_ip)
+    if web_ip in used_web_ips:
+        used_web_ips.remove(web_ip)
+        availabe_web_ips.append(web_ip)
     return availabe_web_ips, used_web_ips
 
 def getSysCpuUtil():
@@ -426,7 +452,7 @@ CC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
 VM_LIST_GROUP_ITEM = '''
         <p class="list-group-item">
             {{vminfo.insid}}
-            <span class="pull-right text-muted"><em>Running</em></span>
+            <span class="pull-right text-muted"><em>{{vminfo.state}}</em></span>
 
             <p class="list-group-item">
             Guest OS<span class="pull-right text-muted"><em>{{vminfo.guest_os}}</em></span>

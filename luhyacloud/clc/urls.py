@@ -31,7 +31,7 @@ urlpatterns = patterns('',
     url(r'^edit_eip/(?P<role>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',       views.edit_eip_view,         name='edit_eip_view'),
     url(r'^api/1.0/eip/update$',      views.eip_update,               name='eip_update'),
     url(r'^edit/server/permission/(?P<srole>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',       views.edit_server_permission_view,         name='edit_server_permission_view'),
-
+    url(r'^edit/vm/permission/(?P<insid>\w+)/$',       views.edit_vm_permission_view,         name='edit_vm_permission_view'),
 
     url(r'^hosts$',         views.hosts_view,                         name='hosts_view'),
     url(r'^settings$',      views.settings_view,                      name='settings_view'),
@@ -58,27 +58,30 @@ urlpatterns = patterns('',
     url(r'^user/activate/(?P<uid>\w+)$',                        views.activate_user,             name='activate_user'),
 
     # image create and modify URL
-    url(r'^image/create/task/begin/(?P<srcid>\w+)$',                                            views.start_image_create_task,            name='start_image_create_task'),
+    url(r'^image/create/task/begin/(?P<srcid>\w+)$',                                                            views.image_create_task_start,                  name='image_create_task_start'),
+    url(r'^image/create/task/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                            views.image_create_task_prepare,                name='image_create_task_prepare'),
+    url(r'^image/create/task/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                        views.image_create_task_getprogress,            name='image_create_task_getprogress'),
+    url(r'^image/create/task/prepare/success/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                    views.image_create_task_prepare_success,        name='image_create_task_prepare_success'),
+    url(r'^image/create/task/prepare/failure/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                    views.image_create_task_prepare_failure,        name='image_create_task_prepare_failure'),
 
-    url(r'^image/create/task/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',            views.prepare_image_create_task,          name='prepare_image_create_task'),
-    url(r'^image/create/task/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',        views.image_create_task_getprogress,      name='image_create_task_getprogress'),
-    url(r'^image/create/task/prepare/success/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',    views.image_create_task_prepare_success,  name='image_create_task_prepare_success'),
-    url(r'^image/create/task/prepare/failure/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',    views.image_create_task_prepare_failure,  name='image_create_task_prepare_failure'),
+    url(r'^image/create/task/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                                views.image_create_task_run,                    name='image_create_task_run'),
+    url(r'^image/create/task/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                               views.image_create_task_stop,                   name='image_create_task_stop'),
+    url(r'^image/create/task/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                        views.image_create_task_getvmstatus,            name='image_create_task_getvmstatus'),
+    url(r'^image/create/task/updatevmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)/(?P<vmstatus>\w+)$',   views.image_create_task_updatevmstatus,         name='image_create_task_updatevmstatus'),
 
-    url(r'^image/create/task/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                views.run_image_create_task,              name='run_image_create_task'),
-    url(r'^image/create/task/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',               views.stop_image_create_task,             name='stop_image_create_task'),
-    url(r'^image/create/task/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',        views.image_create_task_getvmstatus,      name='image_create_task_getvmstatus'),
-    url(r'^image/create/task/updatevmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)/(?P<vmstatus>\w+)$',        views.image_create_task_updatevmstatus,      name='image_create_task_updatevmstatus'),
+    url(r'^image/create/task/submit/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                             views.image_create_task_submit,                 name='submit_image_create_task'),
+    url(r'^image/create/task/getsubmitprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                  views.image_create_task_getsubmitprogress,      name='image_create_task_getsubmitprogress'),
+    url(r'^image/create/task/submit/failure/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                     views.image_create_task_submit_failure,         name='image_create_task_submit_failure'),
+    url(r'^image/create/task/submit/success/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                     views.image_create_task_submit_success,         name='image_create_task_submit_success'),
 
-    url(r'^image/create/task/submit/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',             views.submit_image_create_task,                 name='submit_image_create_task'),
-    url(r'^image/create/task/getsubmitprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',  views.image_create_task_getsubmitprogress,      name='image_create_task_getsubmitprogress'),
-    url(r'^image/create/task/submit/failure/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',     views.image_create_task_submit_failure,         name='image_create_task_submit_failure'),
-    url(r'^image/create/task/submit/success/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',     views.image_create_task_submit_success,         name='image_create_task_submit_success'),
+    url(r'^image/create/task/view/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                               views.image_create_task_view,                   name='view_image_create_task'),
 
-    url(r'^image/create/task/view/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.image_create_task_view,      name='view_image_create_task'),
+    url(r'^image/modify/task/begin/(?P<srcid>\w+)$',                                                            views.image_modify_task_start,                  name='image_modify_task_start'),
+    url(r'^image/addvm/(?P<imgid>\w+)$',                                                                        views.image_add_vm,                             name='image_add_vm'),
+    url(r'^image/editvm/(?P<imgid>\w+)/(?P<insid>\w+)$',                                                        views.image_edit_vm,                             name='image_edit_vm'),
 
-    url(r'^image/modify/task/begin/(?P<srcid>\w+)$',    views.start_image_modify_task,              name='start_image_modify_task'),
     url(r'^image/permission/edit/(?P<srcid>\w+)$',      views.image_permission_edit,                name='image_permission_edit'),
+    url(r'^vm/run/(?P<insid>\w+)$',      views.vm_run,                name='vm_run'),
 
     # form URLs
     url(r'^cc/modify/resources/(?P<cc_name>\w+)$',      views.cc_modify_resources,                   name='cc_modify_resources'),
@@ -86,6 +89,8 @@ urlpatterns = patterns('',
     # iframe page
     url(r'^jt/images$',             views.jtable_images,                 name='jtable_images_view'),
     url(r'^jt/tasks$',              views.jtable_tasks,                  name='jtable_tasks_view'),
+    url(r'^jt/vss$',                views.jtable_vss,                    name='jtable_vss_view'),
+    url(r'^jt/vds$',                views.jtable_vds,                    name='jtable_vds_view'),
 
 
     url(r'^jt/settings/authpath$',  views.jtable_settings_for_authapth,  name='jtable_settings_authpath_view'),
@@ -150,6 +155,7 @@ urlpatterns = patterns('',
 
     url(r'^api/1.0/tasks/list$',          views.list_tasks,                 name='list_tasks_view'),
     url(r'^api/1.0/tasks/delete$',        views.delete_tasks,               name='delete_tasks_view'),
+    url(r'^api/1.0/tasks/update$',        views.update_tasks,               name='update_tasks_view'),
 
     # url(r'^api/1.0/hosts/list$',          views.list_hosts,                 name='list_hosts_view'),
     # url(r'^api/1.0/hosts/delete$',        views.delete_hosts,               name='delete_hosts_view'),
@@ -185,15 +191,15 @@ urlpatterns = patterns('',
     # url(r'^api/1.0/vapp/update$',        views.update_vapp,               name='update_vapp_view'),
     # url(r'^api/1.0/vapp/create$',        views.create_vapp,               name='create_vapp_view'),
     #
-    # url(r'^api/1.0/vds/list$',          views.list_vds,                 name='list_vds_view'),
-    # url(r'^api/1.0/vds/delete$',        views.delete_vds,               name='delete_vds_view'),
-    # url(r'^api/1.0/vds/update$',        views.update_vds,               name='update_vds_view'),
-    # url(r'^api/1.0/vds/create$',        views.create_vds,               name='create_vds_view'),
+    url(r'^api/1.0/vds/list$',          views.list_vds,                 name='list_vds_view'),
+    url(r'^api/1.0/vds/delete$',        views.delete_vds,               name='delete_vds_view'),
+    url(r'^api/1.0/vds/update$',        views.update_vds,               name='update_vds_view'),
+    url(r'^api/1.0/vds/create$',        views.create_vds,               name='create_vds_view'),
     #
-    # url(r'^api/1.0/vss/list$',          views.list_vss,                 name='list_vss_view'),
-    # url(r'^api/1.0/vss/delete$',        views.delete_vss,               name='delete_vss_view'),
-    # url(r'^api/1.0/vss/update$',        views.update_vss,               name='update_vss_view'),
-    # url(r'^api/1.0/vss/create$',        views.create_vss,               name='create_vss_view'),
+    url(r'^api/1.0/vss/list$',          views.list_vss,                 name='list_vss_view'),
+    url(r'^api/1.0/vss/delete$',        views.delete_vss,               name='delete_vss_view'),
+    url(r'^api/1.0/vss/update$',        views.update_vss,               name='update_vss_view'),
+    url(r'^api/1.0/vss/create$',        views.create_vss,               name='create_vss_view'),
 
 
     # this is a POST requtst, all data in POST section
