@@ -2178,7 +2178,7 @@ def ethers_free(insid):
         e = ecDHCPEthers.objects.get(insid=insid)
         e.insid = ''
         e.save()
-        logger.error('release ethers %s %s %s' % (e.mac, e.ip, e.ex_web_proxy_port, insid))
+        logger.error('release ethers %s %s %s %s' % (e.mac, e.ip, e.ex_web_proxy_port, insid))
     else:
         logger.error('no ethers allocated to %s' % insid)
 
