@@ -1227,7 +1227,7 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
         ccres_info.save()
 
     # 3. release ether if it is VS
-    if tidrec.insid.find('VS') == 0:
+    if ccres_info.cc_usage == 'vs':
         ethers_free(tidrec.insid)
 
     # 4. release iptables
