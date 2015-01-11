@@ -2,6 +2,9 @@
 
 import os
 from luhyaTools import *
+from educloudLog import *
+
+logger = getncdaemonlogger()
 
 def get_vm_hdds():
     cmd = 'vboxmanage list hdds | grep Location'
@@ -236,10 +239,12 @@ class vboxWrapper():
         return ret, err
 
     def portDeviceNumberAdd(self, hddtype):
-        port = 0
-        device = 0
         if hddtype == "IDE":
             self._ide_device += 1
+            if self._ide_device > 1:
+                self._ide_port += 1
+                self._ide_device = 0
+
             port = self._ide_port
             device = self._ide_device
         else:
@@ -258,7 +263,7 @@ class vboxWrapper():
             port, device = self.portDeviceNumberAdd(storageCtl)
             cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device', str(device), '--type', 'hdd', '--medium', imgfile, '--mtype', mtype]
             ret, err = self._tool.runCMDline(cmd_line, False)
-
+            logger.error('add disk cmd = %s' % cmd_line)
         return ret, err
 
     # vboxmanage storageattach test  --storagectl IDE --port 1 --device 0 --type dvddrive --medium host:/dev/sr0 --mtype readonly --passthrough on

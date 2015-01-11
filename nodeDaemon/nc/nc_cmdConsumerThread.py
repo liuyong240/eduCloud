@@ -322,6 +322,7 @@ class SubmitImageTaskThread(threading.Thread):
             self.root_dir = "/storage/tmp/images/"
         else:
             self.root_dir = "/storage/images/"
+        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, self.root_dir)
 
     # RPC call to ask CC download image from walrus
     def submitFromCC2Walrus(self, data):
@@ -415,12 +416,7 @@ class SubmitImageTaskThread(threading.Thread):
 
     def delete_snapshort(self):
         logger.error(' -------- delete_snapshort')
-        if self.srcimgid != self.dstimgid:
-            rootdir = "/storage/tmp"
-        else:
-            rootdir = "/storage"
 
-        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, rootdir)
         snapshot_name = "thomas"
         if self.vboxmgr.isSnapshotExist(snapshot_name):
             out, err = self.vboxmgr.delete_snapshot(snapshot_name)
@@ -476,6 +472,8 @@ class SubmitImageTaskThread(threading.Thread):
             'errormsg'  : '',
             'failed'    : 0,
         }
+
+
 
         try:
             done_1 = False
@@ -580,19 +578,20 @@ class runImageTaskThread(threading.Thread):
                     else:
                         ret, err = vboxmgr.addCtrl(" --name SATA --add sata ")
                         ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
+                        # ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
                     logger.error("--- --- --- vboxmgr.addCtrl, error=%s" % err)
 
                     # add disks
-                    index = 0
                     for disk in self.runtime_option['disks']:
                         ret, err = vboxmgr.attachHDD(self.runtime_option['disk_type'], disk['mtype'], disk['file'])
+                        time.sleep(2)
                         logger.error("--- --- --- vboxmgr.attachHDD %s, error=%s" % (disk['file'], err))
-                        if index == 0 and self.runtime_option['run_with_snapshot'] == 1:
-                            snapshot_name = "thomas"
-                            if not vboxmgr.isSnapshotExist(snapshot_name):
-                                ret, err = vboxmgr.take_snapshot(snapshot_name)
-                                logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % err)
-                        index = index + 1
+
+                    if self.runtime_option['run_with_snapshot'] == 1:
+                        snapshot_name = "thomas"
+                        if not vboxmgr.isSnapshotExist(snapshot_name):
+                            ret, err = vboxmgr.take_snapshot(snapshot_name)
+                            logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % err)
 
                     # add folders
                     for folder in self.runtime_option['folders']:
@@ -624,8 +623,8 @@ class runImageTaskThread(threading.Thread):
                     payload['failed']   = 1
                     payload['state']    = 'stopped'
                     payload['errormsg'] = e.message
-                    simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
 
+        simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
         return flag
 
     def runvm(self):
@@ -664,24 +663,7 @@ class runImageTaskThread(threading.Thread):
             done_1 = False
             done_2 = False
 
-            disks = []
-
-            if self.runtime_option['usage'] == 'desktop':
-                if self.srcimgid == self.dstimgid :
-                    # modify desktop
-                    pass
-                else:
-                    # build new desktop
-                    pass
-            if self.runtime_option['usage'] == 'server':
-                if self.srcimgid == self.dstimgid :
-                    # modify server
-                    pass
-                else:
-                    # build new server
-                    pass
-
-            if self.createvm(disks) == True:
+            if self.createvm() == True:
                 done_1 = True
                 if self.runvm() == True:
                     done_2 = True
