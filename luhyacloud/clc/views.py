@@ -1256,7 +1256,10 @@ def genVMDisks(tid, usage):
     e = {}
     if ins_id.find('TMP') == 0:
         # add disk c
-        c['file']    = '/storage/tmp/images/%s/machine' % dst_imgid
+        if src_imgid == dst_imgid:
+            c['file'] = '/storage/images/%s/machine' % dst_imgid
+        else:
+            c['file'] = '/storage/tmp/images/%s/machine' % dst_imgid
         c['mtype']   = 'normal'
         disks.append(c)
 

@@ -95,7 +95,7 @@ function prepareUIUpdate(items) {
 
     if (state == 'init') {
         progress = 0;
-        // $(".jw-button-next").attr("disabled", true);
+        $(".jw-button-next").attr("disabled", true);
         $("#btn_prepare").removeClass("disabled");
         $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
 
@@ -110,7 +110,7 @@ function prepareUIUpdate(items) {
         }
     }
     if (state == 'downloading' || state == "cloning") {
-        // $(".jw-button-next").attr("disabled", true);
+        $(".jw-button-next").attr("disabled", true);
         $("#btn_prepare").addClass("disabled");
 
         $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
@@ -150,7 +150,7 @@ function prepareDone() {
     $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
     $("#desclabel").css('color', 'green');
 
-    // $(".jw-button-next").removeAttr("disabled");
+    $(".jw-button-next").removeAttr("disabled");
 }
 
 /////////////////////////////
@@ -184,7 +184,7 @@ function editPageUIupdate(items) {
         return;
     }
     if (state == 'stopped') {
-        // $(".jw-button-next").removeAttr("disabled");
+        $(".jw-button-next").removeAttr("disabled");
 
         $("#btn_run").removeClass("disabled");
         $('#btn_stop').addClass('disabled');
@@ -201,7 +201,7 @@ function editPageUIupdate(items) {
         }
     }
     if (state == 'booting') {
-        // $(".jw-button-next").attr("disabled", true);
+        $(".jw-button-next").attr("disabled", true);
 
         $('#btn_run').addClass('disabled');
         $('#btn_stop').addClass('disabled');
@@ -213,7 +213,7 @@ function editPageUIupdate(items) {
         setTimeout(getVMStatus, timer_interval);
     }
     if (state == 'running') {
-        // $(".jw-button-next").attr("disabled", true);
+        $(".jw-button-next").attr("disabled", true);
 
         $('#btn_run').addClass('disabled');
         $('#btn_stop').removeClass('disabled');
