@@ -16,6 +16,8 @@ test -d "/var/log/educloud" || sudo mkdir /var/log/educloud
 test -d "/storage" || sudo mkdir /storage/
 cd /storage
 test -d "images"   || sudo mkdir images VMs config space
+cd /storage/tmp
+test -d "images"   || sudo mkdir images VMs
 cd /storage/space
 test -d "software" || sudo mkdir software pub-data prv-data database
 cd database
@@ -30,23 +32,29 @@ cp $SRC_ROOT/debian/cc.conf  /storage/config/
 sudo cp $SRC_ROOT/debian/sudoers  /etc/
 
 test -d "/etc/educloud/modules/" || sudo mkdir -p /etc/educloud/modules/
+sudo touch /etc/educloud/modules/clc
+sudo touch /etc/educloud/modules/walrus
 sudo touch /etc/educloud/modules/cc
+sudo touch /etc/educloud/modules/ncc
+
 
 #2 prepare dependented packages
 desc_step "2. prepare dependented packages"
-sudo apt-get install memcached libmemcached-tools apache2 rabbitmq-server libapache2-mod-wsgi python-dev ifstat sysstat sudo openssh-server python-pip sshfs iperf
+# also need to install virtual-box
+sudo apt-get install memcached libmemcached-tools mysql-server libmysqld-dev libmysqlclient-dev apache2 rabbitmq-server libapache2-mod-wsgi python-dev ifstat sysstat sudo openssh-server python-pip sshfs iperf
+sudo apt-get install iperf
 
 #3 configure rabbitmq service
 desc_step "3. configure rabbitmq service"
-test -d "/etc/educloud/modules/clc" ||sudo rabbitmqctl add_user luhya luhya
-test -d "/etc/educloud/modules/clc" ||sudo rabbitmqctl set_permissions luhya  ".*" ".*" ".*"
-sudo t -d "/etc/educloud/modules/clc" ||ervice rabbitmq-server restart
+sudo rabbitmqctl add_user luhya luhya
+sudo rabbitmqctl set_permissions luhya  ".*" ".*" ".*"
+sudo service rabbitmq-server restart
 
 #4 prepare & configure rsync service
 desc_step "4. prepare & configure rsync service"
-sudo cp $SRC_ROOT/t -d "/etc/educloud/modules/clc" || ebconfig/rsync/rsync /etc/default/
-sudo cp $SRC_ROOT/t -d "/etc/educloud/modules/clc" ||ebconfig/rsync/rsyncd.conf /etc/
-test -d "/etc/educloud/modules/clc" || sudo dpkg -i $SRC_ROOT/webconfig/piplib/3rd/rsync_3.1.0-2ubuntu0.1_amd64.deb
+sudo cp $SRC_ROOT/webconfig/rsync/rsync /etc/default/
+sudo cp $SRC_ROOT/webconfig/rsync/rsyncd.conf /etc/
+sudo dpkg -i $SRC_ROOT/webconfig/piplib/3rd/rsync_3.1.0-2ubuntu0.1_amd64.deb
 
 #5 install dependented python package
 desc_step "5 install python packages"
@@ -54,6 +62,7 @@ cd $SRC_ROOT/webconfig/piplib/3rd
 sudo pip install amqp-1.4.3.tar.gz
 sudo pip install Django-1.6.1.tar.gz
 sudo pip install linux-metrics-0.1.4.tar.gz
+sudo pip install MySQL-python-1.2.3.tar.gz
 sudo pip install pika-0.9.14.tar.gz
 sudo pip install psutil-2.1.1.tar.gz
 sudo pip install Pynetinfo-0.2.3.tar.gz
@@ -61,5 +70,17 @@ sudo pip install python-iptables-0.4.0.tar.gz
 sudo pip install python-memcached-1.53.tar.gz
 sudo pip install sortedcontainers-0.9.4.tar.gz
 
-#6 add $USER into group of fuse
-desc_step "6. test sshfs functioin"
+#6 prepare database tables
+desc_step "6 create database tables"
+cd $SRC_ROOT/luhyacloud 
+python manage.py syncdb
+
+#7 configure admin account & password
+desc_step "7 create admin account for Django Framework"
+python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com
+python manage.py changepassword luhya
+
+#8 init database 
+desc_step "8 init database data"
+cd $SRC_ROOT/luhyacloud/clc/sql
+# ./init_data.sh
