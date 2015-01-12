@@ -1,22 +1,4 @@
 # coding=UTF-8
-from basesettings import *
-from luhyaapi.educloudLog import *
-
-logger = getclclogger()
-
-# TEMPLATE_DEBUG = True
-TEMPLATE_DIRS.append(os.path.join(BASE_DIR, 'clc', 'templates'))
-logger.error("template dir = %s" % TEMPLATE_DIRS)
-
-INSTALLED_APPS += (
-    'clc',
-    'walrus',
-)
-
-STATICFILES_DIRS += (
-    os.path.join(BASE_DIR, "clc", "static"),
-)
-logger.error("static dir = %s" % str(STATICFILES_DIRS))
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases

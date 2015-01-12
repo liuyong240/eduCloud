@@ -35,7 +35,7 @@ test -d "/etc/educloud/modules/" || sudo mkdir -p /etc/educloud/modules/
 sudo touch /etc/educloud/modules/clc
 sudo touch /etc/educloud/modules/walrus
 sudo touch /etc/educloud/modules/cc
-sudo touch /etc/educloud/modules/ncc
+sudo touch /etc/educloud/modules/nc
 
 
 #2 prepare dependented packages
