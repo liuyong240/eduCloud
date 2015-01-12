@@ -34,7 +34,7 @@ sudo apt-get install python-dev ifstat sysstat sudo openssh-server python-pip ss
 
 #3 prepare & configure rsync service
 desc_step "3. prepare & configure rsync service"
-sudo dpkg -i $SRC_ROOT/webconfig/piplib/3rd/rsync_3.1.0-2ubuntu0.1_amd64.deb
+test -d "/etc/educloud/modules/cc" || sudo dpkg -i $SRC_ROOT/webconfig/piplib/3rd/rsync_3.1.0-2ubuntu0.1_amd64.deb
 
 #5 install dependented python package
 desc_step "4 install python packages"
@@ -48,4 +48,3 @@ sudo pip install sortedcontainers-0.9.4.tar.gz
 
 #6 add $USER into group of fuse
 desc_step "6. test sshfs functioin"
-./sshid-install cc

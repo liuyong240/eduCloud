@@ -49,7 +49,7 @@ list of daemon and worker thread
 
 def perform_mount():
     # mount cc's /storage/space/ to local
-    if not amIcc():
+    if amIcc():
         logger.error("I am nc and cc, no mount any more.")
         return
 

@@ -36,15 +36,15 @@ sudo apt-get install memcached libmemcached-tools apache2 rabbitmq-server libapa
 
 #3 configure rabbitmq service
 desc_step "3. configure rabbitmq service"
-sudo rabbitmqctl add_user luhya luhya
-sudo rabbitmqctl set_permissions luhya  ".*" ".*" ".*"
-sudo service rabbitmq-server restart
+test -d "/etc/educloud/modules/clc" ||sudo rabbitmqctl add_user luhya luhya
+test -d "/etc/educloud/modules/clc" ||sudo rabbitmqctl set_permissions luhya  ".*" ".*" ".*"
+sudo t -d "/etc/educloud/modules/clc" ||ervice rabbitmq-server restart
 
 #4 prepare & configure rsync service
 desc_step "4. prepare & configure rsync service"
-sudo cp $SRC_ROOT/webconfig/rsync/rsync /etc/default/
-sudo cp $SRC_ROOT/webconfig/rsync/rsyncd.conf /etc/
-sudo dpkg -i $SRC_ROOT/webconfig/piplib/3rd/rsync_3.1.0-2ubuntu0.1_amd64.deb
+sudo cp $SRC_ROOT/t -d "/etc/educloud/modules/clc" || ebconfig/rsync/rsync /etc/default/
+sudo cp $SRC_ROOT/t -d "/etc/educloud/modules/clc" ||ebconfig/rsync/rsyncd.conf /etc/
+test -d "/etc/educloud/modules/clc" || sudo dpkg -i $SRC_ROOT/webconfig/piplib/3rd/rsync_3.1.0-2ubuntu0.1_amd64.deb
 
 #5 install dependented python package
 desc_step "5 install python packages"
@@ -61,4 +61,3 @@ sudo pip install sortedcontainers-0.9.4.tar.gz
 
 #6 add $USER into group of fuse
 desc_step "6. test sshfs functioin"
-./sshid-install clc

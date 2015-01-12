@@ -164,7 +164,10 @@ def findBuildResource(srcid):
         disk = 20
 
     # get a list of cc
-    ccs = ecCCResources.objects.filter(cc_usage=filter)
+    if filter == 'rvd':
+        ccs = ecCCResources.objects.filter()
+    else:
+        ccs = ecCCResources.objects.filter(cc_usage=filter)
 
     # for each cc, find a good candidate nc and return, based on data in memcache
     # and compare all these selected ncs, find the best one
