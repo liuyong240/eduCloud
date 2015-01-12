@@ -266,15 +266,14 @@ class prepareImageTaskThread(threading.Thread):
             'errormsg'  : '',
             'failed'    : 0,
         }
+        done_1 = False
+        done_2 = False
+
+        data = {}
+        data['cmd']     = 'image/prepare'
+        data['tid']     =  self.tid
+        data['rsync']   = 'luhya'
         try:
-            done_1 = False
-            done_2 = False
-
-            data = {}
-            data['cmd']     = 'image/prepare'
-            data['tid']     =  self.tid
-            data['rsync']   = 'luhya'
-
             if self.downloadFromWalrus2CC(data) == "OK":
                 if self.downloadFromCC2NC(data) == "OK":
                     if self.cloneImage(data) == "OK":
@@ -482,15 +481,14 @@ class SubmitImageTaskThread(threading.Thread):
             'failed'    : 0,
         }
 
+        done_1 = False
+        done_2 = False
+
+        data = {}
+        data['cmd']     = 'image/submit'
+        data['tid']     =  self.tid
+        data['rsync']   = 'luhya'
         try:
-            done_1 = False
-            done_2 = False
-
-            data = {}
-            data['cmd']     = 'image/submit'
-            data['tid']     =  self.tid
-            data['rsync']   = 'luhya'
-
             self.delete_snapshort()
 
             if self.submitFromNC2CC(data) == "OK":
@@ -519,7 +517,7 @@ class SubmitImageTaskThread(threading.Thread):
         except Exception as e:
             logger.error("submitImageTask Exception Error Message : %s" % e.message)
             logger.error('send cmd image/submit/failure ')
-            self.download_rpc.call(cmd="image/submit/failure", tid=data['tid'], paras=data['rsync'])
+            self.download_rpc.call(cmd="image/submit/failure", tid=self.tid, paras=data['rsync'])
 
             payload['failed'] = 1
             payload['errormsg'] = e.message
@@ -778,7 +776,7 @@ class nc_cmdConsumerThread(run4everThread):
         logger.error(" get command = %s" %  body)
         message = json.loads(body)
         if  message['op'] in  nc_cmd_handlers and nc_cmd_handlers[message['op']] != None:
-                nc_cmd_handlers[message['op']](message['tid'], message['runtime_option'])
+            nc_cmd_handlers[message['op']](message['tid'], message['runtime_option'])
         else:
             logger.error("unknow cmd : %s", message['op'])
 

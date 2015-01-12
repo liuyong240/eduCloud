@@ -15,11 +15,15 @@ class nc_statusPublisherThread(run4everThread):
 
     def run4ever(self):
         while True:
-            node_status = self.collect_node_status()
-            self.send_node_status_to_cc(node_status)
-            time.sleep(5*60)
+            try:
+                node_status = self.collect_node_status()
+                self.send_node_status_to_cc(node_status)
+                time.sleep(5*60)
+            except Exception as e:
+                logger.error('nc_statusPublisherThread exception = %s' % e.messages)
 
     def collect_node_status(self):
+
         payload = { }
         payload['type']             = 'nodestatus'
         payload['service_data']     = getServiceStatus('nc')

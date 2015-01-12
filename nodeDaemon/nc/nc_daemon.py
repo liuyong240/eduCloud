@@ -90,9 +90,9 @@ def registerMyselfasNC():
     r = requests.post(url, data=payload)
     msg = json.loads(r.content)
     if msg['Result'] == "OK":
- 	logger.error("register NC %s succeed !" % netlist['ip0'])
+        logger.error("register NC %s succeed !" % netlist['ip0'])
     else:
-	logger.error("register NC %s failed !" % netlist['ip0'])
+        logger.error("register NC %s failed !" % netlist['ip0'])
 
 
 def main():
@@ -121,6 +121,7 @@ def main():
 
         except Exception as e:
             logger.error(e.message)
+            time.sleep(3)
 
 if __name__ == '__main__':
     main()
