@@ -372,8 +372,8 @@ class SubmitImageTaskThread(threading.Thread):
         retvalue = "OK"
         prompt = 'Uploading file from NC to CC ... ...'
 
-        if amIcc():
-            logger.error(' ----- I am CC, no need to upload any more . ')
+        if amIcc() and self.srcimgid == self.dstimgid:
+            logger.error(' ----- I am CC and it is modify op, no need to upload any more . ')
             payload['progress'] = 0
             payload['done']     = 1
             payload['prompt']   = prompt

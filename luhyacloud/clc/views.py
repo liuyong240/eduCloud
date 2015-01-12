@@ -192,6 +192,14 @@ def findBuildResource(srcid):
                 continue
 
     # now check sorted nc to find best one
+    if DAEMON_DEBUG == True:
+        data = l[0]
+        _ccip = data['xccip']
+        _ncip = data['xncip']
+        _msg = ''
+        logger.error("get best node : ip = %s" % _ncip)
+        return _ccip, _ncip, _msg
+
     for index in range(0, len(l)):
         data = l[index]
         avail_cpu = 100 - data['cpu_usage']
@@ -1380,7 +1388,7 @@ def genRuntimeOptionForImageBuild(transid):
     if ccres_info.cc_usage == 'rvd':
         netcard['nic_mac']  = ''
         netcard['nic_ip']   = ''
-    if ccres_info.cc_usage == 'vs':
+    if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
         netcard['nic_mac'], netcard['nic_ip'], web_port = ethers_allocate(ccres_info.ccname, ins_id)
         if netcard['nic_mac'] == None:
             releaseRuntimeOptionForImageBuild(transid, runtime_option)
@@ -1442,14 +1450,15 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['iptable_rules'] = iptables
 
     # 3.4 set web_accessURL and mgr_accessURL
+    runtime_option['web_accessURL']     = ''
+    runtime_option['ex_web_accessURL']  = ''
     if ccres_info.cc_usage == 'rvd':
-        runtime_option['web_accessURL']     = ''
-        runtime_option['ex_web_accessURL']  = ''
         runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
-        runtime_option['ex_mgr_accessURL']  = ''
+        runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
     if ccres_info.cc_usage == 'vs':
-        runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
-        runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
+        if runtime_option['usage'] == 'server':
+            runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
+            runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
         runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
         runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
 
@@ -2712,6 +2721,10 @@ def autoFindNewAddImage():
             pass
         else:
             imgfile_path = '/storage/images/' + local_image + "/machine"
+            if not os.path.exists(imgfile_path):
+                logger.error('Image File Not Exists:%s' % imgfile_path)
+                continue
+
             imgfile_size = os.path.getsize(imgfile_path) / (1024.0 * 1024 * 1024)
             imgfile_size = round(imgfile_size, 2)
             rec = ecImages(
