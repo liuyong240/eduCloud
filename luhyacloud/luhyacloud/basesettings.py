@@ -25,7 +25,7 @@ FILE_UPLOAD_PERMISSIONS = 0644
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
+TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -36,9 +36,6 @@ SECRET_KEY = 'niy^4ow#z1#)gls#+m0k(f49l6uaiqqt@2+jpb*ey5flqs6bj_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 TEMPLATE_DEBUG = True
-
-# TEMPLATE_DEBUG = True
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 
 ALLOWED_HOSTS = [
     '127.0.0.1', '192.168.56.101'
