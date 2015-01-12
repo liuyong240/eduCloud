@@ -49,6 +49,10 @@ list of daemon and worker thread
 
 def perform_mount():
     # mount cc's /storage/space/ to local
+    if not amIcc():
+        logger.error("I am nc and cc, no mount any more.")
+        return
+
     ccip = getccipbyconf()
     base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space  /storage/space'
 

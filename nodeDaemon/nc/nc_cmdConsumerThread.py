@@ -371,9 +371,18 @@ class SubmitImageTaskThread(threading.Thread):
         }
 
         retvalue = "OK"
+        prompt = 'Uploading file from NC to CC ... ...'
+
+        if amIcc():
+            logger.error(' ----- I am CC, no need to upload any more . ')
+            payload['progress'] = 0
+            payload['done']     = 1
+            payload['prompt']   = prompt
+            self.forwardTaskStatus2CC(json.dumps(payload))
+            return retvalue
 
         paras = data['rsync']
-        prompt = 'Uploading file from NC to CC ... ...'
+
         if paras == 'luhya':
             prompt      = 'Uploading image file from NC to CC ... ...'
             source      = self.root_dir + self.dstimgid
@@ -472,8 +481,6 @@ class SubmitImageTaskThread(threading.Thread):
             'errormsg'  : '',
             'failed'    : 0,
         }
-
-
 
         try:
             done_1 = False

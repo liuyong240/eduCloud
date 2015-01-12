@@ -385,10 +385,9 @@ incoming coding work
    Igr - add django app for DHCP service management
 
    Done - re-test desktop build work flow
-   TBDone - modify it to handle server build work flow
-
+   Done - modify it to handle server build work flow
 2. Done    - GUI of vss definition
-3. ing     - vss running server logic
+3. Done    - vss running server logic
 4. ing    - permission control when login with different account
 5. ing    - 汉化
 6. ing    - package for install

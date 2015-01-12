@@ -32,6 +32,10 @@ list of daemon and worker thread
 '''
 def perform_mount():
     # mount clc's /storage/space/{software, pub-data} to local
+    if amIwalrus():
+        logger.error("I am cc and walrus, no mount any more.")
+        return
+
     clcip = getclcipbyconf()
     base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space/%s /storage/space/%s'
 
