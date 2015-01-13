@@ -99,7 +99,7 @@ def randomMAC():
            random.randint(0x00, 0x7f),
            random.randint(0x00, 0xff),
            random.randint(0x00, 0xff)]
-    return ':'.join(map(lambda x: "%02x" % x, mac))
+    return ''.join(map(lambda x: "%02x" % x, mac))
 
 def ipRange(start_ip, end_ip):
    start = list(map(int, start_ip.split(".")))
