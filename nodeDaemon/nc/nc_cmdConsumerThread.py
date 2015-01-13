@@ -614,7 +614,7 @@ class runImageTaskThread(threading.Thread):
                     if self.runtime_option['usage'] == 'desktop':
                         _network_para = " --nic1 nat  --nictype1 %s " % self.runtime_option['networkcards'][0]['nic_type']
                     else:
-                        _network_para = " --nic1 bridged --bridgeadapter1 %s --nictype1 %s" % (bridged_ifs[0], self.runtime_option['networkcards'][0]['nic_type'])
+                        _network_para = " --nic1 bridged --bridgeadapter1 %s --nictype1 %s --macaddress1 %s" % (bridged_ifs[0], self.runtime_option['networkcards'][0]['nic_type'], self.runtime_option['networkcards'][0]['nic_mac'])
                     ostypepara_value = _network_para +  self.runtime_option['audio_para']
                     ret, err = vboxmgr.modifyVM(osTypeparam=ostypepara_value, cpus = _cpus, mem=_memory, )
                     logger.error("--- --- --- vboxmgr.modifyVM, error=%s" % err)
