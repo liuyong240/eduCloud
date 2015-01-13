@@ -6,6 +6,20 @@ from educloudLog import *
 
 logger = getncdaemonlogger()
 
+def get_vm_ifs():
+    cmd = 'vboxmanage list bridgedifs | grep Name:'
+    output = commands.getoutput(cmd)
+
+    result = []
+    if len(output) > 0:
+        ifs = output.split()
+        num_of_ifs = len(ifs)/4
+        for x in range(0, num_of_ifs):
+            hd = ifs[4*x+1].strip()
+            result.append(hd)
+
+    return result
+
 def get_vm_hdds():
     cmd = 'vboxmanage list hdds | grep Location'
     output = commands.getoutput(cmd)
@@ -190,6 +204,11 @@ class vboxWrapper():
         ret, err = self._tool.runCMDline(cmd_line)
         return ret, err
 
+    def SendCAD(self):
+        cmd = 'vboxmanage controlvm %s keyboardputscancode 1d 38 53' % self._tool._vmname
+        ret, err = self._tool.runCMDline(cmd)
+        return ret, err
+
     def modifyVM(self, osTypeparam, cpus=1, mem=1024, vram=128):
         vm_name = self._tool._vmname
 
@@ -206,6 +225,7 @@ class vboxWrapper():
 
         vmsettingstr = vm_name + memstr + vramstr + dstr + bioslogfade +bioslogimgpath + bootorder + usb + osTypeparam
         cmd_line = "VBoxManage modifyvm " + vmsettingstr
+        logger.error("modifyvm paras = %s" % vmsettingstr)
         ret, err = self._tool.runCMDline(cmd_line)
         return ret, err
 

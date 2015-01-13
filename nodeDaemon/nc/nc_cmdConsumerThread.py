@@ -570,6 +570,7 @@ class runImageTaskThread(threading.Thread):
         }
 
         vboxmgr = self.vboxmgr
+        bridged_ifs = get_vm_ifs()
 
         # register VM
         if not vboxmgr.isVMRegistered():
@@ -613,7 +614,7 @@ class runImageTaskThread(threading.Thread):
                     if self.runtime_option['usage'] == 'desktop':
                         _network_para = " --nic1 nat  --nictype1 %s " % self.runtime_option['networkcards'][0]['nic_type']
                     else:
-                        _network_para = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 %s " % self.runtime_option['networkcards'][0]['nic_type']
+                        _network_para = " --nic1 bridged --bridgeadapter1 %s --nictype1 %s" % (bridged_ifs[0], self.runtime_option['networkcards'][0]['nic_type'])
                     ostypepara_value = _network_para +  self.runtime_option['audio_para']
                     ret, err = vboxmgr.modifyVM(osTypeparam=ostypepara_value, cpus = _cpus, mem=_memory, )
                     logger.error("--- --- --- vboxmgr.modifyVM, error=%s" % err)
@@ -657,6 +658,11 @@ class runImageTaskThread(threading.Thread):
                     payload['failed'] = 1
                     payload['errormsg'] = err
                     payload['state'] = 'stopped'
+                else:
+                    time.sleep(5000)
+                    vboxmgr.SendCAD()
+            else:
+                vboxmgr.SendCAD()
 
         except Exception as e:
             flag = False
