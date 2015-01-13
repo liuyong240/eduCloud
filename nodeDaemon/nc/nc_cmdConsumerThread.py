@@ -661,11 +661,14 @@ class runImageTaskThread(threading.Thread):
                     payload['state'] = 'stopped'
                 else:
                     time.sleep(5000)
+                    logger.error("--- --- --- vboxmgr.SendCAD a")
                     vboxmgr.SendCAD()
             else:
+                logger.error("--- --- --- vboxmgr.SendCAD b")
                 vboxmgr.SendCAD()
 
         except Exception as e:
+            logger.error("--- --- --- vboxmgr.runVM exception : %s " % e.message)
             flag = False
             payload['failed'] = 1
             payload['state'] = 'stopped'

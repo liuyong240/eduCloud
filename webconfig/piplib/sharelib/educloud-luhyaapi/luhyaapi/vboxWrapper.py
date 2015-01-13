@@ -3,6 +3,7 @@
 import os
 from luhyaTools import *
 from educloudLog import *
+import json
 
 logger = getncdaemonlogger()
 
@@ -54,7 +55,7 @@ def getVMlist():
             tmp            =  out[8].split(':')[1].strip()  # line 9
             vm['mem']      =  int(tmp.split('MB')[0])/1024
             vm['vcpu']     =  int(out[15].split(':')[1].strip()) # line 16
-            state          =  out[35].split(':')[1].strip()
+            state          =  out[34].split(':')[1].strip()
             if state.find('running') >= 0:
                 vm['state'] = 'Running'
             else:
@@ -62,6 +63,7 @@ def getVMlist():
 
             result.append(vm)
 
+    logger.error("report VMs status: %s" % json.dumps(result))
     return result
 
 class vboxWrapper():
