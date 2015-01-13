@@ -191,15 +191,6 @@ def findBuildResource(srcid):
             except Exception as e:
                 continue
 
-    # now check sorted nc to find best one
-    if DAEMON_DEBUG == True:
-        data = l[0]
-        _ccip = data['xccip']
-        _ncip = data['xncip']
-        _msg = ''
-        logger.error("get best node : ip = %s" % _ncip)
-        return _ccip, _ncip, _msg
-
     for index in range(0, len(l)):
         data = l[index]
         avail_cpu = 100 - data['cpu_usage']
