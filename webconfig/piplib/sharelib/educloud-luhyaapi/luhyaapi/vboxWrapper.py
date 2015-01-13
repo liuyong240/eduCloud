@@ -91,6 +91,7 @@ class vboxWrapper():
         cmd_line = "VBoxManage unregistervm " + vm_name
         if delete:
             cmd_line = cmd_line + " --delete"
+        logger.error("cmd = %s" % cmd_line)
         ret, err = self._tool.runCMDline(cmd_line)
         return ret, err
 
@@ -303,10 +304,15 @@ class vboxWrapper():
 
     def deleteVMConfigFile(self):
         import shutil
-        vm_name = self._tool._vmname
-        xmlfile = os.path.join(self._baseVMfolder, vm_name, vm_name + ".vbox")
-        if os.path.exists(os.path.dirname(xmlfile)):
-            shutil.rmtree(os.path.dirname(xmlfile))
+        try:
+            vm_name = self._tool._vmname
+            xmlfile = os.path.join(self._baseVMfolder, vm_name, vm_name + ".vbox")
+            logger.error("xmlfile = %s" % xmlfile)
+            if os.path.exists(os.path.dirname(xmlfile)):
+                shutil.rmtree(os.path.dirname(xmlfile))
+                logger.error('rm %s' % os.path.dirname(xmlfile))
+        except Exception as e:
+            logger.error("deleteVMConfigFile with Exception = %s" % e.message)
 
     def isSnapshotExist(self, snapshot_name):
         vm_name = self._tool._vmname

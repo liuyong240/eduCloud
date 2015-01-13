@@ -258,10 +258,11 @@ class cc_rpcServerThread(run4everThread):
             _tid = tid.split(':')
             dstimgid = _tid[1]
 
-            oldversionNo = ReadImageVersionFile(dstimgid)
-            newversionNo = IncreaseImageVersion(oldversionNo)
-            WriteImageVersionFile(dstimgid,newversionNo)
-            logger.error("image %s version = %s" % (dstimgid, newversionNo))
+            if not amIclc():
+                oldversionNo = ReadImageVersionFile(dstimgid)
+                newversionNo = IncreaseImageVersion(oldversionNo)
+                WriteImageVersionFile(dstimgid,newversionNo)
+                logger.error("image %s version = %s" % (dstimgid, newversionNo))
         except Exception as e:
             logger.error("cc_rpc_handle_submit_success Exception Error Message : %s" % e.message)
 

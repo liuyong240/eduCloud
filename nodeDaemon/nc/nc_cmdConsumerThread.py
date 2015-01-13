@@ -318,10 +318,12 @@ class SubmitImageTaskThread(threading.Thread):
         self.runtime_option = json.loads(runtime_option)
         self.download_rpc = RpcClient(logger, self.ccip)
         if self.dstimgid != self.srcimgid:
-            self.root_dir = "/storage/tmp/images/"
+            self.vm_root_dir = "/storage/tmp/"
+            self.root_dir    = "/storage/tmp/images/"
         else:
-            self.root_dir = "/storage/images/"
-        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, self.root_dir)
+            self.vm_root_dir = "/storage/"
+            self.root_dir    = "/storage/images/"
+        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, self.vm_root_dir)
 
     # RPC call to ask CC download image from walrus
     def submitFromCC2Walrus(self, data):
@@ -444,8 +446,7 @@ class SubmitImageTaskThread(threading.Thread):
             if find_registered_vm == True:
                 ret, err = self.vboxmgr.unregisterVM(delete=True)
                 logger.error("--- vboxmgr.unregisterVM ret=%s, err=%s" % (ret, err))
-                ret, err =self.vboxmgr.deleteVMConfigFile()
-                logger.error("--- vboxmgr.deleteVMConfigFile ret=%s, err=%s" % (ret, err))
+                self.vboxmgr.deleteVMConfigFile()
 
             hdds = get_vm_hdds()
             dstfile = '/storage/tmp/images/%s/machine' % self.dstimgid
@@ -457,17 +458,19 @@ class SubmitImageTaskThread(threading.Thread):
             if os.path.exists(os.path.dirname(dstfile)):
                 logger.error('rm %s' % os.path.dirname(dstfile))
                 shutil.rmtree(os.path.dirname(dstfile))
+
+            logger.error("--- task_finish is Done whit src <> dst")
         else:
             if find_registered_vm == True:
                 ret, err = self.vboxmgr.unregisterVM()
                 logger.error("--- vboxmgr.unregisterVM ret=%s, err=%s" % (ret, err))
-                ret, err = self.vboxmgr.deleteVMConfigFile()
-                logger.error("--- vboxmgr.deleteVMConfigFile ret=%s, err=%s" % (ret, err))
+                self.vboxmgr.deleteVMConfigFile()
 
             oldversionNo = ReadImageVersionFile(self.dstimgid)
             newversionNo = IncreaseImageVersion(oldversionNo)
             WriteImageVersionFile(self.dstimgid, newversionNo)
             logger.error("update version to %s" % newversionNo)
+            logger.error("--- task_finish is Done whit src == dst")
 
     def run(self):
         payload = {
@@ -545,6 +548,13 @@ class runImageTaskThread(threading.Thread):
 
         self.rpcClient = RpcClient(logger, self.ccip)
 
+        if self.srcimgid != self.dstimgid:
+            rootdir = "/storage/tmp"
+        else:
+            rootdir = "/storage"
+
+        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, rootdir)
+
     # need to consider vd & vs creation
     # c: d: e: f:
 
@@ -559,12 +569,6 @@ class runImageTaskThread(threading.Thread):
             'failed'    : 0,
         }
 
-        if self.srcimgid != self.dstimgid:
-            rootdir = "/storage/tmp"
-        else:
-            rootdir = "/storage"
-
-        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, rootdir)
         vboxmgr = self.vboxmgr
 
         # register VM
