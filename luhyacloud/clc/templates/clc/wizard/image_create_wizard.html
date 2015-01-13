@@ -215,7 +215,7 @@ function editPageUIupdate(items) {
     if (state == 'running') {
         $(".jw-button-next").attr("disabled", true);
 
-        $('#btn_run').addClass('disabled');
+        $('#btn_run').removeClass('disabled');
         $('#btn_stop').removeClass('disabled');
 
         $("#editdesc").css('display', 'none');
@@ -256,7 +256,7 @@ function stopVM() {
     });
 
     items = {};
-    items['pahse'] = 'editing';
+    items['phase'] = 'editing';
     items['state'] = 'stopped';
     items['failed'] = 0;
     editPageUIupdate(items);

@@ -1752,34 +1752,38 @@ def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
 
 
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
-    logger.error("--- --- --- image_create_task_getvmstatus")
+    # logger.error("--- --- --- image_create_task_getvmstatus")
 
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
+    payload = {
+        'type' : 'taskstatus',
+        'phase': "editing",
+        'state': 'booting',
+        'tid': _tid,
+        'failed' : 0
+    }
+
     try:
-        payload = mc.get(str(_tid))
-        if payload == None:
-            payload = {
-                'type' : 'taskstatus',
-                'phase': "editing",
-                'state': 'booting',
-                'tid': _tid,
-                'failed' : 0
-            }
-        else:
-            payload = json.loads(payload)
+        tidrec = ectaskTransaction.objects.get(tid=_tid)
+        ncobj = ecServers.objects.get(ip0=tidrec.ncip, role='nc')
+        key = str("nc#" + ncobj.mac0 + "#status")
+        nc_info = mc.get(key)
+        nc_info = json.loads(nc_info)
+
+        if 'vm_data' in nc_info.keys():
+            vminfo = nc_info['vm_data']
+            for vm in vminfo:
+                if vm['insid'] == insid:
+                    payload['state'] = vm['state']
+                    break
     except Exception as e:
-        payload = {
-            'type' : 'taskstatus',
-            'phase': "editing",
-            'state': 'booting',
-            'tid': _tid,
-            'failed' : 0
-        }
+        logger.error("image_create_task_getvmstatus Exception : %s" % e.message)
+        payload['state'] = 'stopped'
 
     response = json.dumps(payload)
-    logger.error('%s : %s' % (_tid, response))
+    logger.error('image_create_task_getvmstatus = %s : %s' % (_tid, response))
     return HttpResponse(response, content_type="application/json")
 
 def image_create_task_getprogress(request, srcid, dstid, insid):
