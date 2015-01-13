@@ -1762,8 +1762,8 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
         if payload == None:
             payload = {
                 'type' : 'taskstatus',
-                'phase': "booting",
-                'state': 'init',
+                'phase': "editing",
+                'state': 'booting',
                 'tid': _tid,
                 'failed' : 0
             }
@@ -1779,6 +1779,7 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
         }
 
     response = json.dumps(payload)
+    logger.error('%s : %s' % (_tid, response))
     return HttpResponse(response, content_type="application/json")
 
 def image_create_task_getprogress(request, srcid, dstid, insid):

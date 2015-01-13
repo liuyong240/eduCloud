@@ -635,6 +635,7 @@ class runImageTaskThread(threading.Thread):
                     payload['errormsg'] = e.message
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
+        logger.error('createvm result: %s' % json.dumps(payload))
         return flag
 
     def runvm(self):
@@ -671,6 +672,7 @@ class runImageTaskThread(threading.Thread):
             payload['errormsg'] = e.message
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
+        logger.error('runvm result: %s' % json.dumps(payload))
         return flag
 
     def run(self):
