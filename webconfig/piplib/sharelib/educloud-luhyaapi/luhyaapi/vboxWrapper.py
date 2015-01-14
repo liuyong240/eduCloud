@@ -36,8 +36,8 @@ def get_vm_hdds():
     return result
 
 def getVMlist():
-    cmd = "VBoxManage list vms"
-    out, err = execute_cmd(cmd, True)
+    cmd = "vboxmanage list vms"
+    out = commands.getoutput(cmd)
 
     result = []
     if len(out) > 0:
@@ -231,8 +231,9 @@ class vboxWrapper():
         bioslogimgpath = " --bioslogoimagepath " + os.path.join(self._rootdir, "bin", "res", "BiosLogo.bmp")
         bootorder = " --boot1 disk "
         usb = " --usb on --usbehci on "
+        pageFusion = ' --pagefusion on '
 
-        vmsettingstr = vm_name + memstr + vramstr + dstr + bioslogfade +bioslogimgpath + bootorder + usb + osTypeparam
+        vmsettingstr = vm_name + memstr + vramstr + dstr + bioslogfade +bioslogimgpath + bootorder + usb + osTypeparam + pageFusion
         cmd_line = "VBoxManage modifyvm " + vmsettingstr
         logger.error("modifyvm paras = %s" % vmsettingstr)
         ret, err = self._tool.runCMDline(cmd_line)
