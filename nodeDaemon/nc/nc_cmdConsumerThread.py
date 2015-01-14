@@ -190,9 +190,8 @@ class prepareImageTaskThread(threading.Thread):
             srcfile  = "/storage/images/%s/machine"      % self.srcimgid
             dstfile  = "/storage/tmp/images/%s/machine"  % self.dstimgid
             if self.srcimgid != self.dstimgid:
-                need_clone = True
-                if dstfile in hdds:
-                    need_delete = True
+                need_clone  = True
+                need_delete = True
 
         if data['rsync'] == 'db':
             srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
