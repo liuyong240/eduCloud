@@ -4026,3 +4026,6 @@ def edit_vm_permission_view(request, insid):
         'table':  table,
     }
     return render(request, 'clc/form/vm_permission_edit.html', context)
+
+def rdp_web_client(request):
+    return render(request, 'clc/rdpclient/webclient3.html')

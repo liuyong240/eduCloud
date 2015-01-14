@@ -220,4 +220,7 @@ urlpatterns = patterns('',
     url(r'^api/1.0/perm/update$',     views.perm_update,                     name='perm_update'),
     url(r'^api/1.0/software/op$',     views.software_operation,              name='software_operation'),
 
+    url(r'^api/1.0/vrde$',     views.rdp_web_client,              name='rdp_web_client'),
+
+
     )
