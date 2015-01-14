@@ -195,6 +195,13 @@ class vboxWrapper():
         f.write(xmlstr)
         f.close()
 
+    def addVRDPproperty(self):
+        vm_name = self._tool._vmname
+        video_str = ' --vrdevideochannel on '
+        video_qa  = ' --vrdevideochannelquality 75 '
+        multi_str = ' --vrdemulticon on '
+        cmd_line = "VBoxManage modifyvm " + vm_name + video_str + video_qa + multi_str
+
     # in win7, run "mstsc /v:<ip:port>"
     def addHeadlessProperty(self, port=3389):
         vm_name = self._tool._vmname
