@@ -365,6 +365,26 @@ access vss vm can be
        > CC's new IP addr is public IP
        > add forward rule in system's firewall to CC's new IP addr
 
+############################################
+# 10. set up iscsi disk
+############################################
+
+10.1 set target
+- sudo apt-get install iscsitarget iscsitarget-source iscsitarget-dkms
+- /etc/default/iscsitarget
+  ISCSITARGET_ENABLE=true
+- /etc/iet/ietd.conf
+  Target insid.database
+        IncomingUser
+        OutgoingUser
+        Lun 0 Path=/storage/images/database,Type=fileio
+        Alias insid
+- start iscsi service
+  /etc/init.d/iscsitarget start or
+  service iscsitarget restart
+
+10.2 set initiator
+VBoxManage storageattach cc --storagectl IDE --port 1 --device 0 --type hdd --medium iscsi --mtype normal --server 192.168.96.125 --target insid.database
 
 -------------------------------------
 incoming coding work
