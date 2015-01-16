@@ -49,7 +49,7 @@ def getVMlist():
             vm['uuid'] = vms[2*x+1].replace('{', '').replace('}', '')
 
             vm_cmd = "vboxmanage showvminfo %s" % vm['insid']
-            out, err = execute_cmd(vm_cmd, True)
+            out = execute_cmd(vm_cmd, True)
             out = out.split('\n')
             vm['guest_os'] =  out[2].split(':')[1].strip()  # line 3
             tmp            =  out[8].split(':')[1].strip()  # line 9
@@ -350,7 +350,7 @@ class vboxWrapper():
         vm_name = self._tool._vmname
         flag = 0
         cmd_line = "vboxmanage showvminfo " + vm_name
-        ret, err = self._tool.runCMDline(cmd_line)
+        ret = commands.getoutput(cmd_line)
         if "Snapshots:" in ret:
             if snapshot_name in ret:
                 flag = 1

@@ -9,16 +9,8 @@ GUEST_PASSWORD = "luhya"
 SNAPSHOT_NAME = "luhya-thomas"
 
 def execute_cmd(cmd_line, needsplit=True):
-    import subprocess
-
-    if needsplit:
-        cmd = cmd_line.split()
-    else:
-        cmd = cmd_line
-
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = p.communicate()
-    return out, err
+    out = commands.getoutput(cmd_line)
+    return out
 
 class configuration():
     def __init__(self, conf):
@@ -166,14 +158,6 @@ class luhyaTools():
         return ret
 
     def isWirelessReady(self):
-        #if not isLinux():
-        #    result, err = self.runCMDline("sc query wlansvc")
-        #    if not "RUNNING" in result:
-        #        return 0
-        #    else:
-        #        return 1
-        #else:
-        #    return 1
         return 1
 
     def isServerReady(self, sever_ip):
@@ -194,25 +178,11 @@ class luhyaTools():
         os.popen("sudo shutdown -h now")
         # os.popen("shutdown -s -t 0")
 
-    def runCMDline(self, cmd_line, needsplit=True):
-        import subprocess
-
-        if needsplit:
-            cmd = cmd_line.split()
-        else:
-            cmd = cmd_line
-
-        try:
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            out, err = p.communicate()
-            return out, err
-        except Exception as e:
-            return '', str(e)
 
     def checkProcessExist(self, processname):
         cmd_line = "ps -ef"
-        out, err = self.runCMDline(cmd_line)
-        if processname in out:
+        ret = commands.getoutput(cmd_line)
+        if processname in ret:
             return 1
         else:
             return 0
