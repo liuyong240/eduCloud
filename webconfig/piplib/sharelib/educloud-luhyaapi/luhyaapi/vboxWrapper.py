@@ -218,7 +218,7 @@ class vboxWrapper():
 
     def SendCAD(self):
         cmd = 'vboxmanage controlvm %s keyboardputscancode 1d 38 53' % self._tool._vmname
-        ret = commands.getoutput(cmd_line)
+        ret = commands.getoutput(cmd)
         return ret
 
     def modifyVM(self, osTypeparam, cpus=1, mem=1024, vram=128):
