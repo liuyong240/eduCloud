@@ -49,6 +49,10 @@ list of daemon and worker thread
 
 def perform_mount():
     # mount cc's /storage/space/ to local
+    if amIcc():
+        logger.error("I am nc and cc, no mount any more.")
+        return
+
     ccip = getccipbyconf()
     base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space  /storage/space'
 
@@ -86,9 +90,9 @@ def registerMyselfasNC():
     r = requests.post(url, data=payload)
     msg = json.loads(r.content)
     if msg['Result'] == "OK":
- 	logger.error("register NC %s succeed !" % netlist['ip0'])
+        logger.error("register NC %s succeed !" % netlist['ip0'])
     else:
-	logger.error("register NC %s failed !" % netlist['ip0'])
+        logger.error("register NC %s failed !" % netlist['ip0'])
 
 
 def main():
@@ -117,6 +121,7 @@ def main():
 
         except Exception as e:
             logger.error(e.message)
+            time.sleep(3)
 
 if __name__ == '__main__':
     main()

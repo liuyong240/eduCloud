@@ -3,8 +3,23 @@
 import os
 from luhyaTools import *
 from educloudLog import *
+import json
 
 logger = getncdaemonlogger()
+
+def get_vm_ifs():
+    cmd = 'vboxmanage list bridgedifs | grep Name:'
+    output = commands.getoutput(cmd)
+
+    result = []
+    if len(output) > 0:
+        ifs = output.split()
+        num_of_ifs = len(ifs)/4
+        for x in range(0, num_of_ifs):
+            hd = ifs[4*x+1].strip()
+            result.append(hd)
+
+    return result
 
 def get_vm_hdds():
     cmd = 'vboxmanage list hdds | grep Location'
@@ -21,8 +36,8 @@ def get_vm_hdds():
     return result
 
 def getVMlist():
-    cmd = "VBoxManage list vms"
-    out, err = execute_cmd(cmd, True)
+    cmd = "vboxmanage list vms"
+    out = commands.getoutput(cmd)
 
     result = []
     if len(out) > 0:
@@ -40,7 +55,7 @@ def getVMlist():
             tmp            =  out[8].split(':')[1].strip()  # line 9
             vm['mem']      =  int(tmp.split('MB')[0])/1024
             vm['vcpu']     =  int(out[15].split(':')[1].strip()) # line 16
-            state          =  out[35].split(':')[1].strip()
+            state          =  out[34].split(':')[1].strip()
             if state.find('running') >= 0:
                 vm['state'] = 'Running'
             else:
@@ -48,6 +63,7 @@ def getVMlist():
 
             result.append(vm)
 
+    logger.error("report VMs status: %s" % json.dumps(result))
     return result
 
 class vboxWrapper():
@@ -91,6 +107,7 @@ class vboxWrapper():
         cmd_line = "VBoxManage unregistervm " + vm_name
         if delete:
             cmd_line = cmd_line + " --delete"
+        logger.error("cmd = %s" % cmd_line)
         ret, err = self._tool.runCMDline(cmd_line)
         return ret, err
 
@@ -178,6 +195,13 @@ class vboxWrapper():
         f.write(xmlstr)
         f.close()
 
+    def addVRDPproperty(self):
+        vm_name = self._tool._vmname
+        video_str = ' --vrdevideochannel on '
+        video_qa  = ' --vrdevideochannelquality 75 '
+        multi_str = ' --vrdemulticon on '
+        cmd_line = "VBoxManage modifyvm " + vm_name + video_str + video_qa + multi_str
+
     # in win7, run "mstsc /v:<ip:port>"
     def addHeadlessProperty(self, port=3389):
         vm_name = self._tool._vmname
@@ -187,6 +211,11 @@ class vboxWrapper():
         portstr = " --vrdeport %d " % port
         cmd_line = "VBoxManage modifyvm " + vm_name + enablestr + authstr + connectstr + portstr
         ret, err = self._tool.runCMDline(cmd_line)
+        return ret, err
+
+    def SendCAD(self):
+        cmd = 'vboxmanage controlvm %s keyboardputscancode 1d 38 53' % self._tool._vmname
+        ret, err = self._tool.runCMDline(cmd)
         return ret, err
 
     def modifyVM(self, osTypeparam, cpus=1, mem=1024, vram=128):
@@ -202,9 +231,11 @@ class vboxWrapper():
         bioslogimgpath = " --bioslogoimagepath " + os.path.join(self._rootdir, "bin", "res", "BiosLogo.bmp")
         bootorder = " --boot1 disk "
         usb = " --usb on --usbehci on "
+        pageFusion = ' --pagefusion on '
 
-        vmsettingstr = vm_name + memstr + vramstr + dstr + bioslogfade +bioslogimgpath + bootorder + usb + osTypeparam
+        vmsettingstr = vm_name + memstr + vramstr + dstr + bioslogfade +bioslogimgpath + bootorder + usb + osTypeparam + pageFusion
         cmd_line = "VBoxManage modifyvm " + vmsettingstr
+        logger.error("modifyvm paras = %s" % vmsettingstr)
         ret, err = self._tool.runCMDline(cmd_line)
         return ret, err
 
@@ -303,10 +334,15 @@ class vboxWrapper():
 
     def deleteVMConfigFile(self):
         import shutil
-        vm_name = self._tool._vmname
-        xmlfile = os.path.join(self._baseVMfolder, vm_name, vm_name + ".vbox")
-        if os.path.exists(os.path.dirname(xmlfile)):
-            shutil.rmtree(os.path.dirname(xmlfile))
+        try:
+            vm_name = self._tool._vmname
+            xmlfile = os.path.join(self._baseVMfolder, vm_name, vm_name + ".vbox")
+            logger.error("xmlfile = %s" % xmlfile)
+            if os.path.exists(os.path.dirname(xmlfile)):
+                shutil.rmtree(os.path.dirname(xmlfile))
+                logger.error('rm %s' % os.path.dirname(xmlfile))
+        except Exception as e:
+            logger.error("deleteVMConfigFile with Exception = %s" % e.message)
 
     def isSnapshotExist(self, snapshot_name):
         vm_name = self._tool._vmname

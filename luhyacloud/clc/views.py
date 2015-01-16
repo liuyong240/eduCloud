@@ -164,7 +164,10 @@ def findBuildResource(srcid):
         disk = 20
 
     # get a list of cc
-    ccs = ecCCResources.objects.filter(cc_usage=filter)
+    if filter == 'rvd':
+        ccs = ecCCResources.objects.filter()
+    else:
+        ccs = ecCCResources.objects.filter(cc_usage=filter)
 
     # for each cc, find a good candidate nc and return, based on data in memcache
     # and compare all these selected ncs, find the best one
@@ -188,7 +191,6 @@ def findBuildResource(srcid):
             except Exception as e:
                 continue
 
-    # now check sorted nc to find best one
     for index in range(0, len(l)):
         data = l[index]
         avail_cpu = 100 - data['cpu_usage']
@@ -1377,7 +1379,7 @@ def genRuntimeOptionForImageBuild(transid):
     if ccres_info.cc_usage == 'rvd':
         netcard['nic_mac']  = ''
         netcard['nic_ip']   = ''
-    if ccres_info.cc_usage == 'vs':
+    if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
         netcard['nic_mac'], netcard['nic_ip'], web_port = ethers_allocate(ccres_info.ccname, ins_id)
         if netcard['nic_mac'] == None:
             releaseRuntimeOptionForImageBuild(transid, runtime_option)
@@ -1439,14 +1441,15 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['iptable_rules'] = iptables
 
     # 3.4 set web_accessURL and mgr_accessURL
+    runtime_option['web_accessURL']     = ''
+    runtime_option['ex_web_accessURL']  = ''
     if ccres_info.cc_usage == 'rvd':
-        runtime_option['web_accessURL']     = ''
-        runtime_option['ex_web_accessURL']  = ''
         runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
-        runtime_option['ex_mgr_accessURL']  = ''
+        runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
     if ccres_info.cc_usage == 'vs':
-        runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
-        runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
+        if runtime_option['usage'] == 'server':
+            runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
+            runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
         runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
         runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
 
@@ -1749,33 +1752,38 @@ def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
 
 
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
-    logger.error("--- --- --- image_create_task_getvmstatus")
+    # logger.error("--- --- --- image_create_task_getvmstatus")
 
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
+    payload = {
+        'type' : 'taskstatus',
+        'phase': "editing",
+        'state': 'booting',
+        'tid': _tid,
+        'failed' : 0
+    }
+
     try:
-        payload = mc.get(str(_tid))
-        if payload == None:
-            payload = {
-                'type' : 'taskstatus',
-                'phase': "booting",
-                'state': 'init',
-                'tid': _tid,
-                'failed' : 0
-            }
-        else:
-            payload = json.loads(payload)
+        tidrec = ectaskTransaction.objects.get(tid=_tid)
+        ncobj = ecServers.objects.get(ip0=tidrec.ncip, role='nc')
+        key = str("nc#" + ncobj.mac0 + "#status")
+        nc_info = mc.get(key)
+        nc_info = json.loads(nc_info)
+
+        if 'vm_data' in nc_info.keys():
+            vminfo = nc_info['vm_data']
+            for vm in vminfo:
+                if vm['insid'] == insid:
+                    payload['state'] = vm['state']
+                    break
     except Exception as e:
-        payload = {
-            'type' : 'taskstatus',
-            'phase': "editing",
-            'state': 'booting',
-            'tid': _tid,
-            'failed' : 0
-        }
+        logger.error("image_create_task_getvmstatus Exception : %s" % e.message)
+        payload['state'] = 'stopped'
 
     response = json.dumps(payload)
+    logger.error('image_create_task_getvmstatus = %s : %s' % (_tid, response))
     return HttpResponse(response, content_type="application/json")
 
 def image_create_task_getprogress(request, srcid, dstid, insid):
@@ -2709,6 +2717,10 @@ def autoFindNewAddImage():
             pass
         else:
             imgfile_path = '/storage/images/' + local_image + "/machine"
+            if not os.path.exists(imgfile_path):
+                logger.error('Image File Not Exists:%s' % imgfile_path)
+                continue
+
             imgfile_size = os.path.getsize(imgfile_path) / (1024.0 * 1024 * 1024)
             imgfile_size = round(imgfile_size, 2)
             rec = ecImages(

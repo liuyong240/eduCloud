@@ -95,11 +95,11 @@ def getLocalDatabaseInfo(imgid):
     return size
 
 def randomMAC():
-	mac = [ 0x08, 0x00, 0x27,
-		random.randint(0x00, 0x7f),
-		random.randint(0x00, 0xff),
-		random.randint(0x00, 0xff) ]
-	return ':'.join(map(lambda x: "%02x" % x, mac))
+    mac = [0x08, 0x00, 0x27,
+           random.randint(0x00, 0x7f),
+           random.randint(0x00, 0xff),
+           random.randint(0x00, 0xff)]
+    return ''.join(map(lambda x: "%02x" % x, mac))
 
 def ipRange(start_ip, end_ip):
    start = list(map(int, start_ip.split(".")))
@@ -299,6 +299,31 @@ def get_rsync_status():
 def restart_rsync():
     cmd = "sudo service rsync restart"
     commands.getoutput(cmd)
+
+def amIclc():
+    if os.path.exists('/etc/educloud/modules/clc'):
+        return True
+    else:
+        return False
+
+def amIcc():
+    if os.path.exists('/etc/educloud/modules/cc'):
+        return True
+    else:
+        return False
+
+def amInc():
+    if os.path.exists('/etc/educloud/modules/nc'):
+        return True
+    else:
+        return False
+
+def amIwalrus():
+    if os.path.exists('/etc/educloud/modules/walrus'):
+        return True
+    else:
+        return False
+
 
 def getServiceStatus(dtype):
     result = {}

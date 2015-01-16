@@ -1,12 +1,5 @@
 # coding=UTF-8
 
-from basesettings import *
-
-INSTALLED_APPS += (
-    'clc',
-    'walrus',
-)
-
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 # sudo apt-get install mysql-server

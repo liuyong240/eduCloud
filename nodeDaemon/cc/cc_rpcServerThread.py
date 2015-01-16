@@ -110,11 +110,27 @@ class cc_rpcServerThread(run4everThread):
             'failed'    : 0,
             'done'      : 0,
         }
+
+        prompt = 'Uploading file from CC to Walrus ... ...'
+
+        if amIclc():
+            payload['prompt']   = prompt
+            payload['prompt']   = prompt
+            payload['done']     = 1
+            payload = json.dumps(payload)
+            ch.basic_publish(
+                     exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id = props.correlation_id),
+                     body=payload)
+            ch.basic_ack(delivery_tag = method.delivery_tag)
+            return
+
         try:
             logger.error("--- --- --- cc_rpc_handle_imagesubmit")
             insid = tid.split(':')[2]
             dstid = tid.split(':')[1]
-            prompt = 'Uploading file from CC to Walrus ... ...'
+
             if paras == 'luhya':
                 prompt      = 'Uploading image file from CC to Walrus ... ...'
                 source      = "/storage/images/%s" % tid.split(':')[1]
@@ -242,10 +258,11 @@ class cc_rpcServerThread(run4everThread):
             _tid = tid.split(':')
             dstimgid = _tid[1]
 
-            oldversionNo = ReadImageVersionFile(dstimgid)
-            newversionNo = IncreaseImageVersion(oldversionNo)
-            WriteImageVersionFile(dstimgid,newversionNo)
-            logger.error("image %s version = %s" % (dstimgid, newversionNo))
+            if not amIclc():
+                oldversionNo = ReadImageVersionFile(dstimgid)
+                newversionNo = IncreaseImageVersion(oldversionNo)
+                WriteImageVersionFile(dstimgid,newversionNo)
+                logger.error("image %s version = %s" % (dstimgid, newversionNo))
         except Exception as e:
             logger.error("cc_rpc_handle_submit_success Exception Error Message : %s" % e.message)
 

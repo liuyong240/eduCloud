@@ -190,9 +190,8 @@ class prepareImageTaskThread(threading.Thread):
             srcfile  = "/storage/images/%s/machine"      % self.srcimgid
             dstfile  = "/storage/tmp/images/%s/machine"  % self.dstimgid
             if self.srcimgid != self.dstimgid:
-                need_clone = True
-                if dstfile in hdds:
-                    need_delete = True
+                need_clone  = True
+                need_delete = True
 
         if data['rsync'] == 'db':
             srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
@@ -266,15 +265,14 @@ class prepareImageTaskThread(threading.Thread):
             'errormsg'  : '',
             'failed'    : 0,
         }
+        done_1 = False
+        done_2 = False
+
+        data = {}
+        data['cmd']     = 'image/prepare'
+        data['tid']     =  self.tid
+        data['rsync']   = 'luhya'
         try:
-            done_1 = False
-            done_2 = False
-
-            data = {}
-            data['cmd']     = 'image/prepare'
-            data['tid']     =  self.tid
-            data['rsync']   = 'luhya'
-
             if self.downloadFromWalrus2CC(data) == "OK":
                 if self.downloadFromCC2NC(data) == "OK":
                     if self.cloneImage(data) == "OK":
@@ -319,10 +317,12 @@ class SubmitImageTaskThread(threading.Thread):
         self.runtime_option = json.loads(runtime_option)
         self.download_rpc = RpcClient(logger, self.ccip)
         if self.dstimgid != self.srcimgid:
-            self.root_dir = "/storage/tmp/images/"
+            self.vm_root_dir = "/storage/tmp/"
+            self.root_dir    = "/storage/tmp/images/"
         else:
-            self.root_dir = "/storage/images/"
-        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, self.root_dir)
+            self.vm_root_dir = "/storage/"
+            self.root_dir    = "/storage/images/"
+        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, self.vm_root_dir)
 
     # RPC call to ask CC download image from walrus
     def submitFromCC2Walrus(self, data):
@@ -371,9 +371,18 @@ class SubmitImageTaskThread(threading.Thread):
         }
 
         retvalue = "OK"
+        prompt = 'Uploading file from NC to CC ... ...'
+
+        if amIcc() and self.srcimgid == self.dstimgid:
+            logger.error(' ----- I am CC and it is modify op, no need to upload any more . ')
+            payload['progress'] = 0
+            payload['done']     = 1
+            payload['prompt']   = prompt
+            self.forwardTaskStatus2CC(json.dumps(payload))
+            return retvalue
 
         paras = data['rsync']
-        prompt = 'Uploading file from NC to CC ... ...'
+
         if paras == 'luhya':
             prompt      = 'Uploading image file from NC to CC ... ...'
             source      = self.root_dir + self.dstimgid
@@ -436,8 +445,7 @@ class SubmitImageTaskThread(threading.Thread):
             if find_registered_vm == True:
                 ret, err = self.vboxmgr.unregisterVM(delete=True)
                 logger.error("--- vboxmgr.unregisterVM ret=%s, err=%s" % (ret, err))
-                ret, err =self.vboxmgr.deleteVMConfigFile()
-                logger.error("--- vboxmgr.deleteVMConfigFile ret=%s, err=%s" % (ret, err))
+                self.vboxmgr.deleteVMConfigFile()
 
             hdds = get_vm_hdds()
             dstfile = '/storage/tmp/images/%s/machine' % self.dstimgid
@@ -449,17 +457,19 @@ class SubmitImageTaskThread(threading.Thread):
             if os.path.exists(os.path.dirname(dstfile)):
                 logger.error('rm %s' % os.path.dirname(dstfile))
                 shutil.rmtree(os.path.dirname(dstfile))
+
+            logger.error("--- task_finish is Done whit src <> dst")
         else:
             if find_registered_vm == True:
                 ret, err = self.vboxmgr.unregisterVM()
                 logger.error("--- vboxmgr.unregisterVM ret=%s, err=%s" % (ret, err))
-                ret, err = self.vboxmgr.deleteVMConfigFile()
-                logger.error("--- vboxmgr.deleteVMConfigFile ret=%s, err=%s" % (ret, err))
+                self.vboxmgr.deleteVMConfigFile()
 
             oldversionNo = ReadImageVersionFile(self.dstimgid)
             newversionNo = IncreaseImageVersion(oldversionNo)
             WriteImageVersionFile(self.dstimgid, newversionNo)
             logger.error("update version to %s" % newversionNo)
+            logger.error("--- task_finish is Done whit src == dst")
 
     def run(self):
         payload = {
@@ -473,17 +483,14 @@ class SubmitImageTaskThread(threading.Thread):
             'failed'    : 0,
         }
 
+        done_1 = False
+        done_2 = False
 
-
+        data = {}
+        data['cmd']     = 'image/submit'
+        data['tid']     =  self.tid
+        data['rsync']   = 'luhya'
         try:
-            done_1 = False
-            done_2 = False
-
-            data = {}
-            data['cmd']     = 'image/submit'
-            data['tid']     =  self.tid
-            data['rsync']   = 'luhya'
-
             self.delete_snapshort()
 
             if self.submitFromNC2CC(data) == "OK":
@@ -512,7 +519,7 @@ class SubmitImageTaskThread(threading.Thread):
         except Exception as e:
             logger.error("submitImageTask Exception Error Message : %s" % e.message)
             logger.error('send cmd image/submit/failure ')
-            self.download_rpc.call(cmd="image/submit/failure", tid=data['tid'], paras=data['rsync'])
+            self.download_rpc.call(cmd="image/submit/failure", tid=self.tid, paras=data['rsync'])
 
             payload['failed'] = 1
             payload['errormsg'] = e.message
@@ -540,6 +547,13 @@ class runImageTaskThread(threading.Thread):
 
         self.rpcClient = RpcClient(logger, self.ccip)
 
+        if self.srcimgid != self.dstimgid:
+            rootdir = "/storage/tmp"
+        else:
+            rootdir = "/storage"
+
+        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, rootdir)
+
     # need to consider vd & vs creation
     # c: d: e: f:
 
@@ -554,13 +568,8 @@ class runImageTaskThread(threading.Thread):
             'failed'    : 0,
         }
 
-        if self.srcimgid != self.dstimgid:
-            rootdir = "/storage/tmp"
-        else:
-            rootdir = "/storage"
-
-        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, rootdir)
         vboxmgr = self.vboxmgr
+        bridged_ifs = get_vm_ifs()
 
         # register VM
         if not vboxmgr.isVMRegistered():
@@ -604,7 +613,7 @@ class runImageTaskThread(threading.Thread):
                     if self.runtime_option['usage'] == 'desktop':
                         _network_para = " --nic1 nat  --nictype1 %s " % self.runtime_option['networkcards'][0]['nic_type']
                     else:
-                        _network_para = " --nic1 bridged --bridgeadapter1 eth0 --nictype1 %s " % self.runtime_option['networkcards'][0]['nic_type']
+                        _network_para = " --nic1 bridged --bridgeadapter1 %s --nictype1 %s --macaddress1 %s" % (bridged_ifs[0], self.runtime_option['networkcards'][0]['nic_type'], self.runtime_option['networkcards'][0]['nic_mac'])
                     ostypepara_value = _network_para +  self.runtime_option['audio_para']
                     ret, err = vboxmgr.modifyVM(osTypeparam=ostypepara_value, cpus = _cpus, mem=_memory, )
                     logger.error("--- --- --- vboxmgr.modifyVM, error=%s" % err)
@@ -625,6 +634,7 @@ class runImageTaskThread(threading.Thread):
                     payload['errormsg'] = e.message
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
+        logger.error('createvm result: %s' % json.dumps(payload))
         return flag
 
     def runvm(self):
@@ -648,14 +658,23 @@ class runImageTaskThread(threading.Thread):
                     payload['failed'] = 1
                     payload['errormsg'] = err
                     payload['state'] = 'stopped'
+                else:
+                    time.sleep(5000)
+                    logger.error("--- --- --- vboxmgr.SendCAD a")
+                    vboxmgr.SendCAD()
+            else:
+                logger.error("--- --- --- vboxmgr.SendCAD b")
+                vboxmgr.SendCAD()
 
         except Exception as e:
+            logger.error("--- --- --- vboxmgr.runVM exception : %s " % e.message)
             flag = False
             payload['failed'] = 1
             payload['state'] = 'stopped'
             payload['errormsg'] = e.message
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
+        logger.error('runvm result: %s' % json.dumps(payload))
         return flag
 
     def run(self):
@@ -771,7 +790,7 @@ class nc_cmdConsumerThread(run4everThread):
         logger.error(" get command = %s" %  body)
         message = json.loads(body)
         if  message['op'] in  nc_cmd_handlers and nc_cmd_handlers[message['op']] != None:
-                nc_cmd_handlers[message['op']](message['tid'], message['runtime_option'])
+            nc_cmd_handlers[message['op']](message['tid'], message['runtime_option'])
         else:
             logger.error("unknow cmd : %s", message['op'])
 
