@@ -156,11 +156,11 @@ def findBuildResource(srcid):
         filter = 'vs'
         cpu = 10
         disk = 10
-        mem = 4+2
+        mem = 2
     else:
         filter = 'rvd'
         cpu = 20
-        mem = 2+2
+        mem = 2
         disk = 20
 
     # get a list of cc
