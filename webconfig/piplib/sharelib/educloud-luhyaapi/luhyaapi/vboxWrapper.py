@@ -80,8 +80,8 @@ class vboxWrapper():
 
     def cloneImageFile(self, src, dst):
         cmd_line = "VBoxManage clonehd " + src + " " + dst
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def createImageFile(self, filename):
         pass
@@ -91,15 +91,15 @@ class vboxWrapper():
         vm_name = self._tool._vmname
         self._ostype = ostype
         cmd_line = "VBoxManage createvm --name " + vm_name + " --ostype " + ostype + " --basefolder " + self._baseVMfolder
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def registerVM(self):
         vm_name = self._tool._vmname
         xmlfile = os.path.join(self._baseVMfolder, vm_name, vm_name + ".vbox")
         cmd_line = "VBoxManage registervm " + xmlfile
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
 
     def unregisterVM(self, delete=False):
@@ -108,27 +108,27 @@ class vboxWrapper():
         if delete:
             cmd_line = cmd_line + " --delete"
         logger.error("cmd = %s" % cmd_line)
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
 
     def take_snapshot(self, snapshot_name):
         vm_name = self._tool._vmname
         cmd_line = "VBoxManage snapshot " + vm_name + " take " + snapshot_name
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def restore_snapshot(self, snapshot_name):
         vm_name = self._tool._vmname
         cmd_line = "VBoxManage snapshot " + vm_name + " restore " + snapshot_name
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def delete_snapshot(self, snapshot_name):
         vm_name = self._tool._vmname
         cmd_line = "VBoxManage snapshot " + vm_name + " delete " + snapshot_name
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
 
     def runVM(self, headless=False):
@@ -136,13 +136,14 @@ class vboxWrapper():
         cmd_line = "VBoxManage startvm " + vm_name
         if headless:
             cmd_line += " --type headless"
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def isVMRunning(self):
         vm_name = self._tool._vmname
         cmd_line = "VBoxManage list runningvms"
-        ret, err = self._tool.runCMDline(cmd_line)
+        ret = commands.getoutput(cmd_line)
+
         if not vm_name in ret:
             return 0
         else:
@@ -155,8 +156,8 @@ class vboxWrapper():
             cmd_line = "VBoxManage setextradata  " + vm_name + " GUI/ShowMiniToolBar on"
         else:
             cmd_line = "VBoxManage setextradata  " + vm_name + " GUI/ShowMiniToolBar no"
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     # full screen or not
     def showFullScreen(self, flag):
@@ -165,8 +166,8 @@ class vboxWrapper():
             cmd_line = "VBoxManage setextradata  " + vm_name + " GUI/Fullscreen on"
         else:
             cmd_line = "VBoxManage setextradata  " + vm_name + " GUI/Fullscreen no"
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def addWirelessNetworkCard(self):
         wn = self._tool.getWirelessCardName()
@@ -201,6 +202,8 @@ class vboxWrapper():
         video_qa  = ' --vrdevideochannelquality 75 '
         multi_str = ' --vrdemulticon on '
         cmd_line = "VBoxManage modifyvm " + vm_name + video_str + video_qa + multi_str
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     # in win7, run "mstsc /v:<ip:port>"
     def addHeadlessProperty(self, port=3389):
@@ -210,13 +213,13 @@ class vboxWrapper():
         connectstr = " --vrdemulticon on "
         portstr = " --vrdeport %d " % port
         cmd_line = "VBoxManage modifyvm " + vm_name + enablestr + authstr + connectstr + portstr
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def SendCAD(self):
         cmd = 'vboxmanage controlvm %s keyboardputscancode 1d 38 53' % self._tool._vmname
-        ret, err = self._tool.runCMDline(cmd)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def modifyVM(self, osTypeparam, cpus=1, mem=1024, vram=128):
         vm_name = self._tool._vmname
@@ -236,8 +239,9 @@ class vboxWrapper():
         vmsettingstr = vm_name + memstr + vramstr + dstr + bioslogfade +bioslogimgpath + bootorder + usb + osTypeparam + pageFusion
         cmd_line = "VBoxManage modifyvm " + vmsettingstr
         logger.error("modifyvm paras = %s" % vmsettingstr)
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def getVMStorageCtrl(self, ostype):
         storagectl=""
@@ -265,9 +269,9 @@ class vboxWrapper():
         vm_name = self._tool._vmname
 
         cmd_line = "VBoxManage storagectl " + vm_name + storagectl
-        ret, err = self._tool.runCMDline(cmd_line)
 
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def portDeviceNumberAdd(self, hddtype):
         if hddtype == "IDE":
@@ -286,41 +290,39 @@ class vboxWrapper():
 
     def attachHDD(self, storageCtl, mtype, imgfile):
         ret = ""
-        err = ""
         vm_name = self._tool._vmname
         if not os.path.exists(imgfile):
             err = "FileNotExist: " + imgfile
         else:
             port, device = self.portDeviceNumberAdd(storageCtl)
             cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device', str(device), '--type', 'hdd', '--medium', imgfile, '--mtype', mtype]
-            ret, err = self._tool.runCMDline(cmd_line, False)
+            ret = commands.getoutput(cmd_line)
             logger.error('add disk cmd = %s' % cmd_line)
-        return ret, err
+        return ret
 
     # vboxmanage storageattach test  --storagectl IDE --port 1 --device 0 --type dvddrive --medium host:/dev/sr0 --mtype readonly --passthrough on
     def attachDVD(self, storageCtl="IDE", mtype="readonly"):
         ret = ""
-        err = ""
         if not os.path.exists("/dev/sr0"):
             err = "DVD Not Exist"
         else:
             vm_name = self._tool._vmname
             port, device = self.portDeviceNumberAdd(storageCtl)
             cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', self._storagectltype, '--port', str(port), '--device', str(device), '--type', 'dvddrive', '--medium', 'host:/dev/sr0', '--mtype', mtype, '--passthrough', 'on']
-            ret, err = self._tool.runCMDline(cmd_line, False)
-        return ret, err
+            ret = commands.getoutput(cmd_line)
+        return ret
 
     def attachSharedFolder(self, path):
         vm_name = self._tool._vmname
 
         cmd_line = "vboxmanage sharedfolder add " + vm_name + " --name software " + " --hostpath " + path + " --automount "
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def isVMRegistered(self):
         vm_name = self._tool._vmname
         cmd_line = "VBoxManage list vms"
-        ret, err = self._tool.runCMDline(cmd_line)
+        ret = commands.getoutput(cmd_line)
         if vm_name in ret:
             return 1
         else:
@@ -342,7 +344,7 @@ class vboxWrapper():
                 shutil.rmtree(os.path.dirname(xmlfile))
                 logger.error('rm %s' % os.path.dirname(xmlfile))
         except Exception as e:
-            logger.error("deleteVMConfigFile with Exception = %s" % e.message)
+            logger.error("deleteVMConfigFile with Exception = %s" % str(e))
 
     def isSnapshotExist(self, snapshot_name):
         vm_name = self._tool._vmname
@@ -361,8 +363,8 @@ class vboxWrapper():
         cmd_line = "vboxmanage guestcontrol cp " + vm_name + " " + src_filepath + " " + dst_filepath
         authstr = " --username " + GUEST_USERNAME + " --password " + GUEST_PASSWORD
         cmd_line = cmd_line + authstr
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret
 
     def RunFileOnVM(self, file):
         exe_filepath = os.path.join("c:\\luhya", file)
@@ -370,5 +372,5 @@ class vboxWrapper():
         cmd_line = "vboxmanage guestcontrol exec " + vm_name + " " + exe_filepath
         authstr = " --username " + GUEST_USERNAME + " --password " + GUEST_PASSWORD
         cmd_line = cmd_line + authstr
-        ret, err = self._tool.runCMDline(cmd_line)
-        return ret, err
+        ret = commands.getoutput(cmd_line)
+        return ret

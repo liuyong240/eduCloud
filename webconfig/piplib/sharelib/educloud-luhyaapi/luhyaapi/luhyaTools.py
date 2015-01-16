@@ -202,9 +202,12 @@ class luhyaTools():
         else:
             cmd = cmd_line
 
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = p.communicate()
-        return out, err
+        try:
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = p.communicate()
+            return out, err
+        except Exception as e:
+            return '', str(e)
 
     def checkProcessExist(self, processname):
         cmd_line = "ps -ef"

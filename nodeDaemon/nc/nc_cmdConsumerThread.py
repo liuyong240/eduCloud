@@ -296,7 +296,7 @@ class prepareImageTaskThread(threading.Thread):
                 payload = json.dumps(payload)
                 self.forwardTaskStatus2CC(payload)
         except Exception as e:
-            logger.error("prepareImageTask Exception Error Message : %s" % e.message)
+            logger.error("prepareImageTask Exception: %s" % str(e))
             logger.error('send cmd image/prepare/failure ')
             self.download_rpc.call(cmd="image/prepare/failure", tid=data['tid'], paras=data['rsync'])
 
@@ -517,7 +517,7 @@ class SubmitImageTaskThread(threading.Thread):
                 self.download_rpc.call(cmd="image/submit/success", tid=data['tid'], paras=data['rsync'])
 
         except Exception as e:
-            logger.error("submitImageTask Exception Error Message : %s" % e.message)
+            logger.error("submitImageTask Exception Error Message : %s" % str(e))
             logger.error('send cmd image/submit/failure ')
             self.download_rpc.call(cmd="image/submit/failure", tid=self.tid, paras=data['rsync'])
 
@@ -574,38 +574,38 @@ class runImageTaskThread(threading.Thread):
         # register VM
         if not vboxmgr.isVMRegistered():
             if vboxmgr.isVMRegisteredBefore():
-                ret, err = vboxmgr.registerVM()
+                ret = vboxmgr.registerVM()
             else:
                 try:
                     ostype_value = self.runtime_option['ostype']
-                    ret, err = vboxmgr.createVM(ostype=ostype_value)
-                    logger.error("--- --- --- vboxmgr.createVM, error=%s" % err)
-                    ret, err = vboxmgr.registerVM()
-                    logger.error("--- --- --- vboxmgr.registerVM, error=%s" % err)
+                    ret = vboxmgr.createVM(ostype=ostype_value)
+                    logger.error("--- --- --- vboxmgr.createVM, error=%s" % ret)
+                    ret = vboxmgr.registerVM()
+                    logger.error("--- --- --- vboxmgr.registerVM, error=%s" % ret)
                     if self.runtime_option['disk_type'] == 'IDE':
-                        ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
+                        ret = vboxmgr.addCtrl(" --name IDE --add ide ")
                     else:
-                        ret, err = vboxmgr.addCtrl(" --name SATA --add sata ")
-                        ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
+                        ret = vboxmgr.addCtrl(" --name SATA --add sata ")
+                        ret = vboxmgr.addCtrl(" --name IDE --add ide ")
                         # ret, err = vboxmgr.addCtrl(" --name IDE --add ide ")
-                    logger.error("--- --- --- vboxmgr.addCtrl, error=%s" % err)
+                    logger.error("--- --- --- vboxmgr.addCtrl, error=%s" % ret)
 
                     # add disks
                     for disk in self.runtime_option['disks']:
-                        ret, err = vboxmgr.attachHDD(self.runtime_option['disk_type'], disk['mtype'], disk['file'])
+                        ret = vboxmgr.attachHDD(self.runtime_option['disk_type'], disk['mtype'], disk['file'])
                         time.sleep(2)
-                        logger.error("--- --- --- vboxmgr.attachHDD %s, error=%s" % (disk['file'], err))
+                        logger.error("--- --- --- vboxmgr.attachHDD %s, error=%s" % (disk['file'], ret))
 
                     if self.runtime_option['run_with_snapshot'] == 1:
                         snapshot_name = "thomas"
                         if not vboxmgr.isSnapshotExist(snapshot_name):
-                            ret, err = vboxmgr.take_snapshot(snapshot_name)
-                            logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % err)
+                            ret = vboxmgr.take_snapshot(snapshot_name)
+                            logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % ret)
 
                     # add folders
                     for folder in self.runtime_option['folders']:
-                        ret, err = vboxmgr.attachSharedFolder(folder)
-                        logger.error("--- --- --- vboxmgr.attachSharedFolder %s, error=%s" % (folder , err))
+                        ret = vboxmgr.attachSharedFolder(folder)
+                        logger.error("--- --- --- vboxmgr.attachSharedFolder %s, error=%s" % (folder , ret))
 
                     # in servere side, each VM has 4G mem
                     _cpus    = self.runtime_option['cpus']
@@ -615,18 +615,18 @@ class runImageTaskThread(threading.Thread):
                     else:
                         _network_para = " --nic1 bridged --bridgeadapter1 %s --nictype1 %s --macaddress1 %s" % (bridged_ifs[0], self.runtime_option['networkcards'][0]['nic_type'], self.runtime_option['networkcards'][0]['nic_mac'])
                     ostypepara_value = _network_para +  self.runtime_option['audio_para']
-                    ret, err = vboxmgr.modifyVM(osTypeparam=ostypepara_value, cpus = _cpus, mem=_memory, )
-                    logger.error("--- --- --- vboxmgr.modifyVM, error=%s" % err)
+                    ret = vboxmgr.modifyVM(osTypeparam=ostypepara_value, cpus = _cpus, mem=_memory, )
+                    logger.error("--- --- --- vboxmgr.modifyVM, error=%s" % ret)
 
                     # in server side, configure headless property
                     portNum = self.runtime_option['rdp_port']
-                    ret, err = vboxmgr.addHeadlessProperty(port=portNum)
-                    logger.error("--- --- --- vboxmgr.addHeadlessProperty, error=%s" % err)
+                    ret = vboxmgr.addHeadlessProperty(port=portNum)
+                    logger.error("--- --- --- vboxmgr.addHeadlessProperty, error=%s" % ret)
 
-                    ret, err = vboxmgr.unregisterVM()
-                    ret, err = vboxmgr.registerVM()
+                    vboxmgr.unregisterVM()
+                    vboxmgr.registerVM()
                 except Exception as e:
-                    ret, err = vboxmgr.unregisterVM()
+                    ret = vboxmgr.unregisterVM()
                     vboxmgr.deleteVMConfigFile()
                     flag = False
                     payload['failed']   = 1
@@ -651,27 +651,17 @@ class runImageTaskThread(threading.Thread):
         vboxmgr = self.vboxmgr
         try:
             if not vboxmgr.isVMRunning():
-                ret, err = vboxmgr.runVM(headless=True)
-                logger.error("--- --- --- vboxmgr.runVM, error=%s" % err)
-                if err != "":
-                    flag = False
-                    payload['failed'] = 1
-                    payload['errormsg'] = err
-                    payload['state'] = 'stopped'
-                else:
-                    time.sleep(5000)
-                    logger.error("--- --- --- vboxmgr.SendCAD a")
-                    vboxmgr.SendCAD()
+                ret = vboxmgr.runVM(headless=True)
+                logger.error("--- --- --- vboxmgr.runVM, error=%s" % ret)
             else:
                 logger.error("--- --- --- vboxmgr.SendCAD b")
                 vboxmgr.SendCAD()
-
         except Exception as e:
-            logger.error("--- --- --- vboxmgr.runVM exception : %s " % e.message)
+            logger.error("--- --- --- vboxmgr.runVM exception : %s " % str(e))
             flag = False
             payload['failed'] = 1
             payload['state'] = 'stopped'
-            payload['errormsg'] = e.message
+            payload['errormsg'] = str(e)
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
         logger.error('runvm result: %s' % json.dumps(payload))
@@ -695,7 +685,7 @@ class runImageTaskThread(threading.Thread):
             # need to update nc's status at once
             update_nc_running_status()
         except Exception as e:
-            logger.error("runImageTask Exception Error Message : %s" % e.message)
+            logger.error("runImageTask Exception Error Message : %s" % str(e))
 
 def update_nc_running_status():
     payload = { }
