@@ -212,7 +212,7 @@ function editPageUIupdate(items) {
         $("#runningstatus").text('booting');
         setTimeout(getVMStatus, timer_interval);
     }
-    if (state == 'running') {
+    if (state == 'running' || state == 'Running') {
         $(".jw-button-next").attr("disabled", true);
 
         $('#btn_run').removeClass('disabled');
