@@ -84,8 +84,11 @@ def getLocalImageInfo(imgid):
 
     return version, size
 
-def getLocalDatabaseInfo(imgid):
-    path = '/storage/space/database/images/' + imgid + "/database"
+def getLocalDatabaseInfo(imgid, insid):
+    if insid.find('TMP') == 0:
+        path = '/storage/space/database/images/' + imgid + "/database"
+    else:
+        path = '/storage/space/database/instances/' + insid + "/database"
 
     if os.path.exists(path):
         size = os.path.getsize(path)

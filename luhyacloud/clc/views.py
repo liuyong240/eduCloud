@@ -1313,7 +1313,8 @@ def genVMFolders(tid, usage):
         folders.append('/storage/space/pub-data')
 
     if ins_id.find('VS') == 0:
-        folders.append('/storage/space/software')
+        # folders.append('/storage/space/software')
+        pass
 
     return folders
 
@@ -1525,6 +1526,7 @@ def vm_run(request, insid):
             'task'      : rec,
             'rdp_url'   : managed_url,
             'imgobj'    : imgobj,
+            'submit'    : 0,
         }
 
         return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -1587,6 +1589,7 @@ def image_create_task_start(request, srcid):
             'task'      : rec,
             'rdp_url'   : managed_url,
             'imgobj'    : imgobj,
+            'submit'    : 1,
         }
 
         return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -1949,6 +1952,7 @@ def image_modify_task_start(request, srcid):
             'task'      : rec,
             'rdp_url'   : managed_url,
             'imgobj'    : imgobj,
+            'submit'    : 1,
         }
 
         return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -1967,6 +1971,7 @@ def image_create_task_view(request,  srcid, dstid, insid):
         'task'      : rec,
         'rdp_url'   : managed_url,
         'imgobj'    : imgobj,
+        'submit'    : 1,
     }
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -2076,7 +2081,7 @@ def image_add_vm(request, imgid):
 
     if imgobj.img_usage == 'desktop':
         _instanceid      = 'VD' + genHexRandom()
-        ccs  = ecCCResources.objects.filter(cc_usage='rvd')
+        ccs  = ecCCResources.objects.filter()
     if imgobj.img_usage == 'server':
         _instanceid      = 'VS' + genHexRandom()
         ccs  = ecCCResources.objects.filter(cc_usage='vs')
@@ -3152,6 +3157,7 @@ def create_vds(request):
             memory      = request.POST['mems'],
         )
         new_vm.save()
+        logger.error("create new vds record --- OK")
 
         # update ecVDS_auth table
         new_vm_auth = ecVDS_auth(
@@ -3164,6 +3170,7 @@ def create_vds(request):
             delete      =   True,
         )
         new_vm_auth.save()
+        logger.error("create new vds record1 --- OK")
 
         ua = ecAccount.objects.get(userid=request.user)
         role = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
@@ -3178,7 +3185,7 @@ def create_vds(request):
                 delete      =   True,
             )
             new_vm_auth.save()
-
+            logger.error("create new vds record2 --- OK")
 
     else:
         old_vm = ecVDS.objects.get(insid = request.POST['insid'])
@@ -3274,6 +3281,7 @@ def create_vss(request):
             mac         = request.POST['mac'],
         )
         new_vm.save()
+        logger.error("create new vss record --- OK")
 
         new_vm_auth = ecVSS_auth(
             insid   =   request.POST['insid'],
@@ -3285,6 +3293,7 @@ def create_vss(request):
             delete      =   True,
         )
         new_vm_auth.save()
+        logger.error("create new vm_auth record1 --- OK")
 
         ua = ecAccount.objects.get(userid=request.user)
         role = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
@@ -3299,12 +3308,22 @@ def create_vss(request):
                 delete      =   True,
             )
             new_vm_auth.save()
+            logger.error("create new vm_auth record2 --- OK")
 
         # update ecDHCPEthers table
         if request.POST['mac'] != 'any':
             ether = ecDHCPEthers.objects.get(mac=new_vm.mac)
             ether.insid = new_vm.insid
             ether.save()
+            logger.error("allocate new ether --- OK")
+
+        # prepare database file
+        srcdb = '/storage/space/database/images/%s/database'    % request.POST['imageid']
+        dstdb = '/storage/space/database/instances/%s/database' % request.POST['insid']
+        if not os.path.exists(dstdb):
+            cmd_line = "vboxmanage clonehd %s %s" % (srcdb, dstdb)
+            commands.getoutput(cmd_line)
+            logger.error("clone instances database --- OK")
 
     else:
         old_vm = ecVSS.objects.get(insid = request.POST['insid'])
@@ -3396,7 +3415,7 @@ def update_images(request):
         dstfile = '/storage/space/database/images/%s/database' % rec.ecid
         if not os.path.exists(dstfile):
             srcfile = '/storage/images/database'
-            cmd_line = "VBoxManage clonehd %s %s" % (srcfile, dstfile)
+            cmd_line = "vboxmanage clonehd %s %s" % (srcfile, dstfile)
             commands.getoutput(cmd_line)
 
     response['Result'] = 'OK'
@@ -3719,9 +3738,12 @@ def get_walrus_info(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-def get_image_info(request, imgid):
+def get_image_info(request):
+    tid = requests.POST['tid']
+    imgid = tid.split(':')[0]
+    insid = tid.split(':')[2]
     version, size = getLocalImageInfo(imgid)
-    dbsize = getLocalDatabaseInfo(imgid)
+    dbsize = getLocalDatabaseInfo(imgid, insid)
 
     payload = {
         'version':           version,

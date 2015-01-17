@@ -9,7 +9,7 @@
                             <div id="insid" style="display: none;"></div>
                             <div id="imageid" style="display: none;"></div>
 
-                            <!--<button id="modify" type="button" class="btn btn-primary disabled">Modify</button>-->
+                            <button id="run" type="button" class="btn btn-primary disabled">Run/View</button>
                             <button id="permission" type="button" class="btn btn-primary disabled">Edit Permission</button>
                             <div class="pull-right">
                                 <button id="delete" type="button" class="btn btn-primary disabled">Delete</button>
@@ -80,11 +80,10 @@ $(document).ready(function()
         });
   });
 
-  $("#modify").click(function(){
+  $("#run").click(function(){
         insid=$("#insid").text()
-        imgid=$("#imageid").text()
 
-        url="/clc/image/editvm/" + imgid + "/" + insid;
+        url="/clc/vm/run/" + insid;
         var left = ($(window).width() / 2) - (800 / 2);
         var top = ($(window).height() / 2) - (600 / 2);
         window.open(url, '', 'height=350,width=800,left=' + left + ',top=' + top);

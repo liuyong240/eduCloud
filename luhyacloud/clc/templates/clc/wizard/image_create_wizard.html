@@ -483,18 +483,20 @@ $(document).ready(function () {
             <div><a href="/static/luhyaAdmin/plugin.zip">{% trans "Download plugin for Cloud Desktop Connection" %}</a></div>
         </fieldset>
 
-        <fieldset>
-            <legend>{% trans "submit Image" %}</legend>
-            <p id="submit_erromsg"></p>
-            <button id="btn_submit" type="button" class="btn btn-primary">{% trans "Submit" %}</button>
-            <p> </p>
-            <p> </p>
-            <div id="submit_section">
-                <p id="submit_laber">{% trans "Now we will start to submit a new image, pglease wait ... ..." %}</p>
-                <div id="submit_progressbar">
-                    <div id='submit_prlabel'>{% trans "Submitting ... ..." %}</div>
+        {% if submit == 1 %}
+            <fieldset>
+                <legend>{% trans "submit Image" %}</legend>
+                <p id="submit_erromsg"></p>
+                <button id="btn_submit" type="button" class="btn btn-primary">{% trans "Submit" %}</button>
+                <p> </p>
+                <p> </p>
+                <div id="submit_section">
+                    <p id="submit_laber">{% trans "Now we will start to submit a new image, pglease wait ... ..." %}</p>
+                    <div id="submit_progressbar">
+                        <div id='submit_prlabel'>{% trans "Submitting ... ..." %}</div>
+                    </div>
                 </div>
-            </div>
-        </fieldset>
+            </fieldset>
+        {% endif %}
     </form>
 {% endblock %}

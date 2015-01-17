@@ -23,7 +23,8 @@ class prepareImageTaskThread(threading.Thread):
         logger.error('prepareImageTaskThread inited, tid=%s' % tid)
 
     def checkCLCandCCFile(self, paras):
-        result = verify_clc_cc_image_info(self.ccip, self.srcimgid)
+        result = verify_clc_cc_image_info(self.ccip, self.tid)
+        logger.error("clc vs cc image info = %s" % json.dumps(result))
 
         if paras == 'luhya':
             if result['clc']['version'] == result['cc']['version'] and \
@@ -105,7 +106,7 @@ class prepareImageTaskThread(threading.Thread):
 
         self.cc_img_info        = getImageVersionFromCC(self.ccip, self.srcimgid)
         self.nc_img_version, self.nc_img_size = getLocalImageInfo(self.srcimgid)
-        self.nc_dbsize          = getLocalDatabaseInfo(self.srcimgid)
+        self.nc_dbsize          = getLocalDatabaseInfo(self.srcimgid, self.insid)
 
         if paras == 'luhya':
             prompt      = 'Downloading image file from CC to NC ... ...'
@@ -751,14 +752,14 @@ def nc_image_stop_handle(tid, runtime_option):
     # running vd   insid is VDxxxx,   when stopped, delete all except image file
     if insid.find('VD') == 0:
         # restore snapshot
-        vboxmgr.unregisterVM()
-        vboxmgr.deleteVMConfigFile()
+        if vboxmgr.isSnapshotExist('thomas'):
+            vboxmgr.restore_snapshot('thomas')
 
     # running vs   insid is VSxxxx,   when stopped, delete all except image file
     if insid.find('VS') == 0:
         # restore snapshot
-        vboxmgr.unregisterVM()
-        vboxmgr.deleteVMConfigFile()
+        if vboxmgr.isSnapshotExist('thomas'):
+            vboxmgr.restore_snapshot('thomas')
 
 def nc_image_submit_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_submit_handle")

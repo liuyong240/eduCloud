@@ -63,8 +63,13 @@ class cc_rpcServerThread(run4everThread):
                 destination = "/storage/images/"
             if paras == 'db':
                 prompt = 'Downloading database file from Walrus to CC ... ...'
-                source      = "rsync://%s/%s/%s" % (self.serverIP, 'db', tid.split(':')[0])
-                destination = "/storage/space/database/images/"
+                insid = tid.split(':')[2]
+                if insid.find('TMP') == 0:
+                    source      = "rsync://%s/%s/%s" % (self.serverIP, 'db', tid.split(':')[0])
+                    destination = "/storage/space/database/images/"
+                else:
+                    source      = "rsync://%s/%s/%s" % (self.serverIP, 'vss', tid.split(':')[0])
+                    destination = "/storage/space/database/instances/"
 
             if tid in self.tasks_status and self.tasks_status[tid] != None:
                 worker = self.tasks_status[tid]

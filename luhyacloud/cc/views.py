@@ -199,10 +199,13 @@ def register_server(request):
     r = requests.post(url, data=payload)
     return HttpResponse(r.content, content_type="application/json")
 
-def get_images_version(request, imgid):
+def get_images_version(request):
+    tid = request.POST['tid']
+    imgid = tid.split(':')[0]
+    insid = tid.split(':')[2]
 
     version, size = getLocalImageInfo(imgid)
-    dbsize = getLocalDatabaseInfo(imgid)
+    dbsize = getLocalDatabaseInfo(imgid, insid)
 
     payload = {
         'version':           version,
@@ -215,10 +218,11 @@ def get_images_version(request, imgid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-def verify_clc_cc_file_ver(request, imgid):
+def verify_clc_cc_file_ver(request):
+    tid = request.POST['tid']
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
-    clc_img_info = getImageInfo(clcip, imgid)
+    clc_img_info = getImageInfo(clcip, tid)
     cc_img_info  = getImageVersionFromCC('localhost', imgid)
 
     response = {}
