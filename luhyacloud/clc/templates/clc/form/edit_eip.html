@@ -50,25 +50,25 @@
     <div class="col-lg-12">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2>Edit Servers External IP</h2>
+                <h2>{% trans "Edit Servers External IP" %}</h2>
             </div>
             <div class="panel-body">
                 <div class="row">
                     <div class="col-lg-6">
                         <div role="form">
                             <div class="form-group">
-                                <label>External IP Adress</label>
+                                <label>{% trans "External IP Adress" %}</label>
                                 <input class="form-control" id="eip" value="{{ eip }}">
                             </div>
-                            <button id="mysubmit" type="submit" class="btn btn-primary">Submit Button</button>
-                            <button id="myreset"  type="reset" class="btn btn-default">Reset Button</button>
+                            <button id="mysubmit" type="submit" class="btn btn-primary">{% trans "Submit Button" %}</button>
+                            <button id="myreset"  type="reset" class="btn btn-default">{% trans "Reset Button" %}</button>
                         </div>
                         <p></p>
                         <div class="alert alert-success" style="display: none">
-                            New External IP is updated Successfully.
+                            {% trans "New External IP is updated Successfully." %}
                         </div>
                         <div class="alert alert-danger" style="display: none">
-                            Update External IP Failed, try again.
+                            {% trans "Update External IP Failed, try again." %}
                         </div>
                         <div style="display:none" id="role">{{role}}</div>
                         <div style="display:none" id="mac0">{{mac0}}</div>

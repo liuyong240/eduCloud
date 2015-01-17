@@ -258,9 +258,9 @@ def DoesServiceExist(host, port):
         s.connect((host, port))
         s.close()
     except:
-        return 'Closed'
+        return _('Closed')
 
-    return "Running"
+    return _("Running")
 
 def get_ssh_status():
     return DoesServiceExist('127.0.0.1', 22)
@@ -296,9 +296,9 @@ def get_daemon_status(dtype):
     cmd = "sudo service " + daemon_list[dtype] + " status "
     output = commands.getoutput(cmd)
     if "running" in output:
-        return "Running"
+        return _("Running")
     else:
-        return "Closed"
+        return _("Closed")
 
 def restart_daemon(dtype):
     cmd = "sudo service " + daemon_list[dtype] + " restart "
