@@ -202,6 +202,12 @@ def findBuildResource(srcid):
             _msg = ''
             logger.error("get best node : ip = %s" % _ncip)
             break;
+        else:
+            logger.error("cc:%s nc:%s does not meet the hardware requirement." % (data['xccip'], data['xncip']))
+            logger.error("nc available resources are")
+            logger.error("   availbale cpu  = %s" % str(avail_cpu))
+            logger.error("   availbale mem  = %s" % str(avail_mem))
+            logger.error("   availbale disk = %s" % str(avail_disk))
 
     return _ccip, _ncip, _msg
 
