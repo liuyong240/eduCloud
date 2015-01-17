@@ -296,6 +296,7 @@ class vboxWrapper():
         else:
             port, device = self.portDeviceNumberAdd(storageCtl)
             cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device', str(device), '--type', 'hdd', '--medium', imgfile, '--mtype', mtype]
+            cmd_line = ' '.join(map(lambda x: '%s' % x, cmd_line))
             ret = commands.getoutput(cmd_line)
             logger.error('add disk cmd = %s' % cmd_line)
         return ret
@@ -309,6 +310,7 @@ class vboxWrapper():
             vm_name = self._tool._vmname
             port, device = self.portDeviceNumberAdd(storageCtl)
             cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', self._storagectltype, '--port', str(port), '--device', str(device), '--type', 'dvddrive', '--medium', 'host:/dev/sr0', '--mtype', mtype, '--passthrough', 'on']
+            cmd_line = ' '.join(map(lambda x: '%s' % x, cmd_line))
             ret = commands.getoutput(cmd_line)
         return ret
 

@@ -428,8 +428,8 @@ class SubmitImageTaskThread(threading.Thread):
 
         snapshot_name = "thomas"
         if self.vboxmgr.isSnapshotExist(snapshot_name):
-            out, err = self.vboxmgr.delete_snapshot(snapshot_name)
-            logger.error("luhya: delete snapshort with result - out=%s - err=%s", out, err)
+            out = self.vboxmgr.delete_snapshot(snapshot_name)
+            logger.error("luhya: delete snapshort with result - out=%s ", out)
 
     def task_finished(self):
         logger.error(' -------- task_finished')
@@ -443,8 +443,8 @@ class SubmitImageTaskThread(threading.Thread):
 
         if self.srcimgid != self.dstimgid:
             if find_registered_vm == True:
-                ret, err = self.vboxmgr.unregisterVM(delete=True)
-                logger.error("--- vboxmgr.unregisterVM ret=%s, err=%s" % (ret, err))
+                ret = self.vboxmgr.unregisterVM()
+                logger.error("--- vboxmgr.unregisterVM ret=%s" % (ret))
                 self.vboxmgr.deleteVMConfigFile()
 
             hdds = get_vm_hdds()
@@ -461,8 +461,8 @@ class SubmitImageTaskThread(threading.Thread):
             logger.error("--- task_finish is Done whit src <> dst")
         else:
             if find_registered_vm == True:
-                ret, err = self.vboxmgr.unregisterVM()
-                logger.error("--- vboxmgr.unregisterVM ret=%s, err=%s" % (ret, err))
+                ret = self.vboxmgr.unregisterVM()
+                logger.error("--- vboxmgr.unregisterVM ret=%s, err=%s" % (ret))
                 self.vboxmgr.deleteVMConfigFile()
 
             oldversionNo = ReadImageVersionFile(self.dstimgid)
@@ -593,8 +593,8 @@ class runImageTaskThread(threading.Thread):
                     # add disks
                     for disk in self.runtime_option['disks']:
                         ret = vboxmgr.attachHDD(self.runtime_option['disk_type'], disk['mtype'], disk['file'])
-                        time.sleep(2)
                         logger.error("--- --- --- vboxmgr.attachHDD %s, error=%s" % (disk['file'], ret))
+                        time.sleep(2)
 
                     if self.runtime_option['run_with_snapshot'] == 1:
                         snapshot_name = "thomas"
@@ -606,6 +606,7 @@ class runImageTaskThread(threading.Thread):
                     for folder in self.runtime_option['folders']:
                         ret = vboxmgr.attachSharedFolder(folder)
                         logger.error("--- --- --- vboxmgr.attachSharedFolder %s, error=%s" % (folder , ret))
+                        time.sleep(2)
 
                     # in servere side, each VM has 4G mem
                     _cpus    = self.runtime_option['cpus']
@@ -626,12 +627,13 @@ class runImageTaskThread(threading.Thread):
                     vboxmgr.unregisterVM()
                     vboxmgr.registerVM()
                 except Exception as e:
+                    logger.error("createVM Exception error=%s" % str(e))
                     ret = vboxmgr.unregisterVM()
                     vboxmgr.deleteVMConfigFile()
                     flag = False
                     payload['failed']   = 1
                     payload['state']    = 'stopped'
-                    payload['errormsg'] = e.message
+                    payload['errormsg'] = str(e)
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
         logger.error('createvm result: %s' % json.dumps(payload))
@@ -748,11 +750,13 @@ def nc_image_stop_handle(tid, runtime_option):
 
     # running vd   insid is VDxxxx,   when stopped, delete all except image file
     if insid.find('VD') == 0:
+        # restore snapshot
         vboxmgr.unregisterVM()
         vboxmgr.deleteVMConfigFile()
 
     # running vs   insid is VSxxxx,   when stopped, delete all except image file
     if insid.find('VS') == 0:
+        # restore snapshot
         vboxmgr.unregisterVM()
         vboxmgr.deleteVMConfigFile()
 
