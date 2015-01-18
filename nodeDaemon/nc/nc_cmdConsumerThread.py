@@ -463,8 +463,8 @@ class SubmitImageTaskThread(threading.Thread):
         else:
             if find_registered_vm == True:
                 ret = self.vboxmgr.unregisterVM()
-                logger.error("--- vboxmgr.unregisterVM ret=%s, err=%s" % (ret))
                 self.vboxmgr.deleteVMConfigFile()
+                logger.error("--- vboxmgr.unregisterVM ret=%s" % (ret))
 
             oldversionNo = ReadImageVersionFile(self.dstimgid)
             newversionNo = IncreaseImageVersion(oldversionNo)
@@ -710,6 +710,64 @@ def nc_image_run_handle(tid, runtime_option):
     worker.start()
     pass
 
+def nc_task_delete_handle(tid, runtime_option):
+    logger.error("--- --- --- nc_image_stop_handle")
+
+    retval   = tid.split(':')
+    srcimgid = retval[0]
+    dstimgid = retval[1]
+    insid    = retval[2]
+    _runtime_option = json.loads(runtime_option)
+
+    # process for different type instance
+    rootdir = "/storage"
+    if srcimgid != dstimgid:
+        rootdir = "/storage/tmp"
+
+    vboxmgr = vboxWrapper(dstimgid, insid, rootdir)
+
+    if vboxmgr.isVMRunning():
+        nc_image_stop_handle(tid, runtime_option)
+
+    find_registered_vm = False
+    vminfo = getVMlist()
+    for vm in vminfo:
+        if vm['insid'] == insid:
+            find_registered_vm = True
+            break
+
+    if find_registered_vm == True:
+        ret = vboxmgr.unregisterVM()
+        vboxmgr.deleteVMConfigFile()
+        logger.error("--- vboxmgr.unregisterVM ret=%s" % (ret))
+
+    hdds = get_vm_hdds()
+    disks = []
+    if insid.find('TMP') == 0:
+        if srcimgid != dstimgid:
+            disks.append('/storage/tmp/images/%s/machine' % dstimgid)
+        else:
+            disks.append('/storage/images/%s/machine' % dstimgid)
+        if _runtime_option['usage'] == 'server':
+            disks.append('/storage/space/database/images/%s/database' % dstimgid)
+
+    if insid.find('VD') == 0:
+        pass
+
+    if insid.find('VS') == 0:
+        pass
+
+    for disk in disks:
+        if disk in hdds:
+            cmd = 'vboxmanage closemedium disk %s --delete' % dstfile
+            logger.error("cmd line = %s", cmd)
+            commands.getoutput(cmd)
+
+        if os.path.exists(os.path.dirname(disk)):
+            logger.error('rm %s' % os.path.dirname(disk))
+            shutil.rmtree(os.path.dirname(disk))
+
+
 def nc_image_stop_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_stop_handle")
 
@@ -774,6 +832,7 @@ nc_cmd_handlers = {
     'image/run'         : nc_image_run_handle,
     'image/stop'        : nc_image_stop_handle,
     'image/submit'      : nc_image_submit_handle,
+    'task/delete'       : nc_task_delete_handle,
 }
 
 class nc_cmdConsumerThread(run4everThread):
