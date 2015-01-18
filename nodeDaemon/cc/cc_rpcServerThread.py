@@ -68,7 +68,7 @@ class cc_rpcServerThread(run4everThread):
                     source      = "rsync://%s/%s/%s" % (self.serverIP, 'db', tid.split(':')[0])
                     destination = "/storage/space/database/images/"
                 else:
-                    source      = "rsync://%s/%s/%s" % (self.serverIP, 'vss', tid.split(':')[0])
+                    source      = "rsync://%s/%s/%s" % (self.serverIP, 'vss', tid.split(':')[2])
                     destination = "/storage/space/database/instances/"
 
             if tid in self.tasks_status and self.tasks_status[tid] != None:

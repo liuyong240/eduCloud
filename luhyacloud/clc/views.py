@@ -2071,6 +2071,12 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
     except Exception as e:
         logger.error('--- image_create_task_submit_success error = %s ' % e.message)
 
+    # clear transaction record
+    logger.error('tid %s is deleted' % trec.tid)
+    trec.delete()
+
+    # clear transaction_auth record
+
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
@@ -3416,7 +3422,8 @@ def update_images(request):
         if not os.path.exists(dstfile):
             srcfile = '/storage/images/database'
             cmd_line = "vboxmanage clonehd %s %s" % (srcfile, dstfile)
-            commands.getoutput(cmd_line)
+            out = commands.getoutput(cmd_line)
+            logger.error("clone server databae for %s = %s" % (rec.ecid, out))
 
     response['Result'] = 'OK'
 
