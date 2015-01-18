@@ -220,10 +220,11 @@ def get_images_version(request):
 
 def verify_clc_cc_file_ver(request):
     tid = request.POST['tid']
+    imgid = tid.split(':')[0]
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
     clc_img_info = getImageInfo(clcip, tid)
-    cc_img_info  = getImageVersionFromCC('localhost', imgid)
+    cc_img_info  = getImageVersionFromCC('localhost', tid)
 
     response = {}
     response['Result']  = "OK"

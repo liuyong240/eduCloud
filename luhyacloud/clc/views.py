@@ -3746,7 +3746,7 @@ def get_walrus_info(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def get_image_info(request):
-    tid = requests.POST['tid']
+    tid = request.POST['tid']
     imgid = tid.split(':')[0]
     insid = tid.split(':')[2]
     version, size = getLocalImageInfo(imgid)

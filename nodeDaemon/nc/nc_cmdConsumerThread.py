@@ -104,7 +104,7 @@ class prepareImageTaskThread(threading.Thread):
 
         paras = data['rsync']
 
-        self.cc_img_info        = getImageVersionFromCC(self.ccip, self.srcimgid)
+        self.cc_img_info        = getImageVersionFromCC(self.ccip, self.tid)
         self.nc_img_version, self.nc_img_size = getLocalImageInfo(self.srcimgid)
         self.nc_dbsize          = getLocalDatabaseInfo(self.srcimgid, self.insid)
 
