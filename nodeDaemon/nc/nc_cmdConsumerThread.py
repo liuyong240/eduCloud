@@ -748,8 +748,6 @@ def nc_task_delete_handle(tid, runtime_option):
             disks.append('/storage/tmp/images/%s/machine' % dstimgid)
         else:
             disks.append('/storage/images/%s/machine' % dstimgid)
-        if _runtime_option['usage'] == 'server':
-            disks.append('/storage/space/database/images/%s/database' % dstimgid)
 
     if insid.find('VD') == 0:
         pass
