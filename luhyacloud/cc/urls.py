@@ -11,6 +11,8 @@ urlpatterns = patterns('',
     url(r'^api/1.0/image/create/task/stop$',        views.image_create_task_stop,          name='image_create_task_stop'),
     url(r'^api/1.0/image/create/task/submit$',      views.image_create_task_submit,        name='image_create_task_submit'),
 
+    url(r'^api/1.0/task/delete$',      views.delete_tasks,        name='delete_tasks'),
+
     url(r'^api/1.0/image/create/task/removeIPtables$',      views.removeIPtables_image_create_task,        name='removeIPtables_image_create_task'),
 
     url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),

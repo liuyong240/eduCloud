@@ -1998,10 +1998,9 @@ def image_create_task_submit_failure(request,  srcid, dstid, insid):
 
 def image_create_task_submit_success(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_submit_success")
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     try:
-        _tid = "%s:%s:%s" % (srcid, dstid, insid)
-
         trec = ectaskTransaction.objects.get(tid=_tid)
         trec.phase = "submitting"
         trec.state = 'done'
@@ -2009,7 +2008,6 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
         trec.progress = 0
         trec.save()
 
-        releaseRuntimeOptionForImageBuild(_tid)
         imgfile_path = '/storage/images/' + dstid + "/machine"
         imgfile_size = os.path.getsize(imgfile_path) / (1024.0 * 1024 * 1024)
         imgfile_size = round(imgfile_size, 2)
@@ -2072,10 +2070,7 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
         logger.error('--- image_create_task_submit_success error = %s ' % e.message)
 
     # clear transaction record
-    logger.error('tid %s is deleted' % trec.tid)
-    trec.delete()
-
-    # clear transaction_auth record
+    delet_task_by_id(_tid)
 
     response = {}
     response['Result'] = 'OK'
@@ -3077,17 +3072,35 @@ def update_tasks(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def delet_task_by_id(tid):
+    trec = ectaskTransaction.objects.get(tid=tid)
+
+    # # send request to CC to work
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/task/delete' % trec.ccip
+    else:
+        url = 'http://%s/cc/api/1.0/task/delete' % trec.ccip
+
+    payload = {
+        'tid'  :            tid,
+        'ncip' :            trec.ncip,
+        'runtime_option' :  trec.runtime_option,
+    }
+    r = requests.post(url, data=payload)
+    logger.error("--- --- --- " + url + ":" + r.content)
+
+    releaseRuntimeOptionForImageBuild(tid)
+    trec.delete()
+
+    return r
+
 def delete_tasks(request):
-    response = {}
+    tid = request.POST['tid']
+    logger.error("--- --- --- clc delete_tasks %s" % tid)
 
-    rec = ectaskTransaction.objects.get(id=request.POST['id'])
-    rec.delete()
+    r = delet_task_by_id(tid)
 
-    response['Result'] = 'OK'
-
-    retvalue = json.dumps(response)
-    return HttpResponse(retvalue, content_type="application/json")
-
+    return HttpResponse(r.content, content_type="application/json")
 
 # core tables for images
 # ------------------------------------
@@ -3650,7 +3663,7 @@ def add_new_server(request):
             ccname              = request.POST['ccname'],
             cc_usage            = "rvd",
 
-            rdp_port_pool_def   = "3389-4389",
+            rdp_port_pool_def   = "3400-3499",
             rdp_port_pool_list  = json.dumps(SortedList(range(3389,4389)).as_list()),
             used_rdp_ports      = json.dumps([]),
 

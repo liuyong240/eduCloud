@@ -233,4 +233,28 @@ def verify_clc_cc_file_ver(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def delete_tasks(request):
+    tid = request.POST['tid']
+
+    logger.error("--- --- --- cc delete_tasks %s" % tid)
+
+    ncip = request.POST['ncip']
+    runtime_option = json.loads(request.POST['runtime_option'])
+
+    message = {}
+    message['type']             = "cmd"
+    message['op']               = 'task/delete'
+    message['tid']              = tid
+    message['runtime_option']   = request.POST['runtime_option']
+    message = json.dumps(message)
+
+    routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
+    logger.error("--- --- --- send task delete cmd to nc sucessfully")
+
+    # return http response
+    response = {}
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
 
