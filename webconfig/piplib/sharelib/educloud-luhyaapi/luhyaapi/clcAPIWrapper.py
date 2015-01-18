@@ -17,7 +17,7 @@ def getImageInfo(clcip, tid):
     payload = {
         'tid'   : tid
     }
-    r = requests.get(url, data=payload)
+    r = requests.post(url, data=payload)
     return json.loads(r.content)
 
 def getImageVersionFromCC(ccip, imgid):
@@ -36,7 +36,7 @@ def verify_clc_cc_image_info(ccip, tid):
     payload = {
         'tid'   : tid,
     }
-    r = requests.get(url, data=payload)
+    r = requests.post(url, data=payload)
     return json.loads(r.content)
 
 def prepareImageFailed(clcip, tid):
