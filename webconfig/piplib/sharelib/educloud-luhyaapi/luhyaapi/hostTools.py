@@ -5,6 +5,26 @@ from settings import *
 import random, os, commands
 from linux_metrics import cpu_stat
 from sortedcontainers import SortedList
+import memcache
+
+def parseTID(tid):
+    _tmp = tid.spit(':')
+    return _tmp[0], _tmp[1], _tmp[2]
+
+def getPhyServerStatusFromMC(stype, mac):
+    payload = None
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    key = str('%s#%s#status' % (stype, mac))
+    try:
+        payload = mc.get(key)
+        if payload != None:
+            payload = json.loads(payload)
+            payload = payload['hardware_data']
+    except Exception as e:
+        logger.error("--- getPhyServerStatusFromMC error = %s" % str(e))
+
+    return payload
+
 
 def addUserPrvDataDir(uid):
     path = '/storage/space/prv-data/%s' % uid
