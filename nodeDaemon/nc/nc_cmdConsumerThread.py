@@ -810,12 +810,14 @@ def nc_image_stop_handle(tid, runtime_option):
         # restore snapshot
         if vboxmgr.isSnapshotExist('thomas'):
             vboxmgr.restore_snapshot('thomas')
+            logger.error('restore snapshot thomas for %s' % insid)
 
     # running vs   insid is VSxxxx,   when stopped, delete all except image file
     if insid.find('VS') == 0:
         # restore snapshot
         if vboxmgr.isSnapshotExist('thomas'):
             vboxmgr.restore_snapshot('thomas')
+            logger.error('restore snapshot thomas for %s' % insid)
 
 def nc_image_submit_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_submit_handle")
