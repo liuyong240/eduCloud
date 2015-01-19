@@ -12,7 +12,7 @@ VALID_NC_RES = {
 
     'desktop': {
         'cpu_usage'     : 20,
-        'cpu'           : 2,
+        'cpu'           : 1,
         'disk'          : 10,
         'mem'           : 2,
     }
