@@ -65,7 +65,19 @@ logger = getclclogger()
 }
 '''
 
+def getPhyServerStatusFromMC(stype, mac):
+    payload = None
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    key = str('%s#%s#status' % (stype, mac))
+    try:
+        payload = mc.get(key)
+        if payload != None:
+            payload = json.loads(payload)
+            payload = payload['hardware_data']
+    except Exception as e:
+        logger.error("--- getPhyServerStatusFromMC error = %s" % str(e))
 
+    return payload
 
 def get_nc_avail_res(nc_mac):
     total_res = {}
