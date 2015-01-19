@@ -6,6 +6,17 @@ import random, os, commands
 from linux_metrics import cpu_stat
 from sortedcontainers import SortedList
 
+def addUserPrvDataDir(uid):
+    path = '/storage/space/prv-data/%s' % uid
+    if not os.path.exists(path):
+        os.makedirs(path)
+        logger.error("create user %s prv-data directory" % uid)
+
+def delUserPrvDataDir(uid):
+    path = '/storage/space/prv-data/%s' % uid
+    if os.path.exists(path):
+        os.removedirs(path)
+        logger.error("remove user %s prv-data directory" % uid)
 
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):

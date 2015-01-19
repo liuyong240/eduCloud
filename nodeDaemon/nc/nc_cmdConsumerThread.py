@@ -625,6 +625,10 @@ class runImageTaskThread(threading.Thread):
                     ret = vboxmgr.addHeadlessProperty(port=portNum)
                     logger.error("--- --- --- vboxmgr.addHeadlessProperty, error=%s" % ret)
 
+                    if self.runtime_option['usage'] == 'desktop':
+                        ret = vboxmgr.addVRDPproperty()
+                        logger.error("--- --- --- vboxmgr.addVRDPproperty for video channel, error=%s" % ret)
+
                     vboxmgr.unregisterVM()
                     vboxmgr.registerVM()
                 except Exception as e:

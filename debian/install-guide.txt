@@ -409,6 +409,8 @@ incoming coding work
 2. Done    - GUI of vss definition
 3. Done    - vss running server logic
 3.0 Done   - add switch to all VD in VS server
+    Done   - add user private name directory into /storage/space/prv-data/{uid}
+    Done   - add video channel for desktop vm
 3.1 TMP vm can only run based on task property
 3.2 TVD/VD/VS vm can run by changing task's ncip
 

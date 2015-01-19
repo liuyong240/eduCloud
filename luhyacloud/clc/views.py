@@ -283,6 +283,7 @@ def account_create(request):
         vdpara=json.dumps(_vdparar),
     )
     rec.save()
+    addUserPrvDataDir(request.POST['userid'])
 
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
@@ -337,6 +338,7 @@ def account_create_batch(request):
             vdpara=json.dumps(_vdparar),
         )
         rec.save()
+        addUserPrvDataDir(u)
 
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
@@ -449,6 +451,7 @@ def activate_user(request, uid):
     u = User.objects.get(username=uid)
     u.is_active = 1
     u.save()
+    addUserPrvDataDir(uid)
 
     Message = " user %s is activated now." % uid
     return HttpResponse(Message, content_type="application/json")
@@ -3566,6 +3569,7 @@ def delete_active_account(request):
 
     u = User.objects.get(id=request.POST['id'])
     ecu = ecAccount.objects.get(userid=u.username)
+    delUserPrvDataDir(ecu.userid)
     u.delete()
     ecu.delete()
 

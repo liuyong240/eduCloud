@@ -17,6 +17,7 @@ cd /storage
 test -d "images"   || sudo mkdir images VMs config space
 cd /storage/space
 test -d "software" || sudo mkdir software pub-data prv-data database
+test -d "prv-data/luhya" || sudo mkdir -p prv-data/luhya
 cd database
 test -d "images"   || sudo mkdir images instances
 
