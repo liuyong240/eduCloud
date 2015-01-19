@@ -40,17 +40,15 @@
 function vssSelected(insid, imageid){
     if (insid == null) {
         $('#delete').addClass('disabled');
-        $('#modify').addClass('disabled');
         $('#permission').addClass('disabled');
-        $('#add_vm').addClass('disabled');
+        $('#run').addClass('disabled');
 
         $('#insid').html(null);
         $('#imageid').html(null);
     } else {
         $('#delete').removeClass('disabled');
-        $('#modify').removeClass('disabled');
         $('#permission').removeClass('disabled');
-        $('#add_vm').removeClass('disabled');
+        $('#run').removeClass('disabled');
 
         $('#insid').html(insid);
         $('#imageid').html(imageid);

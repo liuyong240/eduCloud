@@ -71,7 +71,7 @@ def findVMRunningResource(insid):
 
     ccip = None
     ncip = None
-    _msg  = "Can't Find appropriate cluster machine and node machine ."
+    msg  = "Can't Find appropriate cluster machine and node machine ."
 
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
@@ -1331,6 +1331,10 @@ def genRuntimeOptionForImageBuild(transid):
     ccip = tid_rec.ccip
     ncip = tid_rec.ncip
 
+    ccobj       = ecServers.objects.get(ip0=ccip, role='cc')
+    ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
+    ncobj       = ecServers.objects.get(ip0=ncip, role='nc')
+
     runtime_option = {}
 
     # 1. general option
@@ -1361,8 +1365,7 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['audio_para']    = ostype_info.ec_audio_para
 
     # 3 network option
-    ccobj       = ecServers.objects.get(ip0=ccip, role='cc')
-    ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
+
     networkMode = ccres_info.network_mode
 
     # 3.1 allocate rpd port
@@ -1383,7 +1386,7 @@ def genRuntimeOptionForImageBuild(transid):
     networkcards = []
     netcard = {}
     netcard['nic_type'] = ostype_info.ec_nic_type
-    if ccres_info.cc_usage == 'rvd':
+    if ccres_info.cc_usage == 'rvd' or runtime_option['usage'] == 'desktop':
         netcard['nic_mac']  = ''
         netcard['nic_ip']   = ''
     if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
@@ -1405,11 +1408,13 @@ def genRuntimeOptionForImageBuild(transid):
     # 3.4 set public ip and private ip and iptable
     iptables = []
 
-    runtime_option['ex_ip'] = ccobj.eip
+
     if networkMode == 'flat':
+        runtime_option['ex_ip']   = ncobj.eip
         runtime_option['rdp_ip']  = ncip
     if networkMode == 'tree':
         # proxy by cc
+        runtime_option['ex_ip']   = ccobj.eip
         runtime_option['rdp_ip']  = ccip
 
         # set iptable rule for rdp access
@@ -1450,13 +1455,12 @@ def genRuntimeOptionForImageBuild(transid):
     # 3.4 set web_accessURL and mgr_accessURL
     runtime_option['web_accessURL']     = ''
     runtime_option['ex_web_accessURL']  = ''
-    if ccres_info.cc_usage == 'rvd':
+    if ccres_info.cc_usage == 'rvd' or runtime_option['usage'] == 'desktop':
         runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
         runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
-    if ccres_info.cc_usage == 'vs':
-        if runtime_option['usage'] == 'server':
-            runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
-            runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
+    if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
+        runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
+        runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
         runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
         runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
 
@@ -1966,12 +1970,17 @@ def image_create_task_view(request,  srcid, dstid, insid):
 
     managed_url = getVM_ManagedURL(request, _tid)
 
+    if insid.find('TMP') == 0:
+        submit = 1
+    else:
+        submit = 0
+
     context = {
         'pagetitle' : "image create",
         'task'      : rec,
         'rdp_url'   : managed_url,
         'imgobj'    : imgobj,
-        'submit'    : 1,
+        'submit'    : submit,
     }
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -3233,7 +3242,7 @@ def list_vss(request):
         jrec['insid'] = rec.insid
         jrec['imageid'] = rec.imageid
         jrec['name']=rec.name
-        jrect['description'] = rec.description
+        jrec['description'] = rec.description
         jrec['creator'] = rec.creator
         jrec['cc'] = rec.cc_def
         jrec['nc'] = rec.nc_def
