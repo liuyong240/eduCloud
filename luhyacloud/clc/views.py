@@ -81,7 +81,12 @@ def getPhyServerStatusFromMC(stype, mac):
 
 def get_nc_avail_res(nc_mac):
     total_res = {}
+
     used_res  = {}
+    used_res['cpu']  = 0
+    used_res['mem']  = 0
+    used_res['disk'] = 0
+
     reported_avail_res = {}
     computed_avail_res = {}
 
@@ -109,11 +114,7 @@ def get_nc_avail_res(nc_mac):
         # get allocate but not used yet res
         ncobj = ecServers.objects.get(mac0=nc_mac)
         trecs = ectaskTransaction.objects.filter(ncip = ncobj.ip0)
-        if trecs.count() == 0:
-            used_res['cpu']  = 0
-            used_res['mem']  = 0
-            used_res['disk'] = 0
-        else:
+        if trecs.count() > 0:
             for trec in trecs:
                 runtime_option = json.loads(trec.runtime_option)
                 used_res['cpu']  += runtime_option['cpus']
@@ -188,7 +189,8 @@ def findVMRunningResource(insid):
             logger.error("get best node : ip = %s" % _ncip)
             break;
         else:
-            logger.error("cc/nc does not meet the hardware requirement, with resource = %s" % json.dumps(data))
+            _msg = 'available nc resource is %s, but required is %s' % (json.dumps(data), json.dumps(vm_res_matrix))
+            logger.error(_msg)
     return _ccip, _ncip, _msg
 
 def findBuildResource(srcid):
@@ -244,7 +246,8 @@ def findBuildResource(srcid):
             logger.error("get best node : ip = %s" % _ncip)
             break;
         else:
-            logger.error("cc/nc does not meet the hardware requirement, with resource = %s" % json.dumps(data))
+            _msg = 'available nc resource is %s, but required is %s' % (json.dumps(data), json.dumps(vm_res_matrix))
+            logger.error(_msg)
     return _ccip, _ncip, _msg
 
 def display_login_window(request):
@@ -1383,7 +1386,7 @@ def genRuntimeOptionForImageBuild(transid):
 
     if ins_id.find('TMP') == 0:
         if img_info.img_usage == "desktop":
-            vmtype = 'vdmedium'
+            vmtype = 'vdsmall'
         else:
             vmtype = 'vssmall'
 
@@ -1398,6 +1401,7 @@ def genRuntimeOptionForImageBuild(transid):
             insobj = ecVDS.objects.get(insid=ins_id)
         runtime_option['memory']    = insobj.memory
         runtime_option['cpus']      = insobj.cpus
+    logger.error('allocate memory  %sG for %s' % (runtime_option['memory'], transid))
 
     ostype_info                     = ecOSTypes.objects.get(ec_ostype = img_info.ostype)
     runtime_option['disk_type']     = ostype_info.ec_disk_type
@@ -1417,6 +1421,7 @@ def genRuntimeOptionForImageBuild(transid):
         return None, 'Need more rdp port resources!.'
     else:
         runtime_option['rdp_port']                  = newport
+        logger.error('allocate rdp port %s for %s' % (newport, transid))
 
     ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
     ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
@@ -1436,6 +1441,7 @@ def genRuntimeOptionForImageBuild(transid):
         else:
             runtime_option['web_ip'] = netcard['nic_ip']
             runtime_option['web_port'] = web_port
+            logger.error('allocate web port %s for %s' % (web_port, transid))
 
     networkcards.append(netcard)
     runtime_option['networkcards'] = networkcards
@@ -1525,7 +1531,7 @@ def vm_run(request, insid):
     # else find resource and create tid
     trecs = ectaskTransaction.objects.filter(tid=_tid)
     if trecs.count() > 0:
-        image_create_task_view(request, vmrec.imageid, vmrec.imageid, insid)
+        return image_create_task_view(request, vmrec.imageid, vmrec.imageid, insid)
     else:
         _ccip, _ncip, _msg = findVMRunningResource(insid)
         if _ncip == None:
@@ -1561,7 +1567,7 @@ def vm_run(request, insid):
                 rec.runtime_option = json.dumps(runtime_option)
                 rec.save()
 
-            image_create_task_view(request, vmrec.imageid, vmrec.imageid, insid)
+            return image_create_task_view(request, vmrec.imageid, vmrec.imageid, insid)
 
 @login_required
 def image_create_task_start(request, srcid):
@@ -1610,7 +1616,7 @@ def image_create_task_start(request, srcid):
             rec.runtime_option = json.dumps(runtime_option)
             rec.save()
 
-        image_create_task_view(request, _srcimgid,_dstimageid, _instanceid)
+        return image_create_task_view(request, _srcimgid,_dstimageid, _instanceid)
 
 
 def getVM_ManagedURL(request, taskid):
@@ -1961,7 +1967,7 @@ def image_modify_task_start(request, srcid):
             rec.runtime_option = json.dumps(runtime_option)
             rec.save()
 
-        image_create_task_view(request, _srcimgid,_dstimageid, _instanceid)
+        return image_create_task_view(request, _srcimgid,_dstimageid, _instanceid)
 
 def image_create_task_view(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)

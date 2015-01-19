@@ -715,7 +715,7 @@ def nc_image_run_handle(tid, runtime_option):
     pass
 
 def nc_task_delete_handle(tid, runtime_option):
-    logger.error("--- --- --- nc_image_stop_handle")
+    logger.error("--- --- --- nc_image_delete_handle")
 
     retval   = tid.split(':')
     srcimgid = retval[0]
@@ -750,8 +750,6 @@ def nc_task_delete_handle(tid, runtime_option):
     if insid.find('TMP') == 0:
         if srcimgid != dstimgid:
             disks.append('/storage/tmp/images/%s/machine' % dstimgid)
-        else:
-            disks.append('/storage/images/%s/machine' % dstimgid)
 
     if insid.find('VD') == 0:
         pass
@@ -761,7 +759,7 @@ def nc_task_delete_handle(tid, runtime_option):
 
     for disk in disks:
         if disk in hdds:
-            cmd = 'vboxmanage closemedium disk %s --delete' % dstfile
+            cmd = 'vboxmanage closemedium disk %s --delete' % disk
             logger.error("cmd line = %s", cmd)
             commands.getoutput(cmd)
 
@@ -796,6 +794,7 @@ def nc_image_stop_handle(tid, runtime_option):
 
     # need to update nc's status at once
     update_nc_running_status()
+    logger.error('update_nc_running_status')
 
     # process for different type instance
     if srcimgid != dstimgid:
