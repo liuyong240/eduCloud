@@ -41,6 +41,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1', '192.168.56.101'
 ]
 
+ALLOWED_VD_IN_VS_CC = True
+
 # Application definition
 INSTALLED_APPS = (
      'django.contrib.admin',

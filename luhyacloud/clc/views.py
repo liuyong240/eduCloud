@@ -164,10 +164,11 @@ def findBuildResource(srcid):
         disk = 20
 
     # get a list of cc
-    if filter == 'rvd':
+    if ALLOWED_VD_IN_VS_CC == True:
         ccs = ecCCResources.objects.filter()
     else:
         ccs = ecCCResources.objects.filter(cc_usage=filter)
+
 
     # for each cc, find a good candidate nc and return, based on data in memcache
     # and compare all these selected ncs, find the best one
@@ -2091,7 +2092,10 @@ def image_add_vm(request, imgid):
 
     if imgobj.img_usage == 'desktop':
         _instanceid      = 'VD' + genHexRandom()
-        ccs  = ecCCResources.objects.filter()
+        if ALLOWED_VD_IN_VS_CC == True:
+            ccs  = ecCCResources.objects.filter()
+        else:
+            ccs  = ecCCResources.objects.filter(cc_usage='vd')
     if imgobj.img_usage == 'server':
         _instanceid      = 'VS' + genHexRandom()
         ccs  = ecCCResources.objects.filter(cc_usage='vs')
