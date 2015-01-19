@@ -7,8 +7,10 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <div id="taskid" style="display: none;"></div>
-                            <button id="view"   type="button" class="btn btn-default disabled">View</button>
-                            <button id="delete" type="button" class="btn btn-default disabled">Delete</button>
+                            <button id="view"   type="button" class="btn btn-primary disabled">View</button>
+                            <div class="pull-right">
+                                <button id="delete" type="button" class="btn btn-primary disabled">Delete</button>
+                            </div>
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
@@ -57,10 +59,22 @@ $(document).ready(function()
   });
 
   $("#delete").click(function(){
-        taskid=$("#taskid").text().split(':')
+        taskid=$("#taskid").text()
 
-        url="/clc/image/create/task/delete/" + taskid[0] + '/' + taskid[1] + '/' + taskid[2];
-
+        url="/clc/api/1.0/tasks/delete";
+        postdata = {
+            'tid'          :    taskid,
+        }
+        $.post(url, postdata, function(data) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+            if (items['Result'] == "OK") {
+                alert('Delete task Success! ');
+                location.reload();
+            }
+        });
   });
 });
 

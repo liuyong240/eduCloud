@@ -71,7 +71,7 @@ def findVMRunningResource(insid):
 
     ccip = None
     ncip = None
-    _msg  = "Can't Find appropriate cluster machine and node machine ."
+    msg  = "Can't Find appropriate cluster machine and node machine ."
 
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
@@ -1313,7 +1313,8 @@ def genVMFolders(tid, usage):
         folders.append('/storage/space/pub-data')
 
     if ins_id.find('VS') == 0:
-        folders.append('/storage/space/software')
+        # folders.append('/storage/space/software')
+        pass
 
     return folders
 
@@ -1329,6 +1330,10 @@ def genRuntimeOptionForImageBuild(transid):
 
     ccip = tid_rec.ccip
     ncip = tid_rec.ncip
+
+    ccobj       = ecServers.objects.get(ip0=ccip, role='cc')
+    ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
+    ncobj       = ecServers.objects.get(ip0=ncip, role='nc')
 
     runtime_option = {}
 
@@ -1360,8 +1365,7 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['audio_para']    = ostype_info.ec_audio_para
 
     # 3 network option
-    ccobj       = ecServers.objects.get(ip0=ccip, role='cc')
-    ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
+
     networkMode = ccres_info.network_mode
 
     # 3.1 allocate rpd port
@@ -1382,7 +1386,7 @@ def genRuntimeOptionForImageBuild(transid):
     networkcards = []
     netcard = {}
     netcard['nic_type'] = ostype_info.ec_nic_type
-    if ccres_info.cc_usage == 'rvd':
+    if ccres_info.cc_usage == 'rvd' or runtime_option['usage'] == 'desktop':
         netcard['nic_mac']  = ''
         netcard['nic_ip']   = ''
     if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
@@ -1404,11 +1408,13 @@ def genRuntimeOptionForImageBuild(transid):
     # 3.4 set public ip and private ip and iptable
     iptables = []
 
-    runtime_option['ex_ip'] = ccobj.eip
+
     if networkMode == 'flat':
+        runtime_option['ex_ip']   = ncobj.eip
         runtime_option['rdp_ip']  = ncip
     if networkMode == 'tree':
         # proxy by cc
+        runtime_option['ex_ip']   = ccobj.eip
         runtime_option['rdp_ip']  = ccip
 
         # set iptable rule for rdp access
@@ -1449,13 +1455,12 @@ def genRuntimeOptionForImageBuild(transid):
     # 3.4 set web_accessURL and mgr_accessURL
     runtime_option['web_accessURL']     = ''
     runtime_option['ex_web_accessURL']  = ''
-    if ccres_info.cc_usage == 'rvd':
+    if ccres_info.cc_usage == 'rvd' or runtime_option['usage'] == 'desktop':
         runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
         runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
-    if ccres_info.cc_usage == 'vs':
-        if runtime_option['usage'] == 'server':
-            runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
-            runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
+    if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
+        runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
+        runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
         runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
         runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
 
@@ -1525,6 +1530,7 @@ def vm_run(request, insid):
             'task'      : rec,
             'rdp_url'   : managed_url,
             'imgobj'    : imgobj,
+            'submit'    : 0,
         }
 
         return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -1587,6 +1593,7 @@ def image_create_task_start(request, srcid):
             'task'      : rec,
             'rdp_url'   : managed_url,
             'imgobj'    : imgobj,
+            'submit'    : 1,
         }
 
         return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -1949,6 +1956,7 @@ def image_modify_task_start(request, srcid):
             'task'      : rec,
             'rdp_url'   : managed_url,
             'imgobj'    : imgobj,
+            'submit'    : 1,
         }
 
         return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -1962,11 +1970,17 @@ def image_create_task_view(request,  srcid, dstid, insid):
 
     managed_url = getVM_ManagedURL(request, _tid)
 
+    if insid.find('TMP') == 0:
+        submit = 1
+    else:
+        submit = 0
+
     context = {
         'pagetitle' : "image create",
         'task'      : rec,
         'rdp_url'   : managed_url,
         'imgobj'    : imgobj,
+        'submit'    : submit,
     }
 
     return render(request, 'clc/wizard/image_create_wizard.html', context)
@@ -1993,10 +2007,9 @@ def image_create_task_submit_failure(request,  srcid, dstid, insid):
 
 def image_create_task_submit_success(request, srcid, dstid, insid):
     logger.error("--- --- --- image_create_task_submit_success")
+    _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     try:
-        _tid = "%s:%s:%s" % (srcid, dstid, insid)
-
         trec = ectaskTransaction.objects.get(tid=_tid)
         trec.phase = "submitting"
         trec.state = 'done'
@@ -2004,7 +2017,6 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
         trec.progress = 0
         trec.save()
 
-        releaseRuntimeOptionForImageBuild(_tid)
         imgfile_path = '/storage/images/' + dstid + "/machine"
         imgfile_size = os.path.getsize(imgfile_path) / (1024.0 * 1024 * 1024)
         imgfile_size = round(imgfile_size, 2)
@@ -2066,6 +2078,9 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
     except Exception as e:
         logger.error('--- image_create_task_submit_success error = %s ' % e.message)
 
+    # clear transaction record
+    delet_task_by_id(_tid)
+
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
@@ -2076,7 +2091,7 @@ def image_add_vm(request, imgid):
 
     if imgobj.img_usage == 'desktop':
         _instanceid      = 'VD' + genHexRandom()
-        ccs  = ecCCResources.objects.filter(cc_usage='rvd')
+        ccs  = ecCCResources.objects.filter()
     if imgobj.img_usage == 'server':
         _instanceid      = 'VS' + genHexRandom()
         ccs  = ecCCResources.objects.filter(cc_usage='vs')
@@ -3066,17 +3081,35 @@ def update_tasks(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def delet_task_by_id(tid):
+    trec = ectaskTransaction.objects.get(tid=tid)
+
+    # # send request to CC to work
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/cc/api/1.0/task/delete' % trec.ccip
+    else:
+        url = 'http://%s/cc/api/1.0/task/delete' % trec.ccip
+
+    payload = {
+        'tid'  :            tid,
+        'ncip' :            trec.ncip,
+        'runtime_option' :  trec.runtime_option,
+    }
+    r = requests.post(url, data=payload)
+    logger.error("--- --- --- " + url + ":" + r.content)
+
+    releaseRuntimeOptionForImageBuild(tid)
+    trec.delete()
+
+    return r
+
 def delete_tasks(request):
-    response = {}
+    tid = request.POST['tid']
+    logger.error("--- --- --- clc delete_tasks %s" % tid)
 
-    rec = ectaskTransaction.objects.get(id=request.POST['id'])
-    rec.delete()
+    r = delet_task_by_id(tid)
 
-    response['Result'] = 'OK'
-
-    retvalue = json.dumps(response)
-    return HttpResponse(retvalue, content_type="application/json")
-
+    return HttpResponse(r.content, content_type="application/json")
 
 # core tables for images
 # ------------------------------------
@@ -3152,6 +3185,7 @@ def create_vds(request):
             memory      = request.POST['mems'],
         )
         new_vm.save()
+        logger.error("create new vds record --- OK")
 
         # update ecVDS_auth table
         new_vm_auth = ecVDS_auth(
@@ -3164,6 +3198,7 @@ def create_vds(request):
             delete      =   True,
         )
         new_vm_auth.save()
+        logger.error("create new vds record1 --- OK")
 
         ua = ecAccount.objects.get(userid=request.user)
         role = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
@@ -3178,7 +3213,7 @@ def create_vds(request):
                 delete      =   True,
             )
             new_vm_auth.save()
-
+            logger.error("create new vds record2 --- OK")
 
     else:
         old_vm = ecVDS.objects.get(insid = request.POST['insid'])
@@ -3207,7 +3242,7 @@ def list_vss(request):
         jrec['insid'] = rec.insid
         jrec['imageid'] = rec.imageid
         jrec['name']=rec.name
-        jrect['description'] = rec.description
+        jrec['description'] = rec.description
         jrec['creator'] = rec.creator
         jrec['cc'] = rec.cc_def
         jrec['nc'] = rec.nc_def
@@ -3274,6 +3309,7 @@ def create_vss(request):
             mac         = request.POST['mac'],
         )
         new_vm.save()
+        logger.error("create new vss record --- OK")
 
         new_vm_auth = ecVSS_auth(
             insid   =   request.POST['insid'],
@@ -3285,6 +3321,7 @@ def create_vss(request):
             delete      =   True,
         )
         new_vm_auth.save()
+        logger.error("create new vm_auth record1 --- OK")
 
         ua = ecAccount.objects.get(userid=request.user)
         role = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
@@ -3299,12 +3336,22 @@ def create_vss(request):
                 delete      =   True,
             )
             new_vm_auth.save()
+            logger.error("create new vm_auth record2 --- OK")
 
         # update ecDHCPEthers table
         if request.POST['mac'] != 'any':
             ether = ecDHCPEthers.objects.get(mac=new_vm.mac)
             ether.insid = new_vm.insid
             ether.save()
+            logger.error("allocate new ether --- OK")
+
+        # prepare database file
+        srcdb = '/storage/space/database/images/%s/database'    % request.POST['imageid']
+        dstdb = '/storage/space/database/instances/%s/database' % request.POST['insid']
+        if not os.path.exists(dstdb):
+            cmd_line = "vboxmanage clonehd %s %s" % (srcdb, dstdb)
+            commands.getoutput(cmd_line)
+            logger.error("clone instances database --- OK")
 
     else:
         old_vm = ecVSS.objects.get(insid = request.POST['insid'])
@@ -3396,8 +3443,9 @@ def update_images(request):
         dstfile = '/storage/space/database/images/%s/database' % rec.ecid
         if not os.path.exists(dstfile):
             srcfile = '/storage/images/database'
-            cmd_line = "VBoxManage clonehd %s %s" % (srcfile, dstfile)
-            commands.getoutput(cmd_line)
+            cmd_line = "vboxmanage clonehd %s %s" % (srcfile, dstfile)
+            out = commands.getoutput(cmd_line)
+            logger.error("clone server databae for %s = %s" % (rec.ecid, out))
 
     response['Result'] = 'OK'
 
@@ -3624,7 +3672,7 @@ def add_new_server(request):
             ccname              = request.POST['ccname'],
             cc_usage            = "rvd",
 
-            rdp_port_pool_def   = "3389-4389",
+            rdp_port_pool_def   = "3400-3499",
             rdp_port_pool_list  = json.dumps(SortedList(range(3389,4389)).as_list()),
             used_rdp_ports      = json.dumps([]),
 
@@ -3719,9 +3767,12 @@ def get_walrus_info(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-def get_image_info(request, imgid):
+def get_image_info(request):
+    tid = request.POST['tid']
+    imgid = tid.split(':')[0]
+    insid = tid.split(':')[2]
     version, size = getLocalImageInfo(imgid)
-    dbsize = getLocalDatabaseInfo(imgid)
+    dbsize = getLocalDatabaseInfo(imgid, insid)
 
     payload = {
         'version':           version,

@@ -199,10 +199,13 @@ def register_server(request):
     r = requests.post(url, data=payload)
     return HttpResponse(r.content, content_type="application/json")
 
-def get_images_version(request, imgid):
+def get_images_version(request):
+    tid = request.POST['tid']
+    imgid = tid.split(':')[0]
+    insid = tid.split(':')[2]
 
     version, size = getLocalImageInfo(imgid)
-    dbsize = getLocalDatabaseInfo(imgid)
+    dbsize = getLocalDatabaseInfo(imgid, insid)
 
     payload = {
         'version':           version,
@@ -215,11 +218,13 @@ def get_images_version(request, imgid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-def verify_clc_cc_file_ver(request, imgid):
+def verify_clc_cc_file_ver(request):
+    tid = request.POST['tid']
+    imgid = tid.split(':')[0]
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
-    clc_img_info = getImageInfo(clcip, imgid)
-    cc_img_info  = getImageVersionFromCC('localhost', imgid)
+    clc_img_info = getImageInfo(clcip, tid)
+    cc_img_info  = getImageVersionFromCC('localhost', tid)
 
     response = {}
     response['Result']  = "OK"
@@ -228,4 +233,28 @@ def verify_clc_cc_file_ver(request, imgid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def delete_tasks(request):
+    tid = request.POST['tid']
+
+    logger.error("--- --- --- cc delete_tasks %s" % tid)
+
+    ncip = request.POST['ncip']
+    runtime_option = json.loads(request.POST['runtime_option'])
+
+    message = {}
+    message['type']             = "cmd"
+    message['op']               = 'task/delete'
+    message['tid']              = tid
+    message['runtime_option']   = request.POST['runtime_option']
+    message = json.dumps(message)
+
+    routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
+    logger.error("--- --- --- send task delete cmd to nc sucessfully")
+
+    # return http response
+    response = {}
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
 

@@ -209,7 +209,7 @@ urlpatterns = patterns('',
 
     # common api interface
     url(r'^api/1.0/getwalrusinfo$',                     views.get_walrus_info,             name='get_walrus_info'),
-    url(r'^api/1.0/getimageinfo/(?P<imgid>\w+)$',       views.get_image_info,              name='get_image_info'),
+    url(r'^api/1.0/getimageinfo$',       views.get_image_info,              name='get_image_info'),
 
     url(r'^api/1.0/account/create$',             views.account_create,                      name='account_create'),
     url(r'^api/1.0/account/create/batch$',       views.account_create_batch,                name='account_create_batch'),

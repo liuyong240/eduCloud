@@ -9,28 +9,37 @@ def getWalrusInfo(clcip):
     r = requests.get(url)
     return json.loads(r.content)
 
-def getImageInfo(clcip, imgid):
+def getImageInfo(clcip, tid):
     if DAEMON_DEBUG == True:
-        url = "http://%s:8000/clc/api/1.0/getimageinfo/%s" % (clcip, imgid)
+        url = "http://%s:8000/clc/api/1.0/getimageinfo" % (clcip)
     else:
-        url = "http://%s/clc/api/1.0/getimageinfo/%s" % (clcip, imgid)
-    r = requests.get(url)
+        url = "http://%s/clc/api/1.0/getimageinfo" % (clcip)
+    payload = {
+        'tid'   : tid
+    }
+    r = requests.post(url, data=payload)
     return json.loads(r.content)
 
-def getImageVersionFromCC(ccip, imgid):
+def getImageVersionFromCC(ccip, tid):
     if DAEMON_DEBUG == True:
-        url = "http://%s:8000/cc/api/1.0/getimageversion/%s" % (ccip, imgid)
+        url = "http://%s:8000/cc/api/1.0/getimageversion" % (ccip)
     else:
-        url = "http://%s/cc/api/1.0/getimageversion/%s" % (ccip, imgid)
-    r = requests.get(url)
+        url = "http://%s/cc/api/1.0/getimageversion" % (ccip)
+    payload = {
+        'tid' : tid
+    }
+    r = requests.post(url, data=payload)
     return json.loads(r.content)
 
-def verify_clc_cc_image_info(ccip, imgid):
+def verify_clc_cc_image_info(ccip, tid):
     if DAEMON_DEBUG == True:
-        url = "http://%s:8000/cc/api/1.0/verify/clc/cc/file/ver/%s" % (ccip, imgid)
+        url = "http://%s:8000/cc/api/1.0/verify/clc/cc/file/ver" % (ccip)
     else:
-        url = "http://%s/cc/api/1.0/verify/clc/cc/file/ver/%s" % (ccip, imgid)
-    r = requests.get(url)
+        url = "http://%s/cc/api/1.0/verify/clc/cc/file/ver" % (ccip)
+    payload = {
+        'tid'   : tid,
+    }
+    r = requests.post(url, data=payload)
     return json.loads(r.content)
 
 def prepareImageFailed(clcip, tid):

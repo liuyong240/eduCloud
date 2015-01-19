@@ -95,7 +95,7 @@ function prepareUIUpdate(items) {
 
     if (state == 'init') {
         progress = 0;
-        $(".jw-button-next").attr("disabled", true);
+        //$(".jw-button-next").attr("disabled", true);
         $("#btn_prepare").removeClass("disabled");
         $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
 
@@ -110,7 +110,7 @@ function prepareUIUpdate(items) {
         }
     }
     if (state == 'downloading' || state == "cloning") {
-        $(".jw-button-next").attr("disabled", true);
+        //$(".jw-button-next").attr("disabled", true);
         $("#btn_prepare").addClass("disabled");
 
         $("#progressbar").progressbar({"value": progress}).children("#prlabel").html(progress + ' %');
@@ -150,7 +150,7 @@ function prepareDone() {
     $("#desclabel").text("{% trans "Prepare Image Succeed. please click 'Next' button and run it." %}");
     $("#desclabel").css('color', 'green');
 
-    $(".jw-button-next").removeAttr("disabled");
+    //$(".jw-button-next").removeAttr("disabled");
 }
 
 /////////////////////////////
@@ -184,7 +184,7 @@ function editPageUIupdate(items) {
         return;
     }
     if (state == 'stopped') {
-        $(".jw-button-next").removeAttr("disabled");
+        //$(".jw-button-next").removeAttr("disabled");
 
         $("#btn_run").removeClass("disabled");
         $('#btn_stop').addClass('disabled');
@@ -201,7 +201,7 @@ function editPageUIupdate(items) {
         }
     }
     if (state == 'booting') {
-        $(".jw-button-next").attr("disabled", true);
+        //$(".jw-button-next").attr("disabled", true);
 
         $('#btn_run').addClass('disabled');
         $('#btn_stop').addClass('disabled');
@@ -213,7 +213,7 @@ function editPageUIupdate(items) {
         setTimeout(getVMStatus, timer_interval);
     }
     if (state == 'running' || state == 'Running') {
-        $(".jw-button-next").attr("disabled", true);
+        //$(".jw-button-next").attr("disabled", true);
 
         $('#btn_run').removeClass('disabled');
         $('#btn_stop').removeClass('disabled');
@@ -360,12 +360,12 @@ function init_displayWebPage(data) {
     }
     if (phase == 'editing') {
         prepareDone();
-        $(".jw-button-next").click();
+        //$(".jw-button-next").click();
         editPageUIupdate(data);
     }
     if (phase == 'submitting') {
         prepareDone();
-        $(".jw-button-next").click();
+        //$(".jw-button-next").click();
         submitPageUIupdate(data);
     }
 }
@@ -483,18 +483,20 @@ $(document).ready(function () {
             <div><a href="/static/luhyaAdmin/plugin.zip">{% trans "Download plugin for Cloud Desktop Connection" %}</a></div>
         </fieldset>
 
-        <fieldset>
-            <legend>{% trans "submit Image" %}</legend>
-            <p id="submit_erromsg"></p>
-            <button id="btn_submit" type="button" class="btn btn-primary">{% trans "Submit" %}</button>
-            <p> </p>
-            <p> </p>
-            <div id="submit_section">
-                <p id="submit_laber">{% trans "Now we will start to submit a new image, pglease wait ... ..." %}</p>
-                <div id="submit_progressbar">
-                    <div id='submit_prlabel'>{% trans "Submitting ... ..." %}</div>
+        {% if submit == 1 %}
+            <fieldset>
+                <legend>{% trans "submit Image" %}</legend>
+                <p id="submit_erromsg"></p>
+                <button id="btn_submit" type="button" class="btn btn-primary">{% trans "Submit" %}</button>
+                <p> </p>
+                <p> </p>
+                <div id="submit_section">
+                    <p id="submit_laber">{% trans "Now we will start to submit a new image, pglease wait ... ..." %}</p>
+                    <div id="submit_progressbar">
+                        <div id='submit_prlabel'>{% trans "Submitting ... ..." %}</div>
+                    </div>
                 </div>
-            </div>
-        </fieldset>
+            </fieldset>
+        {% endif %}
     </form>
 {% endblock %}
