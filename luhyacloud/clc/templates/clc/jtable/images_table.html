@@ -57,7 +57,7 @@
                         $img.click(function () {
                             $('#myjtable').jtable('openChildTable',
                                     $img.closest('tr'), {
-                                    title: 'Image ' + imagesData.record.name + ' Detail Description',
+                                    title: '{% trans "Image" %}' + imagesData.record.name + '{% trans " Detail Description" %}',
                                     actions: {
                                         listAction: function (postData, jtParams) {
                                                 return {
@@ -104,12 +104,12 @@
                     options: '/clc/api/1.0/settings/vmusage/option/list'
                 },
                 version: {
-                    title: "{% trans "Version" %},
+                    title: '{% trans "Version" %}',
                     width: '20%',
                     edit: false,
                 },
                 size: {
-                    title: "{% trans "Size(G)" %},
+                    title: '{% trans "Size(G)" %}',
                     width: '20%',
                     edit: false,
                 },

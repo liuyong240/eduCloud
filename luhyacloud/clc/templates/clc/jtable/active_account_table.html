@@ -22,7 +22,7 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: {% trans "Active Account List" %},
+            title: '{% trans "Active Account List" %}',
             selecting: true, //Enable selecting
 
             sorting: true, //Enable sorting
@@ -74,7 +74,7 @@
                                             }
                                         },
                                         ec_desc: {
-                                            title:'description',
+                                            title:'{% trans "description" %}',
                                             display: function (data) {
                                                 return '<pre>' + data.record.ec_desc + '</pre>';
                                             }

@@ -23,6 +23,7 @@ from luhyaapi.hostTools import *
 from luhyaapi.settings import *
 from sortedcontainers import SortedList
 import requests, memcache
+from django.utils.translation import ugettext as _
 
 logger = getclclogger()
 

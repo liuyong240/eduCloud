@@ -258,9 +258,9 @@ def DoesServiceExist(host, port):
         s.connect((host, port))
         s.close()
     except:
-        return _('Closed')
+        return 'Closed'
 
-    return _("Running")
+    return "Running"
 
 def get_ssh_status():
     return DoesServiceExist('127.0.0.1', 22)
@@ -296,9 +296,9 @@ def get_daemon_status(dtype):
     cmd = "sudo service " + daemon_list[dtype] + " status "
     output = commands.getoutput(cmd)
     if "running" in output:
-        return _("Running")
+        return "Running"
     else:
-        return _("Closed")
+        return "Closed"
 
 def restart_daemon(dtype):
     cmd = "sudo service " + daemon_list[dtype] + " restart "
@@ -369,7 +369,7 @@ def getHostHardware():
     result['disk_usage'] = psutil.disk_usage("/").percent
     return result
 
-CC_DETAIL_TEMPLATE = _('''<div class="col-lg-6">
+CC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
     <div class="list-group">
         <h3>Service Data</h3>
         <p class="list-group-item">
@@ -490,9 +490,9 @@ CC_DETAIL_TEMPLATE = _('''<div class="col-lg-6">
         </p>
         <p></p>
     </div>
-</div> ''')
+</div> '''
 
-VM_LIST_GROUP_ITEM = _('''
+VM_LIST_GROUP_ITEM = '''
         <p class="list-group-item">
             {{vminfo.insid}}
             <span class="pull-right text-muted"><em>{{vminfo.state}}</em></span>
@@ -509,9 +509,9 @@ VM_LIST_GROUP_ITEM = _('''
             VCPU<span class="pull-right text-muted"><em>{{vminfo.vcpu}}</em></span>
             </p>
         </p>
-''')
+'''
 
-NC_DETAIL_TEMPLATE = _('''<div class="col-lg-6">
+NC_DETAIL_TEMPLATE = '''<div class="col-lg-6">
     <div class="list-group">
         <h3>Virtual Machine Data</h3>
         {{vminfos}}
@@ -612,4 +612,4 @@ NC_DETAIL_TEMPLATE = _('''<div class="col-lg-6">
         </p>
         <p></p>
     </div>
-</div> ''')
+</div> '''
