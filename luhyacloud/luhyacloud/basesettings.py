@@ -78,7 +78,7 @@ LOCALE_PATHS = (
 )
 
 # LANGUAGE_CODE = 'en-us'
-LANGUAGE_CODE = 'zh_CN'
+LANGUAGE_CODE = 'zh-CN'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
