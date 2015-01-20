@@ -54,7 +54,7 @@
                         $img.click(function () {
                             $('#myjtable').jtable('openChildTable',
                                     $img.closest('tr'), {
-                                    title: accountData.record.ec_username + '{% trans "\'s Cloud Desktop Parameters" %}',
+                                    title: accountData.record.ec_username,
                                     actions: {
                                         listAction: function (postData, jtParams) {
                                                 return {

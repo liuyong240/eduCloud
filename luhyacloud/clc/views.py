@@ -189,7 +189,7 @@ def findVMRunningResource(insid):
             logger.error("get best node : ip = %s" % _ncip)
             break;
         else:
-            _msg = _('available nc resource is %s, but required is %s') % (json.dumps(data), json.dumps(vm_res_matrix))
+            _msg = (_('available nc resource is ') + '%s' + _(', but required is ') + '%s') % (json.dumps(data), json.dumps(vm_res_matrix))
             logger.error(_msg)
     return _ccip, _ncip, _msg
 
@@ -246,7 +246,7 @@ def findBuildResource(srcid):
             logger.error("get best node : ip = %s" % _ncip)
             break;
         else:
-            _msg = _('available nc resource is %s, but required is %s') % (json.dumps(data), json.dumps(vm_res_matrix))
+            _msg = (_('available nc resource is ') + '%s' + _(', but required is ') + '%s') % (json.dumps(data), json.dumps(vm_res_matrix))
             logger.error(_msg)
     return _ccip, _ncip, _msg
 
