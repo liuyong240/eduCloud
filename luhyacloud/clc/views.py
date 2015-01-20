@@ -65,79 +65,133 @@ logger = getclclogger()
 }
 '''
 
+def getPhyServerStatusFromMC(stype, mac):
+    payload = None
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    key = str('%s#%s#status' % (stype, mac))
+    try:
+        payload = mc.get(key)
+        if payload != None:
+            payload = json.loads(payload)
+            payload = payload['hardware_data']
+    except Exception as e:
+        logger.error("--- getPhyServerStatusFromMC error = %s" % str(e))
+
+    return payload
+
+def get_nc_avail_res(nc_mac):
+    total_res = {}
+
+    used_res  = {}
+    used_res['cpu']  = 0
+    used_res['mem']  = 0
+    used_res['disk'] = 0
+
+    reported_avail_res = {}
+    computed_avail_res = {}
+
+    final_avail_res    = {
+        '1mem'       : 0,
+        '2cpu_usage' : 0,
+        '3disk'      : 0,
+        '4cpu'       : 0,
+    }
+
+    data = getPhyServerStatusFromMC('nc', nc_mac)
+
+    if data == None:
+        pass
+    else:
+        total_res['cpu']                = data['cpus']
+        total_res['mem']                = data['mem']
+        total_res['disk']               = data['disk']
+
+        final_avail_res['2cpu_usage']    = 100 - data['cpu_usage']
+        final_avail_res['3disk']         = data['disk'] * (1 - data['disk_usage'] / 100.0)
+
+        reported_avail_res['mem'] = data['mem']  * (1 - data['mem_usage']  / 100.0)
+
+        # get allocate but not used yet res
+        ncobj = ecServers.objects.get(mac0=nc_mac)
+        trecs = ectaskTransaction.objects.filter(ncip = ncobj.ip0)
+        if trecs.count() > 0:
+            for trec in trecs:
+                runtime_option = json.loads(trec.runtime_option)
+                used_res['cpu']  += runtime_option['cpus']
+                used_res['mem']  += runtime_option['memory']
+
+        computed_avail_res['cpu']   = total_res['cpu']  - used_res['cpu']
+        computed_avail_res['mem']   = total_res['mem']  - used_res['mem']
+
+        final_avail_res['4cpu'] = computed_avail_res['cpu']
+        final_avail_res['1mem'] = min(computed_avail_res['mem'], reported_avail_res['mem'])
+
+    return final_avail_res
 
 def findVMRunningResource(insid):
     l = SortedList()
 
-    ccip = None
-    ncip = None
-    msg  = "Can't Find appropriate cluster machine and node machine ."
-
-    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    _ccip = None
+    _ncip = None
+    _msg  = "Can't Find appropriate cluster machine and node machine ."
 
     if insid.find('VD') == 0:
         vmrec = ecVDS.objects.get(insid=insid)
-        cpu = 20
-        disk = 20
+        filter = 'rvd'
+        vm_res_matrix = VALID_NC_RES['desktop']
+        vm_res_matrix['mem'] += vmrec.memory
+
     if insid.find('VS') == 0:
         vmrec = ecVSS.objects.get(insid=insid)
-        cpu = 10
-        disk = 10
+        filter = 'vs'
+        vm_res_matrix = VALID_NC_RES['server']
+        vm_res_matrix['mem'] += vmrec.memory
+
+    logger.error('vm_res_matrix for %s is  %s' % (insid, json.dumps(vm_res_matrix)))
 
     cc_def = vmrec.cc_def
     nc_def = vmrec.nc_def
-    mem = vmrec.memory + 2
 
-    ccobj = ecServers.objects.get(ccname=cc_def, role='cc')
-
-    if nc_def == 'any':
-        ncs = ecServers.objects.filter(ccname=ccobj.ccname, role='nc')
-        for nc in ncs:
-            key = str('nc#%s#status' % nc.mac0)
-            try:
-                payload = mc.get(key)
-                if payload == None:
-                    continue
-                else:
-                    payload = json.loads(payload)
-                    data = payload['hardware_data']
-                    data['xncip'] = nc.ip0
-                    data['xccip'] = ccobj.ip0
-                    logger.error(json.dumps(data))
-                    l.add(data)
-            except Exception as e:
-                continue
+    if cc_def == 'any':
+        if ALLOWED_VD_IN_VS_CC == True:
+            ccs = ecCCResources.objects.filter()
+        else:
+            ccs = ecCCResources.objects.filter(cc_usage=filter)
     else:
-        ncobj = ecServers.objects.get(ccname=cc_def, ip0=nc_def)
-        key = str('nc#%s#status' % ncobj.mac0)
-        try:
-            payload = mc.get(key)
-            if payload == None:
-                pass
-            else:
-                payload = json.loads(payload)
-                data = payload['hardware_data']
-                data['xncip'] = ncobj.ip0
-                data['xccip'] = ccobj.ip0
-                logger.error(json.dumps(data))
-                l.add(data)
-        except Exception as e:
-            pass
+        ccs = ecCCResources.objects.filter(ccname=cc_def)
+
+    for cc in ccs:
+        ccobj = ecServers.objects.get(ccname=cc.ccname, role='cc')
+        if nc_def == 'any':
+            ncs = ecServers.objects.filter(ccname=cc.ccname, role='nc')
+            for nc in ncs:
+                final_avail_res = get_nc_avail_res(nc.mac0)
+                final_avail_res['xncip'] = nc.ip0
+                final_avail_res['xccip'] = ccobj.ip0
+                l.add(final_avail_res)
+        else:
+            ncobj = ecServers.objects.get(ccname=cc.ccname, ip0=nc_def)
+            final_avail_res = get_nc_avail_res(ncobj.mac0)
+            final_avail_res['xncip'] = ncobj.ip0
+            final_avail_res['xccip'] = ccobj.ip0
+            l.add(final_avail_res)
 
     # now check sorted nc to find best one
-    for index in range(0, len(l)):
-        data = l[index]
-        avail_cpu = 100 - data['cpu_usage']
-        avail_mem = data['mem'] * (1 - data['mem_usage'] / 100.0)
-        avail_disk = data['disk'] * (1 - data['disk_usage'] / 100.0)
-        if avail_cpu > cpu and avail_mem > mem and avail_disk > disk:
-            ccip = data['xccip']
-            ncip = data['xncip']
-            msg = ''
-            logger.error("get best node : ip = %s" % ncip)
-            break
-
-    return ccip, ncip, msg
+    end = len(l)
+    for index in range(0, end):
+        data = l[end - index -1]
+        if data['1mem']         > vm_res_matrix['mem']          and \
+           data['2cpu_usage']   > vm_res_matrix['cpu_usage']    and \
+           data['3disk']        > vm_res_matrix['disk']:
+            _ccip = data['xccip']
+            _ncip = data['xncip']
+            _msg = ''
+            logger.error("get best node : ip = %s" % _ncip)
+            break;
+        else:
+            _msg = 'available nc resource is %s, but required is %s' % (json.dumps(data), json.dumps(vm_res_matrix))
+            logger.error(_msg)
+    return _ccip, _ncip, _msg
 
 def findBuildResource(srcid):
 
@@ -147,28 +201,26 @@ def findBuildResource(srcid):
     _ncip = None
     _msg  = "Can't Find appropriate cluster machine and node machine ."
 
-    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
-
     # get the expected usage of cc
-
     rec = ecImages.objects.get(ecid=srcid)
     if rec.img_usage == "server":
         filter = 'vs'
-        cpu = 10
-        disk = 10
-        mem = 2
+        vm_res_matrix = VALID_NC_RES['server']
+        vmtypeobj = ecVMTypes.objects.get(name='vssmall')
+        vm_res_matrix['mem'] += vmtypeobj.memory
     else:
         filter = 'rvd'
-        cpu = 20
-        mem = 2
-        disk = 20
+        vm_res_matrix = VALID_NC_RES['desktop']
+        vmtypeobj = ecVMTypes.objects.get(name='vdsmall')
+        vm_res_matrix['mem'] += vmtypeobj.memory
+
+    logger.error('vm_res_matrix for %s is  %s' % (srcid, json.dumps(vm_res_matrix)))
 
     # get a list of cc
     if ALLOWED_VD_IN_VS_CC == True:
         ccs = ecCCResources.objects.filter()
     else:
         ccs = ecCCResources.objects.filter(cc_usage=filter)
-
 
     # for each cc, find a good candidate nc and return, based on data in memcache
     # and compare all these selected ncs, find the best one
@@ -177,39 +229,25 @@ def findBuildResource(srcid):
         ccobj = ecServers.objects.get(ccname=cc.ccname, role='cc')
         ncs   = ecServers.objects.filter(ccname=cc.ccname , role='nc')
         for nc in ncs:
-            key = str( 'nc#%s#status' % nc.mac0 )
-            try:
-                payload = mc.get(key)
-                if payload == None:
-                    continue
-                else:
-                    payload = json.loads(payload)
-                    data = payload['hardware_data']
-                    data['xncip'] = nc.ip0
-                    data['xccip'] = ccobj.ip0
-                    logger.error(json.dumps(data))
-                    l.add(data)
-            except Exception as e:
-                continue
+            final_avail_res = get_nc_avail_res(nc.mac0)
+            final_avail_res['xncip'] = nc.ip0
+            final_avail_res['xccip'] = ccobj.ip0
+            l.add(final_avail_res)
 
-    for index in range(0, len(l)):
-        data = l[index]
-        avail_cpu = 100 - data['cpu_usage']
-        avail_mem  = data['mem']  * (1 - data['mem_usage']/100.0)
-        avail_disk = data['disk'] * (1 - data['disk_usage']/100.0)
-        if avail_cpu > cpu and avail_mem > mem and avail_disk > disk:
+    end = len(l)
+    for index in range(0, end):
+        data = l[end - index -1]
+        if data['1mem']         > vm_res_matrix['mem']          and \
+           data['2cpu_usage']   > vm_res_matrix['cpu_usage']    and \
+           data['3disk']        > vm_res_matrix['disk']:
             _ccip = data['xccip']
             _ncip = data['xncip']
             _msg = ''
             logger.error("get best node : ip = %s" % _ncip)
             break;
         else:
-            logger.error("cc:%s nc:%s does not meet the hardware requirement." % (data['xccip'], data['xncip']))
-            logger.error("nc available resources are")
-            logger.error("   availbale cpu  = %s" % str(avail_cpu))
-            logger.error("   availbale mem  = %s" % str(avail_mem))
-            logger.error("   availbale disk = %s" % str(avail_disk))
-
+            _msg = 'available nc resource is %s, but required is %s' % (json.dumps(data), json.dumps(vm_res_matrix))
+            logger.error(_msg)
     return _ccip, _ncip, _msg
 
 def display_login_window(request):
@@ -1348,7 +1386,7 @@ def genRuntimeOptionForImageBuild(transid):
 
     if ins_id.find('TMP') == 0:
         if img_info.img_usage == "desktop":
-            vmtype = 'vdmedium'
+            vmtype = 'vdsmall'
         else:
             vmtype = 'vssmall'
 
@@ -1363,6 +1401,7 @@ def genRuntimeOptionForImageBuild(transid):
             insobj = ecVDS.objects.get(insid=ins_id)
         runtime_option['memory']    = insobj.memory
         runtime_option['cpus']      = insobj.cpus
+    logger.error('allocate memory  %sG for %s' % (runtime_option['memory'], transid))
 
     ostype_info                     = ecOSTypes.objects.get(ec_ostype = img_info.ostype)
     runtime_option['disk_type']     = ostype_info.ec_disk_type
@@ -1382,6 +1421,7 @@ def genRuntimeOptionForImageBuild(transid):
         return None, 'Need more rdp port resources!.'
     else:
         runtime_option['rdp_port']                  = newport
+        logger.error('allocate rdp port %s for %s' % (newport, transid))
 
     ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
     ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
@@ -1401,6 +1441,7 @@ def genRuntimeOptionForImageBuild(transid):
         else:
             runtime_option['web_ip'] = netcard['nic_ip']
             runtime_option['web_port'] = web_port
+            logger.error('allocate web port %s for %s' % (web_port, transid))
 
     networkcards.append(netcard)
     runtime_option['networkcards'] = networkcards
@@ -1485,18 +1526,22 @@ def vm_run(request, insid):
         vmrec = ecVSS.objects.get(insid=insid)
 
     _tid  = '%s:%s:%s' % (vmrec.imageid, vmrec.imageid, insid)
-    _ccip, _ncip, _msg = findVMRunningResource(insid)
 
-    if _ncip == None:
-        # not find proper cc,nc for build image
-        context = {
-            'pagetitle'     : 'Error Report',
-            'error'         : _msg,
-        }
-        return render(request, 'clc/error.html', context)
+    # if tid exist, just call view
+    # else find resource and create tid
+    trecs = ectaskTransaction.objects.filter(tid=_tid)
+    if trecs.count() > 0:
+        return image_create_task_view(request, vmrec.imageid, vmrec.imageid, insid)
     else:
-        taskrecs = ectaskTransaction.objects.filter(tid=_tid)
-        if taskrecs.count() == 0:
+        _ccip, _ncip, _msg = findVMRunningResource(insid)
+        if _ncip == None:
+            # not find proper cc,nc for build image
+            context = {
+                'pagetitle'     : 'Error Report',
+                'error'         : _msg,
+            }
+            return render(request, 'clc/error.html', context)
+        else:
             rec = ectaskTransaction(
                  tid         = _tid,
                  srcimgid    = vmrec.imageid,
@@ -1521,24 +1566,8 @@ def vm_run(request, insid):
             else:
                 rec.runtime_option = json.dumps(runtime_option)
                 rec.save()
-        else:
-            rec = ectaskTransaction.objects.get(tid=_tid)
 
-        # open a window to monitor work progress
-        imgobj = ecImages.objects.get(ecid = vmrec.imageid)
-
-        managed_url = getVM_ManagedURL(request, _tid)
-
-        context = {
-            'pagetitle' : "image create",
-            'task'      : rec,
-            'rdp_url'   : managed_url,
-            'imgobj'    : imgobj,
-            'submit'    : 0,
-        }
-
-        return render(request, 'clc/wizard/image_create_wizard.html', context)
-
+            return image_create_task_view(request, vmrec.imageid, vmrec.imageid, insid)
 
 @login_required
 def image_create_task_start(request, srcid):
@@ -1587,20 +1616,8 @@ def image_create_task_start(request, srcid):
             rec.runtime_option = json.dumps(runtime_option)
             rec.save()
 
-        # open a window to monitor work progress
-        imgobj = ecImages.objects.get(ecid = srcid)
+        return image_create_task_view(request, _srcimgid,_dstimageid, _instanceid)
 
-        managed_url = getVM_ManagedURL(request, _tid)
-
-        context = {
-            'pagetitle' : "image create",
-            'task'      : rec,
-            'rdp_url'   : managed_url,
-            'imgobj'    : imgobj,
-            'submit'    : 1,
-        }
-
-        return render(request, 'clc/wizard/image_create_wizard.html', context)
 
 def getVM_ManagedURL(request, taskid):
     rec = ectaskTransaction.objects.get(tid=taskid)
@@ -1950,30 +1967,14 @@ def image_modify_task_start(request, srcid):
             rec.runtime_option = json.dumps(runtime_option)
             rec.save()
 
-        # open a window to monitor work progress
-        imgobj = ecImages.objects.get(ecid = srcid)
-
-        managed_url = getVM_ManagedURL(request, _tid)
-
-        context = {
-            'pagetitle' : "image create",
-            'task'      : rec,
-            'rdp_url'   : managed_url,
-            'imgobj'    : imgobj,
-            'submit'    : 1,
-        }
-
-        return render(request, 'clc/wizard/image_create_wizard.html', context)
+        return image_create_task_view(request, _srcimgid,_dstimageid, _instanceid)
 
 def image_create_task_view(request,  srcid, dstid, insid):
     _tid = "%s:%s:%s" % (srcid, dstid, insid)
 
     rec = ectaskTransaction.objects.get(tid=_tid)
-
     imgobj = ecImages.objects.get(ecid = srcid)
-
     managed_url = getVM_ManagedURL(request, _tid)
-
     if insid.find('TMP') == 0:
         submit = 1
     else:

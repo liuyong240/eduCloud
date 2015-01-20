@@ -6,6 +6,10 @@ import random, os, commands
 from linux_metrics import cpu_stat
 from sortedcontainers import SortedList
 
+def parseTID(tid):
+    _tmp = tid.spit(':')
+    return _tmp[0], _tmp[1], _tmp[2]
+
 def addUserPrvDataDir(uid):
     path = '/storage/space/prv-data/%s' % uid
     if not os.path.exists(path):
