@@ -9,7 +9,7 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'Images List',
+            title: '{% trans "Images List" %}',
 
             selecting: true, //Enable selecting
             //selectingCheckboxes: true, //Show checkboxes on first column
@@ -72,36 +72,36 @@
                     }
                 },
                 ecid: {
-                    title: 'ecID',
+                    title: '{% trans "ecID" %}',
                     width: '10%',
                     edit: false,
                 },
                 name: {
-                    title: 'Name',
+                    title: '{% trans "Name" %}',
                     width: '10%'
                 },
                 ostype: {
-                    title: 'OSType',
+                    title: '{% trans "OSType" %}',
                     width: '10%',
                     options: '/clc/api/1.0/settings/ostype/option/list'
                 },
                 usage: {
-                    title: 'Usage',
+                    title: '{% trans "Usage" %}',
                     width: '10%',
                     options: '/clc/api/1.0/settings/vmusage/option/list'
                 },
                 ec_authpath_name: {
-                    title: 'Group',
+                    title: '{% trans "Group" %}',
                     width: '10%',
                     options: '/clc/api/1.0/settings/authpath/option/list'
                 },
                 version: {
-                    title: "Version",
+                    title: '{% trans "Version" %}',
                     width: '20%',
                     edit: false,
                 },
                 size: {
-                    title: "Size(G)",
+                    title: '{% trans "Size(G)" %},
                     width: '20%',
                     edit: false,
                     display: function (data) {
@@ -109,7 +109,7 @@
                     }
                 },
                 description: {
-                    title: 'Desc',
+                    title: '{% trans "Desc" %}',
                     type: 'textarea',
                     list: false
                 },

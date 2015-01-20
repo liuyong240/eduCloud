@@ -9,7 +9,7 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'VM Usage',
+            title: '{% trans "VM Usage" %}',
 
             sorting: true, //Enable sorting
             defaultSorting: 'Name ASC', //Set default sorting
@@ -29,7 +29,7 @@
                     create: false,
                 },
                 ec_usage: {
-                    title: 'Usage',
+                    title: '{% trans "Usage" %}',
                     width: '100%',
                 },
 

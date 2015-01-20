@@ -10,8 +10,9 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'ethers list for cluster {{ ccname }}',
+            title: "{% blocktrans %}ethers list for cluster '{{ ccname }}'{% endblocktrans %}",
             selecting: true, //Enable selecting
+
 
             sorting: true, //Enable sorting
             defaultSorting: 'Name ASC', //Set default sorting
@@ -31,28 +32,28 @@
                     create: false
                 },
                 cc_name: {
-                    title: 'ccname',
+                    title: '{% trans "ccname" %}',
                     width: '10%',
                     edit: false,
                     list: false,
                     create: false,
                 },
                 mac: {
-                    title: 'MAC Addr',
+                    title: '{% trans "MAC Addr" %}',
                     width: '30%',
                     edit: false,
                     create: false,
                 },
                 ip: {
-                    title: 'IP Addr',
+                    title: '{% trans "IP Addr" %}',
                     width: '30%',
                 },
                 ex_web_port: {
-                    title: 'External Web Port',
+                    title: '{% trans "External Web Port" %}',
                     width: '30%',
                 },
                 insid: {
-                    title: 'Instance ID',
+                    title: '{% trans "Instance ID" %}',
                     width: '30%',
                     edit: false,
                     create: false,

@@ -189,7 +189,7 @@ def findVMRunningResource(insid):
             logger.error("get best node : ip = %s" % _ncip)
             break;
         else:
-            _msg = 'available nc resource is %s, but required is %s' % (json.dumps(data), json.dumps(vm_res_matrix))
+            _msg = _('available nc resource is %s, but required is %s') % (json.dumps(data), json.dumps(vm_res_matrix))
             logger.error(_msg)
     return _ccip, _ncip, _msg
 
@@ -199,7 +199,7 @@ def findBuildResource(srcid):
 
     _ccip = None
     _ncip = None
-    _msg  = "Can't Find appropriate cluster machine and node machine ."
+    _msg  = _("Can't Find appropriate cluster machine and node machine .")
 
     # get the expected usage of cc
     rec = ecImages.objects.get(ecid=srcid)
@@ -246,7 +246,7 @@ def findBuildResource(srcid):
             logger.error("get best node : ip = %s" % _ncip)
             break;
         else:
-            _msg = 'available nc resource is %s, but required is %s' % (json.dumps(data), json.dumps(vm_res_matrix))
+            _msg = _('available nc resource is %s, but required is %s') % (json.dumps(data), json.dumps(vm_res_matrix))
             logger.error(_msg)
     return _ccip, _ncip, _msg
 
@@ -362,7 +362,7 @@ def account_create_batch(request):
         num = User.objects.filter(username=newname).count()
         if num > 0:
             response['Result'] = 'FAIL'
-            response['errormsg'] = 'duplicated user name: ' + newname
+            response['errormsg'] = _('duplicated user name: ') + newname
             return HttpResponse(json.dumps(response), content_type="application/json")
 
     for u in user_list:
@@ -399,7 +399,7 @@ def account_request(request):
     num = User.objects.filter(username=userid).count()
     if num > 0 :
         response['Result'] = 'FAIL'
-        response['errormsg'] = 'duplicated user name.'
+        response['errormsg'] = _('duplicated user name.')
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     # 2. start to create new account
@@ -491,7 +491,7 @@ def activate_user(request, uid):
     u.save()
     addUserPrvDataDir(uid)
 
-    Message = " user %s is activated now." % uid
+    Message = _(" user %s is activated now.") % uid
     return HttpResponse(Message, content_type="application/json")
 
 def account_reset_password(request):
@@ -511,7 +511,7 @@ def account_reset_password(request):
     else:
         # Return an 'invalid login' error message.
         response['Result'] = "FAILURE"
-        response['errormsg'] = "Password is not correct!"
+        response['errormsg'] = _("Password is not correct!")
         return HttpResponse(json.dumps(response), content_type='application/json')
 
 ##########################################################################
@@ -524,7 +524,7 @@ def index_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "System Run-time Status Overview",
+        'dashboard' : _("System Run-time Status Overview"),
     }
     return render(request, 'clc/overview.html', context)
 
@@ -536,7 +536,7 @@ def accounts_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Account Management",
+        'dashboard' : _("Account Management"),
     }
     return render(request, 'clc/accounts.html', context)
 
@@ -548,7 +548,7 @@ def images_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Images Management",
+        'dashboard' : _("Images Management"),
     }
 
     return render(request, 'clc/images.html', context)
@@ -607,7 +607,7 @@ def clc_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Control Management",
+        'dashboard' : _("Cloud Control Management"),
         'cloud_data' : cloud_data,
         'service_data': service_data,
         'hardware_data': hardware_data,
@@ -664,7 +664,7 @@ def walrus_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Walrus Management",
+        'dashboard' : _("Cloud Walrus Management"),
         'service_data': service_data,
         'hardware_data': hardware_data,
         'host_ips': host_ips,
@@ -679,7 +679,7 @@ def cc_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Cluster Management",
+        'dashboard' : _("Cloud Cluster Management"),
     }
     return render(request, 'clc/cc_mgr.html', context)
 
@@ -737,7 +737,7 @@ def nc_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Node Management",
+        'dashboard' : _("Cloud Node Management"),
     }
     return render(request, 'clc/nc_mgr.html', context)
 
@@ -769,7 +769,7 @@ def nc_mgr_mac(request, ccname, mac):
         logger.error("not get nc[%s] status data from memcache." % mac)
         response = {}
         response['Result'] = 'OK'
-        response['data'] = '<div class="col-lg-6"><p>detail information is NOT available.</p></div>'
+        response['data'] = _('<div class="col-lg-6"><p>detail information is NOT available.</p></div>')
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     htmlstr = NC_DETAIL_TEMPLATE
@@ -787,11 +787,11 @@ def nc_mgr_mac(request, ccname, mac):
 
         htmlstr = htmlstr.replace('{{vminfos}}',  vms)
     else:
-        novmstr = '''
+        novmstr = _('''
                 <p class="list-group-item">
                 No VMs Information available
                 </p>
-        '''
+        ''')
         htmlstr = htmlstr.replace('{{vminfos}}',  novmstr)
 
     htmlstr = htmlstr.replace('{{service_data.daemon}}',  service_data['daemon'])
@@ -834,7 +834,7 @@ def lnc_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Local Node Management",
+        'dashboard' : _("Cloud Local Node Management"),
     }
     return render(request, 'clc/lnc_mgr.html', context)
 
@@ -846,7 +846,7 @@ def terminal_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Terminal Management",
+        'dashboard' : _("Cloud Terminal Management"),
     }
     return render(request, 'clc/terminal_mgr.html', context)
 
@@ -858,7 +858,7 @@ def hosts_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Hosts Management",
+        'dashboard' : _("Hosts Management"),
     }
     return render(request, 'clc/hosts.html', context)
 
@@ -870,7 +870,7 @@ def settings_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "System Settings Management",
+        'dashboard' : _("System Settings Management"),
     }
     return render(request, 'clc/settings.html', context)
 
@@ -882,7 +882,7 @@ def vss_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Server Management",
+        'dashboard' : _("Cloud Server Management"),
     }
 
     return render(request, 'clc/vss.html', context)
@@ -895,7 +895,7 @@ def rvds_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Remote Cloud Desktop Management",
+        'dashboard' : _("Remote Cloud Desktop Management"),
     }
 
     return render(request, 'clc/rvds.html', context)
@@ -908,7 +908,7 @@ def lvds_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Local Cloud Desktop Management",
+        'dashboard' : _("Local Cloud Desktop Management"),
     }
 
     return render(request, 'clc/lvds.html', context)
@@ -921,7 +921,7 @@ def tasks_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Tasks Management",
+        'dashboard' : _("Tasks Management"),
     }
 
     return render(request, 'clc/tasks.html', context)
@@ -939,7 +939,7 @@ def tools_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Administrator Tools",
+        'dashboard' : _("Administrator Tools"),
     }
 
     return render(request, 'clc/tools.html', context)
@@ -1159,7 +1159,7 @@ def cc_modify_resources(request, cc_name):
     else:
         rec = ecCCResources.objects.get(ccname=cc_name)
         context = {
-            'pagetitle' : "Configure CC Network Resources",
+            'pagetitle' : _("Configure CC Network Resources"),
             'ccres' : rec,
         }
 
@@ -1225,12 +1225,6 @@ def cc_modify_resources(request, cc_name):
 #     'poweroff_mode' : auto | manual,
 #     'poweroff_time' : 1h, 1d, 1w # valid only if power_mode is auto
 # }
-
-def getIPandMacFromePool(ccname):
-    pass
-
-def getServicePortfromCC(ccname):
-    pass
 
 
 def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
@@ -1418,7 +1412,7 @@ def genRuntimeOptionForImageBuild(transid):
     available_rdp_port, used_rdp_ports, newport = allocate_rdp_port(available_rdp_port, used_rdp_ports)
     if newport == None:
         runtime_option['rdp_port']  = ''
-        return None, 'Need more rdp port resources!.'
+        return None, _('Need more rdp port resources!.')
     else:
         runtime_option['rdp_port']                  = newport
         logger.error('allocate rdp port %s for %s' % (newport, transid))
@@ -1437,7 +1431,7 @@ def genRuntimeOptionForImageBuild(transid):
         netcard['nic_mac'], netcard['nic_ip'], web_port = ethers_allocate(ccres_info.ccname, ins_id)
         if netcard['nic_mac'] == None:
             releaseRuntimeOptionForImageBuild(transid, runtime_option)
-            return None, 'Need more ether resources.'
+            return None, _('Need more ether resources.')
         else:
             runtime_option['web_ip'] = netcard['nic_ip']
             runtime_option['web_port'] = web_port
@@ -1452,7 +1446,6 @@ def genRuntimeOptionForImageBuild(transid):
 
     # 3.4 set public ip and private ip and iptable
     iptables = []
-
 
     if networkMode == 'flat':
         runtime_option['ex_ip']   = ncobj.eip
@@ -1482,7 +1475,7 @@ def genRuntimeOptionForImageBuild(transid):
             if new_web_ip == None:
                 runtime_option['web_ip'] = ''
                 releaseRuntimeOptionForImageBuild(transid, runtime_option)
-                return None, 'Need more Proxy Web IP resources for Cluster.'
+                return None, _('Need more Proxy Web IP resources for Cluster.')
             else:
                 runtime_option['web_ip'] = new_web_ip
 
@@ -1537,7 +1530,7 @@ def vm_run(request, insid):
         if _ncip == None:
             # not find proper cc,nc for build image
             context = {
-                'pagetitle'     : 'Error Report',
+                'pagetitle'     : _('Error Report'),
                 'error'         : _msg,
             }
             return render(request, 'clc/error.html', context)
@@ -1559,7 +1552,7 @@ def vm_run(request, insid):
             if runtime_option == None:
                 rec.delete()
                 context = {
-                    'pagetitle'     : 'Error Report',
+                    'pagetitle'     : _('Error Report'),
                     'error'         : error,
                 }
                 return render(request, 'clc/error.html', context)
@@ -1585,7 +1578,7 @@ def image_create_task_start(request, srcid):
     if _ncip == None:
         # not find proper cc,nc for build image
         context = {
-            'pagetitle'     : 'Error Report',
+            'pagetitle'     : _('Error Report'),
             'error'         : _msg,
         }
         return render(request, 'clc/error.html', context)
@@ -1608,7 +1601,7 @@ def image_create_task_start(request, srcid):
         if runtime_option == None:
                 rec.delete()
                 context = {
-                    'pagetitle'     : 'Error Report',
+                    'pagetitle'     : _('Error Report'),
                     'error'         : error,
                 }
                 return render(request, 'clc/error.html', context)
@@ -1937,7 +1930,7 @@ def image_modify_task_start(request, srcid):
     if _ncip == None:
         # not find proper cc,nc for build image
         context = {
-            'pagetitle'     : 'Error Report',
+            'pagetitle'     : _('Error Report'),
             'error'         : _msg,
         }
         return render(request, 'clc/error.html', context)
@@ -1959,7 +1952,7 @@ def image_modify_task_start(request, srcid):
         if runtime_option == None:
                 rec.delete()
                 context = {
-                    'pagetitle'     : 'Error Report',
+                    'pagetitle'     : _('Error Report'),
                     'error'         : error,
                 }
                 return render(request, 'clc/error.html', context)

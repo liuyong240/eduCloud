@@ -29,9 +29,9 @@
                         <div class="panel-body">
                             <!-- Nav tabs -->
                             <ul class="nav nav-tabs">
-                                <li ><a href="#active_account" data-toggle="tab">Active Accounts</a>
+                                <li ><a href="#active_account" data-toggle="tab">{% trans "Active Accounts" %}</a>
                                 </li>
-                                <li class="active"><a href="#inactive_account" data-toggle="tab">Inactive Accounts</a>
+                                <li class="active"><a href="#inactive_account" data-toggle="tab">{% trans "Inactive Accounts" %}</a>
                                 </li>
                             </ul>
 
@@ -40,15 +40,15 @@
                                 <div class="tab-pane fade" id="active_account">
                                     <p></p>
                                     <div id="uid_a" style="display: none;"></div>
-                                    <button id="reset_pw_a" type="button" class="btn btn-primary disabled">Reset Password</button>
+                                    <button id="reset_pw_a" type="button" class="btn btn-primary disabled">{% trans "Reset Password" %}</button>
                                     <p></p>
                                     <iframe class="servers_table" id="myiframe1" src="jt/account/actived" frameborder="0" width="100%"></iframe>
                                 </div>
                                 <div class="tab-pane fade" id="inactive_account">
                                     <p></p>
                                     <div id="uid_i" style="display: none;"></div>
-                                    <button id="reset_pw_i" type="button" class="btn btn-primary disabled">Reset Password</button>
-                                    <button id="approval_i" type="button" class="btn btn-primary disabled">Approval</button>
+                                    <button id="reset_pw_i" type="button" class="btn btn-primary disabled">{% trans "Reset Password" %}</button>
+                                    <button id="approval_i" type="button" class="btn btn-primary disabled">{% trans "Approval" %}</button>
 
                                     <iframe class="servers_table" id="myiframe2" src="jt/account/inactive" frameborder="0" width="100%"></iframe>
                                 </div>
