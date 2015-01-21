@@ -618,7 +618,7 @@ msgstr "步骤1：创建并选择目录"
 
 #: clc/templates/clc/tools.html:338
 msgid "Image Directory in Server"
-msgstr "云平台上得镜像文件目录"
+msgstr "云平台上的镜像文件目录"
 
 #: clc/templates/clc/tools.html:341 clc/templates/clc/tools.html.py:376
 #: templates/admin/index.html:33
