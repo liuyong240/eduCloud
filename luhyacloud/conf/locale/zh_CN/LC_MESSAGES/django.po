@@ -1430,7 +1430,6 @@ msgid "Select Cluster"
 msgstr "选择集群"
 
 #: clc/templates/clc/wizard/vs_create_wizard.html:183
-#, fuzzy
 msgid "Select Node"
 msgstr "选择工作服务器"
 
