@@ -156,15 +156,15 @@ $(document).ready(function () {
         <fieldset>
             <legend>{% trans "Basic Config" %}</legend>
             <div class="form-group">
-                <label>Image Name</label>
+                <label>{% trans "Image Name" %}</label>
                 <input class="form-control" type="text" value="{{ imgobj.name}}" disabled="">
             </div>
             <div class="form-group">
-                <label>VS VM Name</label>
+                <label>{% trans "VS VM Name" %}</label>
                 <input id="vm_name" class="form-control" type="text" value="{{ vm.name }}" >
             </div>
             <div class="form-group">
-                <label>VS VM Description</label>
+                <label>{% trans "VS VM Description" %}</label>
                 <input id="vm_desc" class="form-control" type="text" value="{{ vm.description }}" >
             </div>
         </fieldset>
@@ -172,7 +172,7 @@ $(document).ready(function () {
         <fieldset>
             <legend>{% trans "Running Config" %}</legend>
             <div class="form-group">
-                <label>Select Cluster</label>
+                <label>{% trans "Select Cluster" %}</label>
                 <select class="form-control" id="vm_cc">
                     {% for cc in ccs %}
                         <option value="{{ cc.ccname }}">{{ cc.ccname}}</option>
@@ -180,7 +180,7 @@ $(document).ready(function () {
                 </select>
             </div>
             <div class="form-group">
-                <label>Select Node</label>
+                <label>{% trans "Select Node" %}</label>
                 <select class="form-control" id="vm_nc">
                     <option value="any">any</option>
                 </select>
@@ -190,7 +190,7 @@ $(document).ready(function () {
         <fieldset>
             <legend>{% trans "Hardware Config" %}</legend>
             <div class="form-group">
-                <label>Select CPUs</label>
+                <label>{% trans "Select CPUs" %}</label>
                 <select id="vm_cpus" class="form-control">
                     <option selected value="1">1</option>
                     <option value="2">2</option>
@@ -198,7 +198,7 @@ $(document).ready(function () {
                 </select>
             </div>
             <div class="form-group">
-                <label>Select Memory(G)</label>
+                <label>{% trans "Select Memory(G)" %}</label>
                 <select id="vm_mems" class="form-control">
                     <option selected value="2">2G</option>
                     <option value="4">4G</option>
@@ -208,7 +208,7 @@ $(document).ready(function () {
             </div>
             <div id="macip-config">
                 <div class="form-group">
-                    <label>Select MAC/IP</label>
+                    <label>{% trans "Select MAC/IP" %}</label>
                     <select class="form-control" id="vm_macip">
                     </select>
                 </div>

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-20 03:25+0000\n"
+"POT-Creation-Date: 2015-01-21 04:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,69 +17,69 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: clc/views.py:192 clc/views.py:249
+#: clc/views.py:193 clc/views.py:250
 msgid "available nc resource is "
 msgstr "工作服务器可用的资源是 "
 
-#: clc/views.py:192 clc/views.py:249
+#: clc/views.py:193 clc/views.py:250
 msgid ", but required is "
 msgstr "，但是虚拟机要求的是 "
 
-#: clc/views.py:202
+#: clc/views.py:203
 msgid "Can't Find appropriate cluster machine and node machine ."
 msgstr "没有找到满足虚拟机运行资源要求的工作服务器。"
 
-#: clc/views.py:365
+#: clc/views.py:366
 msgid "duplicated user name: "
 msgstr "重复的用户名"
 
-#: clc/views.py:402
+#: clc/views.py:403
 msgid "duplicated user name."
 msgstr "重复的用户名"
 
-#: clc/views.py:494
+#: clc/views.py:495
 #, python-format
 msgid " user %s is activated now."
 msgstr " 用户 %s 已经激活了。"
 
-#: clc/views.py:514
+#: clc/views.py:515
 msgid "Password is not correct!"
 msgstr "密码不正确。"
 
-#: clc/views.py:527
+#: clc/views.py:528
 msgid "System Run-time Status Overview"
 msgstr "系统运行状态"
 
-#: clc/views.py:539
+#: clc/views.py:540
 msgid "Account Management"
 msgstr "用户账户管理"
 
-#: clc/views.py:551
+#: clc/views.py:552
 msgid "Images Management"
 msgstr "镜像文件管理"
 
-#: clc/views.py:610
+#: clc/views.py:611
 msgid "Cloud Control Management"
 msgstr "云控制器管理"
 
-#: clc/views.py:667
+#: clc/views.py:668
 msgid "Cloud Walrus Management"
 msgstr "云存储控制器管理"
 
-#: clc/views.py:682
+#: clc/views.py:683
 msgid "Cloud Cluster Management"
 msgstr "云集群控制器管理"
 
-#: clc/views.py:740
+#: clc/views.py:741
 msgid "Cloud Node Management"
 msgstr "云工作服务器管理"
 
-#: clc/views.py:772
+#: clc/views.py:773
 msgid ""
 "<div class=\"col-lg-6\"><p>detail information is NOT available.</p></div>"
 msgstr "<div class=\"col-lg-6\"><p>无法获取详细信息。</p></div>"
 
-#: clc/views.py:790
+#: clc/views.py:791
 msgid ""
 "\n"
 "                <p class=\"list-group-item\">\n"
@@ -93,92 +93,100 @@ msgstr ""
 "                </p>\n"
 "        "
 
-#: clc/views.py:837
+#: clc/views.py:838
 msgid "Cloud Local Node Management"
 msgstr "云本地工作节点管理"
 
-#: clc/views.py:849
+#: clc/views.py:850
 msgid "Cloud Terminal Management"
 msgstr "云终端管理"
 
-#: clc/views.py:861
+#: clc/views.py:862
 msgid "Hosts Management"
 msgstr "主机管理"
 
-#: clc/views.py:873
+#: clc/views.py:874
 msgid "System Settings Management"
 msgstr "系统参数设置"
 
-#: clc/views.py:885
+#: clc/views.py:886
 msgid "Cloud Server Management"
 msgstr "云服务器管理"
 
-#: clc/views.py:898
+#: clc/views.py:899
 msgid "Remote Cloud Desktop Management"
 msgstr "远程云桌面管理"
 
-#: clc/views.py:911
+#: clc/views.py:912
 msgid "Local Cloud Desktop Management"
 msgstr "本地云桌面管理"
 
-#: clc/views.py:924
+#: clc/views.py:925
 msgid "Tasks Management"
 msgstr "系统任务管理"
 
-#: clc/views.py:942
+#: clc/views.py:943
 msgid "Administrator Tools"
 msgstr "管理员工具"
 
-#: clc/views.py:1162
+#: clc/views.py:1163
 msgid "Configure CC Network Resources"
 msgstr "设置集群网络参数"
 
-#: clc/views.py:1415
+#: clc/views.py:1416
 msgid "Need more rdp port resources!."
 msgstr "需要更多的RDP端口资源"
 
-#: clc/views.py:1434
+#: clc/views.py:1435
 msgid "Need more ether resources."
 msgstr "需要更多的IP/MAC资源"
 
-#: clc/views.py:1478
+#: clc/views.py:1479
 msgid "Need more Proxy Web IP resources for Cluster."
 msgstr "需要更多的WEB代理IP资源"
 
-#: clc/views.py:1533 clc/views.py:1555 clc/views.py:1581 clc/views.py:1604
-#: clc/views.py:1933 clc/views.py:1955 clc/templates/clc/error.html:34
+#: clc/views.py:1534 clc/views.py:1556 clc/views.py:1582 clc/views.py:1605
+#: clc/views.py:1934 clc/views.py:1956 clc/templates/clc/error.html:34
 msgid "Error Report"
 msgstr "错误报告"
 
+#: clc/views.py:3822
+msgid "Image "
+msgstr "镜像文件"
+
+#: clc/views.py:4048
+msgid "Server "
+msgstr "物理服务器"
+
+#: clc/views.py:4093
+msgid "VM "
+msgstr "虚拟机"
+
 #: clc/templates/clc/accounts.html:13
 msgid " Actions"
-msgstr ""
+msgstr " 操作"
 
 #: clc/templates/clc/accounts.html:17
 msgid " Add New Account"
-msgstr "创建账号"
+msgstr "创建新账号"
 
 #: clc/templates/clc/accounts.html:19
 msgid " Batch Add New Account"
 msgstr "批量增加账号"
 
-#: clc/templates/clc/accounts.html:22
-msgid " more actions"
-msgstr ""
-
-#: clc/templates/clc/accounts.html:32
+#: clc/templates/clc/accounts.html:31
 msgid "Active Accounts"
 msgstr "已激活账号"
 
-#: clc/templates/clc/accounts.html:34
+#: clc/templates/clc/accounts.html:33
 msgid "Inactive Accounts"
 msgstr "待激活账号"
 
-#: clc/templates/clc/accounts.html:43 clc/templates/clc/accounts.html.py:50
+#: clc/templates/clc/accounts.html:42 clc/templates/clc/accounts.html.py:49
 msgid "Reset Password"
 msgstr "重置密码"
 
-#: clc/templates/clc/accounts.html:51
+#: clc/templates/clc/accounts.html:50
 msgid "Approval"
 msgstr "批准"
 
@@ -276,6 +284,7 @@ msgid "HostName"
 msgstr "主机名"
 
 #: clc/templates/clc/clc_mgr.html:123 clc/templates/clc/walrus_mgr.html:61
+#: clc/templates/clc/jtable/servers_cc_table.html:85
 #: clc/templates/clc/jtable/servers_nc_table.html:85
 msgid "Location"
 msgstr "主机物理位置"
@@ -418,7 +427,7 @@ msgstr " 云终端"
 
 #: clc/templates/clc/clctemplate.html:127 clc/templates/clc/index.html:104
 msgid " Instance"
-msgstr "虚拟服务器管理"
+msgstr " 虚拟服务器管理"
 
 #: clc/templates/clc/clctemplate.html:130 clc/templates/clc/index.html:107
 msgid " Virtual Servers"
@@ -434,11 +443,11 @@ msgstr "本地桌面虚拟机"
 
 #: clc/templates/clc/clctemplate.html:144 clc/templates/clc/index.html:119
 msgid " Tasks"
-msgstr "系统任务"
+msgstr " 系统任务"
 
 #: clc/templates/clc/clctemplate.html:147
 msgid " Tools"
-msgstr "系统工具"
+msgstr " 系统工具"
 
 #: clc/templates/clc/images.html:10
 #: clc/templates/clc/form/permission_edit.html:77
@@ -482,8 +491,8 @@ msgid "Please Sign In"
 msgstr "请登录"
 
 #: clc/templates/clc/login.html:53
-msgid "E-mail"
-msgstr "邮件地址"
+msgid "Username"
+msgstr "用户名"
 
 #: clc/templates/clc/login.html:56
 msgid "Password"
@@ -615,6 +624,10 @@ msgstr "密码不能为空"
 msgid "password Not Match."
 msgstr "密码不匹配"
 
+#: clc/templates/clc/form/adm_add_new_account.html:107
+msgid "Add a New Account"
+msgstr "创建账号"
+
 #: clc/templates/clc/form/adm_add_new_account.html:116
 #: clc/templates/clc/form/request_new_account.html:98
 #: clc/templates/clc/form/update_account_profile.html:108
@@ -728,9 +741,13 @@ msgstr "用户ID后缀必须为正整数"
 msgid "first suffix should be less than second suffix."
 msgstr "第一个后缀必须小于第二个后缀"
 
+#: clc/templates/clc/form/adm_add_new_account_batch.html:119
+msgid "Batch Add New Accounts"
+msgstr "批量增加账号"
+
 #: clc/templates/clc/form/adm_add_new_account_batch.html:128
 msgid "This form will generate user accounts from test0 to test99."
-msgstr "这个表单将创建用户账号test0到"
+msgstr "这个表单将创建用户账号test0到test99"
 
 #: clc/templates/clc/form/adm_add_new_account_batch.html:132
 msgid "User ID Prefix*"
@@ -743,6 +760,10 @@ msgstr "用户ID后缀"
 #: clc/templates/clc/form/adm_add_new_account_batch.html:202
 msgid "New Accounts are created Successfully."
 msgstr "新的用户账号已经批量生成。"
+
+#: clc/templates/clc/form/cc_modify_resource.html:281
+msgid "Cluster Network Configuration"
+msgstr "集群服务器网络参数配置"
 
 #: clc/templates/clc/form/cc_modify_resource.html:291
 #: clc/templates/clc/jtable/servers_cc_table.html:51
@@ -849,6 +870,11 @@ msgstr "新的外部IP地址已经更新成功。"
 #: clc/templates/clc/form/edit_eip.html:71
 msgid "Update External IP Failed, try again."
 msgstr "更新外部IP地址失败，请重试。"
+
+#: clc/templates/clc/form/permission_edit.html:66
+#: clc/templates/clc/form/permission_edit.html:141
+msgid "Access Contorl:"
+msgstr "访问控制:"
 
 #: clc/templates/clc/form/permission_edit.html:68
 #: clc/templates/clc/form/permission_edit.html:144
@@ -991,48 +1017,64 @@ msgstr "已激活账号列表"
 msgid "vd parameters"
 msgstr "云桌面参数"
 
+#: clc/templates/clc/jtable/active_account_table.html:77
+#: clc/templates/clc/jtable/inactive_account_table.html:77
+msgid "description"
+msgstr "详细说明"
+
 #: clc/templates/clc/jtable/active_account_table.html:93
-#: clc/templates/clc/jtable/inactive_account_table.html:101
+#: clc/templates/clc/jtable/inactive_account_table.html:92
 msgid "name"
 msgstr "用户名"
 
 #: clc/templates/clc/jtable/active_account_table.html:98
-#: clc/templates/clc/jtable/inactive_account_table.html:106
+#: clc/templates/clc/jtable/inactive_account_table.html:97
 msgid "display name"
 msgstr "显示名"
 
 #: clc/templates/clc/jtable/active_account_table.html:102
-#: clc/templates/clc/jtable/inactive_account_table.html:110
+#: clc/templates/clc/jtable/inactive_account_table.html:101
 msgid "email"
 msgstr "电子邮件"
 
 #: clc/templates/clc/jtable/active_account_table.html:106
-#: clc/templates/clc/jtable/inactive_account_table.html:114
+#: clc/templates/clc/jtable/inactive_account_table.html:105
 msgid "phone"
 msgstr "联系电话"
 
 #: clc/templates/clc/jtable/active_account_table.html:110
-#: clc/templates/clc/jtable/inactive_account_table.html:118
+#: clc/templates/clc/jtable/inactive_account_table.html:109
 msgid "supper"
 msgstr "超级用户"
 
 #: clc/templates/clc/jtable/active_account_table.html:114
-#: clc/templates/clc/jtable/inactive_account_table.html:122
+#: clc/templates/clc/jtable/inactive_account_table.html:113
 msgid "role"
 msgstr "角色"
 
 #: clc/templates/clc/jtable/active_account_table.html:119
-#: clc/templates/clc/jtable/inactive_account_table.html:127
+#: clc/templates/clc/jtable/inactive_account_table.html:118
 msgid "Parameters"
 msgstr "参数"
 
 #: clc/templates/clc/jtable/active_account_table.html:124
-#: clc/templates/clc/jtable/inactive_account_table.html:132
+#: clc/templates/clc/jtable/inactive_account_table.html:123
 msgid "desc"
 msgstr ""
 
+#: clc/templates/clc/jtable/authpath_table.html:12
+msgid "AuthPath List"
+msgstr "用户角色"
+
+#: clc/templates/clc/jtable/authpath_table.html:32
+msgid "rolename"
+msgstr "角色名称"
+
+#: clc/templates/clc/jtable/authpath_table.html:36
+msgid "rolevalue"
+msgstr "角色取值"
+
 #: clc/templates/clc/jtable/ethers_table.html:13
-#, python-format
 msgid "ethers list for cluster"
 msgstr "集群的网络资源"
 
@@ -1063,7 +1105,6 @@ msgstr "虚拟机ID"
 #: clc/templates/clc/jtable/images_table.html:8
 #: clc/templates/clc/jtable/images_table.html:93
 #: clc/templates/clc/jtable/rbac_table.html:32
-#: clc/templates/clc/jtable/serverrole_table.html:32
 #: clc/templates/clc/jtable/servers_cc_table.html:47
 #: clc/templates/clc/jtable/servers_lnc_table.html:80
 #: clc/templates/clc/jtable/servers_nc_table.html:47
@@ -1086,6 +1127,14 @@ msgstr "镜像文件过滤"
 #: clc/templates/clc/jtable/servers_lnc_table.html:12
 msgid "Images List"
 msgstr "镜像文件列表"
+
+#: clc/templates/clc/jtable/images_table.html:60
+msgid "Image"
+msgstr "镜像文件"
+
+#: clc/templates/clc/jtable/images_table.html:60
+msgid " Detail Description"
+msgstr "详细说明"
 
 #: clc/templates/clc/jtable/images_table.html:88
 #: clc/templates/clc/jtable/servers_lnc_table.html:75
@@ -1118,13 +1167,9 @@ msgstr "大小(G)"
 msgid "Desc"
 msgstr "详细说明"
 
-#: clc/templates/clc/jtable/inactive_account_table.html:35
+#: clc/templates/clc/jtable/inactive_account_table.html:26
 msgid "Inactive Account List"
 msgstr "待激活账号列表"
-
-#: clc/templates/clc/jtable/inactive_account_table.html:86
-msgid "description"
-msgstr "详细说明"
 
 #: clc/templates/clc/jtable/ostypes_table.html:12
 msgid "OS Types"
@@ -1155,9 +1200,31 @@ msgstr ""
 msgid "Permision"
 msgstr ""
 
+#: clc/templates/clc/jtable/serverrole_table.html:12
+msgid "Server Role"
+msgstr "服务器角色"
+
+#: clc/templates/clc/jtable/serverrole_table.html:32
+msgid "fullname"
+msgstr "全称"
+
 #: clc/templates/clc/jtable/serverrole_table.html:36
-msgid "Value"
-msgstr "值"
+msgid "shortname"
+msgstr "缩写"
+
+#: clc/templates/clc/jtable/servers_cc_table.html:8
+#: clc/templates/clc/jtable/servers_nc_table.html:8
+msgid "Cluster Name:"
+msgstr "集群名称:"
+
+#: clc/templates/clc/jtable/servers_cc_table.html:9
+#: clc/templates/clc/jtable/servers_nc_table.html:9
+msgid "IP:"
+msgstr "IP:"
+
+#: clc/templates/clc/jtable/servers_cc_table.html:10
+msgid "Filter Cluster Server"
+msgstr "集群服务器列表"
 
 #: clc/templates/clc/jtable/servers_cc_table.html:25
 msgid "Cluster Server List"
@@ -1192,14 +1259,6 @@ msgstr "IP地址0"
 #: clc/templates/clc/jtable/servers_nc_table.html:80
 msgid "MAC0"
 msgstr "MAC地址0"
-
-#: clc/templates/clc/jtable/servers_nc_table.html:8
-msgid "Cluster Name:"
-msgstr "集群名称:"
-
-#: clc/templates/clc/jtable/servers_nc_table.html:9
-msgid "IP:"
-msgstr "IP:"
 
 #: clc/templates/clc/jtable/servers_nc_table.html:10
 msgid "Filter Nodes"
@@ -1350,13 +1409,46 @@ msgstr "提交中... ..."
 msgid "Basic Config"
 msgstr "基本参数配置"
 
+#: clc/templates/clc/wizard/vs_create_wizard.html:159
+msgid "Image Name"
+msgstr "镜像文件"
+
+#: clc/templates/clc/wizard/vs_create_wizard.html:163
+msgid "VS VM Name"
+msgstr "虚拟机名称"
+
+#: clc/templates/clc/wizard/vs_create_wizard.html:167
+msgid "VS VM Description"
+msgstr "虚拟机详细说明"
+
 #: clc/templates/clc/wizard/vs_create_wizard.html:173
 msgid "Running Config"
-msgstr ""
+msgstr "运行参数配置"
+
+#: clc/templates/clc/wizard/vs_create_wizard.html:175
+msgid "Select Cluster"
+msgstr "选择集群"
+
+#: clc/templates/clc/wizard/vs_create_wizard.html:183
+#, fuzzy
+msgid "Select Node"
+msgstr "选择工作服务器"
 
 #: clc/templates/clc/wizard/vs_create_wizard.html:191
 msgid "Hardware Config"
 msgstr "硬件参数配置"
+
+#: clc/templates/clc/wizard/vs_create_wizard.html:193
+msgid "Select CPUs"
+msgstr "配置CPU"
+
+#: clc/templates/clc/wizard/vs_create_wizard.html:201
+msgid "Select Memory(G)"
+msgstr "配置内存(G)"
+
+#: clc/templates/clc/wizard/vs_create_wizard.html:211
+msgid "Select MAC/IP"
+msgstr "配置MAC/IP"
 
 #: templates/admin/base_site.html:4
 msgid "Luhyacloude Super Administration"
@@ -1399,3 +1491,6 @@ msgstr ""
 #: templates/admin/index.html:76
 msgid "Unknown content"
 msgstr ""
+
+#~ msgid "E-mail"
+#~ msgstr "邮件地址"

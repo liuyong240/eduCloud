@@ -3819,7 +3819,7 @@ def image_permission_edit(request, srcid):
 
     context = {
         'imgobj': imgobj ,
-        'res':    "Image " + imgobj.name,
+        'res':    _("Image ") + imgobj.name,
         'roles':  roles,
         'lists':  range(0,rows),
         'next':   rows,
@@ -4045,7 +4045,7 @@ def edit_server_permission_view(request, srole, mac):
 
     context = {
         'sobj':   sobj,
-        'res':    "Server ",
+        'res':    _("Server "),
         'roles':  roles,
         'lists':  range(0,rows),
         'next':   rows,
@@ -4090,7 +4090,7 @@ def edit_vm_permission_view(request, insid):
 
     context = {
         'sobj':   sobj,
-        'res':    "VM ",
+        'res':    _("VM "),
         'roles':  roles,
         'lists':  range(0,rows),
         'next':   rows,
