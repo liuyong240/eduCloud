@@ -107,7 +107,7 @@ msgstr "主机管理"
 
 #: clc/views.py:873
 msgid "System Settings Management"
-msgstr "系统运行参数设置"
+msgstr "系统参数设置"
 
 #: clc/views.py:885
 msgid "Cloud Server Management"
@@ -378,47 +378,47 @@ msgstr "注销"
 #: clc/templates/clc/clctemplate.html:83 clc/templates/clc/index.html:66
 #: clc/templates/clc/index.html.py:98
 msgid " Settings"
-msgstr ""
+msgstr " 系统参数设置"
 
 #: clc/templates/clc/clctemplate.html:87 clc/templates/clc/index.html:85
 msgid " Accounts"
-msgstr ""
+msgstr " 用户账号管理"
 
 #: clc/templates/clc/clctemplate.html:92 clc/templates/clc/index.html:92
 msgid " Images"
-msgstr ""
+msgstr " 镜像文件管理"
 
 #: clc/templates/clc/clctemplate.html:96
 msgid " Computers"
-msgstr "物理服务器管理"
+msgstr " 物理服务器管理"
 
 #: clc/templates/clc/clctemplate.html:99
 msgid " Cloud Contorl"
-msgstr "云中心控制器"
+msgstr " 云核心控制器"
 
 #: clc/templates/clc/clctemplate.html:104
 msgid " Cloud Walrus"
-msgstr "云存储控制器"
+msgstr " 云存储控制器"
 
 #: clc/templates/clc/clctemplate.html:108
 msgid " Cloud Cluster"
-msgstr "云集群控制器"
+msgstr " 云集群控制器"
 
 #: clc/templates/clc/clctemplate.html:112
 msgid " Cloud Node"
-msgstr "云工作服务器"
+msgstr " 云工作服务器"
 
 #: clc/templates/clc/clctemplate.html:117
 msgid " Local Node"
-msgstr "本地工作服务器"
+msgstr " 本地工作服务器"
 
 #: clc/templates/clc/clctemplate.html:120
 msgid " Cloud terminal"
-msgstr "云终端"
+msgstr " 云终端"
 
 #: clc/templates/clc/clctemplate.html:127 clc/templates/clc/index.html:104
 msgid " Instance"
-msgstr "云端虚拟机"
+msgstr "虚拟服务器管理"
 
 #: clc/templates/clc/clctemplate.html:130 clc/templates/clc/index.html:107
 msgid " Virtual Servers"
