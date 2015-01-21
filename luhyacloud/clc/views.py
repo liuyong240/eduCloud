@@ -27,6 +27,246 @@ from django.utils.translation import ugettext as _
 
 logger = getclclogger()
 
+CC_DETAIL_TEMPLATE = \
+'<div class="col-lg-6">' + \
+    '<div class="list-group">' + \
+        '<h3>' + _("Service Data") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("Web Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.web}}</em></span>' + \
+            '<!--<button type="button" id="restart_http">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Daemon Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.daemon}}</em></span>' + \
+            '<!--<button type="button" id="restart_daemon">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("SSH Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.ssh}}</em></span>' + \
+            '<!--<button type="button" id="restart_ssh">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("RSYNC Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.rsync}}</em></span>' + \
+            '<!--<button type="button" id="restart_rsync">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("AMQP Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.amqp}}</em></span>' + \
+            '<!--<button type="button" id="restart_amqp">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Memcache Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.memcache}}</em></span>' + \
+            '<!--<button type="button" id="restart_memcache">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<h3>' + _("Hardware Parameters")+ '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("HostName") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.name}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Location") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.location}}</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("CPU Cores") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.cpus}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("CPU Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.cpu_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("Total Memory") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.mem}}G</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Memory Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.mem_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("Total Disk") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.disk}}G</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Disk Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.disk_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<button id="ccres_modify" type="button" class="btn btn-primary">' + _("Network Resource Configure") + '</button>' + \
+    '</div>' + \
+'</div>' + \
+'<div class="col-lg-6">' + \
+    '<div class="list-group">' + \
+        '<div style="display:none" id="ip0"> {{host_ips.ip0}}</div>' + \
+        '<div style="display:none" id="mac0">{{host_ips.mac0}}</div>' + \
+        '<h3>' + _("IP Addresses") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("External IP Address") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.eip}}</em></span>' + \
+            '<button type="button" id="exip_edit">_("Edit")</button>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 0") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip0}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 1") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip1}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 2") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip2}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 3") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip3}}</em></span>' + \
+        '</p>' + \
+        '<h3>' + _("MAC Addresses") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 0") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac0}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 1") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac1}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 2") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac2}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 3") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac3}}</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<button id="permission" type="button" class="btn btn-primary">' + _("Edit Permission") + '</button>' + \
+    '</div>' + \
+'</div>'
+
+VM_LIST_GROUP_ITEM = \
+        '<p class="list-group-item">' + \
+            '{{vminfo.insid}}' + \
+            '<span class="pull-right text-muted"><em>{{vminfo.state}}</em></span>' + \
+            '<p class="list-group-item">' + \
+            _("Guest OS") + '<span class="pull-right text-muted"><em>{{vminfo.guest_os}}</em></span>' + \
+            '</p>' + \
+            '<p class="list-group-item">' + \
+            _("Memroy")+ '<span class="pull-right text-muted"><em>{{vminfo.mem}}G</em></span>' + \
+            '</p>' + \
+            '<p class="list-group-item">' + \
+            _("VCPU") + '<span class="pull-right text-muted"><em>{{vminfo.vcpu}}</em></span>' + \
+            '</p>' + \
+        '</p>'
+
+
+NC_DETAIL_TEMPLATE = \
+'<div class="col-lg-6">' + \
+    '<div class="list-group">' + \
+        '<h3>' +_("Virtual Machine Data") + '</h3>' + \
+        '{{vminfos}}' + \
+        '<h3>' + _("Service Data") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("Daemon Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.daemon}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("SSH Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.ssh}}</em></span>' + \
+        '</p>' + \
+        '<h3>' +_("Hardware Parameters") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("HostName") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.name}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Location") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.location}}</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("CPU Cores") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.cpus}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("CPU Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.cpu_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("Total Memory") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.mem}}G</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Memory Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.mem_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("Total Disk") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.disk}}G</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Disk Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.disk_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<button id="permission" type="button" class="btn btn-primary">' + _("Edit Permission") + '</button>' + \
+    '</div>' + \
+'</div>' + \
+'<div class="col-lg-6">' + \
+    '<div class="list-group">' + \
+        '<div style="display:none" id="ip0"> {{host_ips.ip0}}</div>' + \
+        '<div style="display:none" id="mac0">{{host_ips.mac0}}</div>' + \
+        '<h3>' + _("IP Addresses") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("External IP Address") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.eip}}</em></span>' + \
+            '<button type="button" id="exip_edit">' + _("Edit") + '</button>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 0") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip0}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 1") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip1}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 2") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip2}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 3") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip3}}</em></span>' + \
+        '</p>' + \
+        '<h3>' + _("MAC Addresses") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 0") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac0}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 1") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac1}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 2") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac2}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 3") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac3}}</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+    '</div>' + \
+'</div>'
+
+
 ''' Example of nc status data in memcache
 {
     "net_data": {

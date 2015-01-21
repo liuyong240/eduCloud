@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-21 04:07+0000\n"
+"POT-Creation-Date: 2015-01-21 05:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,69 +17,225 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: clc/views.py:193 clc/views.py:250
+#: clc/views.py:33 clc/templates/clc/clc_mgr.html:83
+#: clc/templates/clc/walrus_mgr.html:34
+msgid "Service Data"
+msgstr "系统服务状态"
+
+#: clc/views.py:35 clc/templates/clc/clc_mgr.html:86
+#: clc/templates/clc/walrus_mgr.html:36
+msgid "Web Service"
+msgstr "WEB服务"
+
+#: clc/views.py:40 clc/views.py:175 clc/templates/clc/clc_mgr.html:91
+#: clc/templates/clc/walrus_mgr.html:41
+msgid "Daemon Service"
+msgstr "Daemon服务"
+
+#: clc/views.py:45 clc/views.py:180 clc/templates/clc/clc_mgr.html:96
+#: clc/templates/clc/walrus_mgr.html:46
+msgid "SSH Service"
+msgstr "SSH服务"
+
+#: clc/views.py:50 clc/templates/clc/walrus_mgr.html:51
+msgid "RSYNC Service"
+msgstr "RSYNC服务"
+
+#: clc/views.py:55 clc/templates/clc/clc_mgr.html:101
+msgid "AMQP Service"
+msgstr "AMQP服务"
+
+#: clc/views.py:60 clc/templates/clc/clc_mgr.html:106
+msgid "Memcache Service"
+msgstr "Memcache服务"
+
+#: clc/views.py:64 clc/templates/clc/clc_mgr.html:117
+#: clc/templates/clc/walrus_mgr.html:55
+msgid "Hardware Parameters"
+msgstr "硬件数据"
+
+#: clc/views.py:66 clc/views.py:186 clc/templates/clc/clc_mgr.html:119
+#: clc/templates/clc/walrus_mgr.html:57
+msgid "HostName"
+msgstr "主机名"
+
+#: clc/views.py:70 clc/views.py:190 clc/templates/clc/clc_mgr.html:123
+#: clc/templates/clc/walrus_mgr.html:61
+#: clc/templates/clc/jtable/servers_cc_table.html:85
+#: clc/templates/clc/jtable/servers_nc_table.html:85
+msgid "Location"
+msgstr "主机物理位置"
+
+#: clc/views.py:75 clc/views.py:195 clc/templates/clc/clc_mgr.html:128
+#: clc/templates/clc/walrus_mgr.html:66
+msgid "CPU Cores"
+msgstr "CPU核"
+
+#: clc/views.py:79 clc/views.py:199 clc/templates/clc/clc_mgr.html:132
+#: clc/templates/clc/walrus_mgr.html:70
+msgid "CPU Usage"
+msgstr "CPU占用率"
+
+#: clc/views.py:84 clc/views.py:204 clc/templates/clc/clc_mgr.html:137
+#: clc/templates/clc/walrus_mgr.html:75
+msgid "Total Memory"
+msgstr "物理内存"
+
+#: clc/views.py:88 clc/views.py:208 clc/templates/clc/clc_mgr.html:141
+#: clc/templates/clc/walrus_mgr.html:79
+msgid "Memory Usage"
+msgstr "内存使用率"
+
+#: clc/views.py:93 clc/views.py:213 clc/templates/clc/clc_mgr.html:146
+#: clc/templates/clc/walrus_mgr.html:84
+msgid "Total Disk"
+msgstr "物理硬盘"
+
+#: clc/views.py:97 clc/views.py:217 clc/templates/clc/clc_mgr.html:150
+#: clc/templates/clc/walrus_mgr.html:88
+msgid "Disk Usage"
+msgstr "硬盘使用率"
+
+#: clc/views.py:101
+msgid "Network Resource Configure"
+msgstr "配置集群网络参数"
+
+#: clc/views.py:102 clc/templates/clc/clc_mgr.html:193
+#: clc/templates/clc/images.html:12 clc/templates/clc/rvds.html:13
+#: clc/templates/clc/vss.html:13 clc/templates/clc/walrus_mgr.html:139
+msgid "Edit Permission"
+msgstr "权限修改"
+
+#: clc/views.py:109 clc/templates/clc/clc_mgr.html:153
+#: clc/templates/clc/walrus_mgr.html:99
+msgid "IP Addresses"
+msgstr "IP地址"
+
+#: clc/views.py:111 clc/views.py:230 clc/templates/clc/clc_mgr.html:155
+#: clc/templates/clc/walrus_mgr.html:101
+msgid "External IP Address"
+msgstr "外部IP地址"
+
+#: clc/views.py:116 clc/views.py:235 clc/templates/clc/clc_mgr.html:160
+#: clc/templates/clc/walrus_mgr.html:106
+msgid "IP Address 0"
+msgstr "IP地址0"
+
+#: clc/views.py:120 clc/views.py:239 clc/templates/clc/clc_mgr.html:164
+#: clc/templates/clc/walrus_mgr.html:110
+msgid "IP Address 1"
+msgstr "IP地址1"
+
+#: clc/views.py:124 clc/views.py:243 clc/templates/clc/clc_mgr.html:168
+#: clc/templates/clc/walrus_mgr.html:114
+msgid "IP Address 2"
+msgstr "IP地址2"
+
+#: clc/views.py:128 clc/views.py:247 clc/templates/clc/clc_mgr.html:172
+#: clc/templates/clc/walrus_mgr.html:118
+msgid "IP Address 3"
+msgstr "IP地址3"
+
+#: clc/views.py:131 clc/templates/clc/clc_mgr.html:175
+#: clc/templates/clc/walrus_mgr.html:121
+msgid "MAC Addresses"
+msgstr "MAC地址"
+
+#: clc/views.py:133 clc/views.py:252 clc/templates/clc/clc_mgr.html:177
+#: clc/templates/clc/walrus_mgr.html:123
+msgid "MAC Address 0"
+msgstr "MAC地址0"
+
+#: clc/views.py:137 clc/views.py:256 clc/templates/clc/clc_mgr.html:181
+#: clc/templates/clc/walrus_mgr.html:127
+msgid "MAC Address 1"
+msgstr "MAC地址1"
+
+#: clc/views.py:141 clc/views.py:260 clc/templates/clc/clc_mgr.html:185
+#: clc/templates/clc/walrus_mgr.html:131
+msgid "MAC Address 2"
+msgstr "MAC地址2"
+
+#: clc/views.py:145 clc/views.py:264 clc/templates/clc/clc_mgr.html:189
+#: clc/templates/clc/walrus_mgr.html:135
+msgid "MAC Address 3"
+msgstr "MAC地址3"
+
+#: clc/views.py:157
+msgid "Guest OS"
+msgstr ""
+
+#: clc/views.py:160
+msgid "Memroy"
+msgstr ""
+
+#: clc/views.py:163
+msgid "VCPU"
+msgstr ""
+
+#: clc/views.py:435 clc/views.py:492
 msgid "available nc resource is "
 msgstr "工作服务器可用的资源是 "
 
-#: clc/views.py:193 clc/views.py:250
+#: clc/views.py:435 clc/views.py:492
 msgid ", but required is "
 msgstr "，但是虚拟机要求的是 "
 
-#: clc/views.py:203
+#: clc/views.py:445
 msgid "Can't Find appropriate cluster machine and node machine ."
 msgstr "没有找到满足虚拟机运行资源要求的工作服务器。"
 
-#: clc/views.py:366
+#: clc/views.py:608
 msgid "duplicated user name: "
 msgstr "重复的用户名"
 
-#: clc/views.py:403
+#: clc/views.py:645
 msgid "duplicated user name."
 msgstr "重复的用户名"
 
-#: clc/views.py:495
+#: clc/views.py:737
 #, python-format
 msgid " user %s is activated now."
 msgstr " 用户 %s 已经激活了。"
 
-#: clc/views.py:515
+#: clc/views.py:757
 msgid "Password is not correct!"
 msgstr "密码不正确。"
 
-#: clc/views.py:528
+#: clc/views.py:770
 msgid "System Run-time Status Overview"
 msgstr "系统运行状态"
 
-#: clc/views.py:540
+#: clc/views.py:782
 msgid "Account Management"
 msgstr "用户账户管理"
 
-#: clc/views.py:552
+#: clc/views.py:794
 msgid "Images Management"
 msgstr "镜像文件管理"
 
-#: clc/views.py:611
+#: clc/views.py:853
 msgid "Cloud Control Management"
 msgstr "云控制器管理"
 
-#: clc/views.py:668
+#: clc/views.py:910
 msgid "Cloud Walrus Management"
 msgstr "云存储控制器管理"
 
-#: clc/views.py:683
+#: clc/views.py:925
 msgid "Cloud Cluster Management"
 msgstr "云集群控制器管理"
 
-#: clc/views.py:741
+#: clc/views.py:983
 msgid "Cloud Node Management"
 msgstr "云工作服务器管理"
 
-#: clc/views.py:773
+#: clc/views.py:1015
 msgid ""
 "<div class=\"col-lg-6\"><p>detail information is NOT available.</p></div>"
 msgstr "<div class=\"col-lg-6\"><p>无法获取详细信息。</p></div>"
 
-#: clc/views.py:791
+#: clc/views.py:1033
 msgid ""
 "\n"
 "                <p class=\"list-group-item\">\n"
@@ -93,72 +249,72 @@ msgstr ""
 "                </p>\n"
 "        "
 
-#: clc/views.py:838
+#: clc/views.py:1080
 msgid "Cloud Local Node Management"
 msgstr "云本地工作节点管理"
 
-#: clc/views.py:850
+#: clc/views.py:1092
 msgid "Cloud Terminal Management"
 msgstr "云终端管理"
 
-#: clc/views.py:862
+#: clc/views.py:1104
 msgid "Hosts Management"
 msgstr "主机管理"
 
-#: clc/views.py:874
+#: clc/views.py:1116
 msgid "System Settings Management"
 msgstr "系统参数设置"
 
-#: clc/views.py:886
+#: clc/views.py:1128
 msgid "Cloud Server Management"
 msgstr "云服务器管理"
 
-#: clc/views.py:899
+#: clc/views.py:1141
 msgid "Remote Cloud Desktop Management"
 msgstr "远程云桌面管理"
 
-#: clc/views.py:912
+#: clc/views.py:1154
 msgid "Local Cloud Desktop Management"
 msgstr "本地云桌面管理"
 
-#: clc/views.py:925
+#: clc/views.py:1167
 msgid "Tasks Management"
 msgstr "系统任务管理"
 
-#: clc/views.py:943
+#: clc/views.py:1185
 msgid "Administrator Tools"
 msgstr "管理员工具"
 
-#: clc/views.py:1163
+#: clc/views.py:1405
 msgid "Configure CC Network Resources"
 msgstr "设置集群网络参数"
 
-#: clc/views.py:1416
+#: clc/views.py:1658
 msgid "Need more rdp port resources!."
 msgstr "需要更多的RDP端口资源"
 
-#: clc/views.py:1435
+#: clc/views.py:1677
 msgid "Need more ether resources."
 msgstr "需要更多的IP/MAC资源"
 
-#: clc/views.py:1479
+#: clc/views.py:1721
 msgid "Need more Proxy Web IP resources for Cluster."
 msgstr "需要更多的WEB代理IP资源"
 
-#: clc/views.py:1534 clc/views.py:1556 clc/views.py:1582 clc/views.py:1605
-#: clc/views.py:1934 clc/views.py:1956 clc/templates/clc/error.html:34
+#: clc/views.py:1776 clc/views.py:1798 clc/views.py:1824 clc/views.py:1847
+#: clc/views.py:2176 clc/views.py:2198 clc/templates/clc/error.html:34
 msgid "Error Report"
 msgstr "错误报告"
 
-#: clc/views.py:3822
+#: clc/views.py:4064
 msgid "Image "
 msgstr "镜像文件"
 
-#: clc/views.py:4048
+#: clc/views.py:4290
 msgid "Server "
 msgstr "物理服务器"
 
-#: clc/views.py:4093
+#: clc/views.py:4335
 msgid "VM "
 msgstr "虚拟机"
 
@@ -251,121 +407,9 @@ msgstr "运行的云桌面应用"
 msgid "Running Local Virtual Desktops"
 msgstr "运行的本地云桌面应用"
 
-#: clc/templates/clc/clc_mgr.html:83 clc/templates/clc/walrus_mgr.html:34
-msgid "Service Data"
-msgstr "系统服务状态"
-
-#: clc/templates/clc/clc_mgr.html:86 clc/templates/clc/walrus_mgr.html:36
-msgid "Web Service"
-msgstr "WEB服务"
-
-#: clc/templates/clc/clc_mgr.html:91 clc/templates/clc/walrus_mgr.html:41
-msgid "Daemon Service"
-msgstr "Daemon服务"
-
-#: clc/templates/clc/clc_mgr.html:96 clc/templates/clc/walrus_mgr.html:46
-msgid "SSH Service"
-msgstr "SSH服务"
-
-#: clc/templates/clc/clc_mgr.html:101
-msgid "AMQP Service"
-msgstr "AMQP服务"
-
-#: clc/templates/clc/clc_mgr.html:106
-msgid "Memcache Service"
-msgstr "Memcache服务"
-
-#: clc/templates/clc/clc_mgr.html:117 clc/templates/clc/walrus_mgr.html:55
-msgid "Hardware Parameters"
-msgstr "硬件数据"
-
-#: clc/templates/clc/clc_mgr.html:119 clc/templates/clc/walrus_mgr.html:57
-msgid "HostName"
-msgstr "主机名"
-
-#: clc/templates/clc/clc_mgr.html:123 clc/templates/clc/walrus_mgr.html:61
-#: clc/templates/clc/jtable/servers_cc_table.html:85
-#: clc/templates/clc/jtable/servers_nc_table.html:85
-msgid "Location"
-msgstr "主机物理位置"
-
-#: clc/templates/clc/clc_mgr.html:128 clc/templates/clc/walrus_mgr.html:66
-msgid "CPU Cores"
-msgstr "CPU核"
-
-#: clc/templates/clc/clc_mgr.html:132 clc/templates/clc/walrus_mgr.html:70
-msgid "CPU Usage"
-msgstr "CPU占用率"
-
-#: clc/templates/clc/clc_mgr.html:137 clc/templates/clc/walrus_mgr.html:75
-msgid "Total Memory"
-msgstr "物理内存"
-
-#: clc/templates/clc/clc_mgr.html:141 clc/templates/clc/walrus_mgr.html:79
-msgid "Memory Usage"
-msgstr "内存使用率"
-
-#: clc/templates/clc/clc_mgr.html:146 clc/templates/clc/walrus_mgr.html:84
-msgid "Total Disk"
-msgstr "物理硬盘"
-
-#: clc/templates/clc/clc_mgr.html:150 clc/templates/clc/walrus_mgr.html:88
-msgid "Disk Usage"
-msgstr "硬盘使用率"
-
-#: clc/templates/clc/clc_mgr.html:153 clc/templates/clc/walrus_mgr.html:99
-msgid "IP Addresses"
-msgstr "IP地址"
-
-#: clc/templates/clc/clc_mgr.html:155 clc/templates/clc/walrus_mgr.html:101
-msgid "External IP Address"
-msgstr "外部IP地址"
-
 #: clc/templates/clc/clc_mgr.html:157 clc/templates/clc/walrus_mgr.html:103
 msgid "Edit"
 msgstr "编辑"
-
-#: clc/templates/clc/clc_mgr.html:160 clc/templates/clc/walrus_mgr.html:106
-msgid "IP Address 0"
-msgstr "IP地址0"
-
-#: clc/templates/clc/clc_mgr.html:164 clc/templates/clc/walrus_mgr.html:110
-msgid "IP Address 1"
-msgstr "IP地址1"
-
-#: clc/templates/clc/clc_mgr.html:168 clc/templates/clc/walrus_mgr.html:114
-msgid "IP Address 2"
-msgstr "IP地址2"
-
-#: clc/templates/clc/clc_mgr.html:172 clc/templates/clc/walrus_mgr.html:118
-msgid "IP Address 3"
-msgstr "IP地址3"
-
-#: clc/templates/clc/clc_mgr.html:175 clc/templates/clc/walrus_mgr.html:121
-msgid "MAC Addresses"
-msgstr "MAC地址"
-
-#: clc/templates/clc/clc_mgr.html:177 clc/templates/clc/walrus_mgr.html:123
-msgid "MAC Address 0"
-msgstr "MAC地址0"
-
-#: clc/templates/clc/clc_mgr.html:181 clc/templates/clc/walrus_mgr.html:127
-msgid "MAC Address 1"
-msgstr "MAC地址1"
-
-#: clc/templates/clc/clc_mgr.html:185 clc/templates/clc/walrus_mgr.html:131
-msgid "MAC Address 2"
-msgstr "MAC地址2"
-
-#: clc/templates/clc/clc_mgr.html:189 clc/templates/clc/walrus_mgr.html:135
-msgid "MAC Address 3"
-msgstr "MAC地址3"
-
-#: clc/templates/clc/clc_mgr.html:193 clc/templates/clc/images.html:12
-#: clc/templates/clc/rvds.html:13 clc/templates/clc/vss.html:13
-#: clc/templates/clc/walrus_mgr.html:139
-msgid "Edit Permission"
-msgstr "权限修改"
 
 #: clc/templates/clc/clctemplate.html:15 clc/templates/clc/clctemplate.html:53
 #: clc/templates/clc/index.html:15 clc/templates/clc/index.html.py:53
@@ -566,7 +610,7 @@ msgstr "查看"
 
 #: clc/templates/clc/tools.html:329
 msgid "Upload Raw Images"
-msgstr "上传原始镜像文件"
+msgstr "上传镜像文件"
 
 #: clc/templates/clc/tools.html:335 clc/templates/clc/tools.html.py:370
 msgid "Step 1: create and select directory"
@@ -600,10 +644,6 @@ msgstr "云平台上的软件安装包目录"
 #: clc/templates/clc/tools.html:389
 msgid "Step 2: select files to upload"
 msgstr "步骤2：选择文件上传"
-
-#: clc/templates/clc/walrus_mgr.html:51
-msgid "RSYNC Service"
-msgstr "RSYNC服务"
 
 #: clc/templates/clc/form/adm_add_new_account.html:20
 #: clc/templates/clc/form/request_new_account.html:17
