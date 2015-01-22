@@ -254,7 +254,7 @@ class prepareImageTaskThread(threading.Thread):
                 retvalue = "FAILURE"
                 payload['failed'] = 1
                 payload['state']  = 'init'
-                payload['errormsg'] = _('Failed in Cloning file.')
+                payload['errormsg'] = 'Failed in Cloning file."
                 self.forwardTaskStatus2CC(json.dumps(payload))
 
         return retvalue
@@ -377,7 +377,7 @@ class SubmitImageTaskThread(threading.Thread):
         }
 
         retvalue = "OK"
-        prompt = _('Uploading file from NC to CC ... ...')
+        prompt = 'Uploading file from NC to CC ... ...'
 
         if amIcc() and self.srcimgid == self.dstimgid:
             logger.error(' ----- I am CC and it is modify op, no need to upload any more . ')
