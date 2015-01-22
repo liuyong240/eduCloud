@@ -109,7 +109,7 @@ class prepareImageTaskThread(threading.Thread):
         self.nc_dbsize          = getLocalDatabaseInfo(self.srcimgid, self.insid)
 
         if paras == 'luhya':
-            prompt      = 'Downloading image file from CC to NC ... ...'
+            prompt      = _('Downloading image file from CC to NC ... ...')
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/images/"
 
@@ -125,7 +125,7 @@ class prepareImageTaskThread(threading.Thread):
                 payload['prompt'] = prompt
 
         if paras == 'db':
-            prompt      = 'Downloading database file from CC to NC ... ...'
+            prompt      = _('Downloading database file from CC to NC ... ...')
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/space/database/images/"
             if self.cc_img_info['data']['dbsize'] == self.nc_dbsize and \
@@ -176,7 +176,7 @@ class prepareImageTaskThread(threading.Thread):
                 'state'     : "cloning",
                 'progress'  : 0,
                 'tid'       : self.tid,
-                'prompt'    : 'Cloning the file ... ...',
+                'prompt'    : _('Cloning the file ... ...'),
                 'errormsg'  : "",
                 'failed'    : 0,
                 'done'      : 0,
@@ -250,7 +250,7 @@ class prepareImageTaskThread(threading.Thread):
                 retvalue = "FAILURE"
                 payload['failed'] = 1
                 payload['state']  = 'init'
-                payload['errormsg'] = 'Failed in Cloning file.'
+                payload['errormsg'] = _('Failed in Cloning file.')
                 self.forwardTaskStatus2CC(json.dumps(payload))
 
         return retvalue
@@ -372,7 +372,7 @@ class SubmitImageTaskThread(threading.Thread):
         }
 
         retvalue = "OK"
-        prompt = 'Uploading file from NC to CC ... ...'
+        prompt = _('Uploading file from NC to CC ... ...')
 
         if amIcc() and self.srcimgid == self.dstimgid:
             logger.error(' ----- I am CC and it is modify op, no need to upload any more . ')
@@ -385,12 +385,12 @@ class SubmitImageTaskThread(threading.Thread):
         paras = data['rsync']
 
         if paras == 'luhya':
-            prompt      = 'Uploading image file from NC to CC ... ...'
+            prompt      = _('Uploading image file from NC to CC ... ...')
             source      = self.root_dir + self.dstimgid
             destination = "rsync://%s/%s/" % (self.ccip, data['rsync'])
             payload['prompt'] = prompt
         if paras == 'db':
-            prompt      = 'Uploading database file from NC to CC ... ...'
+            prompt      = _('Uploading database file from NC to CC ... ...')
             payload['prompt'] = prompt
             payload['progress'] = 0
             payload['done']   = 1

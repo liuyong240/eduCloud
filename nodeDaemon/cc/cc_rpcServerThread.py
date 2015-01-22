@@ -5,6 +5,7 @@ from luhyaapi.hostTools import *
 from luhyaapi.rsyncWrapper import *
 from luhyaapi.rabbitmqWrapper import *
 
+
 import time, pika, json, os
 
 logger = getccdaemonlogger()
@@ -56,13 +57,13 @@ class cc_rpcServerThread(run4everThread):
         try:
             logger.error("--- --- --- cc_rpc_handle_imageprepare")
 
-            prompt = 'Downloading file from Walrus to CC ... ...'
+            prompt = _('Downloading file from Walrus to CC ... ...')
             if paras == 'luhya':
-                prompt = 'Downloading image file from Walrus to CC ... ...'
+                prompt = _('Downloading image file from Walrus to CC ... ...')
                 source      = "rsync://%s/%s/%s" % (self.serverIP, 'luhya', tid.split(':')[0])
                 destination = "/storage/images/"
             if paras == 'db':
-                prompt = 'Downloading database file from Walrus to CC ... ...'
+                prompt = _('Downloading database file from Walrus to CC ... ...')
                 insid = tid.split(':')[2]
                 if insid.find('TMP') == 0:
                     source      = "rsync://%s/%s/%s" % (self.serverIP, 'db', tid.split(':')[0])
@@ -116,7 +117,7 @@ class cc_rpcServerThread(run4everThread):
             'done'      : 0,
         }
 
-        prompt = 'Uploading file from CC to Walrus ... ...'
+        prompt = _('Uploading file from CC to Walrus ... ...')
 
         if amIclc():
             payload['prompt']   = prompt
@@ -137,11 +138,11 @@ class cc_rpcServerThread(run4everThread):
             dstid = tid.split(':')[1]
 
             if paras == 'luhya':
-                prompt      = 'Uploading image file from CC to Walrus ... ...'
+                prompt      = _('Uploading image file from CC to Walrus ... ...')
                 source      = "/storage/images/%s" % tid.split(':')[1]
                 destination = "rsync://%s/%s/" % (self.serverIP, 'luhya')
             if paras == 'db':
-                prompt      = 'Uploading database file from CC to Walrus ... ...'
+                prompt      = _('Uploading database file from CC to Walrus ... ...')
                 destination = "rsync://%s/%s/" % (self.serverIP, 'db')
                 if insid.find('TMP') == 0:
                     source      = '/storage/space/database/images/%s' %  dstid

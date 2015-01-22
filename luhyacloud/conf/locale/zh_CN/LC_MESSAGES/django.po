@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-21 05:36+0000\n"
+"POT-Creation-Date: 2015-01-21 09:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: clc/views.py:33 clc/templates/clc/clc_mgr.html:83
+#: clc/views.py:33 clc/views.py:173 clc/templates/clc/clc_mgr.html:83
 #: clc/templates/clc/walrus_mgr.html:34
 msgid "Service Data"
 msgstr "系统服务状态"
@@ -32,7 +32,7 @@ msgstr "WEB服务"
 msgid "Daemon Service"
 msgstr "Daemon服务"
 
-#: clc/views.py:45 clc/views.py:180 clc/templates/clc/clc_mgr.html:96
+#: clc/views.py:45 clc/views.py:179 clc/templates/clc/clc_mgr.html:96
 #: clc/templates/clc/walrus_mgr.html:46
 msgid "SSH Service"
 msgstr "SSH服务"
@@ -49,49 +49,49 @@ msgstr "AMQP服务"
 msgid "Memcache Service"
 msgstr "Memcache服务"
 
-#: clc/views.py:64 clc/templates/clc/clc_mgr.html:117
+#: clc/views.py:64 clc/views.py:182 clc/templates/clc/clc_mgr.html:117
 #: clc/templates/clc/walrus_mgr.html:55
 msgid "Hardware Parameters"
 msgstr "硬件数据"
 
-#: clc/views.py:66 clc/views.py:186 clc/templates/clc/clc_mgr.html:119
+#: clc/views.py:66 clc/views.py:184 clc/templates/clc/clc_mgr.html:119
 #: clc/templates/clc/walrus_mgr.html:57
 msgid "HostName"
 msgstr "主机名"
 
-#: clc/views.py:70 clc/views.py:190 clc/templates/clc/clc_mgr.html:123
+#: clc/views.py:70 clc/views.py:188 clc/templates/clc/clc_mgr.html:123
 #: clc/templates/clc/walrus_mgr.html:61
 #: clc/templates/clc/jtable/servers_cc_table.html:85
 #: clc/templates/clc/jtable/servers_nc_table.html:85
 msgid "Location"
 msgstr "主机物理位置"
 
-#: clc/views.py:75 clc/views.py:195 clc/templates/clc/clc_mgr.html:128
+#: clc/views.py:75 clc/views.py:193 clc/templates/clc/clc_mgr.html:128
 #: clc/templates/clc/walrus_mgr.html:66
 msgid "CPU Cores"
 msgstr "CPU核"
 
-#: clc/views.py:79 clc/views.py:199 clc/templates/clc/clc_mgr.html:132
+#: clc/views.py:79 clc/views.py:197 clc/templates/clc/clc_mgr.html:132
 #: clc/templates/clc/walrus_mgr.html:70
 msgid "CPU Usage"
 msgstr "CPU占用率"
 
-#: clc/views.py:84 clc/views.py:204 clc/templates/clc/clc_mgr.html:137
+#: clc/views.py:84 clc/views.py:202 clc/templates/clc/clc_mgr.html:137
 #: clc/templates/clc/walrus_mgr.html:75
 msgid "Total Memory"
 msgstr "物理内存"
 
-#: clc/views.py:88 clc/views.py:208 clc/templates/clc/clc_mgr.html:141
+#: clc/views.py:88 clc/views.py:206 clc/templates/clc/clc_mgr.html:141
 #: clc/templates/clc/walrus_mgr.html:79
 msgid "Memory Usage"
 msgstr "内存使用率"
 
-#: clc/views.py:93 clc/views.py:213 clc/templates/clc/clc_mgr.html:146
+#: clc/views.py:93 clc/views.py:211 clc/templates/clc/clc_mgr.html:146
 #: clc/templates/clc/walrus_mgr.html:84
 msgid "Total Disk"
 msgstr "物理硬盘"
 
-#: clc/views.py:97 clc/views.py:217 clc/templates/clc/clc_mgr.html:150
+#: clc/views.py:97 clc/views.py:215 clc/templates/clc/clc_mgr.html:150
 #: clc/templates/clc/walrus_mgr.html:88
 msgid "Disk Usage"
 msgstr "硬盘使用率"
@@ -100,66 +100,66 @@ msgstr "硬盘使用率"
 msgid "Network Resource Configure"
 msgstr "配置集群网络参数"
 
-#: clc/views.py:102 clc/templates/clc/clc_mgr.html:193
-#: clc/templates/clc/images.html:12 clc/templates/clc/rvds.html:13
-#: clc/templates/clc/vss.html:13 clc/templates/clc/walrus_mgr.html:139
-msgid "Edit Permission"
-msgstr "权限修改"
-
-#: clc/views.py:109 clc/templates/clc/clc_mgr.html:153
+#: clc/views.py:108 clc/views.py:226 clc/templates/clc/clc_mgr.html:153
 #: clc/templates/clc/walrus_mgr.html:99
 msgid "IP Addresses"
 msgstr "IP地址"
 
-#: clc/views.py:111 clc/views.py:230 clc/templates/clc/clc_mgr.html:155
+#: clc/views.py:110 clc/views.py:228 clc/templates/clc/clc_mgr.html:155
 #: clc/templates/clc/walrus_mgr.html:101
 msgid "External IP Address"
 msgstr "外部IP地址"
 
-#: clc/views.py:116 clc/views.py:235 clc/templates/clc/clc_mgr.html:160
+#: clc/views.py:115 clc/views.py:233 clc/templates/clc/clc_mgr.html:160
 #: clc/templates/clc/walrus_mgr.html:106
 msgid "IP Address 0"
 msgstr "IP地址0"
 
-#: clc/views.py:120 clc/views.py:239 clc/templates/clc/clc_mgr.html:164
+#: clc/views.py:119 clc/views.py:237 clc/templates/clc/clc_mgr.html:164
 #: clc/templates/clc/walrus_mgr.html:110
 msgid "IP Address 1"
 msgstr "IP地址1"
 
-#: clc/views.py:124 clc/views.py:243 clc/templates/clc/clc_mgr.html:168
+#: clc/views.py:123 clc/views.py:241 clc/templates/clc/clc_mgr.html:168
 #: clc/templates/clc/walrus_mgr.html:114
 msgid "IP Address 2"
 msgstr "IP地址2"
 
-#: clc/views.py:128 clc/views.py:247 clc/templates/clc/clc_mgr.html:172
+#: clc/views.py:127 clc/views.py:245 clc/templates/clc/clc_mgr.html:172
 #: clc/templates/clc/walrus_mgr.html:118
 msgid "IP Address 3"
 msgstr "IP地址3"
 
-#: clc/views.py:131 clc/templates/clc/clc_mgr.html:175
+#: clc/views.py:130 clc/views.py:248 clc/templates/clc/clc_mgr.html:175
 #: clc/templates/clc/walrus_mgr.html:121
 msgid "MAC Addresses"
 msgstr "MAC地址"
 
-#: clc/views.py:133 clc/views.py:252 clc/templates/clc/clc_mgr.html:177
+#: clc/views.py:132 clc/views.py:250 clc/templates/clc/clc_mgr.html:177
 #: clc/templates/clc/walrus_mgr.html:123
 msgid "MAC Address 0"
 msgstr "MAC地址0"
 
-#: clc/views.py:137 clc/views.py:256 clc/templates/clc/clc_mgr.html:181
+#: clc/views.py:136 clc/views.py:254 clc/templates/clc/clc_mgr.html:181
 #: clc/templates/clc/walrus_mgr.html:127
 msgid "MAC Address 1"
 msgstr "MAC地址1"
 
-#: clc/views.py:141 clc/views.py:260 clc/templates/clc/clc_mgr.html:185
+#: clc/views.py:140 clc/views.py:258 clc/templates/clc/clc_mgr.html:185
 #: clc/templates/clc/walrus_mgr.html:131
 msgid "MAC Address 2"
 msgstr "MAC地址2"
 
-#: clc/views.py:145 clc/views.py:264 clc/templates/clc/clc_mgr.html:189
+#: clc/views.py:144 clc/views.py:262 clc/templates/clc/clc_mgr.html:189
 #: clc/templates/clc/walrus_mgr.html:135
 msgid "MAC Address 3"
 msgstr "MAC地址3"
+
+#: clc/views.py:148 clc/views.py:219 clc/templates/clc/clc_mgr.html:193
+#: clc/templates/clc/images.html:12 clc/templates/clc/rvds.html:13
+#: clc/templates/clc/vss.html:13 clc/templates/clc/walrus_mgr.html:139
+msgid "Edit Permission"
+msgstr "权限修改"
 
 #: clc/views.py:157
 msgid "Guest OS"
@@ -173,69 +173,78 @@ msgstr ""
 msgid "VCPU"
 msgstr ""
 
-#: clc/views.py:435 clc/views.py:492
+#: clc/views.py:171
+msgid "Virtual Machine Data"
+msgstr ""
+
+#: clc/views.py:230 clc/templates/clc/clc_mgr.html:157
+#: clc/templates/clc/walrus_mgr.html:103
+msgid "Edit"
+msgstr "编辑"
+
+#: clc/views.py:433 clc/views.py:490
 msgid "available nc resource is "
 msgstr "工作服务器可用的资源是 "
 
-#: clc/views.py:435 clc/views.py:492
+#: clc/views.py:433 clc/views.py:490
 msgid ", but required is "
 msgstr "，但是虚拟机要求的是 "
 
-#: clc/views.py:445
+#: clc/views.py:443
 msgid "Can't Find appropriate cluster machine and node machine ."
 msgstr "没有找到满足虚拟机运行资源要求的工作服务器。"
 
-#: clc/views.py:608
+#: clc/views.py:606
 msgid "duplicated user name: "
 msgstr "重复的用户名"
 
-#: clc/views.py:645
+#: clc/views.py:643
 msgid "duplicated user name."
 msgstr "重复的用户名"
 
-#: clc/views.py:737
+#: clc/views.py:735
 #, python-format
 msgid " user %s is activated now."
 msgstr " 用户 %s 已经激活了。"
 
-#: clc/views.py:757
+#: clc/views.py:755
 msgid "Password is not correct!"
 msgstr "密码不正确。"
 
-#: clc/views.py:770
+#: clc/views.py:768
 msgid "System Run-time Status Overview"
 msgstr "系统运行状态"
 
-#: clc/views.py:782
+#: clc/views.py:780
 msgid "Account Management"
 msgstr "用户账户管理"
 
-#: clc/views.py:794
+#: clc/views.py:792
 msgid "Images Management"
 msgstr "镜像文件管理"
 
-#: clc/views.py:853
+#: clc/views.py:851
 msgid "Cloud Control Management"
 msgstr "云控制器管理"
 
-#: clc/views.py:910
+#: clc/views.py:908
 msgid "Cloud Walrus Management"
 msgstr "云存储控制器管理"
 
-#: clc/views.py:925
+#: clc/views.py:923
 msgid "Cloud Cluster Management"
 msgstr "云集群控制器管理"
 
-#: clc/views.py:983
+#: clc/views.py:981
 msgid "Cloud Node Management"
 msgstr "云工作服务器管理"
 
-#: clc/views.py:1015
+#: clc/views.py:1013
 msgid ""
 "<div class=\"col-lg-6\"><p>detail information is NOT available.</p></div>"
 msgstr "<div class=\"col-lg-6\"><p>无法获取详细信息。</p></div>"
 
-#: clc/views.py:1033
+#: clc/views.py:1031
 msgid ""
 "\n"
 "                <p class=\"list-group-item\">\n"
@@ -249,72 +258,72 @@ msgstr ""
 "                </p>\n"
 "        "
 
-#: clc/views.py:1080
+#: clc/views.py:1078
 msgid "Cloud Local Node Management"
 msgstr "云本地工作节点管理"
 
-#: clc/views.py:1092
+#: clc/views.py:1090
 msgid "Cloud Terminal Management"
 msgstr "云终端管理"
 
-#: clc/views.py:1104
+#: clc/views.py:1102
 msgid "Hosts Management"
 msgstr "主机管理"
 
-#: clc/views.py:1116
+#: clc/views.py:1114
 msgid "System Settings Management"
 msgstr "系统参数设置"
 
-#: clc/views.py:1128
+#: clc/views.py:1126
 msgid "Cloud Server Management"
 msgstr "云服务器管理"
 
-#: clc/views.py:1141
+#: clc/views.py:1139
 msgid "Remote Cloud Desktop Management"
 msgstr "远程云桌面管理"
 
-#: clc/views.py:1154
+#: clc/views.py:1152
 msgid "Local Cloud Desktop Management"
 msgstr "本地云桌面管理"
 
-#: clc/views.py:1167
+#: clc/views.py:1165
 msgid "Tasks Management"
 msgstr "系统任务管理"
 
-#: clc/views.py:1185
+#: clc/views.py:1183
 msgid "Administrator Tools"
 msgstr "管理员工具"
 
-#: clc/views.py:1405
+#: clc/views.py:1403
 msgid "Configure CC Network Resources"
 msgstr "设置集群网络参数"
 
-#: clc/views.py:1658
+#: clc/views.py:1656
 msgid "Need more rdp port resources!."
 msgstr "需要更多的RDP端口资源"
 
-#: clc/views.py:1677
+#: clc/views.py:1675
 msgid "Need more ether resources."
 msgstr "需要更多的IP/MAC资源"
 
-#: clc/views.py:1721
+#: clc/views.py:1719
 msgid "Need more Proxy Web IP resources for Cluster."
 msgstr "需要更多的WEB代理IP资源"
 
-#: clc/views.py:1776 clc/views.py:1798 clc/views.py:1824 clc/views.py:1847
-#: clc/views.py:2176 clc/views.py:2198 clc/templates/clc/error.html:34
+#: clc/views.py:1774 clc/views.py:1796 clc/views.py:1822 clc/views.py:1845
+#: clc/views.py:2174 clc/views.py:2196 clc/templates/clc/error.html:34
 msgid "Error Report"
 msgstr "错误报告"
 
-#: clc/views.py:4064
+#: clc/views.py:4062
 msgid "Image "
 msgstr "镜像文件"
 
-#: clc/views.py:4290
+#: clc/views.py:4288
 msgid "Server "
 msgstr "物理服务器"
 
-#: clc/views.py:4335
+#: clc/views.py:4333
 msgid "VM "
 msgstr "虚拟机"
 
@@ -406,10 +415,6 @@ msgstr "运行的云桌面应用"
 #: clc/templates/clc/clc_mgr.html:78
 msgid "Running Local Virtual Desktops"
 msgstr "运行的本地云桌面应用"
-
-#: clc/templates/clc/clc_mgr.html:157 clc/templates/clc/walrus_mgr.html:103
-msgid "Edit"
-msgstr "编辑"
 
 #: clc/templates/clc/clctemplate.html:15 clc/templates/clc/clctemplate.html:53
 #: clc/templates/clc/index.html:15 clc/templates/clc/index.html.py:53
@@ -608,40 +613,40 @@ msgstr "删除"
 msgid "View"
 msgstr "查看"
 
-#: clc/templates/clc/tools.html:329
+#: clc/templates/clc/tools.html:331
 msgid "Upload Raw Images"
 msgstr "上传镜像文件"
 
-#: clc/templates/clc/tools.html:335 clc/templates/clc/tools.html.py:370
+#: clc/templates/clc/tools.html:337 clc/templates/clc/tools.html.py:372
 msgid "Step 1: create and select directory"
 msgstr "步骤1：创建并选择目录"
 
-#: clc/templates/clc/tools.html:338
+#: clc/templates/clc/tools.html:340
 msgid "Image Directory in Server"
 msgstr "云平台上的镜像文件目录"
 
-#: clc/templates/clc/tools.html:341 clc/templates/clc/tools.html.py:376
+#: clc/templates/clc/tools.html:343 clc/templates/clc/tools.html.py:378
 #: templates/admin/index.html:33
 msgid "Add"
 msgstr "添加"
 
-#: clc/templates/clc/tools.html:354
+#: clc/templates/clc/tools.html:356
 msgid "Step 2: Select image file to upload"
 msgstr "步骤2：选择镜像文件上传"
 
-#: clc/templates/clc/tools.html:355 clc/templates/clc/tools.html.py:390
+#: clc/templates/clc/tools.html:357 clc/templates/clc/tools.html.py:392
 msgid "Your browser doesn't support HTML5."
 msgstr "你得浏览器不支持HTML5."
 
-#: clc/templates/clc/tools.html:364
+#: clc/templates/clc/tools.html:366
 msgid "Upload Software"
 msgstr "上传软件安装包"
 
-#: clc/templates/clc/tools.html:373
+#: clc/templates/clc/tools.html:375
 msgid "Software Directory in Server"
 msgstr "云平台上的软件安装包目录"
 
-#: clc/templates/clc/tools.html:389
+#: clc/templates/clc/tools.html:391
 msgid "Step 2: select files to upload"
 msgstr "步骤2：选择文件上传"
 
@@ -911,6 +916,13 @@ msgstr "新的外部IP地址已经更新成功。"
 msgid "Update External IP Failed, try again."
 msgstr "更新外部IP地址失败，请重试。"
 
+#: clc/templates/clc/form/permission_edit.html:57
+#: clc/templates/clc/form/permission_edit.html:128
+#: clc/templates/clc/form/server_permission_edit.html:130
+#: clc/templates/clc/form/vm_permission_edit.html:128
+msgid "Allocated Role:"
+msgstr "角色分配"
+
 #: clc/templates/clc/form/permission_edit.html:66
 #: clc/templates/clc/form/permission_edit.html:141
 msgid "Access Contorl:"
@@ -957,12 +969,6 @@ msgstr "运行"
 #: clc/templates/clc/form/vm_permission_edit.html:114
 msgid "Permission Configuration"
 msgstr "权限配置"
-
-#: clc/templates/clc/form/permission_edit.html:128
-#: clc/templates/clc/form/server_permission_edit.html:130
-#: clc/templates/clc/form/vm_permission_edit.html:128
-msgid "Allocated Role:"
-msgstr "角色分配"
 
 #: clc/templates/clc/form/permission_edit.html:182
 #: clc/templates/clc/form/server_permission_edit.html:184

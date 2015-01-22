@@ -54,7 +54,7 @@
         next = $('#next').text();
         el = '<div class="well well-sm">\
                   <div class="form-group"> \
-                        <label>Allocated Role: </label> \
+                        <label>{% trans "Allocated Role:" %} </label> \
                         <select id="perm' + next + '" class="form-control-inline"> \
                             <option value=""></option> \
                             {% for role in roles %} \
