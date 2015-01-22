@@ -254,7 +254,7 @@ class prepareImageTaskThread(threading.Thread):
                 retvalue = "FAILURE"
                 payload['failed'] = 1
                 payload['state']  = 'init'
-                payload['errormsg'] = 'Failed in Cloning file."
+                payload['errormsg'] = 'Failed in Cloning file.'
                 self.forwardTaskStatus2CC(json.dumps(payload))
 
         return retvalue

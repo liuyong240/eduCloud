@@ -1389,7 +1389,7 @@ msgstr "抱歉，镜像文件运行失败，请重试。"
 
 #: clc/templates/clc/wizard/image_create_wizard.html:334
 msgid "Submit Image Succeed. please click 'Next' button and finish it."
-msgstr "镜像文件体积成功，请点击‘下一步’"
+msgstr "镜像文件提交成功，请点击‘下一步’"
 
 #: clc/templates/clc/wizard/image_create_wizard.html:442
 msgid "Prepare Image."
