@@ -19,7 +19,8 @@
     {
       document.getElementById("Information").innerHTML = "Loading Flash...";
       
-      RDPWebClient.embedSWF ("RDPClientUI.swf", FlashId);
+      RDPWebClient.embedSWF ("/static/clc/vrde/RDPClientUI.swf", FlashId);
+      setTimeout(Connect, 2000);
     }
     
     var fFlashLoaded = false;
@@ -113,6 +114,11 @@
             flash.setProperty("displayWidth", "1280");
             flash.setProperty("displayHeight", "1024");
         }
+        else if (document.InputForm.desktopSize.value == "1600")
+        {
+            flash.setProperty("displayWidth", "1600");
+            flash.setProperty("displayHeight", "1200");
+        }
       
         flash.setProperty("keyboardLayout", document.InputForm.keyboardLayout.value);
 
@@ -183,7 +189,7 @@
   
   <form name="InputForm" onsubmit="return Connect()">
     <p>
-    Computer: <input type=text size=20 name=serverAddress value="">
+    Computer: <input type=text size=20 name=serverAddress value="10.0.0.23:3389">
     User name: <input type=text size=20 name=logonUsername value="">
     Password: <input type=password size=20 name=logonPassword value="">
     </p>
@@ -191,7 +197,8 @@
     Desktop size: <select name=desktopSize>
       <option value="800">800x600</option>
       <option value="1024">1024x768</option>
-      <option value="1280">1280x1024</option>
+      <option value="1280" >1280x1024</option>
+      <option value="1280" selected>1600x1200</option>
     </select>
     Keyboard layout: <select name=keyboardLayout>
       <option value="en">EN</option>

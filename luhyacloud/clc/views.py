@@ -109,7 +109,7 @@ CC_DETAIL_TEMPLATE = \
         '<p class="list-group-item">' + \
             _("External IP Address") + \
             '<span class="pull-right text-muted"><em>{{host_ips.eip}}</em></span>' + \
-            '<button type="button" id="exip_edit">_("Edit")</button>' + \
+            '<button type="button" id="exip_edit">' + _("Edit") + '</button>' + \
         '</p>' + \
         '<p class="list-group-item">' + \
             _("IP Address 0") + \
