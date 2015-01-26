@@ -81,7 +81,10 @@ urlpatterns = patterns('',
     url(r'^image/editvm/(?P<imgid>\w+)/(?P<insid>\w+)$',                                                        views.image_edit_vm,                             name='image_edit_vm'),
 
     url(r'^image/permission/edit/(?P<srcid>\w+)$',      views.image_permission_edit,                name='image_permission_edit'),
+
     url(r'^vm/run/(?P<insid>\w+)$',      views.vm_run,                name='vm_run'),
+    url(r'^vm/display/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.vm_display,                name='vm_display'),
+
 
     # form URLs
     url(r'^cc/modify/resources/(?P<cc_name>\w+)$',      views.cc_modify_resources,                   name='cc_modify_resources'),

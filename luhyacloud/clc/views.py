@@ -1735,13 +1735,13 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['web_accessURL']     = ''
     runtime_option['ex_web_accessURL']  = ''
     if ccres_info.cc_usage == 'rvd' or runtime_option['usage'] == 'desktop':
-        runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
-        runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
+        runtime_option['mgr_accessURL']     = "%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
+        runtime_option['ex_mgr_accessURL']  = "%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
     if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
         runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
         runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
-        runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
-        runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
+        runtime_option['mgr_accessURL']     = "%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
+        runtime_option['ex_mgr_accessURL']  = "%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
 
     # issuer's property
     runtime_option['run_with_snapshot'] = 1
@@ -1752,6 +1752,24 @@ def genRuntimeOptionForImageBuild(transid):
 def genIPTablesRule(fromip, toip, port):
     return {}
 
+def vm_display(request, srcid, dstid, insid):
+    _tid = '%s:%s:%s' % (srcid, dstid, insid)
+    try:
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        runtime_option = json.loads(rec.runtime_option)
+        mgr_url = runtime_option['mgr_accessURL']
+        context = {
+            'pagetitle'     : _('cloud desktop'),
+            'url'           : mgr_url,
+        }
+        return render(request, 'clc/rdpclient/vm_display.html', context)
+    except Exception as e:
+        logger.error('vm_display error: tid=%s, error=%s' % (_tid, str(e)))
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : str(e),
+        }
+        return render(request, 'clc/error.html', context)
 
 def vm_run(request, insid):
     if insid.find('VD') == 0:
@@ -2215,7 +2233,7 @@ def image_create_task_view(request,  srcid, dstid, insid):
         submit = 0
 
     context = {
-        'pagetitle' : "image create",
+        'pagetitle' : _("image build"),
         'task'      : rec,
         'rdp_url'   : managed_url,
         'imgobj'    : imgobj,
@@ -2339,7 +2357,7 @@ def image_add_vm(request, imgid):
         ccs  = ecCCResources.objects.filter(cc_usage='vs')
 
     context = {
-            'pagetitle' : "VM Create",
+            'pagetitle' : _("VM Create"),
             'imgobj'    : imgobj,
             'insid'     : _instanceid,
             'ccs'       : ccs,
@@ -2355,7 +2373,7 @@ def image_edit_vm(request, imgid, insid):
     ccs  = ecServers.objects.filter(role='cc')
     vm   = ecVSS.objects.get(insid=insid)
     context = {
-            'pagetitle' : "VM Create",
+            'pagetitle' : _("VM Create"),
             'imgobj'    : imgobj,
             'insid'     : insid,
             'ccs'       : ccs,

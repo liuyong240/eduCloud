@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-21 09:31+0000\n"
+"POT-Creation-Date: 2015-01-26 04:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,6 +110,11 @@ msgstr "IP地址"
 msgid "External IP Address"
 msgstr "外部IP地址"
 
+#: clc/views.py:112 clc/views.py:230 clc/templates/clc/clc_mgr.html:157
+#: clc/templates/clc/walrus_mgr.html:103
+msgid "Edit"
+msgstr "编辑"
+
 #: clc/views.py:115 clc/views.py:233 clc/templates/clc/clc_mgr.html:160
 #: clc/templates/clc/walrus_mgr.html:106
 msgid "IP Address 0"
@@ -163,24 +168,19 @@ msgstr "权限修改"
 
 #: clc/views.py:157
 msgid "Guest OS"
-msgstr ""
+msgstr "操作系统"
 
 #: clc/views.py:160
 msgid "Memroy"
-msgstr ""
+msgstr "内存"
 
 #: clc/views.py:163
 msgid "VCPU"
-msgstr ""
+msgstr "虚拟CPU"
 
 #: clc/views.py:171
 msgid "Virtual Machine Data"
-msgstr ""
-
-#: clc/views.py:230 clc/templates/clc/clc_mgr.html:157
-#: clc/templates/clc/walrus_mgr.html:103
-msgid "Edit"
-msgstr "编辑"
+msgstr "虚拟机状态数据"
 
 #: clc/views.py:433 clc/views.py:490
 msgid "available nc resource is "
@@ -310,20 +310,33 @@ msgstr "需要更多的IP/MAC资源"
 msgid "Need more Proxy Web IP resources for Cluster."
 msgstr "需要更多的WEB代理IP资源"
 
-#: clc/views.py:1774 clc/views.py:1796 clc/views.py:1822 clc/views.py:1845
-#: clc/views.py:2174 clc/views.py:2196 clc/templates/clc/error.html:34
+#: clc/views.py:1762
+msgid "cloud desktop"
+msgstr "本地云桌面"
+
+#: clc/views.py:1769 clc/views.py:1792 clc/views.py:1814 clc/views.py:1840
+#: clc/views.py:1863 clc/views.py:2192 clc/views.py:2214
+#: clc/templates/clc/error.html:34
 msgid "Error Report"
 msgstr "错误报告"
 
-#: clc/views.py:4062
+#: clc/views.py:2236
+msgid "image build"
+msgstr ""
+
+#: clc/views.py:2360 clc/views.py:2376
+msgid "VM Create"
+msgstr "创建虚拟机"
+
+#: clc/views.py:4080
 msgid "Image "
 msgstr "镜像文件"
 
-#: clc/views.py:4288
+#: clc/views.py:4306
 msgid "Server "
 msgstr "物理服务器"
 
-#: clc/views.py:4333
+#: clc/views.py:4351
 msgid "VM "
 msgstr "虚拟机"
 
@@ -521,15 +534,15 @@ msgstr "创建虚拟机"
 
 #: clc/templates/clc/index.html:64
 msgid " User Profile"
-msgstr ""
+msgstr "用户属性"
 
 #: clc/templates/clc/index.html:82
 msgid " System Overview"
-msgstr ""
+msgstr "系统一览"
 
 #: clc/templates/clc/index.html:95
 msgid " Hosts"
-msgstr ""
+msgstr "主机"
 
 #: clc/templates/clc/login.html:15
 msgid "eduCloud Webconsole"
@@ -854,7 +867,7 @@ msgstr "DHCP模式"
 
 #: clc/templates/clc/form/cc_modify_resource.html:336
 msgid "External"
-msgstr ""
+msgstr "外部"
 
 #: clc/templates/clc/form/cc_modify_resource.html:346
 msgid "DHCP Interface"
@@ -920,13 +933,13 @@ msgstr "更新外部IP地址失败，请重试。"
 #: clc/templates/clc/form/permission_edit.html:128
 #: clc/templates/clc/form/server_permission_edit.html:130
 #: clc/templates/clc/form/vm_permission_edit.html:128
-msgid "Allocated Role:"
+msgid "Allocated Role"
 msgstr "角色分配"
 
 #: clc/templates/clc/form/permission_edit.html:66
 #: clc/templates/clc/form/permission_edit.html:141
-msgid "Access Contorl:"
-msgstr "访问控制:"
+msgid "Access Contorl"
+msgstr "访问控制"
 
 #: clc/templates/clc/form/permission_edit.html:68
 #: clc/templates/clc/form/permission_edit.html:144
@@ -1379,75 +1392,99 @@ msgstr "内存"
 msgid "VM Usage"
 msgstr "虚拟机用途"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:150
+#: clc/templates/clc/wizard/image_create_wizard.html:135
 msgid "Prepare Image Succeed. please click 'Next' button and run it."
 msgstr "镜像文件准备就绪，请点击‘下一步’"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:198
+#: clc/templates/clc/wizard/image_create_wizard.html:183
 msgid "Sorry, Run Image failed. please click 'Run' button and try again."
 msgstr "抱歉，镜像文件运行失败，请重试。"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:334
+#: clc/templates/clc/wizard/image_create_wizard.html:319
 msgid "Submit Image Succeed. please click 'Next' button and finish it."
 msgstr "镜像文件提交成功，请点击‘下一步’"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:442
+#: clc/templates/clc/wizard/image_create_wizard.html:389
+msgid "Cancel"
+msgstr "取消"
+
+#: clc/templates/clc/wizard/image_create_wizard.html:392
+msgid "Previous"
+msgstr "上一步"
+
+#: clc/templates/clc/wizard/image_create_wizard.html:395
+msgid "Next"
+msgstr "下一步"
+
+#: clc/templates/clc/wizard/image_create_wizard.html:398
+msgid "Finish"
+msgstr "完成"
+
+#: clc/templates/clc/wizard/image_create_wizard.html:452
 msgid "Prepare Image."
 msgstr "镜像文件准备"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:443
+#: clc/templates/clc/wizard/image_create_wizard.html:453
 msgid "Prepare"
 msgstr "准备镜像文件"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:446
+#: clc/templates/clc/wizard/image_create_wizard.html:456
 msgid "start to prepare image, please wait ... ..."
 msgstr "开始准备镜像文件，请稍候... ..."
 
-#: clc/templates/clc/wizard/image_create_wizard.html:448
+#: clc/templates/clc/wizard/image_create_wizard.html:458
 msgid "downloading ... ..."
 msgstr "下载中... ..."
 
-#: clc/templates/clc/wizard/image_create_wizard.html:453
+#: clc/templates/clc/wizard/image_create_wizard.html:463
 msgid "run/edit Image."
 msgstr "运行/修改镜像文件"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:456
+#: clc/templates/clc/wizard/image_create_wizard.html:466
 msgid "Run"
 msgstr "运行"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:457
+#: clc/templates/clc/wizard/image_create_wizard.html:467
 msgid "Stop"
 msgstr "停止"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:462
-msgid "Connect to Cloud Desktop"
-msgstr "链接到虚拟机桌面"
+#: clc/templates/clc/wizard/image_create_wizard.html:471
+msgid "display Screen"
+msgstr "显示虚拟机桌面"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:470
+#: clc/templates/clc/wizard/image_create_wizard.html:475
+msgid "display in new Browser"
+msgstr "用浏览器中显示"
+
+#: clc/templates/clc/wizard/image_create_wizard.html:477
+msgid "display by windows-tool"
+msgstr "用windows工具显示"
+
+#: clc/templates/clc/wizard/image_create_wizard.html:491
 msgid "Image Template Name"
 msgstr "镜像文件模板名称"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:471
+#: clc/templates/clc/wizard/image_create_wizard.html:492
 msgid "New Image Status"
 msgstr "新镜像文件状态"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:483
+#: clc/templates/clc/wizard/image_create_wizard.html:504
 msgid "Download plugin for Cloud Desktop Connection"
 msgstr ""
 
-#: clc/templates/clc/wizard/image_create_wizard.html:488
+#: clc/templates/clc/wizard/image_create_wizard.html:509
 msgid "submit Image"
 msgstr "提交镜像文件"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:490
+#: clc/templates/clc/wizard/image_create_wizard.html:511
 msgid "Submit"
 msgstr "提交"
 
-#: clc/templates/clc/wizard/image_create_wizard.html:494
+#: clc/templates/clc/wizard/image_create_wizard.html:515
 msgid "Now we will start to submit a new image, pglease wait ... ..."
 msgstr "即将开始提交新的镜像文件，请稍候... ..."
 
-#: clc/templates/clc/wizard/image_create_wizard.html:496
+#: clc/templates/clc/wizard/image_create_wizard.html:517
 msgid "Submitting ... ..."
 msgstr "提交中... ..."
 
@@ -1536,6 +1573,9 @@ msgstr ""
 #: templates/admin/index.html:76
 msgid "Unknown content"
 msgstr ""
+
+#~ msgid "Connect to Cloud Desktop"
+#~ msgstr "链接到虚拟机桌面"
 
 #~ msgid "E-mail"
 #~ msgstr "邮件地址"
