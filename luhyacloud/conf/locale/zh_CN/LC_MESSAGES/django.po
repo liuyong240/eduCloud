@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-26 04:44+0000\n"
+"POT-Creation-Date: 2015-01-26 05:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -931,13 +931,19 @@ msgstr "更新外部IP地址失败，请重试。"
 
 #: clc/templates/clc/form/permission_edit.html:57
 #: clc/templates/clc/form/permission_edit.html:128
+#: clc/templates/clc/form/server_permission_edit.html:58
 #: clc/templates/clc/form/server_permission_edit.html:130
+#: clc/templates/clc/form/vm_permission_edit.html:57
 #: clc/templates/clc/form/vm_permission_edit.html:128
 msgid "Allocated Role"
 msgstr "角色分配"
 
 #: clc/templates/clc/form/permission_edit.html:66
 #: clc/templates/clc/form/permission_edit.html:141
+#: clc/templates/clc/form/server_permission_edit.html:67
+#: clc/templates/clc/form/server_permission_edit.html:143
+#: clc/templates/clc/form/vm_permission_edit.html:66
+#: clc/templates/clc/form/vm_permission_edit.html:141
 msgid "Access Contorl"
 msgstr "访问控制"
 
@@ -1573,6 +1579,10 @@ msgstr ""
 #: templates/admin/index.html:76
 msgid "Unknown content"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Allocated Role:"
+#~ msgstr "角色分配"
 
 #~ msgid "Connect to Cloud Desktop"
 #~ msgstr "链接到虚拟机桌面"
