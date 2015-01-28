@@ -5,6 +5,8 @@
 {% block myjs %}
 <script src="{% static "clc/plupload-2.1.2/js/plupload.full.min.js" %}"></script>
 <script src="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/jquery.plupload.queue.min.js" %}"></script>
+<script src="{% static "clc/plupload-2.1.2/js/i18n/zh_CN.js" %}"></script>
+
 <script src="{% static "clc/zTree_v3/js/jquery.ztree.core-3.5.js" %}"></script>
 <script src="{% static "clc/zTree_v3/js/jquery.ztree.excheck-3.5.js" %}"></script>
 <script src="{% static "clc/zTree_v3/js/jquery.ztree.exedit-3.5.js" %}"></script>
@@ -326,19 +328,19 @@ $(document).ready(function(){
                         <div class="panel-heading">
                             <h4 class="panel-title">
                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
-                                   class="collapsed">Upload Raw Images</a>
+                                   class="collapsed">{% trans "Upload Raw Images" %}</a>
                             </h4>
                         </div>
                         <div id="collapseOne" class="panel-collapse collapse" style="height: 0px;">
                             <div class="panel-body">
                                 <div class="col-lg-6">
-                                    <p>Step 1: create and select directory</p>
+                                    <p>{% trans "Step 1: create and select directory" %}</p>
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            Image Directory in Server
+                                            {% trans "Image Directory in Server" %}
                                             <div class="pull-right">
                                                 <div class="btn-group">
-                                                    <button id="add_image_node" type="button" class="btn btn-default btn-xs">Add</button>
+                                                    <button id="add_image_node" type="button" class="btn btn-default btn-xs">{% trans "Add" %}</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -351,8 +353,8 @@ $(document).ready(function(){
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
-                                    <p>Step 2: Select image file to upload</p>
-                                        <div id="image_uploader" style="height:330px; overflow:auto;">Your browser doesn't support HTML5.</div>
+                                    <p>{% trans "Step 2: Select image file to upload" %}</p>
+                                        <div id="image_uploader" style="height:330px; overflow:auto;">{% trans "Your browser doesn't support HTML5." %}</div>
                                 </div>
                             </div>
                         </div>
@@ -361,19 +363,19 @@ $(document).ready(function(){
                         <div class="panel-heading">
                             <h4 class="panel-title">
                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
-                                   class="collapsed">Upload Software</a>
+                                   class="collapsed">{% trans "Upload Software" %}</a>
                             </h4>
                         </div>
                         <div id="collapseTwo" class="panel-collapse collapse" style="height: 0px;">
                             <div class="panel-body">
                                 <div class="col-lg-6">
-                                    <p>Step 1: create and select directory</p>
+                                    <p>{% trans "Step 1: create and select directory" %}</p>
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            Software Directory in Server
+                                            {% trans "Software Directory in Server" %}
                                             <div class="pull-right">
                                                 <div class="btn-group">
-                                                    <button id="add_software_node" type="button" class="btn btn-default btn-xs">Add</button>
+                                                    <button id="add_software_node" type="button" class="btn btn-default btn-xs">{% trans "Add" %}</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -386,8 +388,8 @@ $(document).ready(function(){
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
-                                    <p>Step 2: select files to upload</p>
-                                    <div id="software_uploader" style="height:330px; overflow:auto;">Your browser doesn't support HTML5.</div>
+                                    <p>{% trans "Step 2: select files to upload" %}</p>
+                                    <div id="software_uploader" style="height:330px; overflow:auto;">{% trans "Your browser doesn't support HTML5." %}</div>
                                 </div>
                             </div>
                         </div>

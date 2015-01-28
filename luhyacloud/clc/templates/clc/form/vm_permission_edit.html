@@ -54,7 +54,7 @@
         next = $('#next').text();
         el = '<div class="well well-sm">\
                   <div class="form-group"> \
-                        <label>Allocated Role: </label> \
+                        <label>{% trans "Allocated Role" %}:</label> \
                         <select id="perm' + next + '" class="form-control-inline"> \
                             <option value=""></option> \
                             {% for role in roles %} \
@@ -63,21 +63,21 @@
                         </select> \
                    </div> \
                    <div class="form-group" id="checkbox_perm' + next + '"> \
-                        <label>Access Contorl: </label> \
+                        <label>{% trans "Access Contorl" %}:</label> \
                         <label class="checkbox-inline"> \
-                            <input type="checkbox">Read \
+                            <input type="checkbox">{% trans "Read" %} \
                         </label> \
                         <label class="checkbox-inline"> \
-                            <input type="checkbox">Write \
+                            <input type="checkbox">{% trans "Write" %} \
                         </label> \
                         <label class="checkbox-inline"> \
-                            <input type="checkbox">Execute \
+                            <input type="checkbox">{% trans "Execute" %} \
                         </label> \
                         <label class="checkbox-inline"> \
-                            <input type="checkbox">Create\
+                            <input type="checkbox">{% trans "Create" %}\
                         </label>\
                         <label class="checkbox-inline">\
-                            <input type="checkbox">Delete\
+                            <input type="checkbox">{% trans "Delete" %}\
                         </label>\
                     </div>\
               </div>';
@@ -111,7 +111,7 @@
 <div class="col-lg-12">
 <div class="panel panel-default">
 <div class="panel-heading">
-    <h2>{{ res }} Permission Configuration</h2>
+    <h2>{{ res }} {% trans "Permission Configuration" %}</h2>
 </div>
 <div class="panel-body">
     <div class="row">
@@ -125,7 +125,7 @@
                     {% for perm in perms %}
                     <div class="well well-sm">
                         <div class="form-group">
-                            <label>Allocated Role: </label>
+                            <label>{% trans "Allocated Role" %}:</label>
                             <select id="{{ perm.id }}" class="form-control-inline">
                                 <option value=""></option>
                                 {% for role in roles %}
@@ -138,55 +138,55 @@
                             </select>
                         </div>
                         <div class="form-group" id="checkbox_{{ perm.id  }}">
-                            <label>Access Contorl: </label>
+                            <label>{% trans "Access Contorl" %}:</label>
                             <label class="checkbox-inline">
                                 {% if perm.read == 1 %}
-                                <input type="checkbox" checked="checked">Read
+                                <input type="checkbox" checked="checked">{% trans "Read" %}
                                 {% else %}
-                                <input type="checkbox">Read
+                                <input type="checkbox">{% trans "Read" %}
                                 {% endif %}
                             </label>
                             <label class="checkbox-inline">
                                 {% if perm.write == 1 %}
-                                <input type="checkbox" checked="checked">Write
+                                <input type="checkbox" checked="checked">{% trans "Write" %}
                                 {% else %}
-                                <input type="checkbox">Write
+                                <input type="checkbox">{% trans "Write" %}
                                 {% endif %}
                             </label>
                             <label class="checkbox-inline">
                                 {% if perm.execute == 1 %}
-                                <input type="checkbox" checked="checked">Execute
+                                <input type="checkbox" checked="checked">{% trans "Execute" %}
                                 {% else %}
-                                <input type="checkbox">Execute
+                                <input type="checkbox">{% trans "Execute" %}
                                 {% endif %}
                             </label>
                             <label class="checkbox-inline">
                                 {% if perm.create == 1 %}
-                                <input type="checkbox" checked="checked">Create
+                                <input type="checkbox" checked="checked">{% trans "Create" %}
                                 {% else %}
-                                <input type="checkbox">Create
+                                <input type="checkbox">{% trans "Create" %}
                                 {% endif %}
                             </label>
                             <label class="checkbox-inline">
                                 {% if perm.delete == 1 %}
-                                <input type="checkbox" checked="checked">Delete
+                                <input type="checkbox" checked="checked">{% trans "Delete" %}
                                 {% else %}
-                                <input type="checkbox">Delete
+                                <input type="checkbox">{% trans "Delete" %}
                                 {% endif %}
                             </label>
                         </div>
                     </div>
                     {% endfor %}
 
-                    <button id="mysubmit" type="submit" class="btn btn-primary">Submit Button</button>
-                    <button id="add"      class="btn btn-default">Add Permission</button>
+                    <button id="mysubmit" type="submit" class="btn btn-primary">{% trans "Submit Button" %}</button>
+                    <button id="add"      class="btn btn-default">{% trans "Add Permission" %}</button>
                 </div>
                 <p></p>
                 <div class="alert alert-success" style="display: none">
-                      Update Permission Successfully.
+                      {% trans "Update Permission Successfully." %}
                 </div>
                 <div class="alert alert-danger" style="display: none">
-                      Update Permission Failed, try again.
+                      {% trans "Update Permission Failed, try again." %}
                 </div>
         </div>
         <!-- /.col-lg-6 (nested) -->

@@ -1,13 +1,18 @@
+# coding=UTF-8
 from luhyaapi.run4everProcess import *
 from luhyaapi.educloudLog import *
 from luhyaapi.clcAPIWrapper import *
 from luhyaapi.hostTools import *
 from luhyaapi.rsyncWrapper import *
 from luhyaapi.rabbitmqWrapper import *
+from luhyaapi.settings import *
+
 
 import time, pika, json, os
 
 logger = getccdaemonlogger()
+
+
 
 class cc_rpcServerThread(run4everThread):
     def __init__(self, bucket):
@@ -53,16 +58,18 @@ class cc_rpcServerThread(run4everThread):
             logger("error msg = %s with body=%s" % (e.message, body))
 
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
+        locale_string = getlocalestring()
         try:
             logger.error("--- --- --- cc_rpc_handle_imageprepare")
 
             prompt = 'Downloading file from Walrus to CC ... ...'
             if paras == 'luhya':
-                prompt = 'Downloading image file from Walrus to CC ... ...'
+                prompt = locale_string['promptDfromWarlus2CC_image']
                 source      = "rsync://%s/%s/%s" % (self.serverIP, 'luhya', tid.split(':')[0])
                 destination = "/storage/images/"
             if paras == 'db':
-                prompt = 'Downloading database file from Walrus to CC ... ...'
+                prompt = locale_string['promptDfromWarlus2CC_db']
+
                 insid = tid.split(':')[2]
                 if insid.find('TMP') == 0:
                     source      = "rsync://%s/%s/%s" % (self.serverIP, 'db', tid.split(':')[0])
@@ -104,6 +111,7 @@ class cc_rpcServerThread(run4everThread):
             logger.error("cc_rpc_handle_imageprepare Exception Error Message : %s" % e.message)
 
     def cc_rpc_handle_imagesubmit(self, ch, method, props, tid, paras):
+        locale_string = getlocalestring()
         payload = {
             'type'      : 'taskstatus',
             'phase'     : "submitting",
@@ -137,11 +145,11 @@ class cc_rpcServerThread(run4everThread):
             dstid = tid.split(':')[1]
 
             if paras == 'luhya':
-                prompt      = 'Uploading image file from CC to Walrus ... ...'
+                prompt      = locale_string['promptUfromCC2Walrus_image']
                 source      = "/storage/images/%s" % tid.split(':')[1]
                 destination = "rsync://%s/%s/" % (self.serverIP, 'luhya')
             if paras == 'db':
-                prompt      = 'Uploading database file from CC to Walrus ... ...'
+                prompt      = locale_string['promptUfromCC2Walrus_db']
                 destination = "rsync://%s/%s/" % (self.serverIP, 'db')
                 if insid.find('TMP') == 0:
                     source      = '/storage/space/database/images/%s' %  dstid

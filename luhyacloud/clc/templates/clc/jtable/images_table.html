@@ -5,9 +5,9 @@
 <div class="filtering">
     <form>
         <p>
-           Name:<input type="text"  id="name" />
-           OS Type:<input type="text" id="ostype" />
-           <button type="submit" id="LoadRecordsButton">Filter Images</button>
+           {% trans "Name" %}:<input type="text"  id="name" />
+           {% trans "OS Type" %}:<input type="text" id="ostype" />
+           <button type="submit" id="LoadRecordsButton">{% trans "Filter Images" %}</button>
         </p>
     </form>
 </div>
@@ -22,7 +22,7 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'Images List',
+            title: '{% trans "Images List" %}',
 
             selecting: true, //Enable selecting
             //selectingCheckboxes: true, //Show checkboxes on first column
@@ -57,7 +57,7 @@
                         $img.click(function () {
                             $('#myjtable').jtable('openChildTable',
                                     $img.closest('tr'), {
-                                    title: 'Image ' + imagesData.record.name + ' Detail Description',
+                                    title: '{% trans "Image" %}' + imagesData.record.name + '{% trans " Detail Description" %}',
                                     actions: {
                                         listAction: function (postData, jtParams) {
                                                 return {
@@ -85,36 +85,36 @@
                     }
                 },
                 ecid: {
-                    title: 'ecID',
+                    title: '{% trans "ecID" %}',
                     width: '10%',
                     edit: false,
                 },
                 name: {
-                    title: 'Name',
+                    title: '{% trans "Name" %}',
                     width: '10%'
                 },
                 ostype: {
-                    title: 'OSType',
+                    title: '{% trans "OSType" %}',
                     width: '10%',
                     options: '/clc/api/1.0/settings/ostype/option/list'
                 },
                 usage: {
-                    title: 'Usage',
+                    title: '{% trans "Usage" %}',
                     width: '10%',
                     options: '/clc/api/1.0/settings/vmusage/option/list'
                 },
                 version: {
-                    title: "Version",
+                    title: '{% trans "Version" %}',
                     width: '20%',
                     edit: false,
                 },
                 size: {
-                    title: "Size(G)",
+                    title: '{% trans "Size(G)" %}',
                     width: '20%',
                     edit: false,
                 },
                 description: {
-                    title: 'Desc',
+                    title: '{% trans "Desc" %}',
                     type: 'textarea',
                     list: false
                 },

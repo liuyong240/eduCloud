@@ -9,7 +9,7 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'VM Types',
+            title: '{% trans "VM Types" %}',
 
             sorting: true, //Enable sorting
             defaultSorting: 'Name ASC', //Set default sorting
@@ -29,15 +29,15 @@
                     create: false,
                 },
                 name: {
-                    title: 'Name',
+                    title: '{% trans "Name" %}',
                     width: '40%',
                 },
                 memory: {
-                    title: 'Memeory',
+                    title: '{% trans "Memeory" %}',
                     width: '30%',
                 },
                 cpus: {
-                    title: 'CPUs',
+                    title: '{% trans "CPUs" %}',
                     width: '30%',
                 }
             }

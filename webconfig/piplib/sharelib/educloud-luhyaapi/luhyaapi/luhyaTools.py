@@ -6,7 +6,7 @@ import ConfigParser
 
 GUEST_USERNAME = "Administrator"
 GUEST_PASSWORD = "luhya"
-SNAPSHOT_NAME = "luhya-thomas"
+SNAPSHOT_NAME = "thomas"
 
 def execute_cmd(cmd_line, needsplit=True):
     out = commands.getoutput(cmd_line)

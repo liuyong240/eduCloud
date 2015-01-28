@@ -5,19 +5,10 @@
 <div class="filtering">
     <form>
         <p>
-           Name:<input type="text"  id="ec_username" />
-           Display Name:<input type="text" id="ec_displayname" />
-           <button type="submit" id="LoadRecordsButton">Filter Accounts</button>
+           {% trans "Name:" %}<input type="text"  id="ec_username" />
+           {% trans "Display Name:" %}<input type="text" id="ec_displayname" />
+           <button type="submit" id="LoadRecordsButton">{% trans "Filter Accounts" %}</button>
         </p>
-        <!--<p>
-            Email:<input type="text" id="ec_email" />
-            Phone:<input type="text" id="ec_phone" />
-        </p>
-        <p>
-        Admin:<input type="text" id="ec_supper_user" />
-        Role:<input type="text" id="ec_authpath_name" />
-        </p>-->
-
     </form>
 </div>
 <p></p>
@@ -32,7 +23,7 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'Inactive Account List',
+            title: '{% trans "Inactive Account List" %}',
             selecting: true, //Enable selecting
 
             sorting: true, //Enable sorting
@@ -83,7 +74,7 @@
                                             }
                                         },
                                         ec_desc: {
-                                            title:'description',
+                                            title:'{% trans "description" %}',
                                             display: function (data) {
                                                 return '<pre>' + data.record.ec_desc + '</pre>';
                                             }
@@ -98,38 +89,38 @@
                     }
                 },
                 ec_username: {
-                    title: 'name',
+                    title: '{% trans "name" %}',
                     width: '10%',
                     edit: false,
                 },
                 ec_displayname: {
-                    title: 'display name',
+                    title: '{% trans "display name" %}',
                     width: '10%',
                 },
                 ec_email: {
-                    title: 'email',
+                    title: '{% trans "email" %}',
                     width: '10%',
                 },
                 ec_phone: {
-                    title: 'phone',
+                    title: '{% trans "phone" %}',
                     width: '10%',
                 },
                 ec_supper_user: {
-                    title: 'supper',
+                    title: '{% trans "supper" %}',
                     width: '10%',
                 },
                 ec_authpath_name: {
-                    title: 'role',
+                    title: '{% trans "role" %}',
                     width: '50%',
                     options: '/clc/api/1.0/settings/authpath/option/list'
                 },
                 vdpara: {
-                    title: 'Parameters',
+                    title: '{% trans "Parameters" %}',
                     type: 'textarea',
                     list: false
                 },
                 ec_desc: {
-                    title: 'desc',
+                    title: '{% trans "desc" %}',
                     type: 'textarea',
                     list: false
                 },

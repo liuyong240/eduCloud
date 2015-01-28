@@ -278,7 +278,7 @@
 <div class="col-lg-12">
 <div class="panel panel-default">
 <div class="panel-heading">
-    <h2>Cluster Network Configuration</h2>
+    <h2>{% trans "Cluster Network Configuration" %}</h2>
 </div>
 <div class="panel-body">
     <div class="row">
@@ -288,34 +288,34 @@
                 <div role="form">
                     <fieldset disabled="">
                         <div class="form-group">
-                            <label>Cluster Name</label>
+                            <label>{% trans "Cluster Name" %}</label>
                             <input id="ccname" class="form-control" type="text" placeholder="{{ ccres.ccname }}" disabled="">
                         </div>
                     </fieldset>
 
                     <div class="form-group">
                         <div id="usage_init_value" style="display:none">{{ ccres.cc_usage }}</div>
-                        <label>Cluster Usage</label>
+                        <label>{% trans "Cluster Usage" %}</label>
                         <select id="cluster_usage" class="form-control">
-                            <option value="lvd">Local Cloud Desktop</option>
-                            <option value="rvd">Remote Cloud Desktop</option>
-                            <option value="vs">Cloud Virtual Server</option>
+                            <option value="lvd">{% trans "Local Cloud Desktop" %}</option>
+                            <option value="rvd">{% trans "Remote Cloud Desktop" %}</option>
+                            <option value="vs">{% trans "Cloud Virtual Server" %}</option>
                         </select>
                     </div>
 
                     <div id="network_mode_config">
                         <div class="form-group">
                             <div id="network_mode_init_value" style="display:none">{{ ccres.network_mode }}</div>
-                            <label>Network Mode</label>
+                            <label>{% trans "Network Mode" %}</label>
                             <select id="network_mode_value" class="form-control">
-                                <option value="flat">Flat</option>
-                                <option value="tree">Tree</option>
+                                <option value="flat">{% trans "Flat" %}</option>
+                                <option value="tree">{% trans "Tree" %}</option>
                             </select>
                         </div>
                     </div>
 
                     <div id="rdp_port_config">
-                        <label>RDP Port Range</label>
+                        <label>{% trans "RDP Port Range" %}</label>
                         <div class="form-group">
                             <div id="port_init_value" style="display:none">{{ ccres.rdp_port_pool_def }}</div>
                             <label class="input-inline">
@@ -331,10 +331,10 @@
                     <div id="dhcp_type_config">
                         <div class="form-group">
                             <div id="dhcp_type_init_value" style="display:none">{{ ccres.dhcp_service }}</div>
-                            <label>DHCP Mode</label>
+                            <label>{% trans "DHCP Mode" %}</label>
                             <select id="dhcp_type_value" class="form-control">
-                                <option value="external">External</option>
-                                <option value="private">Private</option>
+                                <option value="external">{% trans "External" %}</option>
+                                <option value="private">{% trans "Private" %"</option>
                             </select>
                         </div>
                     </div>
@@ -343,18 +343,18 @@
                     <div id="dhcp_if_config">
                         <div class="form-group">
                             <div id="dhcp_if_init_value" style="display:none">{{ ccres.dhcp_interface }}</div>
-                            <label>DHCP Interface</label>
+                            <label>{% trans "DHCP Interface" %}</label>
                             <select id="dhcp_if_value" class="form-control">
-                                <option value="eth0">eth0</option>
-                                <option value="eth1">eth1</option>
-                                <option value="eth2">eth2</option>
-                                <option value="eth3">eth3</option>
+                                <option value="eth0">{% trans "eth0" %}</option>
+                                <option value="eth1">{% trans "eth1" %}</option>
+                                <option value="eth2">{% trans "eth2" %}</option>
+                                <option value="eth3">{% trans "eth3" %}</option>
                             </select>
                         </div>
                     </div>
 
                      <div id="dhcp_ip_config">
-                        <label>DHCP IP Range</label>
+                        <label>{% trans "DHCP IP Range" %}</label>
                         <div class="form-group">
                             <div id="dhcp_ip_init_value" style="display:none">{{ ccres.dhcp_pool_def }}</div>
                             <label class="input-inline">
@@ -368,14 +368,14 @@
                     </div>
 
                     <div id="ethers_config">
-                        <label>Configure Ethers</label>
+                        <label>{% trans "Configure Ethers" %}</label>
                         <div class="form-group">
-                            <button id="ethers_btn" type="submit" class="btn btn-default">Ethers</button>
+                            <button id="ethers_btn" type="submit" class="btn btn-default">{% trans "Ethers" %}</button>
                         </div>
                     </div>
 
                     <div id="pub_ip_config">
-                        <label>Public IP Range</label>
+                        <label>{% trans "Public IP Range" %}</label>
                         <div class="form-group">
                             <div id="pub_ip_init_value" style="display:none">{{ ccres.pub_ip_pool_def }}</div>
                             <label class="input-inline">
@@ -388,15 +388,15 @@
                         </div>
                     </div>
 
-                    <button id="mysubmit" type="submit" class="btn btn-primary">Submit Button</button>
-                    <button id="myreset"  type="reset" class="btn btn-default">Reset Button</button>
+                    <button id="mysubmit" type="submit" class="btn btn-primary">{% trans "Submit Button" %}</button>
+                    <button id="myreset"  type="reset" class="btn btn-default">{% trans "Reset Button" %}</button>
                 </div>
                 <p></p>
                 <div class="alert alert-success" style="display: none">
-                      Update Network Resource Successfully.
+                      {% trans "Update Network Resource Successfully." %}
                 </div>
                 <div class="alert alert-danger" style="display: none">
-                      Update Network Resource Failed, try again.
+                      {% trans "Update Network Resource Failed, try again." %}
                 </div>
 
         </div>

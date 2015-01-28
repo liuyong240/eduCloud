@@ -5,9 +5,9 @@
 <div class="filtering">
     <form>
         <p>
-           Cluster Name:<input type="text"  id="ccname" />
-           IP:<input type="text" id="ip" />
-           <button type="submit" id="LoadRecordsButton">Filter Cluster Server</button>
+           {% trans "Cluster Name:" %}<input type="text"  id="ccname" />
+           {% trans "IP:" %}<input type="text" id="ip" />
+           <button type="submit" id="LoadRecordsButton">{% trans "Filter Cluster Server" %}</button>
         </p>
     </form>
 </div>
@@ -22,7 +22,7 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            //title: 'Cluster Server List',
+            //title: '{% trans "Cluster Server List" %}',
 
             selecting: true, //Enable selecting
             //selectingCheckboxes: true, //Show checkboxes on first column
@@ -44,45 +44,45 @@
                     list: false,
                 },
                 name: {
-                    title: 'Name',
+                    title: '{% trans "Name" %}',
                     width: '15%'
                 },
                 ccname:{
-                    title: "Cluster Name",
+                    title: '{% trans "Cluster Name" %}',
                     width: '15%',
                     edit: false,
                 },
                 cores: {
-                    title: 'Cores',
+                    title: '{% trans "Cores" %}',
                     width: '5%',
                     edit: false,
                 },
                 memory: {
-                    title: 'Mem(G)',
+                    title: '{% trans "Mem(G)" %}',
                     width: '5%',
                     edit: false,
                 },
                 disk: {
-                    title: "Disk(G)",
+                    title: '{% trans "Disk(G)" %}',
                     width: '8%',
                     edit: false,
                 },
                 eip: {
-                    title: "External IP",
+                    title: '{% trans "External IP" %}',
                     width: "10%",
                 },
                 ip0: {
-                    title: "IP0",
+                    title: '{% trans "IP0" %}',
                     width: '10%',
                     edit: false,
                 },
                 mac0: {
-                    title: "MAC0",
+                    title: '{% trans "MAC0" %}',
                     width: '10%',
                     edit: false,
                 },
                 location: {
-                    title: "Location",
+                    title: '{% trans "Location" %}',
                     width: '25%',
                     list: false,
                 },

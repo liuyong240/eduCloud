@@ -9,7 +9,7 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'RBAC',
+            title: '{% trans "RBAC" %}',
 
             sorting: true, //Enable sorting
             defaultSorting: 'Name ASC', //Set default sorting
@@ -29,16 +29,16 @@
                     create: false,
                 },
                 ec_rbac_name: {
-                    title: 'Name',
+                    title: '{% trans "Name" %}',
                     width: '20%',
                 },
                 ec_authpath_name: {
-                    title: 'Group',
+                    title: '{% trans "Group" %}',
                     width: '40%',
                     options: '/clc/api/1.0/settings/authpath/option/list'
                 },
                 ec_rbac_permision: {
-                    title: 'Permision',
+                    title: '{% trans "Permision" %}',
                     width: '40%',
                 }
             }

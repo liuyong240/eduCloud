@@ -25,67 +25,67 @@
 <div class="col-lg-12">
     <div class="panel panel-default">
         <div class="panel-heading">
-            OverView
+            {% trans "OverView" %}
         </div>
         <div class="panel-body">
             <div class="col-lg-6">
 
                 <div class="list-group">
-                    <h3>Service Data</h3>
+                    <h3>{% trans "Service Data" %}</h3>
                     <p class="list-group-item">
-                        Web Service
+                        {% trans "Web Service" %}
                         <span class="pull-right text-muted"><em>{{ service_data.web }}</em></span>
                         <!--<button type="button" id="restart_http">Restart</button>-->
                     </p>
                     <p class="list-group-item">
-                        Daemon Service
+                        {% trans "Daemon Service" %}
                         <span class="pull-right text-muted"><em>{{ service_data.daemon }}</em></span>
                         <!--<button type="button" id="restart_daemon">Restart</button>-->
                     </p>
                     <p class="list-group-item">
-                        SSH Service
+                        {% trans "SSH Service" %}
                         <span class="pull-right text-muted"><em>{{ service_data.ssh }}</em></span>
                         <!--<button type="button" id="restart_ssh">Restart</button>-->
                     </p>
                     <p class="list-group-item">
-                        RSYNC Service
+                        {% trans "RSYNC Service" %}
                         <span class="pull-right text-muted"><em>{{ service_data.rsync }}</em></span>
                         <!--<button type="button" id="restart_rsync">Restart</button>-->
                     </p>
-                    <h3>Hardware Parameters</h3>
+                    <h3>{% trans "Hardware Parameters" %}</h3>
                     <p class="list-group-item">
-                        HostName
+                        {% trans "HostName" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.name }}</em></span>
                     </p>
                     <p class="list-group-item">
-                        Location
+                        {% trans "Location" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.location }}</em></span>
                     </p>
                     <p></p>
                     <p class="list-group-item">
-                        CPU Cores
+                        {% trans "CPU Cores" %}
                         <span class="pull-right text-muted"><em>{{ hardware_data.cpus }}</em></span>
                     </p>
                     <p class="list-group-item">
-                        CPU Usage
+                        {% trans "CPU Usage" %}
                         <span class="pull-right text-muted"><em>{{hardware_data.cpu_usage}}%</em></span>
                     </p>
                     <p></p>
                     <p class="list-group-item">
-                        Total Memory
+                        {% trans "Total Memory" %}
                         <span class="pull-right text-muted"><em>{{hardware_data.mem}}G</em></span>
                     </p>
                     <p class="list-group-item">
-                        Memory Usage
+                        {% trans "Memory Usage" %}
                         <span class="pull-right text-muted"><em>{{hardware_data.mem_usage}}%</em></span>
                     </p>
                     <p></p>
                     <p class="list-group-item">
-                        Total Disk
+                        {% trans "Total Disk" %}
                         <span class="pull-right text-muted"><em>{{hardware_data.disk}}G</em></span>
                     </p>
                     <p class="list-group-item">
-                        Disk Usage
+                        {% trans "Disk Usage" %}
                         <span class="pull-right text-muted"><em>{{hardware_data.disk_usage}}%</em></span>
                     </p>
                 </div>
@@ -96,47 +96,47 @@
 
             <div class="col-lg-6">
                 <div class="list-group">
-                    <h3>IP Addresses</h3>
+                    <h3>{% trans "IP Addresses" %}</h3>
                     <p class="list-group-item">
-                        External IP Address
+                        {% trans "External IP Address" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.eip }}</em></span>
-                        <button type="button" id="exip_edit">Edit</button>
+                        <button type="button" id="exip_edit">{% trans "Edit" %}</button>
                     </p>
                     <p class="list-group-item">
-                        IP Address 0
+                        {% trans "IP Address 0" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.ip0 }}</em></span>
                     </p>
                     <p class="list-group-item">
-                        IP Address 1
+                        {% trans "IP Address 1" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.ip1 }}</em></span>
                     </p>
                     <p class="list-group-item">
-                        IP Address 2
+                        {% trans "IP Address 2" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.ip2 }}</em></span>
                     </p>
                     <p class="list-group-item">
-                        IP Address 3
+                        {% trans "IP Address 3" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.ip3 }}</em></span>
                     </p>
-                    <h3>MAC Addresses</h3>
+                    <h3>{% trans "MAC Addresses" %}</h3>
                     <p class="list-group-item">
-                        MAC Address 0
+                        {% trans "MAC Address 0" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.mac0 }}</em></span>
                     </p>
                     <p class="list-group-item">
-                        MAC Address 1
+                        {% trans "MAC Address 1" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.mac1 }}</em></span>
                     </p>
                     <p class="list-group-item">
-                        MAC Address 2
+                        {% trans "MAC Address 2" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.mac2 }}</em></span>
                     </p>
                     <p class="list-group-item">
-                        MAC Address 3
+                        {% trans "MAC Address 3" %}
                         <span class="pull-right text-muted"><em>{{  host_ips.mac3 }}</em></span>
                     </p>
                     <p></p>
-                    <button id="permission" type="button" class="btn btn-primary">Edit Permission</button>
+                    <button id="permission" type="button" class="btn btn-primary">{% trans "Edit Permission" %}</button>
                 </div>
              </div>
         </div>

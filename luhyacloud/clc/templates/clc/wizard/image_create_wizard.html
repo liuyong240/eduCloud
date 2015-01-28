@@ -23,21 +23,6 @@
         #erromsg {
             color: red
         }
-
-        #luhyaVM a:link, #luhyaVM a:visited {
-            font-weight: bold;
-            font-size: 14px;
-            color: #FFFFFF;
-            background-color: #bf37a8;
-            width: 120px;
-            text-align: center;
-            padding: 4px;
-            text-decoration: none;
-        }
-
-        #luhyaVM a:hover, #luhyaVM a:active {
-            background-color: #4c4399;
-        }
 </style>
 
 <script>
@@ -242,7 +227,7 @@ function getVMStatus() {
 }
 
 function updateLuhyaVMURL(url) {
-    $("#luhyaVM a").attr("href", url);
+    //$("#luhyaVM a").attr("href", url);
     $("#luhyaVM").css("display", "inline");
 }
 
@@ -370,6 +355,17 @@ function init_displayWebPage(data) {
     }
 }
 
+function display_in_browser() {
+    srcid = $("#srcid").text();
+    dstid = $("#dstid").text();
+    insid = $("#insid").text();
+
+    url="/clc/vm/display/" + srcid + "/" + dstid + "/" + insid;
+    var left = ($(window).width() / 2) - (1440 / 2);
+    var top = ($(window).height() / 2) - (1024 / 2);
+    window.open(url, '', 'height=1280,width=1400,left=' + left + ',top=' + top);
+}
+
 $(document).ready(function () {
 
     srcid = $("#srcid").text();
@@ -388,6 +384,20 @@ $(document).ready(function () {
     $("#wizard").jWizard({
         title: true,
         menu: true,
+        buttons: {
+            cancel: {
+                text: '{% trans "Cancel" %}',
+            },
+            prev: {
+                text: '{% trans "Previous" %}',
+            },
+            next: {
+                text: '{% trans "Next" %}',
+            },
+            finish: {
+                text: '{% trans "Finish" %}',
+            }
+        },
         progress: {
             label: "count",
             append: ""
@@ -440,7 +450,7 @@ $(document).ready(function () {
     <form id="wizard">
         <fieldset>
             <legend>{% trans "Prepare Image." %}</legend>
-            <button id="btn_prepare"    type="button" class="btn btn-primary">{% trans "Prepare" %}</button>
+            <button id="btn_prepare" type="button" class="btn btn-primary">{% trans "Prepare" %}</button>
             <p> </p>
             <p> </p>
             <p id="desclabel">{% trans "start to prepare image, please wait ... ..." %}</p>
@@ -455,12 +465,23 @@ $(document).ready(function () {
             <div class="opontable">
                 <button id="btn_run"    type="button" class="btn btn-primary">{% trans "Run" %}</button>
                 <button id="btn_stop"   type="button" class="btn btn-primary disabled">{% trans "Stop" %}</button>
+                <div class="pull-right" id="luhyaVM" style="display: none;">
+                    <div class="btn-group open">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                            {% trans "display Screen" %}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu pull-right" role="menu">
+                            <li><a href="JavaScript:void(0);" onclick="display_in_browser();">{% trans "display in new Browser" %}</a>
+                            </li>
+                            <li><a href="#">{% trans "display by windows-tool" %}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
                 <p> </p>
                 <p> </p>
                 <p id="editdesc" style="display: none;"></p>
-                <div id="luhyaVM" style="display: none;">
-                    <a href="luhyavm://abcdefg" target="_blank">{% trans "Connect to Cloud Desktop" %}</a>
-                </div>
             </div>
             <p> </p>
             <p> </p>

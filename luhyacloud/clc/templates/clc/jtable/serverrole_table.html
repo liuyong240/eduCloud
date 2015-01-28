@@ -9,7 +9,7 @@
         $('#myjtable').jtable({
             jqueryuiTheme: true,
 
-            title: 'Server Role',
+            title: '{% trans "Server Role" %}',
 
             sorting: true, //Enable sorting
             defaultSorting: 'Name ASC', //Set default sorting
@@ -29,11 +29,11 @@
                     create: false,
                 },
                 ec_role_name: {
-                    title: 'Name',
+                    title: '{% trans "fullname" %}',
                     width: '80%',
                 },
                 ec_role_value: {
-                    title: 'Value',
+                    title: '{% trans "shortname" %}',
                     width: '20%',
                 },
 

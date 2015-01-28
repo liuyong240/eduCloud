@@ -88,6 +88,7 @@ class prepareImageTaskThread(threading.Thread):
 
     def downloadFromCC2NC(self, data):
         logger.error('downloadFromCC2NC start ... ...')
+        locale_string = getlocalestring()
         retvalue = "OK"
 
         payload = {
@@ -109,7 +110,7 @@ class prepareImageTaskThread(threading.Thread):
         self.nc_dbsize          = getLocalDatabaseInfo(self.srcimgid, self.insid)
 
         if paras == 'luhya':
-            prompt      = 'Downloading image file from CC to NC ... ...'
+            prompt      = locale_string['prmptDfromCC2NC_image']
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/images/"
 
@@ -125,7 +126,7 @@ class prepareImageTaskThread(threading.Thread):
                 payload['prompt'] = prompt
 
         if paras == 'db':
-            prompt      = 'Downloading database file from CC to NC ... ...'
+            prompt      = locale_string['prmptDfromCC2NC_db']
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/space/database/images/"
             if self.cc_img_info['data']['dbsize'] == self.nc_dbsize and \
@@ -169,6 +170,7 @@ class prepareImageTaskThread(threading.Thread):
     def cloneImage(self, data):
         logger.error('cloneImage start ... ...')
         retvalue = "OK"
+        locale_string = getlocalestring()
 
         payload = {
                 'type'      : 'taskstatus',
@@ -176,7 +178,7 @@ class prepareImageTaskThread(threading.Thread):
                 'state'     : "cloning",
                 'progress'  : 0,
                 'tid'       : self.tid,
-                'prompt'    : 'Cloning the file ... ...',
+                'prompt'    : '',
                 'errormsg'  : "",
                 'failed'    : 0,
                 'done'      : 0,
@@ -188,6 +190,7 @@ class prepareImageTaskThread(threading.Thread):
         need_clone  = False
 
         if data['rsync'] == 'luhya':
+            payload['prompt'] =  locale_string['promptClone_image']
             srcfile  = "/storage/images/%s/machine"      % self.srcimgid
             dstfile  = "/storage/tmp/images/%s/machine"  % self.dstimgid
             if self.srcimgid != self.dstimgid:
@@ -195,6 +198,7 @@ class prepareImageTaskThread(threading.Thread):
                 need_delete = True
 
         if data['rsync'] == 'db':
+            payload['prompt'] =  locale_string['promptClone_db']
             srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
             if self.insid.find('TMP') == 0:
                 dstfile  = "/storage/space/database/images/%s/database" % self.dstimgid
@@ -358,6 +362,7 @@ class SubmitImageTaskThread(threading.Thread):
 
     def submitFromNC2CC(self, data):
         logger.error('submitFromNC2CC start ... ...')
+        locale_string = getlocalestring()
 
         payload = {
             'type'      : 'taskstatus',
@@ -385,12 +390,12 @@ class SubmitImageTaskThread(threading.Thread):
         paras = data['rsync']
 
         if paras == 'luhya':
-            prompt      = 'Uploading image file from NC to CC ... ...'
+            prompt      = locale_string['promptUfromNC2CC_image']
             source      = self.root_dir + self.dstimgid
             destination = "rsync://%s/%s/" % (self.ccip, data['rsync'])
             payload['prompt'] = prompt
         if paras == 'db':
-            prompt      = 'Uploading database file from NC to CC ... ...'
+            prompt      = locale_string['promptUfromNC2CC_db']
             payload['prompt'] = prompt
             payload['progress'] = 0
             payload['done']   = 1

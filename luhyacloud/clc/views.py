@@ -23,8 +23,249 @@ from luhyaapi.hostTools import *
 from luhyaapi.settings import *
 from sortedcontainers import SortedList
 import requests, memcache
+from django.utils.translation import ugettext as _
 
 logger = getclclogger()
+
+CC_DETAIL_TEMPLATE = \
+'<div class="col-lg-6">' + \
+    '<div class="list-group">' + \
+        '<h3>' + _("Service Data") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("Web Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.web}}</em></span>' + \
+            '<!--<button type="button" id="restart_http">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Daemon Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.daemon}}</em></span>' + \
+            '<!--<button type="button" id="restart_daemon">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("SSH Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.ssh}}</em></span>' + \
+            '<!--<button type="button" id="restart_ssh">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("RSYNC Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.rsync}}</em></span>' + \
+            '<!--<button type="button" id="restart_rsync">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("AMQP Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.amqp}}</em></span>' + \
+            '<!--<button type="button" id="restart_amqp">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Memcache Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.memcache}}</em></span>' + \
+            '<!--<button type="button" id="restart_memcache">_("Restart")</button>-->' + \
+        '</p>' + \
+        '<h3>' + _("Hardware Parameters")+ '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("HostName") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.name}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Location") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.location}}</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("CPU Cores") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.cpus}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("CPU Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.cpu_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("Total Memory") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.mem}}G</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Memory Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.mem_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("Total Disk") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.disk}}G</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Disk Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.disk_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<button id="ccres_modify" type="button" class="btn btn-primary">' + _("Network Resource Configure") + '</button>' + \
+    '</div>' + \
+'</div>' + \
+'<div class="col-lg-6">' + \
+    '<div class="list-group">' + \
+        '<div style="display:none" id="ip0"> {{host_ips.ip0}}</div>' + \
+        '<div style="display:none" id="mac0">{{host_ips.mac0}}</div>' + \
+        '<h3>' + _("IP Addresses") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("External IP Address") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.eip}}</em></span>' + \
+            '<button type="button" id="exip_edit">' + _("Edit") + '</button>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 0") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip0}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 1") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip1}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 2") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip2}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 3") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip3}}</em></span>' + \
+        '</p>' + \
+        '<h3>' + _("MAC Addresses") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 0") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac0}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 1") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac1}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 2") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac2}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 3") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac3}}</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<button id="permission" type="button" class="btn btn-primary">' + _("Edit Permission") + '</button>' + \
+    '</div>' + \
+'</div>'
+
+VM_LIST_GROUP_ITEM = \
+        '<p class="list-group-item">' + \
+            '{{vminfo.insid}}' + \
+            '<span class="pull-right text-muted"><em>{{vminfo.state}}</em></span>' + \
+            '<p class="list-group-item">' + \
+            _("Guest OS") + '<span class="pull-right text-muted"><em>{{vminfo.guest_os}}</em></span>' + \
+            '</p>' + \
+            '<p class="list-group-item">' + \
+            _("Memroy")+ '<span class="pull-right text-muted"><em>{{vminfo.mem}}G</em></span>' + \
+            '</p>' + \
+            '<p class="list-group-item">' + \
+            _("VCPU") + '<span class="pull-right text-muted"><em>{{vminfo.vcpu}}</em></span>' + \
+            '</p>' + \
+        '</p>'
+
+
+NC_DETAIL_TEMPLATE = \
+'<div class="col-lg-6">' + \
+    '<div class="list-group">' + \
+        '<h3>' +_("Virtual Machine Data") + '</h3>' + \
+        '{{vminfos}}' + \
+        '<h3>' + _("Service Data") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("Daemon Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.daemon}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("SSH Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.ssh}}</em></span>' + \
+        '</p>' + \
+        '<h3>' +_("Hardware Parameters") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("HostName") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.name}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Location") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.location}}</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("CPU Cores") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.cpus}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("CPU Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.cpu_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("Total Memory") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.mem}}G</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Memory Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.mem_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<p class="list-group-item">' + \
+            _("Total Disk") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.disk}}G</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("Disk Usage") + \
+            '<span class="pull-right text-muted"><em>{{hardware_data.disk_usage}}%</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+        '<button id="permission" type="button" class="btn btn-primary">' + _("Edit Permission") + '</button>' + \
+    '</div>' + \
+'</div>' + \
+'<div class="col-lg-6">' + \
+    '<div class="list-group">' + \
+        '<div style="display:none" id="ip0"> {{host_ips.ip0}}</div>' + \
+        '<div style="display:none" id="mac0">{{host_ips.mac0}}</div>' + \
+        '<h3>' + _("IP Addresses") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("External IP Address") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.eip}}</em></span>' + \
+            '<button type="button" id="exip_edit">' + _("Edit") + '</button>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 0") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip0}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 1") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip1}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 2") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip2}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("IP Address 3") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.ip3}}</em></span>' + \
+        '</p>' + \
+        '<h3>' + _("MAC Addresses") + '</h3>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 0") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac0}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 1") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac1}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 2") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac2}}</em></span>' + \
+        '</p>' + \
+        '<p class="list-group-item">' + \
+            _("MAC Address 3") + \
+            '<span class="pull-right text-muted"><em>{{host_ips.mac3}}</em></span>' + \
+        '</p>' + \
+        '<p></p>' + \
+    '</div>' + \
+'</div>'
+
 
 ''' Example of nc status data in memcache
 {
@@ -189,7 +430,7 @@ def findVMRunningResource(insid):
             logger.error("get best node : ip = %s" % _ncip)
             break;
         else:
-            _msg = 'available nc resource is %s, but required is %s' % (json.dumps(data), json.dumps(vm_res_matrix))
+            _msg = (_('available nc resource is ') + '%s' + _(', but required is ') + '%s') % (json.dumps(data), json.dumps(vm_res_matrix))
             logger.error(_msg)
     return _ccip, _ncip, _msg
 
@@ -199,7 +440,7 @@ def findBuildResource(srcid):
 
     _ccip = None
     _ncip = None
-    _msg  = "Can't Find appropriate cluster machine and node machine ."
+    _msg  = _("Can't Find appropriate cluster machine and node machine .")
 
     # get the expected usage of cc
     rec = ecImages.objects.get(ecid=srcid)
@@ -246,7 +487,7 @@ def findBuildResource(srcid):
             logger.error("get best node : ip = %s" % _ncip)
             break;
         else:
-            _msg = 'available nc resource is %s, but required is %s' % (json.dumps(data), json.dumps(vm_res_matrix))
+            _msg = (_('available nc resource is ') + '%s' + _(', but required is ') + '%s') % (json.dumps(data), json.dumps(vm_res_matrix))
             logger.error(_msg)
     return _ccip, _ncip, _msg
 
@@ -362,7 +603,7 @@ def account_create_batch(request):
         num = User.objects.filter(username=newname).count()
         if num > 0:
             response['Result'] = 'FAIL'
-            response['errormsg'] = 'duplicated user name: ' + newname
+            response['errormsg'] = _('duplicated user name: ') + newname
             return HttpResponse(json.dumps(response), content_type="application/json")
 
     for u in user_list:
@@ -399,7 +640,7 @@ def account_request(request):
     num = User.objects.filter(username=userid).count()
     if num > 0 :
         response['Result'] = 'FAIL'
-        response['errormsg'] = 'duplicated user name.'
+        response['errormsg'] = _('duplicated user name.')
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     # 2. start to create new account
@@ -491,7 +732,7 @@ def activate_user(request, uid):
     u.save()
     addUserPrvDataDir(uid)
 
-    Message = " user %s is activated now." % uid
+    Message = _(" user %s is activated now.") % uid
     return HttpResponse(Message, content_type="application/json")
 
 def account_reset_password(request):
@@ -511,7 +752,7 @@ def account_reset_password(request):
     else:
         # Return an 'invalid login' error message.
         response['Result'] = "FAILURE"
-        response['errormsg'] = "Password is not correct!"
+        response['errormsg'] = _("Password is not correct!")
         return HttpResponse(json.dumps(response), content_type='application/json')
 
 ##########################################################################
@@ -524,7 +765,7 @@ def index_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "System Run-time Status Overview",
+        'dashboard' : _("System Run-time Status Overview"),
     }
     return render(request, 'clc/overview.html', context)
 
@@ -536,7 +777,7 @@ def accounts_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Account Management",
+        'dashboard' : _("Account Management"),
     }
     return render(request, 'clc/accounts.html', context)
 
@@ -548,7 +789,7 @@ def images_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Images Management",
+        'dashboard' : _("Images Management"),
     }
 
     return render(request, 'clc/images.html', context)
@@ -607,7 +848,7 @@ def clc_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Control Management",
+        'dashboard' : _("Cloud Control Management"),
         'cloud_data' : cloud_data,
         'service_data': service_data,
         'hardware_data': hardware_data,
@@ -664,7 +905,7 @@ def walrus_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Walrus Management",
+        'dashboard' : _("Cloud Walrus Management"),
         'service_data': service_data,
         'hardware_data': hardware_data,
         'host_ips': host_ips,
@@ -679,7 +920,7 @@ def cc_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Cluster Management",
+        'dashboard' : _("Cloud Cluster Management"),
     }
     return render(request, 'clc/cc_mgr.html', context)
 
@@ -737,7 +978,7 @@ def nc_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Node Management",
+        'dashboard' : _("Cloud Node Management"),
     }
     return render(request, 'clc/nc_mgr.html', context)
 
@@ -769,7 +1010,7 @@ def nc_mgr_mac(request, ccname, mac):
         logger.error("not get nc[%s] status data from memcache." % mac)
         response = {}
         response['Result'] = 'OK'
-        response['data'] = '<div class="col-lg-6"><p>detail information is NOT available.</p></div>'
+        response['data'] = _('<div class="col-lg-6"><p>detail information is NOT available.</p></div>')
         return HttpResponse(json.dumps(response), content_type="application/json")
 
     htmlstr = NC_DETAIL_TEMPLATE
@@ -787,11 +1028,11 @@ def nc_mgr_mac(request, ccname, mac):
 
         htmlstr = htmlstr.replace('{{vminfos}}',  vms)
     else:
-        novmstr = '''
+        novmstr = _('''
                 <p class="list-group-item">
                 No VMs Information available
                 </p>
-        '''
+        ''')
         htmlstr = htmlstr.replace('{{vminfos}}',  novmstr)
 
     htmlstr = htmlstr.replace('{{service_data.daemon}}',  service_data['daemon'])
@@ -834,7 +1075,7 @@ def lnc_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Local Node Management",
+        'dashboard' : _("Cloud Local Node Management"),
     }
     return render(request, 'clc/lnc_mgr.html', context)
 
@@ -846,7 +1087,7 @@ def terminal_mgr_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Terminal Management",
+        'dashboard' : _("Cloud Terminal Management"),
     }
     return render(request, 'clc/terminal_mgr.html', context)
 
@@ -858,7 +1099,7 @@ def hosts_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Hosts Management",
+        'dashboard' : _("Hosts Management"),
     }
     return render(request, 'clc/hosts.html', context)
 
@@ -870,7 +1111,7 @@ def settings_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "System Settings Management",
+        'dashboard' : _("System Settings Management"),
     }
     return render(request, 'clc/settings.html', context)
 
@@ -882,7 +1123,7 @@ def vss_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Cloud Server Management",
+        'dashboard' : _("Cloud Server Management"),
     }
 
     return render(request, 'clc/vss.html', context)
@@ -895,7 +1136,7 @@ def rvds_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Remote Cloud Desktop Management",
+        'dashboard' : _("Remote Cloud Desktop Management"),
     }
 
     return render(request, 'clc/rvds.html', context)
@@ -908,7 +1149,7 @@ def lvds_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Local Cloud Desktop Management",
+        'dashboard' : _("Local Cloud Desktop Management"),
     }
 
     return render(request, 'clc/lvds.html', context)
@@ -921,7 +1162,7 @@ def tasks_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Tasks Management",
+        'dashboard' : _("Tasks Management"),
     }
 
     return render(request, 'clc/tasks.html', context)
@@ -939,7 +1180,7 @@ def tools_view(request):
     context = {
         'uid':   u.username,
         'showname': ua.showname,
-        'dashboard' : "Administrator Tools",
+        'dashboard' : _("Administrator Tools"),
     }
 
     return render(request, 'clc/tools.html', context)
@@ -1159,7 +1400,7 @@ def cc_modify_resources(request, cc_name):
     else:
         rec = ecCCResources.objects.get(ccname=cc_name)
         context = {
-            'pagetitle' : "Configure CC Network Resources",
+            'pagetitle' : _("Configure CC Network Resources"),
             'ccres' : rec,
         }
 
@@ -1225,12 +1466,6 @@ def cc_modify_resources(request, cc_name):
 #     'poweroff_mode' : auto | manual,
 #     'poweroff_time' : 1h, 1d, 1w # valid only if power_mode is auto
 # }
-
-def getIPandMacFromePool(ccname):
-    pass
-
-def getServicePortfromCC(ccname):
-    pass
 
 
 def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
@@ -1418,7 +1653,7 @@ def genRuntimeOptionForImageBuild(transid):
     available_rdp_port, used_rdp_ports, newport = allocate_rdp_port(available_rdp_port, used_rdp_ports)
     if newport == None:
         runtime_option['rdp_port']  = ''
-        return None, 'Need more rdp port resources!.'
+        return None, _('Need more rdp port resources!.')
     else:
         runtime_option['rdp_port']                  = newport
         logger.error('allocate rdp port %s for %s' % (newport, transid))
@@ -1437,7 +1672,7 @@ def genRuntimeOptionForImageBuild(transid):
         netcard['nic_mac'], netcard['nic_ip'], web_port = ethers_allocate(ccres_info.ccname, ins_id)
         if netcard['nic_mac'] == None:
             releaseRuntimeOptionForImageBuild(transid, runtime_option)
-            return None, 'Need more ether resources.'
+            return None, _('Need more ether resources.')
         else:
             runtime_option['web_ip'] = netcard['nic_ip']
             runtime_option['web_port'] = web_port
@@ -1452,7 +1687,6 @@ def genRuntimeOptionForImageBuild(transid):
 
     # 3.4 set public ip and private ip and iptable
     iptables = []
-
 
     if networkMode == 'flat':
         runtime_option['ex_ip']   = ncobj.eip
@@ -1482,7 +1716,7 @@ def genRuntimeOptionForImageBuild(transid):
             if new_web_ip == None:
                 runtime_option['web_ip'] = ''
                 releaseRuntimeOptionForImageBuild(transid, runtime_option)
-                return None, 'Need more Proxy Web IP resources for Cluster.'
+                return None, _('Need more Proxy Web IP resources for Cluster.')
             else:
                 runtime_option['web_ip'] = new_web_ip
 
@@ -1501,13 +1735,13 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['web_accessURL']     = ''
     runtime_option['ex_web_accessURL']  = ''
     if ccres_info.cc_usage == 'rvd' or runtime_option['usage'] == 'desktop':
-        runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
-        runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
+        runtime_option['mgr_accessURL']     = "%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
+        runtime_option['ex_mgr_accessURL']  = "%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
     if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
         runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
         runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
-        runtime_option['mgr_accessURL']     = "luhyavm://%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
-        runtime_option['ex_mgr_accessURL']  = "luhyavm://%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
+        runtime_option['mgr_accessURL']     = "%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
+        runtime_option['ex_mgr_accessURL']  = "%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
 
     # issuer's property
     runtime_option['run_with_snapshot'] = 1
@@ -1518,6 +1752,24 @@ def genRuntimeOptionForImageBuild(transid):
 def genIPTablesRule(fromip, toip, port):
     return {}
 
+def vm_display(request, srcid, dstid, insid):
+    _tid = '%s:%s:%s' % (srcid, dstid, insid)
+    try:
+        rec = ectaskTransaction.objects.get(tid=_tid)
+        runtime_option = json.loads(rec.runtime_option)
+        mgr_url = runtime_option['mgr_accessURL']
+        context = {
+            'pagetitle'     : _('cloud desktop'),
+            'url'           : mgr_url,
+        }
+        return render(request, 'clc/rdpclient/vm_display.html', context)
+    except Exception as e:
+        logger.error('vm_display error: tid=%s, error=%s' % (_tid, str(e)))
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : str(e),
+        }
+        return render(request, 'clc/error.html', context)
 
 def vm_run(request, insid):
     if insid.find('VD') == 0:
@@ -1537,7 +1789,7 @@ def vm_run(request, insid):
         if _ncip == None:
             # not find proper cc,nc for build image
             context = {
-                'pagetitle'     : 'Error Report',
+                'pagetitle'     : _('Error Report'),
                 'error'         : _msg,
             }
             return render(request, 'clc/error.html', context)
@@ -1559,7 +1811,7 @@ def vm_run(request, insid):
             if runtime_option == None:
                 rec.delete()
                 context = {
-                    'pagetitle'     : 'Error Report',
+                    'pagetitle'     : _('Error Report'),
                     'error'         : error,
                 }
                 return render(request, 'clc/error.html', context)
@@ -1585,7 +1837,7 @@ def image_create_task_start(request, srcid):
     if _ncip == None:
         # not find proper cc,nc for build image
         context = {
-            'pagetitle'     : 'Error Report',
+            'pagetitle'     : _('Error Report'),
             'error'         : _msg,
         }
         return render(request, 'clc/error.html', context)
@@ -1608,7 +1860,7 @@ def image_create_task_start(request, srcid):
         if runtime_option == None:
                 rec.delete()
                 context = {
-                    'pagetitle'     : 'Error Report',
+                    'pagetitle'     : _('Error Report'),
                     'error'         : error,
                 }
                 return render(request, 'clc/error.html', context)
@@ -1937,7 +2189,7 @@ def image_modify_task_start(request, srcid):
     if _ncip == None:
         # not find proper cc,nc for build image
         context = {
-            'pagetitle'     : 'Error Report',
+            'pagetitle'     : _('Error Report'),
             'error'         : _msg,
         }
         return render(request, 'clc/error.html', context)
@@ -1959,7 +2211,7 @@ def image_modify_task_start(request, srcid):
         if runtime_option == None:
                 rec.delete()
                 context = {
-                    'pagetitle'     : 'Error Report',
+                    'pagetitle'     : _('Error Report'),
                     'error'         : error,
                 }
                 return render(request, 'clc/error.html', context)
@@ -1981,7 +2233,7 @@ def image_create_task_view(request,  srcid, dstid, insid):
         submit = 0
 
     context = {
-        'pagetitle' : "image create",
+        'pagetitle' : _("image build"),
         'task'      : rec,
         'rdp_url'   : managed_url,
         'imgobj'    : imgobj,
@@ -2105,7 +2357,7 @@ def image_add_vm(request, imgid):
         ccs  = ecCCResources.objects.filter(cc_usage='vs')
 
     context = {
-            'pagetitle' : "VM Create",
+            'pagetitle' : _("VM Create"),
             'imgobj'    : imgobj,
             'insid'     : _instanceid,
             'ccs'       : ccs,
@@ -2121,7 +2373,7 @@ def image_edit_vm(request, imgid, insid):
     ccs  = ecServers.objects.filter(role='cc')
     vm   = ecVSS.objects.get(insid=insid)
     context = {
-            'pagetitle' : "VM Create",
+            'pagetitle' : _("VM Create"),
             'imgobj'    : imgobj,
             'insid'     : insid,
             'ccs'       : ccs,
@@ -3825,7 +4077,7 @@ def image_permission_edit(request, srcid):
 
     context = {
         'imgobj': imgobj ,
-        'res':    "Image " + imgobj.name,
+        'res':    _("Image ") + imgobj.name,
         'roles':  roles,
         'lists':  range(0,rows),
         'next':   rows,
@@ -4051,7 +4303,7 @@ def edit_server_permission_view(request, srole, mac):
 
     context = {
         'sobj':   sobj,
-        'res':    "Server ",
+        'res':    _("Server "),
         'roles':  roles,
         'lists':  range(0,rows),
         'next':   rows,
@@ -4096,7 +4348,7 @@ def edit_vm_permission_view(request, insid):
 
     context = {
         'sobj':   sobj,
-        'res':    "VM ",
+        'res':    _("VM "),
         'roles':  roles,
         'lists':  range(0,rows),
         'next':   rows,
