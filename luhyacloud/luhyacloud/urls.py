@@ -24,6 +24,8 @@ urlpatterns = patterns('',
     url(r'^machine/get_service_status',        views.get_service_status,               name='get_service_status'),
     url(r'^machine/get_hardware_status$',      views.get_hardware_status,              name='get_hardware_status'),
 
-    url(r'^$', include('portal.urls')),
+    url(r'^$',              include('portal.urls')),
+    url(r'^portal/',        include('portal.urls')),
+
 
 )

@@ -1,65 +1,24 @@
+{% extends "portal/portal_template.html" %}
 {% load i18n %}
 {% load staticfiles %}
 
-<!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>{% trans "eduCloud portal" %}</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
 
-        <link rel="stylesheet" href="{% static "portal/css/bootstrap.min.css" %}">
-        <link rel="stylesheet" href="{% static "portal/css/icomoon-social.css" %}">
-        <!--<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,800' rel='stylesheet' type='text/css'>-->
+{% block content %}
 
-        <link rel="stylesheet" href="{% static "portal/css/leaflet.css" %}" />
-		<!--[if lte IE 8]>
-		    <link rel="stylesheet" href="{% static "portal/css/leaflet.ie.css" %}" />
-		<![endif]-->
-		<link rel="stylesheet" href="{% static "portal/css/main.css" %}">
-
-        <script src="{% static "portal/js/modernizr-2.6.2-respond-1.1.0.min.js" %}"></script>
-    </head>
-    <body>
-        <!--[if lt IE 7]>
-            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
-        <![endif]-->
-        
-
-        <!-- Navigation & Logo-->
-        <div class="mainmenu-wrapper">
-	        <div class="container">
-	        	<div class="menuextras">
-		        </div>
-		        <nav id="mainmenu" class="mainmenu">
-					<ul>
-						<li>
-							<h1>{% trans "EduCloud Platform Portal" %}</h1>
-						</li>
-					</ul>
-				</nav>
-			</div>
-		</div>
-
-		<div class="section">
+		<div class="section section-white">
 	    	<div class="container">
 	    		<h2>{% trans "EduCloud Platform Services" %}</h2>
 				<div class="row">
 					<div class="col-md-4 col-sm-6">
 						<div class="portfolio-item">
 							<div class="portfolio-image">
-								<a href="page-portfolio-item.html"><img src="{% static "portal/img/cloud-application.jpg" %}" alt='{% trans "Cloud Application" %}'></a>
+								<a href="/portal/cloud-applications"><img src="{% static "portal/img/cloud-application.jpg" %}" alt='{% trans "Cloud Application" %}'></a>
 							</div>
 							<div class="portfolio-info">
 								<ul>
 									<li class="portfolio-project-name">{% trans "Cloud Application" %}</li>
 									<li>Website design & Development</li>
-									<li class="read-more"><a href="page-portfolio-item.html" class="btn">{% trans "Enter" %}</a></li>
+									<li class="read-more"><a href="//portal/cloud-applications" class="btn">{% trans "Enter" %}</a></li>
 								</ul>
 							</div>
 						</div>
@@ -67,13 +26,13 @@
 					<div class="col-md-4 col-sm-6">
 						<div class="portfolio-item">
 							<div class="portfolio-image">
-								<a href="page-portfolio-item.html"><img src="{% static "portal/img/cloud-desktop.jpg" %}" alt='{% trans "Cloud Desktop" %}'></a>
+								<a href="/portal/vdlogin"><img src="{% static "portal/img/cloud-desktop.jpg" %}" alt='{% trans "Cloud Desktop" %}'></a>
 							</div>
 							<div class="portfolio-info">
 								<ul>
 									<li class="portfolio-project-name">{% trans "Cloud Desktop" %}</li>
 									<li>Website design & Development</li>
-									<li class="read-more"><a href="page-portfolio-item.html" class="btn">{% trans "Enter" %}</a></li>
+									<li class="read-more"><a href="/portal/vdlogin" class="btn">{% trans "Enter" %}</a></li>
 								</ul>
 							</div>
 						</div>
@@ -81,13 +40,13 @@
 					<div class="col-md-4 col-sm-6">
 						<div class="portfolio-item">
 							<div class="portfolio-image">
-								<a href="page-portfolio-item.html"><img src="{% static "portal/img/cloud-admin.jpg" %}" alt='{% trans "Cloud Adminstation" %}'></a>
+								<a href="/portal/admlogin"><img src="{% static "portal/img/cloud-admin.jpg" %}" alt='{% trans "Cloud Adminstation" %}'></a>
 							</div>
 							<div class="portfolio-info">
 								<ul>
 									<li class="portfolio-project-name">{% trans "Cloud Adminstation" %}</li>
 									<li>Website design & Development</li>
-									<li class="read-more"><a href="page-portfolio-item.html" class="btn">{% trans "Enter" %}</a></li>
+									<li class="read-more"><a href="/portal/admlogin" class="btn">{% trans "Enter" %}</a></li>
 								</ul>
 							</div>
 						</div>
@@ -98,9 +57,9 @@
 		</div>
 
 		<!-- Testimonials -->
-	    <div class="section">
+	    <div class="section section-white">
 			<div class="container">
-				<h2>Happy Clients</h2>
+				<h2>{% trans "EduCloud Platform Documents" %}</h2>
 				<div class="row">
 					<!-- Testimonial -->
 					<div class="testimonial col-md-4 col-sm-6">
@@ -161,87 +120,24 @@
 	    <!-- End Testimonials -->
 
 	    <!-- Our Clients -->
-	    <div class="section">
+	    <div class="section section-white">
 	    	<div class="container">
-	    		<h2>Our Clients</h2>
+	    		<h2>{% trans "Our Clients" %}</h2>
 				<div class="clients-logo-wrapper text-center row">
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/canon.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/cisco.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/dell.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/ea.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/ebay.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/facebook.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/google.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/hp.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/microsoft.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/mysql.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/sony.png" alt="Client Name"></a></div>
-					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="img/logos/yahoo.png" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/canon.png" %}" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/cisco.png" %}" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/dell.png"  %}"  alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/ea.png"    %}" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/ebay.png"  %}" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/facebook.png"  %}" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/google.png"  %}" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/hp.png"  %}" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/microsoft.png"  %}" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/mysql.png"  %}" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/sony.png"  %}" alt="Client Name"></a></div>
+					<div class="col-lg-1 col-md-1 col-sm-3 col-xs-6"><a href="#"><img src="{% static "portal/img/logos/yahoo.png"  %}" alt="Client Name"></a></div>
 				</div>
 			</div>
 	    </div>
 	    <!-- End Our Clients -->
-
-	    <!-- Footer -->
-	    <div class="footer">
-	    	<div class="container">
-		    	<div class="row">
-		    		<div class="col-footer col-md-3 col-xs-6">
-		    			<h3>Our Latest Work</h3>
-		    			<div class="portfolio-item">
-							<div class="portfolio-image">
-								<a href="page-portfolio-item.html"><img src="{% static "portal/img/portfolio6.jpg" %}" alt="Project Name"></a>
-							</div>
-						</div>
-		    		</div>
-		    		<div class="col-footer col-md-3 col-xs-6">
-		    			<h3>Navigate</h3>
-		    			<ul class="no-list-style footer-navigate-section">
-		    				<li><a href="page-blog-posts.html">Blog</a></li>
-		    				<li><a href="page-portfolio-3-columns-2.html">Portfolio</a></li>
-		    				<li><a href="page-products-3-columns.html">eShop</a></li>
-		    				<li><a href="page-services-3-columns.html">Services</a></li>
-		    				<li><a href="page-pricing.html">Pricing</a></li>
-		    				<li><a href="page-faq.html">FAQ</a></li>
-		    			</ul>
-		    		</div>
-		    		
-		    		<div class="col-footer col-md-4 col-xs-6">
-		    			<h3>Contacts</h3>
-		    			<p class="contact-us-details">
-	        				<b>Address:</b> 123 Fake Street, LN1 2ST, London, United Kingdom<br/>
-	        				<b>Phone:</b> +44 123 654321<br/>
-	        				<b>Fax:</b> +44 123 654321<br/>
-	        				<b>Email:</b> <a href="mailto:getintoutch@yourcompanydomain.com">getintoutch@yourcompanydomain.com</a>
-	        			</p>
-		    		</div>
-		    		<div class="col-footer col-md-2 col-xs-6">
-		    			<h3>Stay Connected</h3>
-		    			<ul class="footer-stay-connected no-list-style">
-		    				<li><a href="#" class="facebook"></a></li>
-		    				<li><a href="#" class="twitter"></a></li>
-		    				<li><a href="#" class="googleplus"></a></li>
-		    			</ul>
-		    		</div>
-		    	</div>
-		    	<div class="row">
-		    		<div class="col-md-12">
-		    			<div class="footer-copyright">&copy; 2013 mPurpose. All rights reserved.</div>
-		    		</div>
-		    	</div>
-		    </div>
-	    </div>
-
-        <!-- Javascripts -->
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script src="{% static "portal/js/jquery-1.9.1.min.js" %}"><\/script>')</script>
-        <script src="{% static "portal/js/bootstrap.min.js" %}"></script>
-        <script src="{% static "portal/js/leaflet.js" %}"></script>
-        <script src="{% static "portal/js/jquery.fitvids.js" %}"></script>
-        <script src="{% static "portal/js/jquery.sequence-min.js" %}"></script>
-        <script src="{% static "portal/js/jquery.bxslider.js" %}"></script>
-        <script src="{% static "portal/js/main-menu.js" %}"></script>
-        <script src="{% static "portal/js/template.js" %}"></script>
-
-    </body>
-</html>
+{% endblock %}

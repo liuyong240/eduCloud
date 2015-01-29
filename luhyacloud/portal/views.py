@@ -31,3 +31,24 @@ def portal_home(request):
     context = {
     }
     return render(request, 'portal/index.html', context)
+
+def portal_login(request):
+    context = {
+    }
+    return render(request, 'portal/login.html', context)
+
+def portal_adm_login(request):
+    context = {
+    }
+    return render(request, 'portal/adm_login.html', context)
+
+def portal_vapp(request):
+    context = {
+    }
+    return render(request, 'portal/cloud-services.html', context)
+
+@login_required
+def portal_vds(request):
+    context = {
+    }
+    return render(request, 'portal/cloud-desktop.html', context)

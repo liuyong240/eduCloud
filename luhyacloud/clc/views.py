@@ -494,22 +494,59 @@ def findBuildResource(srcid):
 def display_login_window(request):
     return render(request, 'clc/login.html', {})
 
+def isAdmin(user):
+    u = ecAccount.objects.get(userid = user.username)
+    role_name = u.ec_authpath_name
+    role_value = ecAuthPath.objects.get(ec_authpath_name = role_name)
+    return role_value.ec_authpath_value.endswith('.admin')
+
+
 def user_login(request):
     response = {}
     username = request.POST['email']
     password = request.POST['password']
     user = authenticate(username=username, password=password)
     if user is not None:
-        if user.is_active:
-            login(request, user)
-            response['status'] = "SUCCESS"
-            response['url'] = "/clc/settings"
-            return HttpResponse(json.dumps(response), content_type='application/json')
-        else:
-            # Return a 'disabled account' error message
+        if not user.is_active:
             response['status'] = "FAILURE"
-            response['reason'] = "account is disabled"
+            response['reason'] = _("account is not activated.")
             return HttpResponse(json.dumps(response), content_type='application/json')
+
+        if isAdmin(user):
+            response['status'] = "FAILURE"
+            response['reason'] = _("Admin is NOT allowd to login")
+            return HttpResponse(json.dumps(response), content_type='application/json')
+
+        login(request, user)
+        response['status'] = "SUCCESS"
+        response['url'] = "/portal/cloud-desktops"
+        return HttpResponse(json.dumps(response), content_type='application/json')
+    else:
+        # Return an 'invalid login' error message.
+        response['status'] = "FAILURE"
+        response['reason'] = "account is invalid"
+        return HttpResponse(json.dumps(response), content_type='application/json')
+
+def admin_login(request):
+    response = {}
+    username = request.POST['email']
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if not user.is_active:
+            response['status'] = "FAILURE"
+            response['reason'] = _("account is not activated.")
+            return HttpResponse(json.dumps(response), content_type='application/json')
+
+        if not isAdmin(user):
+            response['status'] = "FAILURE"
+            response['reason'] = _("Only Admin is allowd to login")
+            return HttpResponse(json.dumps(response), content_type='application/json')
+
+        login(request, user)
+        response['status'] = "SUCCESS"
+        response['url'] = "/clc/images"
+        return HttpResponse(json.dumps(response), content_type='application/json')
     else:
         # Return an 'invalid login' error message.
         response['status'] = "FAILURE"
@@ -518,7 +555,7 @@ def user_login(request):
 
 def user_logout(request):
     logout(request)
-    return render(request, 'clc/login.html', {})
+    return render(request, 'portal/index.html', {})
 
 
 ##########################################################################
