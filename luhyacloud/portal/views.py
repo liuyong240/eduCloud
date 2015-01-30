@@ -43,7 +43,17 @@ def portal_adm_login(request):
     return render(request, 'portal/adm_login.html', context)
 
 def portal_vapp(request):
+    clcip = getclcipbyconf()
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/clc/api/1.0/list_sites' % clcip
+    else:
+        url = 'http://%s/clc/api/1.0/list_sites' % clcip
+
+    r = requests.get(url)
+    result = json.loads(r.content)
+
     context = {
+        'sites': result['data']
     }
     return render(request, 'portal/cloud-services.html', context)
 

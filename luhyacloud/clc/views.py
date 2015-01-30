@@ -4396,3 +4396,55 @@ def edit_vm_permission_view(request, insid):
 
 def rdp_web_client(request):
     return render(request, 'clc/rdpclient/webclient3.html')
+
+#######################################
+### API v1.0 for portal request
+#######################################
+# def list_sites(request):
+#     list_of_sites =[]
+#     one_site = {
+#         'name': 'First Application',
+#         'desc': 'This is the first application we are build this year',
+#         'web_url': 'http://www.baidu.com'
+#     }
+#     second_site = {
+#         'name': 'Second Application',
+#         'desc': 'This is the Second application we are build this year',
+#         'web_url': 'http://www.taobao.com'
+#     }
+#     third_site = {
+#         'name': 'Third Application',
+#         'desc': 'This is the Third application we are build this year',
+#         'web_url': 'http://www.popsugar.com'
+#     }
+#     list_of_sites.append(one_site)
+#     list_of_sites.append(second_site)
+#     list_of_sites.append(third_site)
+#
+#     response = {}
+#     response['Result'] = 'OK'
+#     response['data']   = list_of_sites
+#     retvalue = json.dumps(response)
+#     return HttpResponse(retvalue, content_type="application/json")
+
+def list_sites(request):
+    list_of_sites =[]
+    vss_objects = ecVSS.objects.all()
+    for vs in vss_objects:
+        one_site = {}
+        one_site['name'] = vs.name
+        one_site['desc'] = vs.description
+        _tid = '%s:%s:%s' % (vs.imageid, vs.imageid, vs.insid)
+
+        tobjs = ectaskTransaction.objects.filter(tid=_tid)
+        if tobjs.count() > 0:
+           runtime_option = json.loads( tobjs[0].runtime_option )
+           one_site['web_url'] = runtime_option['web_accessURL']
+           list_of_sites.append(one_site)
+
+    response = {}
+    response['Result'] = 'OK'
+    response['data']   = list_of_sites
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+

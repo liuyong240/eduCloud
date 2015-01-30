@@ -112,10 +112,14 @@ urlpatterns = patterns('',
 
     url(r'^jt/ethers/(?P<cc_name>\w+)$',    views.jtable_ethers,                  name='jtable_ethers_view'),
 
-    # API v1.0
+    # API v1.0 for portal
     url(r'^api/1.0/user_login$',    views.user_login,                         name='user_login$'),
     url(r'^api/1.0/admin_login$',   views.admin_login,                        name='admin_login'),
+    url(r'^api/1.0/list_sites$',    views.list_sites,                         name='list_sites'),
 
+
+
+    # API v1.0 for system administration
     # system setting table ops by POST
     url(r'^api/1.0/settings/listauthpath$',      views.list_authpath,               name='list_authpath_view'),
     url(r'^api/1.0/settings/deleteauthpath$',    views.delete_authpath,             name='delete_authpath_view'),

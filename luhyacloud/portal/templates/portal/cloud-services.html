@@ -18,25 +18,16 @@
         <div class="section">
 	        <div class="container">
 	        	<div class="row">
-
+                    {% for site in sites %}
 	        		<div class="col-md-4 col-sm-6">
 	        			<div class="service-wrapper">
 		        			<img src="{% static "portal/img/cloud-website.png" %}">
-		        			<h3>Aliquam in adipiscing</h3>
-		        			<p>Praesent rhoncus mauris ac sollicitudin vehicula. Nam fringilla turpis turpis, at posuere turpis aliquet sit amet condimentum</p>
-		        			<a href="#" class="btn">Enter</a>
+		        			<h3>{{ site.name }}</h3>
+		        			<p>{{ site.desc }}</p>
+		        			<a href="{{ site.web_url }}" target='_blank' class="btn">Enter</a>
 		        		</div>
 	        		</div>
-
-					<div class="col-md-4 col-sm-6">
-	        			<div class="service-wrapper">
-		        			<img src="{% static "portal/img/cloud-website.png" %}">
-		        			<h3>Aliquam in adipiscing</h3>
-		        			<p>Praesent rhoncus mauris ac sollicitudin vehicula. Nam fringilla turpis turpis, at posuere turpis aliquet sit amet condimentum</p>
-		        			<a href="#" class="btn">Enter</a>
-		        		</div>
-	        		</div>
-
+                    {% endfor %}
 	        	</div>
 	        </div>
 	    </div>
