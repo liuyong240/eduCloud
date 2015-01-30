@@ -13,48 +13,48 @@
 				</div>
 			</div>
 		</div>
-        
-        <div class="section">
+
+        <div class="section section-white">
 	        <div class="container">
 	        	<div class="row">
 
+                    {% for vd in vds %}
 	        		<div class="col-md-3 col-sm-6">
 	        			<div class="service-wrapper">
-		        			<img src="{% static "portal/img/desktop/Ubuntu.png" %}" alt="Service Name" %}">
-		        			<h3>Brilliant Look</h3>
-		        			<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames. <a href="#">Read more...</a></p>
+		        			<img src='/static/portal/img/desktop/{{ vd.ostype }}.png'>
+		        			<h3>{{ vd.name }}</h3>
+		        			<p></p>
+                            {% if vd.phase == 'editing' and vd.state == 'Running' or vd.state == 'running' %}
+                                <button type="button" value="{{ vd.ecid }}-{{ vd.tid }}"  name="run"    class="btn disabled">Run</button>
+                            {% else %}
+                                <button type="button" value="{{ vd.ecid }}-{{ vd.tid }}"  name="run"   class="btn">Run</button>
+                            {% endif %}
+                            <div class="btn-group ">
+                                {% if vd.phase == 'editing' and vd.state == 'Running' or vd.state = 'running' %}
+                                    <button type="button" value="{{ vd.mgr_url }}" name="show" class="btn dropdown-toggle" data-toggle="dropdown">
+                                {% else %}
+                                    <button type="button" value="{{ vd.mgr_url }}" name="show" class="btn disabled dropdown-toggle" data-toggle="dropdown">
+                                {% endif %}
+                                    {% trans "Show" %}
+                                    <span class="caret"></span>
+                                </button>
+
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li><a href="JavaScript:void(0);" onclick="display_in_browser();">{% trans "Show by Browser" %}</a>
+                                    </li>
+                                    <li><a href="#">{% trans "Show by windows-tool" %}</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+
 	        			</div>
 	        		</div>
-
-					<div class="col-md-3 col-sm-6">
-	        			<div class="service-wrapper">
-		        			<img src="{% static "portal/img/desktop/Windows7.png" %}" alt="Service Name" %}">
-		        			<h3>Brilliant Look</h3>
-		        			<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames. <a href="#">Read more...</a></p>
-	        			</div>
-	        		</div>
-
-	        		<div class="col-md-3 col-sm-6">
-	        			<div class="service-wrapper">
-		        			<img src="{% static "portal/img/desktop/Windows8.png" %}" alt="Service Name" %}">
-		        			<h3>Brilliant Look</h3>
-		        			<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames. <a href="#">Read more...</a></p>
-	        			</div>
-	        		</div>
-
-					<div class="col-md-3 col-sm-6">
-	        			<div class="service-wrapper">
-		        			<img src="{% static "portal/img/desktop/WindowsXP.png" %}" alt="Service Name" %}">
-		        			<h3>Brilliant Look</h3>
-		        			<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames. <a href="#">Read more...</a></p>
-	        			</div>
-	        		</div>
-
+                    {% endfor %}
 
 	        	</div>
 	        </div>
 	    </div>
-
 {% endblock %}
 
 {% block myjs %}
@@ -62,8 +62,24 @@
 img {
 	display:inline-block;
 	width:150px;
-	height:150px;
+	height:120px;
 	overflow:hidden;
 	}
 </style>
+
+<script>
+function runVD() {
+
+}
+
+function showVD() {
+
+}
+$(document).ready(function () {
+    $(".btn").click(function () {
+        alert( this.value + '+' +  this.name)
+    });
+});
+</script>
+
 {% endblock %}

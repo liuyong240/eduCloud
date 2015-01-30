@@ -61,15 +61,16 @@ def portal_vapp(request):
 def portal_vds(request):
     clcip = getclcipbyconf()
     if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/clc/api/1.0/list_sites' % clcip
+        url = 'http://%s:8000/clc/api/1.0/list_myvds' % clcip
     else:
-        url = 'http://%s/clc/api/1.0/list_sites' % clcip
+        url = 'http://%s/clc/api/1.0/list_myvds' % clcip
 
     r = requests.get(url)
     result = json.loads(r.content)
 
     context = {
         'uid' : request.user.username,
-        'tvds' : result['data'],
+        'vds' : result['data'],
+
     }
     return render(request, 'portal/cloud-desktop.html', context)

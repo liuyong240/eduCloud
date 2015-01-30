@@ -4448,9 +4448,57 @@ def list_sites(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-def list_tvds(request):
+
+def list_myvds(request):
     '''
     :param request:
-    :return: list of tvds, including : image name, image description, ostype, tid, phase, state, mgr_url
+    :return: list of tvds, including :
+             name, description, ostype,
+    :        tid, phase, state, mgr_url
     '''
-    pass
+
+    vds = []
+    imgobjs = ecImages.objects.filter(img_usage='desktop')
+
+    for imgobj in imgobjs:
+        vd = {}
+        vd['ecid'] = imgobj.ecid
+        vd['name'] = imgobj.name
+        vd['ostype'] = imgobj.ostype
+        vd['desc'] = imgobj.description
+
+        trecs = ectaskTransaction.objects.filter(srcimgid=imgobj.ecid, dstimgid=imgobj.ecid, user=request.user.username)
+        if trecs.count() > 0:
+            for trec in trecs:
+                insid = trec.insid
+                if insid.find('TVD') == 0:
+                    vd['tid'] = trec.tid
+                    vd['phase'] = trec.phase
+                    vd['state'] = trec.state
+                    runtime_option = json.loads(trec.runtime_option)
+                    vd['mgr_url'] = runtime_option['mgr_accessURL']
+                    vds.append(vd)
+                elif insid.find('VD') == 0:
+                    def_vd = ecVDS.objects.get(insid=insid)
+                    if len(def_vd.description) > 0:
+                        vd['desc'] = def_vd.description
+
+                    vd['tid'] = trec.tid
+                    vd['phase'] = trec.phase
+                    vd['state'] = trec.state
+                    runtime_option = json.loads(trec.runtime_option)
+                    vd['mgr_url'] = runtime_option['mgr_accessURL']
+                    vds.append(vd)
+        else:
+            vd['tid'] = ''
+            vd['phase'] = ''
+            vd['state'] = ''
+            vd['mgr_url'] = ''
+            vds.append(vd)
+
+    response = {}
+    response['Result'] = 'OK'
+    response['data'] = vds
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")

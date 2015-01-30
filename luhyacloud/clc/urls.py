@@ -116,7 +116,7 @@ urlpatterns = patterns('',
     url(r'^api/1.0/user_login$',    views.user_login,                         name='user_login$'),
     url(r'^api/1.0/admin_login$',   views.admin_login,                        name='admin_login'),
     url(r'^api/1.0/list_sites$',    views.list_sites,                         name='list_sites'),
-    url(r'^api/1.0/list_tvds$',     views.list_tvds,                          name='list_tvds'),
+    url(r'^api/1.0/list_myvds$',    views.list_myvds,                         name='list_myvds'),
 
 
     # API v1.0 for system administration
