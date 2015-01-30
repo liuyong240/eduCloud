@@ -4448,3 +4448,9 @@ def list_sites(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def list_tvds(request):
+    '''
+    :param request:
+    :return: list of tvds, including : image name, image description, ostype, tid, phase, state, mgr_url
+    '''
+    pass
