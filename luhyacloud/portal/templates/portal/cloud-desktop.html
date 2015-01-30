@@ -24,28 +24,35 @@
 		        			<img src='/static/portal/img/desktop/{{ vd.ostype }}.png'>
 		        			<h3>{{ vd.name }}</h3>
 		        			<p></p>
+
                             {% if vd.phase == 'editing' and vd.state == 'Running' or vd.state == 'running' %}
-                                <button type="button" value="{{ vd.ecid }}-{{ vd.tid }}"  name="run"    class="btn disabled">Run</button>
+                                <button type="button" onclick="startVD('{{ vd.ecid }}', '{{ vd.tid }}' );"  class="btn disabled">Run</button>
                             {% else %}
-                                <button type="button" value="{{ vd.ecid }}-{{ vd.tid }}"  name="run"   class="btn">Run</button>
+                                <button type="button" onclick="startVD('{{ vd.ecid }}', '{{ vd.tid }}' );"  class="btn ">Run</button>
                             {% endif %}
+
                             <div class="btn-group ">
                                 {% if vd.phase == 'editing' and vd.state == 'Running' or vd.state = 'running' %}
-                                    <button type="button" value="{{ vd.mgr_url }}" name="show" class="btn dropdown-toggle" data-toggle="dropdown">
+                                    <button type="button" class="btn  dropdown-toggle" data-toggle="dropdown">
                                 {% else %}
-                                    <button type="button" value="{{ vd.mgr_url }}" name="show" class="btn disabled dropdown-toggle" data-toggle="dropdown">
+                                    <button type="button" class="btn  disabled dropdown-toggle" data-toggle="dropdown">
                                 {% endif %}
                                     {% trans "Show" %}
                                     <span class="caret"></span>
                                 </button>
-
                                 <ul class="dropdown-menu pull-right" role="menu">
-                                    <li><a href="JavaScript:void(0);" onclick="display_in_browser();">{% trans "Show by Browser" %}</a>
+                                    <li><a href="JavaScript:void(0);" onclick="show_in_browser( '{{ vd.tid }}' );">{% trans "Show by Browser" %}</a>
                                     </li>
-                                    <li><a href="#">{% trans "Show by windows-tool" %}</a>
+                                    <li><a href="JavaScript:void(0);" onclick="show_in_tools( '{{ vd.mgr_url }}' );">{% trans "Show by windows-tool" %}</a>
                                     </li>
                                 </ul>
                             </div>
+
+                            {% if vd.phase == 'editing' and vd.state == 'Running' or vd.state == 'running' %}
+                                <button type="button" onclick="stopVD('{{ vd.ecid }}', '{{ vd.tid }}' );"   class="btn ">Stop</button>
+                            {% else %}
+                                <button type="button" onclick="stopVD('{{ vd.ecid }}', '{{ vd.tid }}' );"  class="btn disabled">Stop</button>
+                            {% endif %}
 
 
 	        			</div>
@@ -68,17 +75,53 @@ img {
 </style>
 
 <script>
-function runVD() {
+function stopVD( ecid, tid) {
+    tmp = tid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
 
-}
-
-function showVD() {
-
-}
-$(document).ready(function () {
-    $(".btn").click(function () {
-        alert( this.value + '+' +  this.name)
+    url = "/clc/image/create/task/stop/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
     });
+    alert('cloud Desktop is stopped ! ');
+    location.reload();
+}
+
+function startVD( ecid, tid ) {
+    //alert ( ecid + '+' + tid );
+    if (tid == '' ) {
+        // create tid
+
+    }
+
+    // prepare
+
+    // run
+}
+
+function show_in_browser( tid ) {
+    tmp = tid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url="/clc/vm/display/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    var left = ($(window).width() / 2) - (1440 / 2);
+    var top = ($(window).height() / 2) - (1024 / 2);
+    window.open(url, '', 'height=1280,width=1400,left=' + left + ',top=' + top);
+}
+
+function show_in_tools( url ) {
+    alert( url );
+}
+
+$(document).ready(function () {
+
 });
 </script>
 

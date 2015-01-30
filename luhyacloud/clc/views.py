@@ -4480,8 +4480,10 @@ def list_myvds(request):
                     vds.append(vd)
                 elif insid.find('VD') == 0:
                     def_vd = ecVDS.objects.get(insid=insid)
+                    vd['name'] = def_vd.name
                     if len(def_vd.description) > 0:
                         vd['desc'] = def_vd.description
+
 
                     vd['tid'] = trec.tid
                     vd['phase'] = trec.phase

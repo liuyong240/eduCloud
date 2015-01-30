@@ -16,4 +16,4 @@ DATABASES = {
 }
 
 # login & logout
-LOGIN_URL = "/clc/login"
+LOGIN_URL = "/portal/vdlogin$"
