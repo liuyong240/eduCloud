@@ -4458,6 +4458,7 @@ def list_myvds(request):
     '''
 
     vds = []
+    index = 0
     imgobjs = ecImages.objects.filter(img_usage='desktop')
 
     for imgobj in imgobjs:
@@ -4472,31 +4473,37 @@ def list_myvds(request):
             for trec in trecs:
                 insid = trec.insid
                 if insid.find('TVD') == 0:
+
                     vd['tid'] = trec.tid
                     vd['phase'] = trec.phase
                     vd['state'] = trec.state
                     runtime_option = json.loads(trec.runtime_option)
                     vd['mgr_url'] = runtime_option['mgr_accessURL']
+                    vd['id']  = 'myvd' + str(index)
                     vds.append(vd)
+                    index += 1
                 elif insid.find('VD') == 0:
                     def_vd = ecVDS.objects.get(insid=insid)
                     vd['name'] = def_vd.name
                     if len(def_vd.description) > 0:
                         vd['desc'] = def_vd.description
 
-
                     vd['tid'] = trec.tid
                     vd['phase'] = trec.phase
                     vd['state'] = trec.state
                     runtime_option = json.loads(trec.runtime_option)
                     vd['mgr_url'] = runtime_option['mgr_accessURL']
+                    vd['id']  = 'myvd' + str(index)
                     vds.append(vd)
+                    index += 1
         else:
             vd['tid'] = ''
             vd['phase'] = ''
             vd['state'] = ''
             vd['mgr_url'] = ''
+            vd['id']  = 'myvd' + str(index)
             vds.append(vd)
+            index += 1
 
     response = {}
     response['Result'] = 'OK'
@@ -4504,3 +4511,119 @@ def list_myvds(request):
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
+
+
+def rvd_start(request, insid):
+    response = {}
+    vmrec = ecVDS.objects.get(insid=insid)
+
+    _tid  = '%s:%s:%s' % (vmrec.imageid, vmrec.imageid, insid)
+
+    # if tid exist, just call view
+    # else find resource and create tid
+    trecs = ectaskTransaction.objects.filter(tid=_tid)
+    if trecs.count() > 0:
+        response['Result'] = 'OK'
+        response['tid']  = _tid
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+    else:
+        _ccip, _ncip, _msg = findVMRunningResource(insid)
+        if _ncip == None:
+            response['Result'] = 'FAIL'
+            response['error']  = _msg
+            retvalue = json.dumps(response)
+            return HttpResponse(retvalue, content_type="application/json")
+        else:
+            rec = ectaskTransaction(
+                 tid         = _tid,
+                 srcimgid    = vmrec.imageid,
+                 dstimgid    = vmrec.imageid,
+                 insid       = insid,
+                 user        = request.user.username,
+                 phase       = 'preparing',
+                 state       = "init",
+                 progress    = 0,
+                 ccip        = _ccip,
+                 ncip        = _ncip,
+            )
+            rec.save()
+            runtime_option, error = genRuntimeOptionForImageBuild(_tid)
+            if runtime_option == None:
+                rec.delete()
+                response['Result'] = 'FAIL'
+                response['error']  = error
+                retvalue = json.dumps(response)
+                return HttpResponse(retvalue, content_type="application/json")
+            else:
+                rec.runtime_option = json.dumps(runtime_option)
+                rec.save()
+
+                response['Result'] = 'OK'
+                response['tid']  = _tid
+                retvalue = json.dumps(response)
+                return HttpResponse(retvalue, content_type="application/json")
+
+def rvd_create(request, srcid):
+    response = {}
+
+    # create ectaskTransation Record
+    _srcimgid        = srcid
+    _dstimageid      = srcid
+    _instanceid      = 'TVD' + genHexRandom()
+    _tid             = '%s:%s:%s' % (_srcimgid, _dstimageid, _instanceid )
+
+    logger.error("--- --- --- rvd_create %s" % _tid)
+
+    _ccip, _ncip, _msg = findBuildResource(srcid)
+    if _ncip == None:
+        # not find proper cc,nc for build image
+        response['Result'] = 'FAIL'
+        response['error']  = _msg
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+    else:
+        rec = ectaskTransaction(
+             tid         = _tid,
+             srcimgid    = _srcimgid,
+             dstimgid    = _dstimageid,
+             insid       = _instanceid,
+             user        = request.user.username,
+             phase       = 'preparing',
+             state       = "init",
+             progress    = 0,
+             ccip        = _ccip,
+             ncip        = _ncip,
+        )
+        rec.save()
+        runtime_option, error = genRuntimeOptionForImageBuild(_tid)
+        if runtime_option == None:
+                rec.delete()
+                response['Result'] = 'FAIL'
+                response['error']  = error
+                retvalue = json.dumps(response)
+                return HttpResponse(retvalue, content_type="application/json")
+        else:
+            rec.runtime_option = json.dumps(runtime_option)
+            rec.save()
+
+            response['Result'] = 'OK'
+            response['tid']  = _tid
+            retvalue = json.dumps(response)
+            return HttpResponse(retvalue, content_type="application/json")
+
+def rvd_prepare(request, srcid, dstid, insid):
+    return image_create_task_prepare(request, srcid, dstid, insid)
+
+def rvd_getprogress(request, srcid, dstid, insid):
+    return image_create_task_getprogress(request, srcid, dstid, insid)
+
+def rvd_run(request, srcid, dstid, insid):
+    return image_create_task_run(request, srcid, dstid, insid)
+
+def rvd_stop(request, srcid, dstid, insid):
+    return image_create_task_stop(request, srcid, dstid, insid)
+
+def rvd_getvmstatus(request, srcid, dstid, insid):
+    return image_create_task_getvmstatus(request, srcid, dstid, insid)
+

@@ -25,6 +25,10 @@
 		        			<h3>{{ vd.name }}</h3>
 		        			<p></p>
 
+                            <div class="progress progress-striped active" >
+                                <div id="{{ vd.id }}"  class="progress-bar progress-bar-info" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 10%"></div>
+                            </div>
+
                             {% if vd.phase == 'editing' and vd.state == 'Running' or vd.state == 'running' %}
                                 <button type="button" onclick="startVD('{{ vd.ecid }}', '{{ vd.tid }}' );"  class="btn disabled">Run</button>
                             {% else %}

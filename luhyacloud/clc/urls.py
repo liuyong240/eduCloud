@@ -112,11 +112,21 @@ urlpatterns = patterns('',
 
     url(r'^jt/ethers/(?P<cc_name>\w+)$',    views.jtable_ethers,                  name='jtable_ethers_view'),
 
+    ###############################
     # API v1.0 for portal
+    ###############################
     url(r'^api/1.0/user_login$',    views.user_login,                         name='user_login$'),
     url(r'^api/1.0/admin_login$',   views.admin_login,                        name='admin_login'),
     url(r'^api/1.0/list_sites$',    views.list_sites,                         name='list_sites'),
     url(r'^api/1.0/list_myvds$',    views.list_myvds,                         name='list_myvds'),
+
+    url(r'^api/1.0/rvd/start/(?P<insid>\w+)$',                                          views.rvd_start,              name='rvd_start'),
+    url(r'^api/1.0/rvd/create/(?P<srcid>\w+)$',                                         views.rvd_create,             name='rvd_create'),
+    url(r'^api/1.0/rvd/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',          views.rvd_prepare,            name='rvd_prepare'),
+    url(r'^api/1.0/rvd/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_getprogress,        name='rvd_getprogress'),
+    url(r'^api/1.0/rvd/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',              views.rvd_run,                name='rvd_run'),
+    url(r'^api/1.0/rvd/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',             views.rvd_stop,               name='rvd_stop'),
+    url(r'^api/1.0/rvd/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_getvmstatus,        name='rvd_getvmstatus'),
 
 
     # API v1.0 for system administration
