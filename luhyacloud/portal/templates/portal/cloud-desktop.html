@@ -80,7 +80,7 @@ var progress_url    = "/clc/api/1.0/rvd/getprogress/";
 var run_url         = "/clc/api/1.0/rvd/run/";
 var stop_url        = "/clc/api/1.0/rvd/stop/" ;
 var vmstatus_url    = "/clc/api/1.0/rvd/getvmstatus/";
-var remove_task_url = '/clc/api/1.0/tasks/delete"
+var remove_task_url = "/clc/api/1.0/tasks/delete";
 
 ///////////////////////////////////////////////////////
 //
@@ -394,16 +394,16 @@ function startVD( ecid, tid, id ) {
             }
         }
 
-        if (items['state'] == 'downloading' || state == 'cloning') {
+        if (items['state'] == 'downloading' || items['state'] == 'cloning') {
             $('#run_'  + id).addClass('disabled');
             $('#show_' + id).addClass('disabled');
             $('#stop_' + id).addClass('disabled');
 
             $('#progress_'    + id).css('display', 'block');
-            $('#progressbar_' + id).css('width', progress + '%');
-            $('#progressbar_' + id).text(progress + '%');
+            $('#progressbar_' + id).css('width', items['progress'] + '%');
+            $('#progressbar_' + id).text(items['progress'] + '%');
 
-            $('#error_msg_' + id).text(prompt);
+            $('#error_msg_' + id).text(items['prompt']);
             $('#error_msg_' + id).css('color',   'blue');
             $('#error_msg_' + id).css('display', 'block');
         }
@@ -434,8 +434,8 @@ function startVD( ecid, tid, id ) {
             $('#progress_' + id).css('display', 'none');
             $('#error_msg_' + id).css('display', 'none');
 
-             if (failed == 1) {
-                $('#error_msg_' + id).text(errormsg);
+             if (items['failed'] == 1) {
+                $('#error_msg_' + id).text(items['errormsg']);
                 $('#error_msg_' + id).css('color',   'red');
                 $('#error_msg_' + id).css('display', 'block');
                 return;
@@ -449,7 +449,7 @@ function startVD( ecid, tid, id ) {
 
             $('#progress_' + id).css('display', 'none');
 
-            $('#error_msg_' + id).text(prompt);
+            $('#error_msg_' + id).text(items['prompt']);
             $('#error_msg_' + id).css('color',   'blue');
             $('#error_msg_' + id).css('display', 'block');
         }
