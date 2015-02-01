@@ -55,7 +55,7 @@ class cc_rpcServerThread(run4everThread):
             else:
                 logger.error("unknow cmd : %s", message['op'])
         except Exception as e:
-            logger("error msg = %s with body=%s" % (e.message, body))
+            logger("error msg = %s with body=%s" % (str(e)., body))
 
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
         locale_string = getlocalestring()
@@ -108,7 +108,7 @@ class cc_rpcServerThread(run4everThread):
                 del self.tasks_status[tid]
 
         except Exception as e:
-            logger.error("cc_rpc_handle_imageprepare Exception Error Message : %s" % e.message)
+            logger.error("cc_rpc_handle_imageprepare Exception Error Message : %s" % str(e))
 
     def cc_rpc_handle_imagesubmit(self, ch, method, props, tid, paras):
         locale_string = getlocalestring()
@@ -190,7 +190,7 @@ class cc_rpcServerThread(run4everThread):
             if worker.isFailed() or worker.isDone():
                 del self.submit_tasks[tid]
         except Exception as e:
-            logger.error("cc_rpc_handle_imagesubmit Exception Error Message : %s" % e.message)
+            logger.error("cc_rpc_handle_imagesubmit Exception Error Message : %s" % str(e))
 
     def cc_rpc_handle_prepare_failure(self, ch, method, props, tid, paras):
         try:
@@ -207,7 +207,7 @@ class cc_rpcServerThread(run4everThread):
                      body=payload)
             ch.basic_ack(delivery_tag = method.delivery_tag)
         except Exception as e:
-            logger.error("cc_rpc_handle_prepare_failure Exception Error Message : %s" % e.message)
+            logger.error("cc_rpc_handle_prepare_failure Exception Error Message : %s" % str(e))
 
     def cc_rpc_handle_prepare_success(self, ch, method, props, tid, paras):
         try:
@@ -224,7 +224,7 @@ class cc_rpcServerThread(run4everThread):
                      body=payload)
             ch.basic_ack(delivery_tag = method.delivery_tag)
         except Exception as e:
-            logger.error("cc_rpc_handle_prepare_success Exception Error Message : %s" % e.message)
+            logger.error("cc_rpc_handle_prepare_success Exception Error Message : %s" % str(e))
 
     def cc_rpc_handle_submit_failure(self, ch, method, props, tid, paras):
         try:
@@ -241,7 +241,7 @@ class cc_rpcServerThread(run4everThread):
                      body=payload)
             ch.basic_ack(delivery_tag = method.delivery_tag)
         except Exception as e:
-            logger.error("cc_rpc_handle_submit_failure Exception Error Message : %s" % e.message)
+            logger.error("cc_rpc_handle_submit_failure Exception Error Message : %s" % str(e))
 
     def cc_rpc_handle_submit_success(self, ch, method, props, tid, paras):
         try:
@@ -277,7 +277,7 @@ class cc_rpcServerThread(run4everThread):
                 WriteImageVersionFile(dstimgid,newversionNo)
                 logger.error("image %s version = %s" % (dstimgid, newversionNo))
         except Exception as e:
-            logger.error("cc_rpc_handle_submit_success Exception Error Message : %s" % e.message)
+            logger.error("cc_rpc_handle_submit_success Exception Error Message : %s" % str(e))
 
     def cc_rpc_handle_image_running(self, ch, method, props, tid, paras):
         try:
@@ -294,7 +294,7 @@ class cc_rpcServerThread(run4everThread):
                      body=payload)
             ch.basic_ack(delivery_tag = method.delivery_tag)
         except Exception as e:
-            logger.error("cc_rpc_handle_image_running Exception Error Message : %s" % e.message)
+            logger.error("cc_rpc_handle_image_running Exception Error Message : %s" % str(e))
 
     def cc_rpc_handle_image_stopped(self, ch, method, props, tid, paras):
         try:
@@ -311,5 +311,5 @@ class cc_rpcServerThread(run4everThread):
                      body=payload)
             ch.basic_ack(delivery_tag = method.delivery_tag)
         except Exception as e:
-            logger.error("cc_rpc_handle_image_stopped Exception Error Message : %s" % e.message)
+            logger.error("cc_rpc_handle_image_stopped Exception Error Message : %s" % str(e))
 

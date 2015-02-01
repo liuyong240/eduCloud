@@ -23,27 +23,19 @@
 	        			<div class="service-wrapper">
 		        			<img src='/static/portal/img/desktop/{{ vd.ostype }}.png'>
 		        			<h3>{{ vd.name }}</h3>
-		        			<p></p>
 
-                            <div class="progress progress-striped active" >
-                                <div id="{{ vd.id }}"  class="progress-bar progress-bar-info" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 10%"></div>
+		        			<p id="error_msg_{{ vd.id}}" style="display:none;"></p>
+
+                            <div class="progress progress-striped active" id="progress_{{ vd.id }}" style="display:none">
+                                <div id="progressbar_{{ vd.id }}" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0"
+                                     aria-valuemin="0" aria-valuemax="100" style="width: 0%;">0%</span>
+                                </div>
                             </div>
 
-                            {% if vd.phase == 'editing' and vd.state == 'Running' or vd.state == 'running' %}
-                                <button type="button" onclick="startVD('{{ vd.ecid }}', '{{ vd.tid }}' );"  class="btn disabled">Run</button>
-                            {% else %}
-                                <button type="button" onclick="startVD('{{ vd.ecid }}', '{{ vd.tid }}' );"  class="btn ">Run</button>
-                            {% endif %}
+                            <button type="button" id="run_{{ vd.id }}" onclick="startVD('{{ vd.ecid }}', '{{ vd.tid }}', '{{ vd.id }}');"  class="btn ">Run</button>
 
                             <div class="btn-group ">
-                                {% if vd.phase == 'editing' and vd.state == 'Running' or vd.state = 'running' %}
-                                    <button type="button" class="btn  dropdown-toggle" data-toggle="dropdown">
-                                {% else %}
-                                    <button type="button" class="btn  disabled dropdown-toggle" data-toggle="dropdown">
-                                {% endif %}
-                                    {% trans "Show" %}
-                                    <span class="caret"></span>
-                                </button>
+                                <button type="button" id="show_{{ vd.id }}"  class="btn  dropdown-toggle" data-toggle="dropdown">{% trans "Show" %}<span class="caret"></span></button>
                                 <ul class="dropdown-menu pull-right" role="menu">
                                     <li><a href="JavaScript:void(0);" onclick="show_in_browser( '{{ vd.tid }}' );">{% trans "Show by Browser" %}</a>
                                     </li>
@@ -52,12 +44,7 @@
                                 </ul>
                             </div>
 
-                            {% if vd.phase == 'editing' and vd.state == 'Running' or vd.state == 'running' %}
-                                <button type="button" onclick="stopVD('{{ vd.ecid }}', '{{ vd.tid }}' );"   class="btn ">Stop</button>
-                            {% else %}
-                                <button type="button" onclick="stopVD('{{ vd.ecid }}', '{{ vd.tid }}' );"  class="btn disabled">Stop</button>
-                            {% endif %}
-
+                            <button type="button" id="stop_{{ vd.id }}" onclick="stopVD('{{ vd.tid }}' );"   class="btn ">Stop</button>
 
 	        			</div>
 	        		</div>
@@ -79,33 +66,385 @@ img {
 </style>
 
 <script>
-function stopVD( ecid, tid) {
+// show & set progress bar:
+//  $('#progress_myvd0').css('display', 'none');
+//  $('#progressbar_myvd0').css('width', '90%');
+//  $('#progressbar_myvd0').text('90%');
+
+var timer_interval = 1000;
+var create_url  = "/clc/api/1.0/rvd/create/";
+var start_url   = "/clc/api/1.0/rvd/start/";
+var prepare_url = "/clc/api/1.0/rvd/prepare/";
+var progress_url= "/clc/api/1.0/rvd/getprogress/";
+var run_url     = "/clc/api/1.0/rvd/run/";
+var stop_url    = "/clc/api/1.0/rvd/stop/" ;
+var vmstatus_url= "/clc/api/1.0/rvd/getvmstatus/";
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//   failed :  ['Result': 'FAIL',  'error' : error msg]
+//
+///////////////////////////////////////////////////////
+
+function create_tvd(srcid) {
+    $.ajaxSettings.async = false;
+
+    items = [];
+    url = create_url + srcid;
+    $.get(url,function (data) {
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    }).error(function () {
+        alert('request of create tvd failed.');
+    });
+
+    $.ajaxSettings.async = true;
+
+    return items;
+}
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//   failed :  ['Result': 'FAIL',  'error' : error msg]
+//
+///////////////////////////////////////////////////////
+function start_tvd(tid) {
+    $.ajaxSettings.async = false;
+
     tmp = tid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
     insid = tmp[2];
 
-    url = "/clc/image/create/task/stop/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    url = start_url + insid;
+    items = [];
+
+    $.get(url,function (data) {
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    }).error(function () {
+        alert('request of starting tvd failed.');
+    });
+
+    $.ajaxSettings.async = true;
+
+    return items;
+}
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//   failed :  ['Result': 'FAIL',  'error' : error msg]
+//
+///////////////////////////////////////////////////////
+function prepare_tvd(tid) {
+    $.ajaxSettings.async = false;
+
+    tmp = tid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = prepare_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    var items = [];
+
     $.getJSON(url,function (data) {
-        var items = [];
+
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+    }).error(function () {
+        alert('request of prepare tvd failed.');
+    });
+
+    $.ajaxSettings.async = true;
+    return items;
+}
+
+///////////////////////////////////////////////////////
+//
+//  return = {
+//    'type': 'taskstatus',
+//    'phase': "preparing",
+//    'state': 'downloading',
+//    'progress': 0,
+//    'tid': tid,
+//    'prompt': '',
+//    'errormsg': '',
+//    'failed' : 0
+//  }
+//
+///////////////////////////////////////////////////////
+function get_progress(tid) {
+    $.ajaxSettings.async = false;
+
+    tmp = tid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+    url = progress_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    var items = [];
+
+    $.getJSON(url,function (data) {
+
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    }).error(function () {
+        alert('request of get progress failed.');
+    });
+
+    $.ajaxSettings.async = true;
+    return items;
+}
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//
+///////////////////////////////////////////////////////
+function run_tvd(tid) {
+    $.ajaxSettings.async = false;
+
+    tmp = tid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = run_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    var items = [];
+
+    $.getJSON(url,function (data) {
+
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    }).error(function () {
+        alert('request of run tvd failed.');
+    });
+
+    $.ajaxSettings.async = true;
+
+    return items;
+}
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//
+///////////////////////////////////////////////////////
+function stop_tvd(tid) {
+    $.ajaxSettings.async = false;
+
+    tmp = tid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = stop_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    var items = [];
+
+    $.getJSON(url,function (data) {
+
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    }).error(function () {
+        alert('request of stop tvd failed.');
+    });
+
+    $.ajaxSettings.async = true;
+    return items;
+}
+
+///////////////////////////////////////////////////////
+//
+//  return = {
+//        'type'    : 'taskstatus',
+//        'phase'  : "editing",
+//        'state'  : 'stopped', 'booting', 'running' ,
+//        'tid'    : _tid,
+//        'failed' : 0
+//  }
+//
+///////////////////////////////////////////////////////
+function get_vmstatus(tid) {
+    $.ajaxSettings.async = false;
+
+    tmp = tid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = vmstatus_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    var items = [];
+
+    $.getJSON(url,function (data) {
+
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    }).error(function () {
+        alert('request of get vm status failed.');
+    });
+
+    $.ajaxSettings.async = true;
+    return items;
+}
+
+function sleep(sleepTime) {
+    for (var start = Date.now(); Date.now() - start <= sleepTime;) {}
+}
+
+function stopVD(tid) {
+    $.ajaxSettings.async = false;
+
+    tmp = tid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = stop_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    var items = [];
+
+    $.getJSON(url,function (data) {
+
         $.each(data, function (key, val) {
             items[key] = val;
         });
     });
-    alert('cloud Desktop is stopped ! ');
+
+    $.ajaxSettings.async = true;
     location.reload();
 }
 
-function startVD( ecid, tid ) {
-    //alert ( ecid + '+' + tid );
-    if (tid == '' ) {
-        // create tid
+function errorMsgBox(msg) {
+    console.log(msg);
+}
+
+function startVD( ecid, tid, id ) {
+    if ( tid == '' ) {
+        items = create_tvd(ecid);
+    } else {
+        items = start_tvd(tid);
+    }
+
+    if ( items['Result'] != 'OK' ) {
+        errorMsgBox(items['error']);
+        return ;
+    }
+
+    _tid = items['tid'];
+
+    items = prepare_tvd(_tid);
+    if (items['Result'] != 'OK') {
+        errorMsgBox(items['error']);
+        return;
+    }
+
+    while (1) {
+        sleep(1000);
+        items = get_progress(_tid);
+
+        if (items['state'] == 'init') {
+            $('#run_'  + id).removeClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+
+            if (items['failed'] == 1) {
+                $('#error_msg_' + id).text(items['errormsg']);
+                $('#error_msg_' + id).css('color',   'red');
+                $('#error_msg_' + id).css('display', 'block');
+                return;
+            }
+        }
+
+        if (items['state'] == 'downloading' || state == 'cloning') {
+            $('#run_'  + id).addClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_'    + id).css('display', 'block');
+            $('#progressbar_' + id).css('width', progress + '%');
+            $('#progressbar_' + id).text(progress + '%');
+
+            $('#error_msg_' + id).text(prompt);
+            $('#error_msg_' + id).css('color',   'blue');
+            $('#error_msg_' + id).css('display', 'block');
+        }
+
+        if (items['state'] == 'done') {
+            $('#run_'  + id).removeClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+            break;
+        }
 
     }
 
-    // prepare
+    items = run_tvd(_tid);
 
-    // run
+    while (1) {
+        sleep(1000);
+        items = get_vmstatus(_tid);
+
+        if (items['state'] == 'stopped') {
+            $('#run_'  + id).removeClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+
+             if (failed == 1) {
+                $('#error_msg_' + id).text(errormsg);
+                $('#error_msg_' + id).css('color',   'red');
+                $('#error_msg_' + id).css('display', 'block');
+                return;
+            }
+        }
+
+        if (items['state'] == 'booting') {
+            $('#run_'  + id).addClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+
+            $('#error_msg_' + id).text(prompt);
+            $('#error_msg_' + id).css('color',   'blue');
+            $('#error_msg_' + id).css('display', 'block');
+        }
+
+        if (items['state'] == 'running' || items['state'] == 'Running') {
+            $('#run_'  + id).addClass('disabled');
+            $('#show_' + id).removeClass('disabled');
+            $('#stop_' + id).removeClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+            break;
+        }
+    }
+
+    // at last refresh web page.
+    location.reload();
 }
 
 function show_in_browser( tid ) {
@@ -114,7 +453,7 @@ function show_in_browser( tid ) {
     dstid = tmp[1];
     insid = tmp[2];
 
-    url="/clc/vm/display/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    url="/clc/api/1.0/rvd/display/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
     var left = ($(window).width() / 2) - (1440 / 2);
     var top = ($(window).height() / 2) - (1024 / 2);
     window.open(url, '', 'height=1280,width=1400,left=' + left + ',top=' + top);
@@ -124,8 +463,145 @@ function show_in_tools( url ) {
     alert( url );
 }
 
-$(document).ready(function () {
+function getPrepareProgress(items) {
+    id       = items['id'];
+    tid      = items['tid']
 
+    payload = get_progress(tid);
+    payload['id'] = id;
+
+    gui_update(payload);
+}
+
+function getEditingStatus(items) {
+    id       = items['id'];
+    tid      = items['tid']
+
+    payload = get_vmstatus(tid);
+    payload['id'] = id;
+
+    gui_update(payload);
+}
+
+function gui_update(items) {
+    id       = items['id'];
+    phase    = items['phase'];
+    state    = items['state'];
+    progress = items['progress'];
+    tid      = items['tid']
+    prompt   = items['prompt'];
+    errormsg = items['errormsg'];
+    failed   = items['failed'];
+
+    if (phase == 'preparing') {
+        if ( state == 'init') {
+            $('#run_'  + id).removeClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+
+            if (failed == 1) {
+                $('#error_msg_' + id).text(errormsg);
+                $('#error_msg_' + id).css('color',   'red');
+                $('#error_msg_' + id).css('display', 'block');
+            }
+        }
+
+        if (state == 'downloading' || state == "cloning") {
+            $('#run_'  + id).addClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_'    + id).css('display', 'block');
+            $('#progressbar_' + id).css('width', progress + '%');
+            $('#progressbar_' + id).text(progress + '%');
+
+            $('#error_msg_' + id).text(prompt);
+            $('#error_msg_' + id).css('color',   'blue');
+            $('#error_msg_' + id).css('display', 'block');
+
+            // start to get progress till it is done
+            setTimeout( getPrepareProgress, timer_interval, items);
+        }
+
+        if (state == 'done') {
+            $('#run_'  + id).removeClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+        }
+    }
+
+    if ( phase == 'editing' ) {
+        if (state == 'stopped') {
+            $('#run_'  + id).removeClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+
+             if (failed == 1) {
+                $('#error_msg_' + id).text(errormsg);
+                $('#error_msg_' + id).css('color',   'red');
+                $('#error_msg_' + id).css('display', 'block');
+            }
+        }
+
+        if (state == 'booting') {
+            $('#run_'  + id).addClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+
+            $('#error_msg_' + id).text(prompt);
+            $('#error_msg_' + id).css('color',   'blue');
+            $('#error_msg_' + id).css('display', 'block');
+
+            // start to get vm status till it is running
+            setTimeout( getEditingStatus, timer_interval, items);
+        }
+
+        if (state == 'running' || state == 'Running') {
+            $('#run_'  + id).addClass('disabled');
+            $('#show_' + id).removeClass('disabled');
+            $('#stop_' + id).removeClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+        }
+    }
+}
+
+function init_GUI() {
+    var data = {};
+    {% for vd in vds %}
+        {% if vd.tid == '' %}
+            $('#show_{{ vd.id }}').removeClass('disabled');
+            $('#show_{{ vd.id }}').addClass('disabled');
+            $('#stop_{{ vd.id }}').addClass('disabled');
+        {% else %}
+            data['id']      = '{{ vd.id }}'
+            data['phase']   = '{{ vd.phase }}';
+            data['state']   = '{{ vd.state}}';
+            data['tid']     = '{{ vd.tid }}',
+            data['promt']   = '';
+            data['errormsg']= '';
+            data['failed']  = 0;
+            data['progress']= 0;
+
+            gui_update(data);
+        {% endif %}
+    {% endfor%}
+}
+
+$(document).ready(function () {
+     init_GUI();
 });
 </script>
 

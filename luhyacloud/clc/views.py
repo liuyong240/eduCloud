@@ -1965,7 +1965,7 @@ def image_create_task_prepare_success(request, srcid, dstid, insid):
         rec.progress = 0
         rec.save()
     except Exception as e:
-        logger.error('--- image_create_task_prepare_success error = %s ' % e.message)
+        logger.error('--- image_create_task_prepare_success error = %s ' % str(e))
 
     response = {}
     response['Result'] = 'OK'
@@ -1985,7 +1985,7 @@ def image_create_task_prepare_failure(request, srcid, dstid, insid):
         rec.progress = 0
         rec.save()
     except Exception as e:
-        logger.error('--- image_create_task_prepare_failure error = %s ' % e.message)
+        logger.error('--- image_create_task_prepare_failure error = %s ' % str(e))
 
     response = {}
     response['Result'] = 'OK'
@@ -2018,7 +2018,7 @@ def image_create_task_run(request, srcid, dstid, insid):
         logger.error("--- --- --- " + url + ":" + r.content)
 
     except Exception as e:
-        logger.error('--- image_create_task_stop error = %s ' % e.message)
+        logger.error('--- image_create_task_stop error = %s ' % str(e))
 
     response = {}
     response['Result'] = 'OK'
@@ -2050,7 +2050,7 @@ def image_create_task_stop(request, srcid, dstid, insid):
         r = requests.post(url, data=payload)
         logger.error("--- --- --- " + url + ":" + r.content)
     except Exception as e:
-        logger.error('--- image_create_task_stop error = %s ' % e.message)
+        logger.error('--- image_create_task_stop error = %s ' % str(e))
 
     response = {}
     response['Result'] = 'OK'
@@ -2066,7 +2066,7 @@ def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
         rec.state = vmstatus
         rec.save()
     except Exception as e:
-        logger.error('--- image_create_task_stop error = %s ' % e.message)
+        logger.error('--- image_create_task_stop error = %s ' % str(e))
 
     response = {}
     response['Result'] = 'OK'
@@ -2102,7 +2102,7 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
                     payload['state'] = vm['state']
                     break
     except Exception as e:
-        logger.error("image_create_task_getvmstatus Exception : %s" % e.message)
+        logger.error("image_create_task_getvmstatus Exception : %s" % str(e))
         payload['state'] = 'stopped'
 
     response = json.dumps(payload)
@@ -2292,7 +2292,7 @@ def image_create_task_submit_failure(request,  srcid, dstid, insid):
         rec.save()
 
     except Exception as e:
-        logger.error('--- image_create_task_stop error = %s ' % e.message)
+        logger.error('--- image_create_task_stop error = %s ' % str(e))
 
     response = {}
     response['Result'] = 'OK'
@@ -2370,7 +2370,7 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
             logger.error("--- --- --- update image record successfully")
 
     except Exception as e:
-        logger.error('--- image_create_task_submit_success error = %s ' % e.message)
+        logger.error('--- image_create_task_submit_success error = %s ' % str(e))
 
     # clear transaction record
     delet_task_by_id(_tid)
@@ -4448,7 +4448,7 @@ def list_sites(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-
+# @login_required
 def list_myvds(request):
     '''
     :param request:
@@ -4512,7 +4512,7 @@ def list_myvds(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-
+# @login_required
 def rvd_start(request, insid):
     response = {}
     vmrec = ecVDS.objects.get(insid=insid)
@@ -4564,6 +4564,7 @@ def rvd_start(request, insid):
                 retvalue = json.dumps(response)
                 return HttpResponse(retvalue, content_type="application/json")
 
+# @login_required
 def rvd_create(request, srcid):
     response = {}
 
@@ -4612,18 +4613,26 @@ def rvd_create(request, srcid):
             retvalue = json.dumps(response)
             return HttpResponse(retvalue, content_type="application/json")
 
+# @login_required
 def rvd_prepare(request, srcid, dstid, insid):
     return image_create_task_prepare(request, srcid, dstid, insid)
 
+# @login_required
 def rvd_getprogress(request, srcid, dstid, insid):
     return image_create_task_getprogress(request, srcid, dstid, insid)
 
+# @login_required
 def rvd_run(request, srcid, dstid, insid):
     return image_create_task_run(request, srcid, dstid, insid)
 
+# @login_required
 def rvd_stop(request, srcid, dstid, insid):
     return image_create_task_stop(request, srcid, dstid, insid)
 
+# @login_required
 def rvd_getvmstatus(request, srcid, dstid, insid):
     return image_create_task_getvmstatus(request, srcid, dstid, insid)
 
+# @login_required
+def rvd_display(request, srcid, dstid, insid):
+    return vm_display(request, srcid, dstid, insid)

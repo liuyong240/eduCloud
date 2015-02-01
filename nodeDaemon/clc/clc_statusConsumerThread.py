@@ -17,7 +17,7 @@ class clc_statusConsumerThread(run4everThread):
             # logger.error("start to save to memcache")
             self.mc.set(key, msg, 5*60)
         except Exception as e:
-            logger.errro(e.message)
+            logger.errro(str(e))
 
     def forwardMessage2Memcache(self, message):
         json_msg = json.loads(message)
