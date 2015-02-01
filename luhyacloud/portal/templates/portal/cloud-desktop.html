@@ -72,13 +72,15 @@ img {
 //  $('#progressbar_myvd0').text('90%');
 
 var timer_interval = 1000;
-var create_url  = "/clc/api/1.0/rvd/create/";
-var start_url   = "/clc/api/1.0/rvd/start/";
-var prepare_url = "/clc/api/1.0/rvd/prepare/";
-var progress_url= "/clc/api/1.0/rvd/getprogress/";
-var run_url     = "/clc/api/1.0/rvd/run/";
-var stop_url    = "/clc/api/1.0/rvd/stop/" ;
-var vmstatus_url= "/clc/api/1.0/rvd/getvmstatus/";
+
+var create_url      = "/clc/api/1.0/rvd/create/";
+var start_url       = "/clc/api/1.0/rvd/start/";
+var prepare_url     = "/clc/api/1.0/rvd/prepare/";
+var progress_url    = "/clc/api/1.0/rvd/getprogress/";
+var run_url         = "/clc/api/1.0/rvd/run/";
+var stop_url        = "/clc/api/1.0/rvd/stop/" ;
+var vmstatus_url    = "/clc/api/1.0/rvd/getvmstatus/";
+var remove_task_url = '/clc/api/1.0/tasks/delete"
 
 ///////////////////////////////////////////////////////
 //
@@ -325,7 +327,27 @@ function stopVD(tid) {
     });
 
     $.ajaxSettings.async = true;
+
+    delete_task(tid);
+
     location.reload();
+}
+
+function delete_task(tid) {
+    $.ajaxSettings.async = false;
+
+    url = remove_task_url ;
+    var items = [];
+    postdata = {
+        tid:         tid,
+    }
+    $.post(url, postdata, function (data) {
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+    });
+
+    $.ajaxSettings.async = true;
 }
 
 function errorMsgBox(msg) {

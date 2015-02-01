@@ -209,7 +209,7 @@ class prepareImageTaskThread(threading.Thread):
                     need_delete = False
                     need_clone  = False
 
-            if self.insid.find('VD')  == 0:
+            if self.insid.find('VD')  == 0 or self.insid.find('TVD') == 0 :
                 pass
             if self.insid.find('VS')  == 0:
                 dstfile  = "/storage/space/database/instances/%s/database" % self.insid
@@ -756,7 +756,7 @@ def nc_task_delete_handle(tid, runtime_option):
         if srcimgid != dstimgid:
             disks.append('/storage/tmp/images/%s/machine' % dstimgid)
 
-    if insid.find('VD') == 0:
+    if insid.find('VD') == 0 or insid.find('TVD') == 0:
         pass
 
     if insid.find('VS') == 0:
@@ -814,7 +814,7 @@ def nc_image_stop_handle(tid, runtime_option):
         pass
 
     # running vd   insid is VDxxxx,   when stopped, delete all except image file
-    if insid.find('VD') == 0:
+    if insid.find('VD') == 0 or insid.find('TVD') == 0:
         # restore snapshot
         if vboxmgr.isSnapshotExist('thomas'):
             vboxmgr.restore_snapshot('thomas')

@@ -1594,7 +1594,7 @@ def genVMDisks(tid, usage):
         e['mtype']   = 'multiattach'
         disks.append(e)
 
-    if ins_id.find('VD') == 0:
+    if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0 :
         c['file']    = '/storage/images/%s/machine' % dst_imgid
         c['mtype']   = 'normal'
         disks.append(c)
@@ -1621,7 +1621,7 @@ def genVMFolders(tid, usage):
     if ins_id.find('TMP') == 0:
         folders.append('/storage/space/software')
 
-    if ins_id.find('VD') == 0:
+    if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0 :
         trec = ectaskTransaction.objects.get(tid=tid)
         folders.append('/storage/space/prv-data/%s' % trec.user)
         folders.append('/storage/space/pub-data')
@@ -1656,7 +1656,7 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['ostype']        = img_info.ostype
     runtime_option['usage']         = img_info.img_usage
 
-    if ins_id.find('TMP') == 0:
+    if ins_id.find('TMP') == 0 or ins_id.find('TVD') == 0 :
         if img_info.img_usage == "desktop":
             vmtype = 'vdsmall'
         else:
@@ -4473,7 +4473,6 @@ def list_myvds(request):
             for trec in trecs:
                 insid = trec.insid
                 if insid.find('TVD') == 0:
-
                     vd['tid'] = trec.tid
                     vd['phase'] = trec.phase
                     vd['state'] = trec.state

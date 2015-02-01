@@ -55,7 +55,7 @@ class cc_rpcServerThread(run4everThread):
             else:
                 logger.error("unknow cmd : %s", message['op'])
         except Exception as e:
-            logger("error msg = %s with body=%s" % (str(e)., body))
+            logger("error msg = %s with body=%s" % (str(e), body))
 
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
         locale_string = getlocalestring()
