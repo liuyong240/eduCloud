@@ -65,7 +65,11 @@ def portal_vds(request):
     else:
         url = 'http://%s/clc/api/1.0/list_myvds' % clcip
 
-    r = requests.get(url)
+    payload = {
+        'user': request.user.username,
+    }
+
+    r = requests.post(url, data=payload)
     result = json.loads(r.content)
 
     context = {

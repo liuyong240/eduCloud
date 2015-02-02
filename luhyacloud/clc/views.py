@@ -4459,6 +4459,7 @@ def list_myvds(request):
 
     vds = []
     index = 0
+    _user = request.POST['user']
     imgobjs = ecImages.objects.filter(img_usage='desktop')
 
     for imgobj in imgobjs:
@@ -4468,7 +4469,7 @@ def list_myvds(request):
         vd['ostype'] = imgobj.ostype
         vd['desc'] = imgobj.description
 
-        trecs = ectaskTransaction.objects.filter(srcimgid=imgobj.ecid, dstimgid=imgobj.ecid, user=request.user.username)
+        trecs = ectaskTransaction.objects.filter(srcimgid=imgobj.ecid, dstimgid=imgobj.ecid, user=_user)
         if trecs.count() > 0:
             for trec in trecs:
                 insid = trec.insid
