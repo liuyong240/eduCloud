@@ -4513,11 +4513,10 @@ def list_myvds(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 # @login_required
-def rvd_start(request, insid):
+def rvd_start(request, srcid, dstid, insid):
     response = {}
-    vmrec = ecVDS.objects.get(insid=insid)
 
-    _tid  = '%s:%s:%s' % (vmrec.imageid, vmrec.imageid, insid)
+    _tid  = '%s:%s:%s' % (srcid, dstid, insid)
 
     # if tid exist, just call view
     # else find resource and create tid
@@ -4537,8 +4536,8 @@ def rvd_start(request, insid):
         else:
             rec = ectaskTransaction(
                  tid         = _tid,
-                 srcimgid    = vmrec.imageid,
-                 dstimgid    = vmrec.imageid,
+                 srcimgid    = srcid,
+                 dstimgid    = dstid,
                  insid       = insid,
                  user        = request.user.username,
                  phase       = 'preparing',

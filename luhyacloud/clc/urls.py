@@ -120,7 +120,7 @@ urlpatterns = patterns('',
     url(r'^api/1.0/list_sites$',    views.list_sites,                         name='list_sites'),
     url(r'^api/1.0/list_myvds$',    views.list_myvds,                         name='list_myvds'),
 
-    url(r'^api/1.0/rvd/start/(?P<insid>\w+)$',                                          views.rvd_start,              name='rvd_start'),
+    url(r'^api/1.0/rvd/start/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',            views.rvd_start,              name='rvd_start'),
     url(r'^api/1.0/rvd/create/(?P<srcid>\w+)$',                                         views.rvd_create,             name='rvd_create'),
     url(r'^api/1.0/rvd/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',          views.rvd_prepare,            name='rvd_prepare'),
     url(r'^api/1.0/rvd/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_getprogress,        name='rvd_getprogress'),

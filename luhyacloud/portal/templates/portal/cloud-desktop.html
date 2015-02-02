@@ -44,7 +44,7 @@
                                 </ul>
                             </div>
 
-                            <button type="button" id="stop_{{ vd.id }}" onclick="stopVD('{{ vd.tid }}' );"   class="btn ">{% trans "Stop" %}</button>
+                            <button type="button" id="stop_{{ vd.id }}" onclick="stop_tvd('{{ vd.tid }}', '{{ vd.tid }}' );"   class="btn ">{% trans "Stop" %}</button>
 
 	        			</div>
 	        		</div>
@@ -90,22 +90,25 @@ var remove_task_url = "/clc/api/1.0/tasks/delete";
 //
 ///////////////////////////////////////////////////////
 
-function create_tvd(srcid) {
-    $.ajaxSettings.async = false;
+function create_tvd(id, srcid) {
+    console.log("create_tvd() is called.");
 
-    items = [];
     url = create_url + srcid;
     $.get(url,function (data) {
+        items = [];
         $.each(data, function (key, val) {
             items[key] = val;
         });
-    }).error(function () {
-        alert('request of create tvd failed.');
+
+        if ( items['Result'] != 'OK' ) {
+            errorMsgBox(items['error']);
+            return ;
+        }
+
+        taskid = items['tid'];
+        setTimeout( prepare_tvd, timer_interval, id,  taskid);
     });
 
-    $.ajaxSettings.async = true;
-
-    return items;
 }
 
 ///////////////////////////////////////////////////////
@@ -115,28 +118,30 @@ function create_tvd(srcid) {
 //   failed :  ['Result': 'FAIL',  'error' : error msg]
 //
 ///////////////////////////////////////////////////////
-function start_tvd(tid) {
-    $.ajaxSettings.async = false;
-
-    tmp = tid.split(':')
+function start_tvd(id, taskid) {
+    console.log("start_tvd() is called.");
+    tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
     insid = tmp[2];
 
-    url = start_url + insid;
-    items = [];
+    url = start_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
 
     $.get(url,function (data) {
+        items = [];
         $.each(data, function (key, val) {
             items[key] = val;
         });
-    }).error(function () {
-        alert('request of starting tvd failed.');
+
+        if ( items['Result'] != 'OK' ) {
+            errorMsgBox(items['error']);
+            return ;
+        }
+
+        taskid = items['tid'];
+        setTimeout( prepare_tvd, timer_interval, id, taskid);
     });
 
-    $.ajaxSettings.async = true;
-
-    return items;
 }
 
 ///////////////////////////////////////////////////////
@@ -146,29 +151,39 @@ function start_tvd(tid) {
 //   failed :  ['Result': 'FAIL',  'error' : error msg]
 //
 ///////////////////////////////////////////////////////
-function prepare_tvd(tid) {
-    $.ajaxSettings.async = false;
-
-    tmp = tid.split(':')
+function prepare_tvd(id, taskid) {
+    console.log("prepare_tvd() is called.");
+    tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
     insid = tmp[2];
 
     url = prepare_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-    var items = [];
+
 
     $.getJSON(url,function (data) {
-
+        var items = [];
         $.each(data, function (key, val) {
             items[key] = val;
         });
 
-    }).error(function () {
-        alert('request of prepare tvd failed.');
+        if (items['Result'] != 'OK') {
+            errorMsgBox(items['error']);
+            return;
+        }
+
+        data['id']      = id;
+        data['phase']   = 'preparing';
+        data['state']   = 'downloading';
+        data['tid']     = taskid,
+        data['promt']   = '';
+        data['errormsg']= '';
+        data['failed']  = 0;
+        data['progress']= 0;
+
+        setTimeout( gui_update, timer_interval, data, 1);
     });
 
-    $.ajaxSettings.async = true;
-    return items;
 }
 
 ///////////////////////////////////////////////////////
@@ -185,27 +200,23 @@ function prepare_tvd(tid) {
 //  }
 //
 ///////////////////////////////////////////////////////
-function get_progress(tid) {
-    $.ajaxSettings.async = false;
-
-    tmp = tid.split(':')
+function get_progress(id, taskid, do2run) {
+    tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
     insid = tmp[2];
     url = progress_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-    var items = [];
 
     $.getJSON(url,function (data) {
-
+        items = [];
         $.each(data, function (key, val) {
             items[key] = val;
         });
-    }).error(function () {
-        alert('request of get progress failed.');
+        console.log("get_progress() is called with progress = " + items['progress']);
+        items['id'] = id;
+        gui_update(items, do2run);
     });
 
-    $.ajaxSettings.async = true;
-    return items;
 }
 
 ///////////////////////////////////////////////////////
@@ -214,59 +225,34 @@ function get_progress(tid) {
 //   sucess :  ['Result': 'OK',    'tid'   : tid]
 //
 ///////////////////////////////////////////////////////
-function run_tvd(tid) {
-    $.ajaxSettings.async = false;
+function run_tvd(id, taskid) {
+    console.log("run_tvd() is called.");
 
-    tmp = tid.split(':')
+    tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
     insid = tmp[2];
 
     url = run_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-    var items = [];
 
     $.getJSON(url,function (data) {
-
+        items = [];
         $.each(data, function (key, val) {
             items[key] = val;
         });
-    }).error(function () {
-        alert('request of run tvd failed.');
+
+        data['id']      = id;
+        data['phase']   = 'editing';
+        data['state']   = 'booting';
+        data['tid']     = taskid,
+        data['promt']   = '';
+        data['errormsg']= '';
+        data['failed']  = 0;
+        data['progress']= 0;
+
+        setTimeout( gui_update, timer_interval, data, 0);
     });
 
-    $.ajaxSettings.async = true;
-
-    return items;
-}
-
-///////////////////////////////////////////////////////
-//
-// return :
-//   sucess :  ['Result': 'OK',    'tid'   : tid]
-//
-///////////////////////////////////////////////////////
-function stop_tvd(tid) {
-    $.ajaxSettings.async = false;
-
-    tmp = tid.split(':')
-    srcid = tmp[0];
-    dstid = tmp[1];
-    insid = tmp[2];
-
-    url = stop_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-    var items = [];
-
-    $.getJSON(url,function (data) {
-
-        $.each(data, function (key, val) {
-            items[key] = val;
-        });
-    }).error(function () {
-        alert('request of stop tvd failed.');
-    });
-
-    $.ajaxSettings.async = true;
-    return items;
 }
 
 ///////////////////////////////////////////////////////
@@ -280,197 +266,89 @@ function stop_tvd(tid) {
 //  }
 //
 ///////////////////////////////////////////////////////
-function get_vmstatus(tid) {
-    $.ajaxSettings.async = false;
+function get_vmstatus(id, taskid) {
+    console.log("get_vmstatus() is called.");
 
-    tmp = tid.split(':')
+    tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
     insid = tmp[2];
 
     url = vmstatus_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-    var items = [];
 
     $.getJSON(url,function (data) {
-
+        items = [];
         $.each(data, function (key, val) {
             items[key] = val;
         });
-    }).error(function () {
-        alert('request of get vm status failed.');
+        items['id'] = id;
+        gui_update(items, 0);
     });
 
-    $.ajaxSettings.async = true;
-    return items;
 }
 
 function sleep(sleepTime) {
     for (var start = Date.now(); Date.now() - start <= sleepTime;) {}
 }
 
-function stopVD(tid) {
-    $.ajaxSettings.async = false;
 
-    tmp = tid.split(':')
+function delete_task(taskid) {
+    console.log("delete_task() is called.");
+
+    url = remove_task_url ;
+    postdata = {
+        tid:         taskid,
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        location.reload();
+    });
+}
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//
+///////////////////////////////////////////////////////
+function stop_tvd(id, taskid) {
+    console.log("stop_tvd() is called.");
+    tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
     insid = tmp[2];
 
     url = stop_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-    var items = [];
 
     $.getJSON(url,function (data) {
-
+        items = [];
         $.each(data, function (key, val) {
             items[key] = val;
         });
+
+        delete_task(taskid);
     });
-
-    $.ajaxSettings.async = true;
-
-    delete_task(tid);
-
-    location.reload();
 }
 
-function delete_task(tid) {
-    $.ajaxSettings.async = false;
-
-    url = remove_task_url ;
-    var items = [];
-    postdata = {
-        tid:         tid,
-    }
-    $.post(url, postdata, function (data) {
-        $.each(data, function (key, val) {
-            items[key] = val;
-        });
-    });
-
-    $.ajaxSettings.async = true;
-}
 
 function errorMsgBox(msg) {
     console.log(msg);
 }
 
-function startVD( ecid, tid, id ) {
-    if ( tid == '' ) {
-        items = create_tvd(ecid);
+function startVD( ecid, taskid, id ) {
+    if ( taskid == '' ) {
+        items = create_tvd(id, ecid);
     } else {
-        items = start_tvd(tid);
+        items = start_tvd(id, taskid);
     }
-
-    if ( items['Result'] != 'OK' ) {
-        errorMsgBox(items['error']);
-        return ;
-    }
-
-    _tid = items['tid'];
-
-    items = prepare_tvd(_tid);
-    if (items['Result'] != 'OK') {
-        errorMsgBox(items['error']);
-        return;
-    }
-
-    while (1) {
-        sleep(1000);
-        items = get_progress(_tid);
-
-        if (items['state'] == 'init') {
-            $('#run_'  + id).removeClass('disabled');
-            $('#show_' + id).addClass('disabled');
-            $('#stop_' + id).addClass('disabled');
-
-            $('#progress_' + id).css('display', 'none');
-            $('#error_msg_' + id).css('display', 'none');
-
-            if (items['failed'] == 1) {
-                $('#error_msg_' + id).text(items['errormsg']);
-                $('#error_msg_' + id).css('color',   'red');
-                $('#error_msg_' + id).css('display', 'block');
-                return;
-            }
-        }
-
-        if (items['state'] == 'downloading' || items['state'] == 'cloning') {
-            $('#run_'  + id).addClass('disabled');
-            $('#show_' + id).addClass('disabled');
-            $('#stop_' + id).addClass('disabled');
-
-            $('#progress_'    + id).css('display', 'block');
-            $('#progressbar_' + id).css('width', items['progress'] + '%');
-            $('#progressbar_' + id).text(items['progress'] + '%');
-
-            $('#error_msg_' + id).text(items['prompt']);
-            $('#error_msg_' + id).css('color',   'blue');
-            $('#error_msg_' + id).css('display', 'block');
-        }
-
-        if (items['state'] == 'done') {
-            $('#run_'  + id).removeClass('disabled');
-            $('#show_' + id).addClass('disabled');
-            $('#stop_' + id).addClass('disabled');
-
-            $('#progress_' + id).css('display', 'none');
-            $('#error_msg_' + id).css('display', 'none');
-            break;
-        }
-
-    }
-
-    items = run_tvd(_tid);
-
-    while (1) {
-        sleep(1000);
-        items = get_vmstatus(_tid);
-
-        if (items['state'] == 'stopped') {
-            $('#run_'  + id).removeClass('disabled');
-            $('#show_' + id).addClass('disabled');
-            $('#stop_' + id).addClass('disabled');
-
-            $('#progress_' + id).css('display', 'none');
-            $('#error_msg_' + id).css('display', 'none');
-
-             if (items['failed'] == 1) {
-                $('#error_msg_' + id).text(items['errormsg']);
-                $('#error_msg_' + id).css('color',   'red');
-                $('#error_msg_' + id).css('display', 'block');
-                return;
-            }
-        }
-
-        if (items['state'] == 'booting') {
-            $('#run_'  + id).addClass('disabled');
-            $('#show_' + id).addClass('disabled');
-            $('#stop_' + id).addClass('disabled');
-
-            $('#progress_' + id).css('display', 'none');
-
-            $('#error_msg_' + id).text(items['prompt']);
-            $('#error_msg_' + id).css('color',   'blue');
-            $('#error_msg_' + id).css('display', 'block');
-        }
-
-        if (items['state'] == 'running' || items['state'] == 'Running') {
-            $('#run_'  + id).addClass('disabled');
-            $('#show_' + id).removeClass('disabled');
-            $('#stop_' + id).removeClass('disabled');
-
-            $('#progress_' + id).css('display', 'none');
-            $('#error_msg_' + id).css('display', 'none');
-            break;
-        }
-    }
-
-    // at last refresh web page.
-    location.reload();
 }
 
-function show_in_browser( tid ) {
-    tmp = tid.split(':')
+function show_in_browser( taskid ) {
+    tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
     insid = tmp[2];
@@ -485,32 +363,14 @@ function show_in_tools( url ) {
     alert( url );
 }
 
-function getPrepareProgress(items) {
-    id       = items['id'];
-    tid      = items['tid']
 
-    payload = get_progress(tid);
-    payload['id'] = id;
-
-    gui_update(payload);
-}
-
-function getEditingStatus(items) {
-    id       = items['id'];
-    tid      = items['tid']
-
-    payload = get_vmstatus(tid);
-    payload['id'] = id;
-
-    gui_update(payload);
-}
-
-function gui_update(items) {
+function gui_update(items, do2run) {
+    console.log("gui_update() is called.");
     id       = items['id'];
     phase    = items['phase'];
     state    = items['state'];
     progress = items['progress'];
-    tid      = items['tid']
+    taskid   = items['tid']
     prompt   = items['prompt'];
     errormsg = items['errormsg'];
     failed   = items['failed'];
@@ -545,7 +405,7 @@ function gui_update(items) {
             $('#error_msg_' + id).css('display', 'block');
 
             // start to get progress till it is done
-            setTimeout( getPrepareProgress, timer_interval, items);
+            setTimeout( get_progress, timer_interval, id, taskid, do2run);
         }
 
         if (state == 'done') {
@@ -555,6 +415,10 @@ function gui_update(items) {
 
             $('#progress_' + id).css('display', 'none');
             $('#error_msg_' + id).css('display', 'none');
+
+            if (do2run == 1) {
+                setTimeout( run_tvd, timer_interval, id, taskid);
+            }
         }
     }
 
@@ -586,7 +450,7 @@ function gui_update(items) {
             $('#error_msg_' + id).css('display', 'block');
 
             // start to get vm status till it is running
-            setTimeout( getEditingStatus, timer_interval, items);
+            setTimeout( get_vmstatus, timer_interval, id, taskid);
         }
 
         if (state == 'running' || state == 'Running') {
@@ -617,7 +481,7 @@ function init_GUI() {
             data['failed']  = 0;
             data['progress']= 0;
 
-            gui_update(data);
+            gui_update(data, 0);
         {% endif %}
     {% endfor%}
 }
