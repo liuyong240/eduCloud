@@ -415,6 +415,7 @@ function gui_update(items, do2run) {
 
             $('#progress_' + id).css('display', 'none');
             $('#error_msg_' + id).css('display', 'none');
+            $('#error_msg_' + id).text('');
 
             if (do2run == 1) {
                 setTimeout( run_tvd, timer_interval, id, taskid);
@@ -445,7 +446,7 @@ function gui_update(items, do2run) {
 
             $('#progress_' + id).css('display', 'none');
 
-            $('#error_msg_' + id).text(prompt);
+            $('#error_msg_' + id).text('{% trans "booting ... ..." %}');
             $('#error_msg_' + id).css('color',   'blue');
             $('#error_msg_' + id).css('display', 'block');
 

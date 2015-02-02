@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-02 05:21+0000\n"
+"POT-Creation-Date: 2015-02-02 09:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,6 +70,10 @@ msgstr "用windows工具显示"
 msgid "Stop"
 msgstr "停止"
 
+#: templates/portal/cloud-desktop.html:449
+msgid "booting ... ..."
+msgstr "启动中 ... ..."
+
 #: templates/portal/cloud-services.html:12
 msgid "Cloud Applications"
 msgstr "云应用"
@@ -87,21 +91,9 @@ msgstr "云平台服务"
 msgid "Cloud Application"
 msgstr "云应用"
 
-#: templates/portal/index.html:20
-msgid "Portal to all available cloud applications"
-msgstr "云应用门户"
-
-#: templates/portal/index.html:34
-msgid "Portal to all available cloud desktops"
-msgstr "云桌面门户"
-
 #: templates/portal/index.html:47
 msgid "Cloud Adminstation"
 msgstr "云平台管理"
-
-#: templates/portal/index.html:48
-msgid "Portal for system administration"
-msgstr "云平台管理门户"
 
 #: templates/portal/index.html:62
 msgid "EduCloud Platform Documents"
@@ -158,3 +150,12 @@ msgstr "链接"
 #: templates/portal/portal_template.html:76
 msgid "EduCloud. All rights reserved"
 msgstr "云平台. 版权所有"
+
+#~ msgid "Portal to all available cloud applications"
+#~ msgstr "云应用门户"
+
+#~ msgid "Portal to all available cloud desktops"
+#~ msgstr "云桌面门户"
+
+#~ msgid "Portal for system administration"
+#~ msgstr "云平台管理门户"

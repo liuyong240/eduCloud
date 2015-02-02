@@ -1933,7 +1933,7 @@ def image_create_task_prepare(request, srcid, dstid, insid):
 
     rec = ectaskTransaction.objects.get(tid=_tid)
     rec.phase = "preparing"
-    rec.state = "init"
+    rec.state = "downloading"
     rec.progress = 0
     rec.save()
 
