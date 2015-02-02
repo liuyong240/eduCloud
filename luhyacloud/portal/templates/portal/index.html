@@ -2,6 +2,16 @@
 {% load i18n %}
 {% load staticfiles %}
 
+{% block myjs %}
+<style type="text/css">
+.mydoc {
+	display:inline-block;
+	width:150px;
+	height:120px;
+	overflow:hidden;
+	}
+</style>
+{% endblock %}
 
 {% block content %}
 
@@ -56,68 +66,45 @@
 			</div>
 		</div>
 
-		<!-- Testimonials -->
-	    <div class="section section-white">
-			<div class="container">
-				<h2>{% trans "EduCloud Platform Documents" %}</h2>
-				<div class="row">
-					<!-- Testimonial -->
-					<div class="testimonial col-md-4 col-sm-6">
-						<!-- Author Photo -->
-						<div class="author-photo">
-							<img src="{% static "portal/img/user1.jpg" %}" alt="Author 1">
-						</div>
-						<div class="testimonial-bubble">
-							<blockquote>
-								<!-- Quote -->
-								<p class="quote">
-		                            "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut."
-                        		</p>
-                        		<!-- Author Info -->
-                        		<cite class="author-info">
-                        			- Name Surname,<br>Managing Director at <a href="#">Some Company</a>
-                        		</cite>
-                        	</blockquote>
-                        	<div class="sprite arrow-speech-bubble"></div>
-                        </div>
-                    </div>
-                    <!-- End Testimonial -->
-                    <div class="testimonial col-md-4 col-sm-6">
-						<div class="author-photo">
-							<img src="{% static "portal/img/user5.jpg" %}" alt="Author 2">
-						</div>
-						<div class="testimonial-bubble">
-							<blockquote>
-								<p class="quote">
-		                            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo."
-                        		</p>
-                        		<cite class="author-info">
-                        			- Name Surname,<br>Managing Director at <a href="#">Some Company</a>
-                        		</cite>
-                        	</blockquote>
-                        	<div class="sprite arrow-speech-bubble"></div>
-                        </div>
-                    </div>
-					<div class="testimonial col-md-4 col-sm-6">
-						<div class="author-photo">
-							<img src="{% static "portal/img/user2.jpg" %}" alt="Author 3">
-						</div>
-						<div class="testimonial-bubble">
-							<blockquote>
-								<p class="quote">
-		                            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
-                        		</p>
-                        		<cite class="author-info">
-                        			- Name Surname,<br>Managing Director at <a href="#">Some Company</a>
-                        		</cite>
-                        	</blockquote>
-                        	<div class="sprite arrow-speech-bubble"></div>
-                        </div>
-                    </div>
-				</div>
-			</div>
+	    <div class="section">
+	        <div class="container">
+                <h2>{% trans "EduCloud Platform Documents" %}</h2>
+	        	<div class="row">
+	        		<div class="col-md-3 col-sm-6">
+	        			<div class="service-wrapper">
+		        			<img class="mydoc" src="{% static "portal/img/documents/ppt.jpg" %}">
+		        			<h3>{% trans "Product Introduction" %}</h3>
+		        			<p>{% trans "including PPTs for introduction level" %}</p>
+                            <a href="/portal/ppts">{% trans "Read more..." %}</a>
+	        			</div>
+	        		</div>
+	                <div class="col-md-3 col-sm-6">
+	        			<div class="service-wrapper">
+		        			<img class="mydoc" src="{% static "portal/img/documents/video.png" %}">
+		        			<h3>{% trans "Demo Video" %}</h3>
+		        			<p>{% trans "including video for both user & administrator's operation" %}</p>
+                            <a href="/portal/videos">{% trans "Read more..." %}</a>
+	        			</div>
+	        		</div>
+                    <div class="col-md-3 col-sm-6">
+	        			<div class="service-wrapper">
+		        			<img class="mydoc" src="{% static "portal/img/documents/documents.png" %}">
+		        			<h3>{% trans "Tech Documents" %}</h3>
+		        			<p>{% trans "including manual for both user & administrator" %}</p>
+                            <a href="/portal/documents">{% trans "Read more..." %}</a>
+	        			</div>
+	        		</div>
+                    <div class="col-md-3 col-sm-6">
+	        			<div class="service-wrapper">
+		        			<img class="mydoc" src="{% static "portal/img/documents/sdk.png" %}">
+		        			<h3>{% trans "SDK Info" %}</h3>
+		        			<p>{% trans "including SDK for cloud Desktop client" %}</p>
+                            <a href="/portal/sdk">{% trans "Read more..." %}</a>
+	        			</div>
+	        		</div>
+	        	</div>
+	        </div>
 	    </div>
-	    <!-- End Testimonials -->
 
 	    <!-- Our Clients -->
 	    <div class="section section-white">

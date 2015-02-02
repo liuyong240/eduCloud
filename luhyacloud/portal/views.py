@@ -42,6 +42,26 @@ def portal_adm_login(request):
     }
     return render(request, 'portal/adm_login.html', context)
 
+def portal_ppts(request):
+    context = {
+    }
+    return render(request, 'portal/ppts.html', context)
+
+def portal_videos(request):
+    context = {
+    }
+    return render(request, 'portal/videos.html', context)
+
+def portal_sdk(request):
+    context = {
+    }
+    return render(request, 'portal/sdk.html', context)
+
+def portal_documents(request):
+    context = {
+    }
+    return render(request, 'portal/documents.html', context)
+
 def portal_vapp(request):
     clcip = getclcipbyconf()
     if DAEMON_DEBUG == True:

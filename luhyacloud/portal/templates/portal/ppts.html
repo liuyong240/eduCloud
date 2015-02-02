@@ -1,0 +1,46 @@
+{% extends "portal/portal_template.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block myjs %}
+<style type="text/css">
+.mydoc {
+	display:inline-block;
+	width:150px;
+	height:120px;
+	overflow:hidden;
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+        <!-- Page Title -->
+		<div class="section section-breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<h1>{% trans "Product PPTs" %}</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+        
+        <div class="section">
+	        <div class="container">
+	        	<div class="row service-wrapper-row">
+        			<div class="col-sm-4">
+        				<div class="service-image">
+        					<img class="mydoc" src="{% static "portal/img/documents/ppt.jpg" %}">
+        				</div>
+        			</div>
+        			<div class="col-sm-8">
+    					<h3>{% trans "Product Introduction" %}</h3>
+    					<p>
+    						 {% trans "Under construction ... ..." %}
+    					</p>
+    				</div>
+				</div>
+
+	        </div>
+	    </div>
+{% endblock %}
