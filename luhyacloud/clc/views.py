@@ -1619,12 +1619,24 @@ def genVMFolders(tid, usage):
     folders = []
 
     if ins_id.find('TMP') == 0:
-        folders.append('/storage/space/software')
+        f = {
+            'path': '/storage/space/software',
+            'name': 'software',
+        }
+        folders.append(f)
 
     if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0 :
         trec = ectaskTransaction.objects.get(tid=tid)
-        folders.append('/storage/space/prv-data/%s' % trec.user)
-        folders.append('/storage/space/pub-data')
+        f1 = {
+            'path': '/storage/space/prv-data/%s' % trec.user,
+            'name': 'prvdata',
+        }
+        f2 = {
+            'path': '/storage/space/pub-data',
+            'name': 'pubdata',
+        }
+        folders.append(f1)
+        folders.append(f2)
 
     if ins_id.find('VS') == 0:
         # folders.append('/storage/space/software')

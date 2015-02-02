@@ -610,8 +610,8 @@ class runImageTaskThread(threading.Thread):
 
                     # add folders
                     for folder in self.runtime_option['folders']:
-                        ret = vboxmgr.attachSharedFolder(folder)
-                        logger.error("--- --- --- vboxmgr.attachSharedFolder %s, error=%s" % (folder , ret))
+                        ret = vboxmgr.attachSharedFolder(folder['name'], folder['path'])
+                        logger.error("--- --- --- vboxmgr.attachSharedFolder %s=%s, error=%s" % (folder['name'], folder['path'] , ret))
                         time.sleep(2)
 
                     # in servere side, each VM has 4G mem
