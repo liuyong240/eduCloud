@@ -9,7 +9,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-md-12">
-						<h1>Cloud Applications</h1>
+						<h1>{% trans "Cloud Applications" %}</h1>
 					</div>
 				</div>
 			</div>
@@ -24,7 +24,7 @@
 		        			<img src="{% static "portal/img/cloud-website.png" %}">
 		        			<h3>{{ site.name }}</h3>
 		        			<p>{{ site.desc }}</p>
-		        			<a href="{{ site.web_url }}" target='_blank' class="btn">Enter</a>
+		        			<a href="{{ site.web_url }}" target='_blank' class="btn">{% trans "Enter" %}</a>
 		        		</div>
 	        		</div>
                     {% endfor %}

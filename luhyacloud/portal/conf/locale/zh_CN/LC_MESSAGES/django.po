@@ -1,0 +1,160 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-02-02 05:21+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/portal/adm_login.html:11
+msgid "Login For Cloud Adminstration"
+msgstr "云平台管理登录"
+
+#: templates/portal/adm_login.html:24 templates/portal/index.html:33
+#: templates/portal/login.html:24
+msgid "Cloud Desktop"
+msgstr "云桌面"
+
+#: templates/portal/adm_login.html:33 templates/portal/login.html:33
+msgid "Username or Email"
+msgstr "登录账号"
+
+#: templates/portal/adm_login.html:37 templates/portal/login.html:37
+msgid "Password"
+msgstr "登录密码"
+
+#: templates/portal/adm_login.html:45 templates/portal/login.html:45
+msgid "Login"
+msgstr "登录"
+
+#: templates/portal/adm_login.html:66 templates/portal/login.html:66
+msgid "Please input user email address !"
+msgstr "请输入登录账号！"
+
+#: templates/portal/adm_login.html:70 templates/portal/login.html:70
+msgid "Please input user password !"
+msgstr "请输入登录密码！"
+
+#: templates/portal/cloud-desktop.html:11
+msgid "'s Cloud Desktop"
+msgstr "的云桌面"
+
+#: templates/portal/cloud-desktop.html:35
+msgid "Run"
+msgstr "运行"
+
+#: templates/portal/cloud-desktop.html:38
+msgid "Show"
+msgstr "显示"
+
+#: templates/portal/cloud-desktop.html:40
+msgid "Show by Browser"
+msgstr ""
+
+#: templates/portal/cloud-desktop.html:42
+msgid "Show by windows-tool"
+msgstr "用windows工具显示"
+
+#: templates/portal/cloud-desktop.html:47
+msgid "Stop"
+msgstr "停止"
+
+#: templates/portal/cloud-services.html:12
+msgid "Cloud Applications"
+msgstr "云应用"
+
+#: templates/portal/cloud-services.html:27 templates/portal/index.html:21
+#: templates/portal/index.html.py:35 templates/portal/index.html:49
+msgid "Enter"
+msgstr "进入"
+
+#: templates/portal/index.html:10
+msgid "EduCloud Platform Services"
+msgstr "云平台服务"
+
+#: templates/portal/index.html:19
+msgid "Cloud Application"
+msgstr "云应用"
+
+#: templates/portal/index.html:20
+msgid "Portal to all available cloud applications"
+msgstr "云应用门户"
+
+#: templates/portal/index.html:34
+msgid "Portal to all available cloud desktops"
+msgstr "云桌面门户"
+
+#: templates/portal/index.html:47
+msgid "Cloud Adminstation"
+msgstr "云平台管理"
+
+#: templates/portal/index.html:48
+msgid "Portal for system administration"
+msgstr "云平台管理门户"
+
+#: templates/portal/index.html:62
+msgid "EduCloud Platform Documents"
+msgstr "云平台资料和文档"
+
+#: templates/portal/index.html:125
+msgid "Our Clients"
+msgstr "我们的客户"
+
+#: templates/portal/login.html:11
+msgid "Login For Cloud Desktop"
+msgstr "登录云桌面"
+
+#: templates/portal/portal_template.html:12
+msgid "eduCloud portal"
+msgstr "云平台门户"
+
+#: templates/portal/portal_template.html:41
+msgid "EduCloud Platform Portal"
+msgstr "云平台门户"
+
+#: templates/portal/portal_template.html:56
+msgid "Contacts"
+msgstr "联系信息"
+
+#: templates/portal/portal_template.html:58
+msgid "Address"
+msgstr "地址"
+
+#: templates/portal/portal_template.html:58
+msgid "Floor 7, XiXi Habour, Hanghzou, zhejiang"
+msgstr "浙江省杭州市文三路1号西溪数码港7楼"
+
+#: templates/portal/portal_template.html:59
+msgid "Phone"
+msgstr "电话"
+
+#: templates/portal/portal_template.html:60
+msgid "Person"
+msgstr "联系人"
+
+#: templates/portal/portal_template.html:60
+msgid "Mr.zhou"
+msgstr "周经理"
+
+#: templates/portal/portal_template.html:61
+msgid "Email"
+msgstr "电子邮件"
+
+#: templates/portal/portal_template.html:66
+msgid "Connected"
+msgstr "链接"
+
+#: templates/portal/portal_template.html:76
+msgid "EduCloud. All rights reserved"
+msgstr "云平台. 版权所有"

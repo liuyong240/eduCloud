@@ -524,7 +524,7 @@ def user_login(request):
     else:
         # Return an 'invalid login' error message.
         response['status'] = "FAILURE"
-        response['reason'] = "account is invalid"
+        response['reason'] = _("account is invalid")
         return HttpResponse(json.dumps(response), content_type='application/json')
 
 def admin_login(request):
@@ -550,7 +550,7 @@ def admin_login(request):
     else:
         # Return an 'invalid login' error message.
         response['status'] = "FAILURE"
-        response['reason'] = "account is invalid"
+        response['reason'] = _("account is invalid")
         return HttpResponse(json.dumps(response), content_type='application/json')
 
 def user_logout(request):

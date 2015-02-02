@@ -8,7 +8,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-md-12">
-						<h1>{{ uid }}'s Cloud Desktop</h1>
+						<h1>{{ uid }}{% trans "'s Cloud Desktop" %}</h1>
 					</div>
 				</div>
 			</div>
@@ -32,7 +32,7 @@
                                 </div>
                             </div>
 
-                            <button type="button" id="run_{{ vd.id }}" onclick="startVD('{{ vd.ecid }}', '{{ vd.tid }}', '{{ vd.id }}');"  class="btn ">Run</button>
+                            <button type="button" id="run_{{ vd.id }}" onclick="startVD('{{ vd.ecid }}', '{{ vd.tid }}', '{{ vd.id }}');"  class="btn ">{% trans "Run" %}</button>
 
                             <div class="btn-group ">
                                 <button type="button" id="show_{{ vd.id }}"  class="btn  dropdown-toggle" data-toggle="dropdown">{% trans "Show" %}<span class="caret"></span></button>
@@ -44,7 +44,7 @@
                                 </ul>
                             </div>
 
-                            <button type="button" id="stop_{{ vd.id }}" onclick="stopVD('{{ vd.tid }}' );"   class="btn ">Stop</button>
+                            <button type="button" id="stop_{{ vd.id }}" onclick="stopVD('{{ vd.tid }}' );"   class="btn ">{% trans "Stop" %}</button>
 
 	        			</div>
 	        		</div>
