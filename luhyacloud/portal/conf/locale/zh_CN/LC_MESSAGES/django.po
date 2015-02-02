@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-02 09:16+0000\n"
+"POT-Creation-Date: 2015-02-02 09:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,19 +58,19 @@ msgstr "运行"
 msgid "Show"
 msgstr "显示"
 
-#: templates/portal/cloud-desktop.html:40
+#: templates/portal/cloud-desktop.html:41
 msgid "Show by Browser"
-msgstr ""
+msgstr "浏览器中显示"
 
-#: templates/portal/cloud-desktop.html:42
+#: templates/portal/cloud-desktop.html:43
 msgid "Show by windows-tool"
 msgstr "用windows工具显示"
 
-#: templates/portal/cloud-desktop.html:47
+#: templates/portal/cloud-desktop.html:48
 msgid "Stop"
 msgstr "停止"
 
-#: templates/portal/cloud-desktop.html:449
+#: templates/portal/cloud-desktop.html:453
 msgid "booting ... ..."
 msgstr "启动中 ... ..."
 

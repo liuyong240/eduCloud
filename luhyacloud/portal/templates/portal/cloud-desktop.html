@@ -32,19 +32,20 @@
                                 </div>
                             </div>
 
-                            <button type="button" id="run_{{ vd.id }}" onclick="startVD('{{ vd.ecid }}', '{{ vd.tid }}', '{{ vd.id }}');"  class="btn ">{% trans "Run" %}</button>
+                            <button type="button" id="run_{{ vd.id }}" onclick="startVD('{{ vd.ecid }}', '{{ vd.id }}');"  class="btn ">{% trans "Run" %}</button>
 
                             <div class="btn-group ">
                                 <button type="button" id="show_{{ vd.id }}"  class="btn  dropdown-toggle" data-toggle="dropdown">{% trans "Show" %}<span class="caret"></span></button>
                                 <ul class="dropdown-menu pull-right" role="menu">
-                                    <li><a href="JavaScript:void(0);" onclick="show_in_browser( '{{ vd.tid }}' );">{% trans "Show by Browser" %}</a>
+                                    <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
+                                    <li><a href="JavaScript:void(0);" onclick="show_in_browser();">{% trans "Show by Browser" %}</a>
                                     </li>
-                                    <li><a href="JavaScript:void(0);" onclick="show_in_tools( '{{ vd.mgr_url }}' );">{% trans "Show by windows-tool" %}</a>
+                                    <li><a href="JavaScript:void(0);" onclick="show_in_tools();">{% trans "Show by windows-tool" %}</a>
                                     </li>
                                 </ul>
                             </div>
 
-                            <button type="button" id="stop_{{ vd.id }}" onclick="stop_tvd('{{ vd.tid }}', '{{ vd.tid }}' );"   class="btn ">{% trans "Stop" %}</button>
+                            <button type="button" id="stop_{{ vd.id }}" onclick="stop_tvd('{{ vd.id }}');"   class="btn ">{% trans "Stop" %}</button>
 
 	        			</div>
 	        		</div>
@@ -315,8 +316,9 @@ function delete_task(taskid) {
 //   sucess :  ['Result': 'OK',    'tid'   : tid]
 //
 ///////////////////////////////////////////////////////
-function stop_tvd(id, taskid) {
+function stop_tvd(id) {
     console.log("stop_tvd() is called.");
+    taskid = $('#taskid_for_show_in_browser_' + id ).text();
     tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
@@ -339,7 +341,8 @@ function errorMsgBox(msg) {
     console.log(msg);
 }
 
-function startVD( ecid, taskid, id ) {
+function startVD( ecid, id ) {
+    taskid = $('#taskid_for_show_in_browser_' + id ).text();
     if ( taskid == '' ) {
         items = create_tvd(id, ecid);
     } else {
@@ -347,7 +350,8 @@ function startVD( ecid, taskid, id ) {
     }
 }
 
-function show_in_browser( taskid ) {
+function show_in_browser() {
+    taskid = $('#taskid_for_show_in_browser_' + id ).text();
     tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
@@ -461,6 +465,8 @@ function gui_update(items, do2run) {
 
             $('#progress_' + id).css('display', 'none');
             $('#error_msg_' + id).css('display', 'none');
+
+            $('#taskid_for_show_in_browser_' + id).text(taskid);
         }
     }
 }
