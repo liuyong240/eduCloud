@@ -314,7 +314,7 @@ class vboxWrapper():
             ret = commands.getoutput(cmd_line)
         return ret
 
-    def attachSharedFolder(self, name, spath):
+    def attachSharedFolder(self, name, path):
         vm_name = self._tool._vmname
 
         cmd_line = "vboxmanage sharedfolder add " + vm_name + " --name " + name  + " --hostpath " + path + " --automount "
