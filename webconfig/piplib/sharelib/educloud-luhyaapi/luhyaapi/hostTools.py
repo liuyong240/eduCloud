@@ -5,6 +5,12 @@ from settings import *
 import random, os, commands
 from linux_metrics import cpu_stat
 from sortedcontainers import SortedList
+from IPy import IP
+
+# PUBLIC or PRIVATE
+def getIPType(ipaddr):
+    ip = IP(ipaddr)
+    return ip.iptype()
 
 def parseTID(tid):
     _tmp = tid.spit(':')
