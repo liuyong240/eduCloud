@@ -124,7 +124,7 @@ class cc_rpcServerThread(run4everThread):
             'done'      : 0,
         }
 
-        prompt = 'Uploading file from CC to Walrus ... ...'
+        prompt = locale_string['promptUfromCC2Walrus_image']
 
         if amIclc():
             payload['prompt']   = prompt

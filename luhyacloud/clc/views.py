@@ -452,8 +452,10 @@ def findBuildResource(srcid):
     else:
         filter = 'rvd'
         vm_res_matrix = VALID_NC_RES['desktop']
+        logger.error("origin resource request is %s" % json.dumps(vm_res_matrix))
         vmtypeobj = ecVMTypes.objects.get(name='vdsmall')
         vm_res_matrix['mem'] += vmtypeobj.memory
+        logger.error("rvd resource request is %s" % json.dumps(vm_res_matrix))
 
     logger.error('vm_res_matrix for %s is  %s' % (srcid, json.dumps(vm_res_matrix)))
 
@@ -1032,10 +1034,8 @@ def nc_mgr_mac(request, ccname, mac):
             payload = json.loads(payload)
             service_data = payload['service_data']
             hardware_data = payload['hardware_data']
-            host_ips = payload['net_data']
-            __host_ips = getHostIPs('nc', mac)
-            host_ips['name'] = __host_ips['name']
-            host_ips['location'] = __host_ips['location']
+            host_ips = getHostIPs('nc', mac)
+
             if 'vm_data' in payload.keys():
                 vminfo = payload['vm_data']
             else:
@@ -1087,7 +1087,7 @@ def nc_mgr_mac(request, ccname, mac):
     htmlstr = htmlstr.replace('{{hardware_data.disk}}',        str(hardware_data['disk']))
     htmlstr = htmlstr.replace('{{hardware_data.disk_usage}}',  str(hardware_data['disk_usage']))
 
-    htmlstr = htmlstr.replace('{{host_ips.eip}}', host_ips['exip'])
+    htmlstr = htmlstr.replace('{{host_ips.eip}}', host_ips['eip'])
     htmlstr = htmlstr.replace('{{host_ips.ip0}}', host_ips['ip0'])
     htmlstr = htmlstr.replace('{{host_ips.ip1}}', host_ips['ip1'])
     htmlstr = htmlstr.replace('{{host_ips.ip2}}', host_ips['ip2'])
