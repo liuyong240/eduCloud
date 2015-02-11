@@ -1801,12 +1801,27 @@ def genRuntimeOptionForImageBuild(transid):
 def genIPTablesRule(fromip, toip, port):
     return {}
 
+
+def getValidMgrURL(request, runtime_option):
+    if request.META['REMOTE_ADDR'] == '10.181.4.103':
+        mgr_url = runtime_option['ex_mgr_accessURL']
+    else:
+        srciptype = getIPType(request.META['REMOTE_ADDR'])
+        if srciptype == 'PUBLIC':
+            mgr_url = runtime_option['ex_mgr_accessURL']
+        else:
+            mgr_url = runtime_option['mgr_accessURL']
+
+    return mgr_url
+
 def vm_display(request, srcid, dstid, insid):
     _tid = '%s:%s:%s' % (srcid, dstid, insid)
     try:
         rec = ectaskTransaction.objects.get(tid=_tid)
         runtime_option = json.loads(rec.runtime_option)
-        mgr_url = runtime_option['mgr_accessURL']
+
+        mgr_url = getValidMgrURL(request, runtime_option)
+
         context = {
             'pagetitle'     : _('cloud desktop'),
             'url'           : mgr_url,
@@ -1923,9 +1938,7 @@ def image_create_task_start(request, srcid):
 def getVM_ManagedURL(request, taskid):
     rec = ectaskTransaction.objects.get(tid=taskid)
     runtime_option = json.loads(rec.runtime_option)
-    mgr_url = runtime_option['mgr_accessURL']
-
-    # here add logic to check request comes from intranet or internet
+    mgr_url = getValidMgrURL(request, runtime_option)
 
     return mgr_url
 
