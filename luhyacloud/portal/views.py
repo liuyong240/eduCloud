@@ -77,7 +77,7 @@ def portal_vapp(request):
     }
     return render(request, 'portal/cloud-services.html', context)
 
-@login_required
+@login_required(login_url='/portal/vdlogin')
 def portal_vds(request):
     clcip = getclcipbyconf()
     if DAEMON_DEBUG == True:
@@ -87,6 +87,7 @@ def portal_vds(request):
 
     payload = {
         'user': request.user.username,
+        'sid':  request.COOKIES['sessionid']
     }
 
     r = requests.post(url, data=payload)
@@ -95,6 +96,7 @@ def portal_vds(request):
     context = {
         'uid' : request.user.username,
         'vds' : result['data'],
+        'sid' : request.COOKIES['sessionid'],
 
     }
     return render(request, 'portal/cloud-desktop.html', context)

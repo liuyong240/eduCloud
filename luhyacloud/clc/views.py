@@ -522,6 +522,7 @@ def user_login(request):
         login(request, user)
         response['status'] = "SUCCESS"
         response['url'] = "/portal/cloud-desktops"
+        response['sid'] = request.session.session_key
         return HttpResponse(json.dumps(response), content_type='application/json')
     else:
         # Return an 'invalid login' error message.
@@ -563,7 +564,7 @@ def user_logout(request):
 ##########################################################################
 # Account Management
 ##########################################################################
-@login_required
+@login_required(login_url='/portal/admlogin')
 def adm_add_new_account(request):
     authnamelist =  ecAuthPath.objects.all()
     roles = []
@@ -576,6 +577,7 @@ def adm_add_new_account(request):
     }
     return render(request, 'clc/form/adm_add_new_account.html', context)
 
+@login_required(login_url='/portal/admlogin')
 def account_create(request):
     response = {}
     # create a new account
@@ -606,7 +608,7 @@ def account_create(request):
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def admin_batch_add_new_accounts(request):
     authnamelist =  ecAuthPath.objects.all()
     roles = []
@@ -619,6 +621,7 @@ def admin_batch_add_new_accounts(request):
     }
     return render(request, 'clc/form/adm_add_new_account_batch.html', context)
 
+@login_required(login_url='/portal/admlogin')
 def account_create_batch(request):
     response = {}
     prefix = request.POST['prefix']
@@ -703,14 +706,17 @@ def account_request(request):
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
 
+@login_required(login_url='/portal/admlogin')
 def restore_password(request):
     context = {}
     return render(request, 'clc/form/restore_password.html', context)
 
+@login_required(login_url='/portal/admlogin')
 def send_feedback(request):
     context = {}
     return render(request, 'clc/form/send_feedback.html', context)
 
+@login_required(login_url='/portal/admlogin')
 def edit_profile(request, uid):
     u = User.objects.get(username=uid)
     ua = ecAccount.objects.get(userid=uid)
@@ -743,6 +749,7 @@ def edit_profile(request, uid):
     }
     return render(request, 'clc/form/update_account_profile.html', context)
 
+@login_required(login_url='/portal/admlogin')
 def account_update_profile(request):
     u = User.objects.get(username=request.POST['userid'])
     ua = ecAccount.objects.get(userid=request.POST['userid'])
@@ -759,12 +766,14 @@ def account_update_profile(request):
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
 
+@login_required(login_url='/portal/admlogin')
 def edit_password(request, uid):
     context = {
         'uid': uid,
     }
     return render(request, 'clc/form/reset_account_password.html', context)
 
+@login_required(login_url='/portal/admlogin')
 def activate_user(request, uid):
     u = User.objects.get(username=uid)
     u.is_active = 1
@@ -774,6 +783,7 @@ def activate_user(request, uid):
     Message = _(" user %s is activated now.") % uid
     return HttpResponse(Message, content_type="application/json")
 
+@login_required(login_url='/portal/admlogin')
 def account_reset_password(request):
     uid = request.POST['userid']
     oldpw = request.POST['oldpassword']
@@ -797,7 +807,7 @@ def account_reset_password(request):
 ##########################################################################
 ##########################################################################
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def index_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -808,7 +818,7 @@ def index_view(request):
     }
     return render(request, 'clc/overview.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def accounts_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -820,7 +830,7 @@ def accounts_view(request):
     }
     return render(request, 'clc/accounts.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def images_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -873,7 +883,7 @@ def getHostIPs(hrole, hmac0):
 
     return result
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def clc_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -895,7 +905,7 @@ def clc_mgr_view(request):
     }
     return render(request, 'clc/clc_mgr.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def edit_eip_view(request, role, mac):
     s = ecServers.objects.get(role=role, mac0=mac)
     context = {
@@ -926,7 +936,7 @@ def remote_getHostHardware(ip):
     r = requests.post(url, data=payload)
     return json.loads(r.content)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def walrus_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -951,7 +961,7 @@ def walrus_mgr_view(request):
     }
     return render(request, 'clc/walrus_mgr.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def cc_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -963,6 +973,7 @@ def cc_mgr_view(request):
     }
     return render(request, 'clc/cc_mgr.html', context)
 
+@login_required(login_url='/portal/admlogin')
 def cc_mgr_ccname(request, ccname):
     ccobj = ecServers.objects.get(role="cc", ccname=ccname)
     if DoesServiceExist(ccobj.ip0, 80) == "Running" :
@@ -1009,7 +1020,7 @@ def cc_mgr_ccname(request, ccname):
     response['data'] = htmlstr
     return HttpResponse(json.dumps(response), content_type="application/json")
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def nc_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -1021,6 +1032,7 @@ def nc_mgr_view(request):
     }
     return render(request, 'clc/nc_mgr.html', context)
 
+@login_required(login_url='/portal/admlogin')
 def nc_mgr_mac(request, ccname, mac):
     logger.error("enter nc_mgr_mac --- --- ")
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
@@ -1103,8 +1115,7 @@ def nc_mgr_mac(request, ccname, mac):
     response['data'] = htmlstr
     return HttpResponse(json.dumps(response), content_type="application/json")
 
-
-@login_required
+@login_required(login_url='/portal/admlogin')
 def lnc_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -1116,7 +1127,7 @@ def lnc_mgr_view(request):
     }
     return render(request, 'clc/lnc_mgr.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def terminal_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -1128,7 +1139,7 @@ def terminal_mgr_view(request):
     }
     return render(request, 'clc/terminal_mgr.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def hosts_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -1140,7 +1151,7 @@ def hosts_view(request):
     }
     return render(request, 'clc/hosts.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def settings_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -1152,7 +1163,7 @@ def settings_view(request):
     }
     return render(request, 'clc/settings.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def vss_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -1165,7 +1176,7 @@ def vss_view(request):
 
     return render(request, 'clc/vss.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def rvds_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -1178,7 +1189,7 @@ def rvds_view(request):
 
     return render(request, 'clc/rvds.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def lvds_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -1191,7 +1202,7 @@ def lvds_view(request):
 
     return render(request, 'clc/lvds.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def tasks_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -1204,7 +1215,7 @@ def tasks_view(request):
 
     return render(request, 'clc/tasks.html', context)
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def tools_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
@@ -1425,7 +1436,7 @@ def generateAvailableResourceforCC(request, cc_name):
 
     rec.save()
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def cc_modify_resources(request, cc_name):
     if request.method == 'POST':
         generateAvailableResourceforCC(request, cc_name)
@@ -1644,7 +1655,6 @@ def genVMFolders(tid, usage):
 
     return folders
 
-
 def genRuntimeOptionForImageBuild(transid):
     logger.error("--- --- --- genRuntimeOptionForImageBuild")
     tid_info = transid.split(':')
@@ -1801,7 +1811,6 @@ def genRuntimeOptionForImageBuild(transid):
 def genIPTablesRule(fromip, toip, port):
     return {}
 
-
 def getValidMgrURL(request, runtime_option):
     if request.META['REMOTE_ADDR'] == '10.181.4.103':
         mgr_url = runtime_option['ex_mgr_accessURL']
@@ -1813,6 +1822,18 @@ def getValidMgrURL(request, runtime_option):
             mgr_url = runtime_option['mgr_accessURL']
 
     return mgr_url
+
+def getValidWebURL(request, runtime_option):
+    if request.META['REMOTE_ADDR'] == '10.181.4.103':
+        web_url = runtime_option['ex_web_accessURL']
+    else:
+        srciptype = getIPType(request.META['REMOTE_ADDR'])
+        if srciptype == 'PUBLIC':
+            web_url = runtime_option['ex_web_accessURL']
+        else:
+            web_url = runtime_option['web_accessURL']
+
+    return web_url
 
 def vm_display(request, srcid, dstid, insid):
     _tid = '%s:%s:%s' % (srcid, dstid, insid)
@@ -1885,7 +1906,6 @@ def vm_run(request, insid):
 
             return image_create_task_view(request, vmrec.imageid, vmrec.imageid, insid)
 
-@login_required
 def image_create_task_start(request, srcid):
     logger.error("--- --- --- start_image_create_task")
     # create ectaskTransation Record
@@ -1945,9 +1965,7 @@ def getVM_ManagedURL(request, taskid):
 def getVM_WebURL(request, taskid):
     rec = ectaskTransaction.objects.get(tid=taskid)
     runtime_option = json.loads(rec.runtime_option)
-    web_url = runtime_option['web_accessURL']
-
-    # here add logic to check request comes from intranet or internet
+    web_url = getValidWebURL(request, runtime_option)
 
     return web_url
 
@@ -2447,69 +2465,67 @@ def image_edit_vm(request, imgid, insid):
 #################################################################################
 # jTable views
 #################################################################################
-
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_images(request):
     return render(request, 'clc/jtable/images_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_tasks(request):
     return render(request, 'clc/jtable/tasks_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_vss(request):
     return render(request, 'clc/jtable/vss_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_vds(request):
     return render(request, 'clc/jtable/vds_table.html', {})
 
-
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_settings_for_authapth(request):
     return render(request, 'clc/jtable/authpath_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_settings_for_ostypes(request):
     return render(request, 'clc/jtable/ostypes_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_settings_for_rbac(request):
     return render(request, 'clc/jtable/rbac_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_settings_for_vmusage(request):
     return render(request, 'clc/jtable/vmusage_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_settings_for_serverrole(request):
     return render(request, 'clc/jtable/serverrole_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_settings_for_vmtypes(request):
     return render(request, 'clc/jtable/vmtypes_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_servers_cc(request):
     return render(request, 'clc/jtable/servers_cc_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_servers_nc(request):
     return render(request, 'clc/jtable/servers_nc_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_servers_lnc(request):
     return render(request, 'clc/jtable/servers_lnc_table.html', {})
 
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_active_accounts(request):
     return render(request, 'clc/jtable/active_account_table.html', {})
 
-
-@login_required
+@login_required(login_url='/portal/admlogin')
 def jtable_inactive_accounts(request):
     return render(request, 'clc/jtable/inactive_account_table.html', {})
 
+@login_required(login_url='/portal/admlogin')
 def jtable_ethers(request, cc_name):
     context = {
         'ccname' : cc_name
@@ -4464,7 +4480,7 @@ def list_sites(request):
         tobjs = ectaskTransaction.objects.filter(tid=_tid)
         if tobjs.count() > 0:
            runtime_option = json.loads( tobjs[0].runtime_option )
-           one_site['web_url'] = runtime_option['web_accessURL']
+           one_site['web_url'] = getValidWebURL(request, runtime_option)
            list_of_sites.append(one_site)
 
     response = {}
@@ -4473,7 +4489,14 @@ def list_sites(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-# @login_required
+def verifySessionKey(session_key):
+    from django.contrib.sessions.models import Session
+    sobj = Session.objects.filter(pk=session_key)
+    if sobj.count() > 0:
+        return True
+    else:
+        return False
+
 def list_myvds(request):
     '''
     :param request:
@@ -4485,6 +4508,16 @@ def list_myvds(request):
     vds = []
     index = 0
     _user = request.POST['user']
+    _skey = request.POST['sid']
+
+    result = verifySessionKey(_skey)
+    if result == False:
+        response = {}
+        response['Result'] = 'Failed'
+        response['error'] = 'session is invalide, need logon first'
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
     imgobjs = ecImages.objects.filter(img_usage='desktop')
 
     for imgobj in imgobjs:
@@ -4503,7 +4536,7 @@ def list_myvds(request):
                     vd['phase'] = trec.phase
                     vd['state'] = trec.state
                     runtime_option = json.loads(trec.runtime_option)
-                    vd['mgr_url'] = runtime_option['mgr_accessURL']
+                    vd['mgr_url'] = getValidMgrURL(request, runtime_option)
                     vd['id']  = 'myvd' + str(index)
                     vds.append(vd)
                     index += 1
@@ -4517,7 +4550,7 @@ def list_myvds(request):
                     vd['phase'] = trec.phase
                     vd['state'] = trec.state
                     runtime_option = json.loads(trec.runtime_option)
-                    vd['mgr_url'] = runtime_option['mgr_accessURL']
+                    vd['mgr_url'] = getValidMgrURL(request, runtime_option)
                     vd['id']  = 'myvd' + str(index)
                     vds.append(vd)
                     index += 1
@@ -4537,8 +4570,19 @@ def list_myvds(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-# @login_required
+
 def rvd_start(request, srcid, dstid, insid):
+    _skey = request.POST['sid']
+
+    result = verifySessionKey(_skey)
+    if result == False:
+        response = {}
+        response['Result'] = 'Failed'
+        response['error'] = 'session is invalide, need logon first'
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
+
     response = {}
 
     _tid  = '%s:%s:%s' % (srcid, dstid, insid)
@@ -4588,8 +4632,18 @@ def rvd_start(request, srcid, dstid, insid):
                 retvalue = json.dumps(response)
                 return HttpResponse(retvalue, content_type="application/json")
 
-# @login_required
+
 def rvd_create(request, srcid):
+    _skey = request.POST['sid']
+
+    result = verifySessionKey(_skey)
+    if result == False:
+        response = {}
+        response['Result'] = 'Failed'
+        response['error'] = 'session is invalide, need logon first'
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
     response = {}
 
     # create ectaskTransation Record
@@ -4637,26 +4691,62 @@ def rvd_create(request, srcid):
             retvalue = json.dumps(response)
             return HttpResponse(retvalue, content_type="application/json")
 
-# @login_required
+
 def rvd_prepare(request, srcid, dstid, insid):
+    _skey = request.POST['sid']
+
+    result = verifySessionKey(_skey)
+    if result == False:
+        response = {}
+        response['Result'] = 'Failed'
+        response['error'] = 'session is invalide, need logon first'
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
     return image_create_task_prepare(request, srcid, dstid, insid)
 
-# @login_required
 def rvd_getprogress(request, srcid, dstid, insid):
     return image_create_task_getprogress(request, srcid, dstid, insid)
 
-# @login_required
 def rvd_run(request, srcid, dstid, insid):
+    _skey = request.POST['sid']
+
+    result = verifySessionKey(_skey)
+    if result == False:
+        response = {}
+        response['Result'] = 'Failed'
+        response['error'] = 'session is invalide, need logon first'
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
     return image_create_task_run(request, srcid, dstid, insid)
 
-# @login_required
 def rvd_stop(request, srcid, dstid, insid):
+    _skey = request.POST['sid']
+
+    result = verifySessionKey(_skey)
+    if result == False:
+        response = {}
+        response['Result'] = 'Failed'
+        response['error'] = 'session is invalide, need logon first'
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
     return image_create_task_stop(request, srcid, dstid, insid)
 
-# @login_required
 def rvd_getvmstatus(request, srcid, dstid, insid):
     return image_create_task_getvmstatus(request, srcid, dstid, insid)
 
 # @login_required
 def rvd_display(request, srcid, dstid, insid):
+    _skey = request.POST['sid']
+
+    result = verifySessionKey(_skey)
+    if result == False:
+        response = {}
+        response['Result'] = 'Failed'
+        response['error'] = 'session is invalide, need logon first'
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
     return vm_display(request, srcid, dstid, insid)

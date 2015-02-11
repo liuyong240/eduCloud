@@ -14,6 +14,8 @@
 			</div>
 		</div>
 
+        <div id="sid" style="display:none;">{{ sid }}</div>
+
         <div class="section section-white">
 	        <div class="container">
 	        	<div class="row">
@@ -95,7 +97,10 @@ function create_tvd(id, srcid) {
     console.log("create_tvd() is called.");
 
     url = create_url + srcid;
-    $.get(url,function (data) {
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
         items = [];
         $.each(data, function (key, val) {
             items[key] = val;
@@ -127,8 +132,10 @@ function start_tvd(id, taskid) {
     insid = tmp[2];
 
     url = start_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-
-    $.get(url,function (data) {
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
         items = [];
         $.each(data, function (key, val) {
             items[key] = val;
@@ -160,9 +167,10 @@ function prepare_tvd(id, taskid) {
     insid = tmp[2];
 
     url = prepare_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-
-
-    $.getJSON(url,function (data) {
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
         var items = [];
         $.each(data, function (key, val) {
             items[key] = val;
@@ -235,8 +243,10 @@ function run_tvd(id, taskid) {
     insid = tmp[2];
 
     url = run_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-
-    $.getJSON(url,function (data) {
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
         items = [];
         $.each(data, function (key, val) {
             items[key] = val;
@@ -325,8 +335,10 @@ function stop_tvd(id) {
     insid = tmp[2];
 
     url = stop_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-
-    $.getJSON(url,function (data) {
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
         items = [];
         $.each(data, function (key, val) {
             items[key] = val;
@@ -358,9 +370,33 @@ function show_in_browser() {
     insid = tmp[2];
 
     url="/clc/api/1.0/rvd/display/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-    var left = ($(window).width() / 2) - (1440 / 2);
-    var top = ($(window).height() / 2) - (1024 / 2);
-    window.open(url, '', 'height=1280,width=1400,left=' + left + ',top=' + top);
+
+    //var left = ($(window).width() / 2) - (1440 / 2);
+    //var top = ($(window).height() / 2) - (1024 / 2);
+    //window.open(url, '', 'height=1280,width=1400,left=' + left + ',top=' + top);
+
+    var mapForm = document.createElement("form");
+    mapForm.target = "_blank";
+    mapForm.method = "POST";
+    mapForm.action = url;
+
+    var mapInput = document.createElement("input");
+    mapInput.type = "text";
+    mapInput.name = 'sid';
+    mapInput.value = $("#sid").text();
+
+    mapForm.appendChild(mapInput);
+
+    document.body.appendChild(mapForm);
+
+    mapForm.submit();
+
+    setTimeout( delete_form, timer_interval, mapForm);
+}
+
+function delete_form(form_name) {
+    console.log("document.body.removeChild() is called.");
+    document.body.removeChild(form_name);
 }
 
 function show_in_tools( url ) {
