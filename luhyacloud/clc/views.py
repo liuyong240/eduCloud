@@ -4590,7 +4590,7 @@ def list_myvds(request):
     result = verifySessionKey(_skey)
     if result == False:
         response = {}
-        response['Result'] = 'Failed'
+        response['Result'] = 'FAIL'
         response['error'] = 'session is invalide, need logon first'
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
@@ -4654,11 +4654,10 @@ def rvd_start(request, srcid, dstid, insid):
     result = verifySessionKey(_skey)
     if result == False:
         response = {}
-        response['Result'] = 'Failed'
+        response['Result'] = 'FAIL'
         response['error'] = 'session is invalide, need logon first'
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
-
 
     response = {}
 
@@ -4716,7 +4715,7 @@ def rvd_create(request, srcid):
     result = verifySessionKey(_skey)
     if result == False:
         response = {}
-        response['Result'] = 'Failed'
+        response['Result'] = 'FAIL'
         response['error'] = 'session is invalide, need logon first'
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
@@ -4775,7 +4774,7 @@ def rvd_prepare(request, srcid, dstid, insid):
     result = verifySessionKey(_skey)
     if result == False:
         response = {}
-        response['Result'] = 'Failed'
+        response['Result'] = 'FAIL'
         response['error'] = 'session is invalide, need logon first'
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
@@ -4791,7 +4790,7 @@ def rvd_run(request, srcid, dstid, insid):
     result = verifySessionKey(_skey)
     if result == False:
         response = {}
-        response['Result'] = 'Failed'
+        response['Result'] = 'FAIL'
         response['error'] = 'session is invalide, need logon first'
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
@@ -4804,7 +4803,7 @@ def rvd_stop(request, srcid, dstid, insid):
     result = verifySessionKey(_skey)
     if result == False:
         response = {}
-        response['Result'] = 'Failed'
+        response['Result'] = 'FAIL'
         response['error'] = 'session is invalide, need logon first'
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
@@ -4814,14 +4813,13 @@ def rvd_stop(request, srcid, dstid, insid):
 def rvd_getvmstatus(request, srcid, dstid, insid):
     return image_create_task_getvmstatus(request, srcid, dstid, insid)
 
-# @login_required
 def rvd_display(request, srcid, dstid, insid):
     _skey = request.POST['sid']
 
     result = verifySessionKey(_skey)
     if result == False:
         response = {}
-        response['Result'] = 'Failed'
+        response['Result'] = 'FAIL'
         response['error'] = 'session is invalide, need logon first'
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
