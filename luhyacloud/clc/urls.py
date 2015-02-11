@@ -45,7 +45,10 @@ urlpatterns = patterns('',
     url(r'^tools$',         views.tools_view,                         name='tools_view'),
     url(r'^tools/image_upload$',         views.tools_image_upload,                       name='tools_image_upload'),
     url(r'^tools/file_upload$',          views.tools_file_upload,                        name='tools_file_upload'),
+    url(r'^tools/prv_upload/(?P<uid>\w+)$',           views.tools_prv_upload,                         name='tools_prv_upload'),
     url(r'^list_directory/software$',    views.tools_list_dir_software,             name='tools_list_dir_software'),
+    url(r'^list_directory/prv-data/(?P<uid>\w+)$',    views.tools_list_dir_prv_data,             name='tools_list_dir_prv_data'),
+
 
     url(r'^adm_add_new_account',                    views.adm_add_new_account,              name='adm_add_new_account'),
     url(r'^admin_batch_add_new_accounts',           views.admin_batch_add_new_accounts,     name='admin_batch_add_new_accounts'),
@@ -240,7 +243,7 @@ urlpatterns = patterns('',
 
     url(r'^api/1.0/perm/update$',     views.perm_update,                     name='perm_update'),
     url(r'^api/1.0/software/op$',     views.software_operation,              name='software_operation'),
-
+    url(r'^api/1.0/prv_data/op/(?P<uid>\w+)$',     views.prv_data_operation,              name='prv_data_operation'),
     url(r'^api/1.0/vrde$',     views.rdp_web_client,              name='rdp_web_client'),
 
 

@@ -3,6 +3,8 @@
 {% load staticfiles %}
 
 {% block content %}
+<link href="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/css/jquery.plupload.queue.css" %}" rel="stylesheet">
+<link href="{% static "clc/zTree_v3/css/zTreeStyle/zTreeStyle.css" %}" rel="stylesheet">
         <!-- Page Title -->
 		<div class="section section-breadcrumbs">
 			<div class="container">
@@ -56,9 +58,62 @@
 	        	</div>
 	        </div>
 	    </div>
+
+		<div class="section section-breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<h1>{% trans "Upload Private Data" %}</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+
+        <div class="section section-white">
+	        <div class="container">
+	        	<div class="row">
+                        <div class="col-md-6 col-sm-6">
+	        			    <div class="service-wrapper">
+                                <p>{% trans "Step 1: create and select directory" %}</p>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        {% trans "Private Data Directory in Server" %}
+                                        <div class="pull-right">
+                                            <div class="btn-group">
+                                                <button id="add_prv_node" type="button" class="btn btn-default btn-xs">{% trans "Add" %}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /.panel-heading -->
+                                    <div class="panel-body">
+                                        <div id="selected_prv_folder" style="display:none"></div>
+                                        <ul id="prv_tree" class="ztree" style="height:250px; overflow:auto;"></ul>
+                                    </div>
+                                    <!-- .panel-body -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="service-wrapper">
+                                <p>{% trans "Step 2: select files to upload" %}</p>
+                                <div id="prv_uploader" style="height:330px; overflow:auto;">{% trans "Your browser doesn't support HTML5." %}</div>
+                            </div>
+                        </div>
+
+                </div>
+            </div>
+        </div>
 {% endblock %}
 
 {% block myjs %}
+<script src="{% static "clc/plupload-2.1.2/js/plupload.full.min.js" %}"></script>
+<script src="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/jquery.plupload.queue.min.js" %}"></script>
+<script src="{% static "clc/plupload-2.1.2/js/i18n/zh_CN.js" %}"></script>
+
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.core-3.5.js" %}"></script>
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.excheck-3.5.js" %}"></script>
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.exedit-3.5.js" %}"></script>
+
 <style type="text/css">
 img {
 	display:inline-block;
@@ -529,8 +584,224 @@ function init_GUI() {
     {% endfor%}
 }
 
+
+///////////////////////////////////////////////////////
+//
+// UPLOAD USER'S PRIVATE DATA BY WEB
+//
+///////////////////////////////////////////////////////
+
+
+var prv_setting = {
+    async: {
+        enable: true,
+        url: getUrl,
+        //otherParam: {"parent":"true", "child":"false"},
+    },
+    view: {
+        selectedMulti: false,
+        expandSpeed: "",
+    },
+    edit: {
+        enable: true,
+        showRemoveBtn: true,
+        showRenameBtn: true
+    },
+    data: {
+        keep: {
+            parent:true,
+            leaf:true
+        },
+        simpleData: {
+            enable: true
+        }
+    },
+    callback: {
+        onMouseDown:    prv_onMouseDown_handle,
+        beforeExpand:   prv_beforeExpand,
+        beforeRemove:   prv_beforeRemoveNode,
+        beforeRename:   prv_beforeRenameNode,
+        beforeDrag:     prv_beforeDrag,
+		onAsyncSuccess: prv_onAsyncSuccess,
+		onAsyncError:   prv_onAsyncError
+    }
+};
+
+
+function getUrl(treeId, treeNode) {
+    return "/clc/list_directory/prv-data/" + '{{ uid }}';
+}
+
+function prv_beforeDrag(treeId, treeNodes) {
+    return false;
+}
+function prv_beforeRemoveNode(treeId, treeNode) {
+    // get dir_name
+
+    url = '/clc/api/1.0/prv_data/op/' + '{{ uid }}';
+    postdata = {
+        cmd:         'rm',
+        opt:         '-rf',
+        arg1:        getFullPathbyNode(treeNode).toString()
+    };
+    $.post(url, postdata, function(data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        if (items['Result'] == "OK") {
+            return true;
+        } else {
+            return false;
+        }
+    });
+}
+
+function prv_beforeRenameNode(treeId, treeNode, newName, isCancel) {
+// send remove command to server
+    url = '/clc/api/1.0/prv_data/op/' + '{{ uid }}';
+
+    _arg1 = getFullPathbyNode(treeNode);
+    _arg2 = getFullPathbyNode(treeNode);
+    _arg2[_arg2.length-1] = newName;
+
+    postdata = {
+        cmd:         'mv',
+        opt:         '',
+        arg1:        _arg1.toString(),
+        arg2:        _arg2.toString(),
+    };
+    $.post(url, postdata, function(data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        if (items['Result'] == "OK") {
+            return true;
+        } else {
+            return false;
+        }
+    });
+}
+
+function getFullPathbyNode(treeNode) {
+    var start_node = treeNode;
+    var path_param = [];
+
+    while (start_node != null) {
+        path_param.unshift(start_node.name);
+        start_node = start_node.getParentNode();
+    }
+
+    return path_param;
+}
+
+function getOtherParam(treeNode) {
+
+    var param = {
+        'full_path': getFullPathbyNode(treeNode).toString()
+    }
+    return param;
+}
+
+function prv_beforeExpand(treeId, treeNode) {
+    var zTree = $.fn.zTree.getZTreeObj("prv_tree");
+    zTree.setting.async.otherParam = getOtherParam(treeNode);
+    if (!treeNode.isAjaxing) {
+        ajaxGetNodes(treeNode, "refresh");
+        return true;
+    } else {
+        alert("zTree 正在下载数据中，请稍后展开节点。。。");
+        return false;
+    }
+}
+
+function ajaxGetNodes(treeNode, reloadType) {
+    var zTree = $.fn.zTree.getZTreeObj("prv_tree");
+    if (reloadType == "refresh") {
+        //treeNode.icon = "{% static "clc/zTree_v3/css/zTreeStyle/img/loading.gif" %}"
+        zTree.updateNode(treeNode);
+    }
+    zTree.reAsyncChildNodes(treeNode, reloadType, true);
+}
+
+function prv_onAsyncSuccess(event, treeId, treeNode, msg) {
+    if (!msg || msg.length == 0) {
+        return;
+    }
+
+}
+
+function prv_onAsyncError(event, treeId, treeNode, XMLHttpRequest, textStatus, errorThrown) {
+    var zTree = $.fn.zTree.getZTreeObj("prv_tree");
+    //alert("异步获取数据出现异常。");
+    //treeNode.icon = "";
+    //zTree.updateNode(treeNode);
+}
+
+$("#add_prv_node").click(function(){
+    var folder_name = prompt("Please enter new folder name", "NewFolder");
+    if (folder_name != null) {
+        var zTree = $.fn.zTree.getZTreeObj("prv_tree")
+        var selectedNode = zTree.getSelectedNodes();
+        zTree.addNodes(selectedNode[0], { name:folder_name, isParent:true } );
+    }
+});
+
+function prv_onMouseDown_handle(event, treeId, treeNode) {
+    if (treeNode == null) {
+        $("#selected_prv_folder").text('');
+        $("#prv_uploader").show();
+        $("#add_prv_node").show();
+
+        var zTree = $.fn.zTree.getZTreeObj("prv_tree")
+        zTree.cancelSelectedNode();
+    }
+    else if (treeNode && treeNode.isParent) {
+        $("#selected_prv_folder").text(treeNode.name);
+        $("#prv_uploader").show();
+        $("#add_prv_node").show();
+    } else {
+        $("#selected_prv_folder").text('');
+        $("#prv_uploader").hide();
+        $("#add_prv_node").hide();
+    }
+};
+
+function add_prv_leaf(parent_node_name, filename) {
+    var zTree = $.fn.zTree.getZTreeObj("prv_tree")
+    var pnode = zTree.getNodeByParam("name", parent_node_name, null);
+    zTree.addNodes(pnode, { name:filename, isParent:false } );
+};
+
 $(document).ready(function () {
      init_GUI();
+
+     $("#prv_uploader").pluploadQueue({
+        // General settings
+        runtimes : 'html5,html4',
+        url : "/clc/tools/prv_upload/" + '{{ uid }}',
+        chunk_size : '10Mb',
+        rename: true,
+        drapgrop: true,
+
+        init : {
+            BeforeUpload: function(up, file) {
+                // Called right before the upload for a given file starts, can be used to cancel it if required
+                var zTree = $.fn.zTree.getZTreeObj("prv_tree")
+                var selectedNode = zTree.getSelectedNodes();
+                up.setOption('multipart_params', getOtherParam(selectedNode[0]));
+            },
+            UploadComplete: function(up, file) {
+                var zTree = $.fn.zTree.getZTreeObj("prv_tree")
+                var selectedNode = zTree.getSelectedNodes();
+                zTree.reAsyncChildNodes(selectedNode[0], "refresh", false)
+            },
+        }
+    });
+
+    $.fn.zTree.init($("#prv_tree"), prv_setting, []);
+
 });
 </script>
 
