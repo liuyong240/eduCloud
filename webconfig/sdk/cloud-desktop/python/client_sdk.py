@@ -143,19 +143,83 @@ class cloudDesktopWrapper():
         result = json.loads(r.content)
         return result
 
+
+    ###########################################################
+    ##
+    ## return :
+    ##   sucess :  ['Result': 'OK',    'tid'   : tid]
+    ##   failed :  ['Result': 'FAIL',  'error' : error msg]
+    ##
+    ###########################################################
     def prepareVM(self, vmdata):
-        pass
+        tid = vmdata['tid']
+        srcid, dstid, insid = self._parseTID(tid)
 
+        url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.prepare_url, srcid, dstid, insid)
+        payload = {
+            'sid': self.sessionID,
+        }
+        r = requests.post(url, data=payload)
+        result = json.loads(r.content)
+        return result
+
+    ###########################################################
+    ##
+    ##  return = {
+    ##    'type': 'taskstatus',
+    ##    'phase': "preparing",
+    ##    'state': 'downloading',
+    ##    'progress': 0,
+    ##    'tid': tid,
+    ##    'prompt': '',
+    ##    'errormsg': '',
+    ##    'failed' : 0
+    ##  }
+    ##
+    ###########################################################
     def getPrepareProgress(self, vmdata):
-        pass
+        tid = vmdata['tid']
+        srcid, dstid, insid = self._parseTID(tid)
 
+        url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.progress_url, srcid, dstid, insid)
+        r = requests.post(url, data=payload)
+        result = json.loads(r.content)
+        return result
+
+    ###########################################################
+    ##
+    ## return :
+    ##   sucess :  ['Result': 'OK',    'tid'   : tid]
+    ##
+    ###########################################################
     def runVM(self, vmdata):
-        pass
+        tid = vmdata['tid']
+        srcid, dstid, insid = self._parseTID(tid)
 
+        url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.run_url, srcid, dstid, insid)
+        payload = {
+            'sid': self.sessionID,
+        }
+        r = requests.post(url, data=payload)
+        result = json.loads(r.content)
+        return result
+
+    ###########################################################
+    ##
+    ##  return = {
+    ##        'type'    : 'taskstatus',
+    ##        'phase'  : "editing",
+    ##        'state'  : 'stopped', 'booting', 'running' ,
+    ##        'tid'    : _tid,
+    ##        'failed' : 0
+    ##  }
+    ##
+    ###########################################################
     def getVMStatus(self, vmdata):
-        pass
+        tid = vmdata['tid']
+        srcid, dstid, insid = self._parseTID(tid)
 
-
-
-
-
+        url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.vmstatus_url, srcid, dstid, insid)
+        r = requests.post(url, data=payload)
+        result = json.loads(r.content)
+        return result
