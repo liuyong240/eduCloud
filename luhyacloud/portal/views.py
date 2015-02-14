@@ -87,7 +87,7 @@ def portal_vds(request):
 
     payload = {
         'user': request.user.username,
-        'sid':  request.COOKIES['sessionid']
+        'sid':  request.session.session_key,
     }
 
     r = requests.post(url, data=payload)
@@ -96,7 +96,7 @@ def portal_vds(request):
     context = {
         'uid' : request.user.username,
         'vds' : result['data'],
-        'sid' : request.COOKIES['sessionid'],
+        'sid' : request.session.session_key,
 
     }
     return render(request, 'portal/cloud-desktop.html', context)

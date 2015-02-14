@@ -257,11 +257,18 @@ def getSysMemUtil():
 ### Service tools
 import socket, commands
 
-mygSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def init_socket():
+    _my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    return _my_socket
+
+gSocket = init_socket()
+
+def getSocket():
+    return gSocket
 
 def DoesServiceExist(host, port):
     try:
-        s = mygSocket
+        s = getSocket()
         s.settimeout(1)
         s.connect((host, port))
         s.close()
