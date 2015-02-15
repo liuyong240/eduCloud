@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-02 15:08+0000\n"
+"POT-Creation-Date: 2015-02-15 02:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,31 +46,61 @@ msgstr "请输入登录账号！"
 msgid "Please input user password !"
 msgstr "请输入登录密码！"
 
-#: templates/portal/cloud-desktop.html:11
+#: templates/portal/cloud-desktop.html:13
 msgid "'s Cloud Desktop"
 msgstr "的云桌面"
 
-#: templates/portal/cloud-desktop.html:35
+#: templates/portal/cloud-desktop.html:39
 msgid "Run"
 msgstr "运行"
 
-#: templates/portal/cloud-desktop.html:38
+#: templates/portal/cloud-desktop.html:42
 msgid "Show"
 msgstr "显示"
 
-#: templates/portal/cloud-desktop.html:41
+#: templates/portal/cloud-desktop.html:45
 msgid "Show by Browser"
-msgstr "浏览器中显示"
+msgstr "在浏览器中显示"
 
-#: templates/portal/cloud-desktop.html:43
+#: templates/portal/cloud-desktop.html:47
 msgid "Show by windows-tool"
-msgstr "用windows工具显示"
+msgstr "用RDP客户端工具显示"
 
-#: templates/portal/cloud-desktop.html:48
+#: templates/portal/cloud-desktop.html:49
+#, fuzzy
+msgid "Download plugin for Cloud Desktop Connection"
+msgstr "包含如何开发云桌面客户端的SDK"
+
+#: templates/portal/cloud-desktop.html:57
 msgid "Stop"
 msgstr "停止"
 
-#: templates/portal/cloud-desktop.html:453
+#: templates/portal/cloud-desktop.html:71
+msgid "Upload Private Data"
+msgstr "上传私人数据"
+
+#: templates/portal/cloud-desktop.html:82
+msgid "Step 1: create and select directory"
+msgstr "步骤1：创建并选择目录"
+
+#: templates/portal/cloud-desktop.html:85
+msgid "Private Data Directory in Server"
+msgstr "云平台上的私人数据空间"
+
+#: templates/portal/cloud-desktop.html:88
+#, fuzzy
+msgid "Add"
+msgstr "地址"
+
+#: templates/portal/cloud-desktop.html:103
+msgid "Step 2: select files to upload"
+msgstr "步骤2：选择一个文件上传"
+
+#: templates/portal/cloud-desktop.html:104
+msgid "Your browser doesn't support HTML5."
+msgstr ""
+
+#: templates/portal/cloud-desktop.html:552
 msgid "booting ... ..."
 msgstr "启动中 ... ..."
 

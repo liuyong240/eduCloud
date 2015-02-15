@@ -40,14 +40,19 @@
 
                             <div class="btn-group ">
                                 <button type="button" id="show_{{ vd.id }}"  class="btn  dropdown-toggle" data-toggle="dropdown">{% trans "Show" %}<span class="caret"></span></button>
-                                <ul class="dropdown-menu pull-right" role="menu">
-                                    <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
-                                    <li><a href="JavaScript:void(0);" onclick="show_in_browser();">{% trans "Show by Browser" %}</a>
+                                <ul class="dropdown-menu" role="menu">
+
+                                    <li><a href="JavaScript:void(0);" onclick="show_in_browser( '{{ vd.id }}' );">{% trans "Show by Browser" %}</a>
                                     </li>
-                                    <li><a href="JavaScript:void(0);" onclick="show_in_tools();">{% trans "Show by windows-tool" %}</a>
+                                    <li><a href="JavaScript:void(0);" onclick="show_in_tools( '{{ vd.id }}' );">{% trans "Show by windows-tool" %}</a>
+                                    </li>
+                                    <li><a href="/static/clc/plugin/rdp-plugin.zip">{% trans "Download plugin for Cloud Desktop Connection" %}</a>
                                     </li>
                                 </ul>
                             </div>
+
+                            <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
+                            <a id="url_for_show_in_client_{{ vd.id }}" style="display:none;" href="luhyavm://"></a>
 
                             <button type="button" id="stop_{{ vd.id }}" onclick="stop_tvd('{{ vd.id }}');"   class="btn ">{% trans "Stop" %}</button>
 
@@ -417,7 +422,7 @@ function startVD( ecid, id ) {
     }
 }
 
-function show_in_browser() {
+function show_in_browser( id ) {
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
     tmp = taskid.split(':')
     srcid = tmp[0];
@@ -454,8 +459,11 @@ function delete_form(form_name) {
     document.body.removeChild(form_name);
 }
 
-function show_in_tools( url ) {
-    alert( url );
+function show_in_tools( id ) {
+    url = $('#url_for_show_in_client_' + id ).attr('href')
+    var left = ($(window).width() / 8) - (1440 / 2);
+    var top = ($(window).height() / 8) - (1024 / 2);
+    window.open(url, '', 'height=5,width=5,left=' + left + ',top=' + top);
 }
 
 

@@ -1479,7 +1479,7 @@ msgstr "新镜像文件状态"
 
 #: templates/clc/wizard/image_create_wizard.html:504
 msgid "Download plugin for Cloud Desktop Connection"
-msgstr "下载windows云桌面配置工具"
+msgstr "下载RDP客户端Google Chrome插件"
 
 #: templates/clc/wizard/image_create_wizard.html:509
 msgid "submit Image"
