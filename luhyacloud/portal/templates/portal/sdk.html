@@ -34,13 +34,25 @@
         				</div>
         			</div>
         			<div class="col-sm-8">
-    					<h3>{% trans "client SDK" %}</h3>
+    					<h3>{% trans "client SDK" %}(Python)</h3>
+    					<a href="{% static "portal/sdk/python/sample.py" %}">sample.py</a>
+                        <a href="{% static "portal/sdk/python/client_sdk.py" %}">client_sdk.py</a>
+    				</div>
+				</div>
+
+                <div class="row service-wrapper-row">
+        			<div class="col-sm-4">
+        				<div class="service-image">
+        					<img class="mydoc" src="{% static "portal/img/documents/sdk.png" %}">
+        				</div>
+        			</div>
+        			<div class="col-sm-8">
+    					<h3>{% trans "client SDK" %}(Java)</h3>
     					<p>
     						 {% trans "Under construction ... ..." %}
     					</p>
     				</div>
 				</div>
-
 	        </div>
 	    </div>
 {% endblock %}
