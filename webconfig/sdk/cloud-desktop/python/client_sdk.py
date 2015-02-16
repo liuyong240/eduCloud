@@ -21,7 +21,7 @@ class cloudDesktopWrapper():
         self.vmstatus_url    = "clc/api/1.0/rvd/getvmstatus"
         self.remove_task_url = "clc/api/1.0/tasks/delete"
         self.rdp_url         = "clc/api/1.0/rvd/get_rdp_url"
-        self.del_vm_url      = "clc/api/1.0/tasks/delete";
+        self.del_vm_url      = "clc/api/1.0/tasks/delete"
 
     def setHost(self, ip, port=80):
         self.host_ip    = ip
