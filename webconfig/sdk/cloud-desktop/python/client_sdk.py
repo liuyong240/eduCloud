@@ -20,6 +20,7 @@ class cloudDesktopWrapper():
         self.stop_url        = "clc/api/1.0/rvd/stop"
         self.vmstatus_url    = "clc/api/1.0/rvd/getvmstatus"
         self.remove_task_url = "clc/api/1.0/tasks/delete"
+        self.rdp_url         = "clc/api/1.0/rvd/get_rdp_url/"
 
     def setHost(self, ip, port=80):
         self.host_ip    = ip
@@ -220,6 +221,21 @@ class cloudDesktopWrapper():
         srcid, dstid, insid = self._parseTID(tid)
 
         url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.vmstatus_url, srcid, dstid, insid)
+        r = requests.post(url, data=payload)
+        result = json.loads(r.content)
+        return result
+
+    ###########################################################
+    ##
+    ## return :
+    ##   sucess :  ['Result': 'OK',    'mgr_url'   : rdp url]
+    ##
+    ###########################################################
+    def getRDPUrl(self, vmdata):
+        tid = vmdata['tid']
+        srcid, dstid, insid = self._parseTID(tid)
+
+        url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.rdp_url, srcid, dstid, insid)
         r = requests.post(url, data=payload)
         result = json.loads(r.content)
         return result

@@ -1,5 +1,11 @@
-import sys, time, commands
+import os, sys, time, commands
 from client_sdk import *
+
+sep = os.sep
+if sep == '/': # it is Linux
+    RDP_CLIENT_EXECUTE_PATH = 'rdesktop %s'
+else:
+    RDP_CLIENT_EXECUTE_PATH = 'mstsc /f /v:%s'
 
 
 vmw = cloudDesktopWrapper()
@@ -16,8 +22,13 @@ vmobj = list_vms[0]
 
 if vmobj['phase'] == 'editing':
     if vmobj['state'] == 'running' or vmobj['state'] == 'Running':
-        vmw.stopVM(vmobj)
-        time.sleep(2)
+        ret = vmw.getRDPUrl(vmobj)
+        if ret['Result'] == 'FAIL':
+            print ret['error']
+            sys.exit(-1)
+
+        rdp_client_cmd = '%s %s' % ('RDP_CLIENT_EXECUTE_PATH', ret['mgr_url'])
+        commands.getoutput(rdp_client_cmd)
 
 ret = vmw.startVM(vmobj)
 if ret['Result'] == 'FAIL':
@@ -49,5 +60,10 @@ while (1):
         print 'VM is running, now can display it.'
         break
 
-rdp_client_cmd = '%s %s' % ('rdesktop', vmobj['mgr_url'])
+ret = vmw.getRDPUrl(vmobj)
+if ret['Result'] == 'FAIL':
+    print ret['error']
+    sys.exit(-1)
+
+rdp_client_cmd = RDP_CLIENT_EXECUTE_PATH % ret['mgr_url']
 commands.getoutput(rdp_client_cmd)

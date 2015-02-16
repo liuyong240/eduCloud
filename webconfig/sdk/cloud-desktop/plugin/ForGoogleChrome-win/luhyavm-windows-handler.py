@@ -10,6 +10,4 @@ if __name__ == '__main__':
 	cmd_line = "mstsc /f /v:" + ipport
 	os.system(cmd_line)
     
-    `
-    
     
