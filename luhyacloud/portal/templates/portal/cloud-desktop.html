@@ -52,7 +52,6 @@
                             </div>
 
                             <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
-                            <a id="url_for_show_in_client_{{ vd.id }}" style="display:none;" href="luhyavm://"></a>
 
                             <button type="button" id="stop_{{ vd.id }}" onclick="stop_tvd('{{ vd.id }}');"   class="btn ">{% trans "Stop" %}</button>
 
@@ -144,6 +143,7 @@ var run_url         = "/clc/api/1.0/rvd/run/";
 var stop_url        = "/clc/api/1.0/rvd/stop/" ;
 var vmstatus_url    = "/clc/api/1.0/rvd/getvmstatus/";
 var remove_task_url = "/clc/api/1.0/tasks/delete";
+var get_rdp_url     = "/clc/api/1.0/rvd/get_rdp_url/";
 
 ///////////////////////////////////////////////////////
 //
@@ -154,7 +154,7 @@ var remove_task_url = "/clc/api/1.0/tasks/delete";
 ///////////////////////////////////////////////////////
 
 function create_tvd(id, srcid) {
-    console.log("create_tvd() is called.");
+    //console.log("create_tvd() is called.");
 
     url = create_url + srcid;
     postdata = {
@@ -185,7 +185,7 @@ function create_tvd(id, srcid) {
 //
 ///////////////////////////////////////////////////////
 function start_tvd(id, taskid) {
-    console.log("start_tvd() is called.");
+    //console.log("start_tvd() is called.");
     tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
@@ -220,7 +220,7 @@ function start_tvd(id, taskid) {
 //
 ///////////////////////////////////////////////////////
 function prepare_tvd(id, taskid) {
-    console.log("prepare_tvd() is called.");
+    //console.log("prepare_tvd() is called.");
     tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
@@ -281,7 +281,7 @@ function get_progress(id, taskid, do2run) {
         $.each(data, function (key, val) {
             items[key] = val;
         });
-        console.log("get_progress() is called with progress = " + items['progress']);
+        //console.log("get_progress() is called with progress = " + items['progress']);
         items['id'] = id;
         gui_update(items, do2run);
     });
@@ -295,7 +295,7 @@ function get_progress(id, taskid, do2run) {
 //
 ///////////////////////////////////////////////////////
 function run_tvd(id, taskid) {
-    console.log("run_tvd() is called.");
+    //console.log("run_tvd() is called.");
 
     tmp = taskid.split(':')
     srcid = tmp[0];
@@ -338,7 +338,7 @@ function run_tvd(id, taskid) {
 //
 ///////////////////////////////////////////////////////
 function get_vmstatus(id, taskid) {
-    console.log("get_vmstatus() is called.");
+    //console.log("get_vmstatus() is called.");
 
     tmp = taskid.split(':')
     srcid = tmp[0];
@@ -364,7 +364,7 @@ function sleep(sleepTime) {
 
 
 function delete_task(taskid) {
-    console.log("delete_task() is called.");
+    //console.log("delete_task() is called.");
 
     url = remove_task_url ;
     postdata = {
@@ -387,7 +387,7 @@ function delete_task(taskid) {
 //
 ///////////////////////////////////////////////////////
 function stop_tvd(id) {
-    console.log("stop_tvd() is called.");
+    //console.log("stop_tvd() is called.");
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
     tmp = taskid.split(':')
     srcid = tmp[0];
@@ -410,7 +410,7 @@ function stop_tvd(id) {
 
 
 function errorMsgBox(msg) {
-    console.log(msg);
+    //console.log(msg);
 }
 
 function startVD( ecid, id ) {
@@ -430,10 +430,6 @@ function show_in_browser( id ) {
     insid = tmp[2];
 
     url="/clc/api/1.0/rvd/display/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-
-    //var left = ($(window).width() / 2) - (1440 / 2);
-    //var top = ($(window).height() / 2) - (1024 / 2);
-    //window.open(url, '', 'height=1280,width=1400,left=' + left + ',top=' + top);
 
     var mapForm = document.createElement("form");
     mapForm.target = "_blank";
@@ -455,25 +451,39 @@ function show_in_browser( id ) {
 }
 
 function delete_form(form_name) {
-    console.log("document.body.removeChild() is called.");
+    //console.log("document.body.removeChild() is called.");
     document.body.removeChild(form_name);
 }
 
 function show_in_tools( id ) {
-    url = $('#url_for_show_in_client_' + id ).attr('href')
-    var left = ($(window).width() / 8) - (1440 / 2);
-    var top = ($(window).height() / 8) - (1024 / 2);
-    window.open(url, '', 'height=5,width=5,left=' + left + ',top=' + top);
+    taskid = $('#taskid_for_show_in_browser_' + id ).text();
+    tmp = taskid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = get_rdp_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        url = "luhyavm://" + $.trim(items['mgr_url'])
+        window.open(url, '', 'height=10,width=10,left=0, top=0');
+    });
 }
 
 
 function gui_update(items, do2run) {
-    console.log("gui_update() is called.");
+    //console.log("gui_update() is called.");
     id       = items['id'];
     phase    = items['phase'];
     state    = items['state'];
     progress = items['progress'];
-    taskid   = items['tid']
+    taskid   = items['tid'];
     prompt   = items['prompt'];
     errormsg = items['errormsg'];
     failed   = items['failed'];

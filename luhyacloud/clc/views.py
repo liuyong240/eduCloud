@@ -4825,3 +4825,28 @@ def rvd_display(request, srcid, dstid, insid):
         return HttpResponse(retvalue, content_type="application/json")
 
     return vm_display(request, srcid, dstid, insid)
+
+def rvd_get_rdp_url(request, srcid, dstid, insid):
+    _skey = request.POST['sid']
+
+    result = verifySessionKey(_skey)
+    if result == False:
+        response = {}
+        response['Result'] = 'FAIL'
+        response['error'] = 'session is invalide, need logon first'
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
+    response = {}
+
+    _tid  = '%s:%s:%s' % (srcid, dstid, insid)
+
+    # if tid exist, just call view
+    # else find resource and create tid
+    trecs = ectaskTransaction.objects.filter(tid=_tid)
+    if trecs.count() > 0:
+        runtime_option = json.loads(trecs[0].runtime_option)
+        response['Result']      = 'OK'
+        response['mgr_url']     = getValidMgrURL(request, runtime_option)
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")

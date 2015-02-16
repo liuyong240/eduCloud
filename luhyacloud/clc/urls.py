@@ -131,6 +131,8 @@ urlpatterns = patterns('',
     url(r'^api/1.0/rvd/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',             views.rvd_stop,               name='rvd_stop'),
     url(r'^api/1.0/rvd/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_getvmstatus,        name='rvd_getvmstatus'),
     url(r'^api/1.0/rvd/display/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',          views.rvd_display,            name='rvd_display'),
+    url(r'^api/1.0/rvd/get_rdp_url/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_get_rdp_url,        name='rvd_get_rdp_url'),
+
 
 
     # API v1.0 for system administration
@@ -245,6 +247,7 @@ urlpatterns = patterns('',
     url(r'^api/1.0/software/op$',     views.software_operation,              name='software_operation'),
     url(r'^api/1.0/prv_data/op/(?P<uid>\w+)$',     views.prv_data_operation,              name='prv_data_operation'),
     url(r'^api/1.0/vrde$',     views.rdp_web_client,              name='rdp_web_client'),
+
 
 
     )
