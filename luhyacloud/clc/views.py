@@ -4566,6 +4566,13 @@ def list_sites(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def getUserBySession(session_key):
+    from django.contrib.sessions.models import Session
+    sobj = Session.objects.get(pk=session_key)
+    uid = sobj.get_decoded().get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    return user
+
 def verifySessionKey(session_key):
     from django.contrib.sessions.models import Session
     sobj = Session.objects.filter(pk=session_key)
@@ -4738,12 +4745,18 @@ def rvd_create(request, srcid):
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
     else:
+        if request.user.username =='':
+            _user = getUserBySession(_skey)
+            _user_name = _user.username
+        else:
+            _user_name = request.user.username
+
         rec = ectaskTransaction(
              tid         = _tid,
              srcimgid    = _srcimgid,
              dstimgid    = _dstimageid,
              insid       = _instanceid,
-             user        = request.user.username,
+             user        = _user_name,
              phase       = 'preparing',
              state       = "init",
              progress    = 0,

@@ -5,11 +5,11 @@ sep = os.sep
 if sep == '/': # it is Linux
     RDP_CLIENT_EXECUTE_PATH = 'rdesktop %s'
 else:
-    RDP_CLIENT_EXECUTE_PATH = 'mstsc /f /v:%s'
+    RDP_CLIENT_EXECUTE_PATH = 'mstsc /f zv:%s'
 
 
 vmw = cloudDesktopWrapper()
-vmw.setHost('192.168.96.124')
+vmw.setHost('192.168.96.124', 8000)
 vmw.setUser('wangfeng', '11111111')
 
 if not vmw.logon():
@@ -18,7 +18,7 @@ if not vmw.logon():
 
 # get list of vms
 list_vms = vmw.getVDList()
-vmobj = list_vms[0]
+vmobj = list_vms['data'][0]
 
 if vmobj['phase'] == 'editing':
     if vmobj['state'] == 'running' or vmobj['state'] == 'Running':
@@ -27,17 +27,22 @@ if vmobj['phase'] == 'editing':
             print ret['error']
             sys.exit(-1)
 
-        rdp_client_cmd = '%s %s' % ('RDP_CLIENT_EXECUTE_PATH', ret['mgr_url'])
+        rdp_client_cmd = RDP_CLIENT_EXECUTE_PATH %  ret['mgr_url']
         commands.getoutput(rdp_client_cmd)
+        sys.exit(0)
 
 ret = vmw.startVM(vmobj)
 if ret['Result'] == 'FAIL':
     print ret['error']
+    vmw.errorHandle(vmobj)
     sys.exit(-1)
+else:
+    vmobj['tid'] = ret['tid']
 
 ret = vmw.prepareVM(vmobj)
 if ret['Result'] == 'FAIL':
     print ret['error']
+    vmw.errorHandle(vmobj)
     sys.exit(-1)
 
 while (1):
@@ -50,13 +55,14 @@ while (1):
 ret = vmw.runVM(vmobj)
 if ret['Result'] == 'FAIL':
     print ret['error']
+    vmw.errorHandle(vmobj)
     sys.exit(-1)
 
 while (1):
     time.sleep(2)
     ret = vmw.getVMStatus(vmobj)
     print 'VM Status is %s' % ret['state']
-    if ret['state'] == 'Running' or ret['running']:
+    if ret['state'] == 'Running' or ret['state'] == ['running']:
         print 'VM is running, now can display it.'
         break
 

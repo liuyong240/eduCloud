@@ -20,7 +20,8 @@ class cloudDesktopWrapper():
         self.stop_url        = "clc/api/1.0/rvd/stop"
         self.vmstatus_url    = "clc/api/1.0/rvd/getvmstatus"
         self.remove_task_url = "clc/api/1.0/tasks/delete"
-        self.rdp_url         = "clc/api/1.0/rvd/get_rdp_url/"
+        self.rdp_url         = "clc/api/1.0/rvd/get_rdp_url"
+        self.del_vm_url      = "clc/api/1.0/tasks/delete";
 
     def setHost(self, ip, port=80):
         self.host_ip    = ip
@@ -98,7 +99,7 @@ class cloudDesktopWrapper():
         return result
 
     def _parseTID(self, tid):
-        _tmp = tid.spit(':')
+        _tmp = tid.split(':')
         return _tmp[0], _tmp[1], _tmp[2]
 
     ###########################################################
@@ -122,9 +123,9 @@ class cloudDesktopWrapper():
 
     def startVM(self, vmdata):
         if vmdata['tid'] == '':
-            return _create_tvd(vmdata)
+            return self._create_tvd(vmdata)
         else:
-            return _start_tvd(vmdata)
+            return self._start_tvd(vmdata)
 
     ###########################################################
     ##
@@ -183,7 +184,7 @@ class cloudDesktopWrapper():
         srcid, dstid, insid = self._parseTID(tid)
 
         url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.progress_url, srcid, dstid, insid)
-        r = requests.post(url, data=payload)
+        r = requests.post(url)
         result = json.loads(r.content)
         return result
 
@@ -221,7 +222,7 @@ class cloudDesktopWrapper():
         srcid, dstid, insid = self._parseTID(tid)
 
         url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.vmstatus_url, srcid, dstid, insid)
-        r = requests.post(url, data=payload)
+        r = requests.post(url)
         result = json.loads(r.content)
         return result
 
@@ -236,6 +237,23 @@ class cloudDesktopWrapper():
         srcid, dstid, insid = self._parseTID(tid)
 
         url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.rdp_url, srcid, dstid, insid)
+        payload = {
+            'sid': self.sessionID,
+        }
         r = requests.post(url, data=payload)
-        result = json.loads(r.content)
-        return result
+        result = (r.content)
+        return json.loads(result)
+
+    def delet_vm(self, vmdata):
+        tid = vmdata['tid']
+
+        url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.del_vm_url)
+        payload = {
+            'tid': tid,
+        }
+        r = requests.post(url, data=payload)
+        result = (r.content)
+        return json.loads(result)
+
+    def errorHandle(self, vmdata):
+        self.delet_vm(vmdata)
