@@ -484,7 +484,7 @@ function gui_update(items, do2run) {
     state    = items['state'];
     progress = items['progress'];
     taskid   = items['tid'];
-    prompt   = items['prompt'];
+    vm_prompt   = items['prompt'];
     errormsg = items['errormsg'];
     failed   = items['failed'];
 
@@ -513,7 +513,7 @@ function gui_update(items, do2run) {
             $('#progressbar_' + id).css('width', progress + '%');
             $('#progressbar_' + id).text(progress + '%');
 
-            $('#error_msg_' + id).text(prompt);
+            $('#error_msg_' + id).text(vm_prompt);
             $('#error_msg_' + id).css('color',   'blue');
             $('#error_msg_' + id).css('display', 'block');
 
