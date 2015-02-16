@@ -10,6 +10,7 @@ import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -70,14 +71,19 @@ public class rvdHttpClient {
         String url = String.format("http://%s:%d/%s", host_IP, host_port, login_url);
         
         try {
-            JSONObject payload=new JSONObject();
-        
             String myret = Request.Post(url).bodyForm(Form.form().add("email", user_id).add("password", user_password).build()).execute().returnContent().asString();
             JSONParser parser=new JSONParser();
             Object myobj = parser.parse(myret);
             JSONObject response = (JSONObject)myobj;
-            return response.get("status") == "SUCCESS";
-        } catch (IOException | org.json.simple.parser.ParseException pe) {
+            String result = (String) response.get("status");
+            if (result.equals("SUCCESS")) {
+                seesionID  = (String) response.get("sid");
+                return true;
+            } else {
+                return false;
+            }
+            
+        } catch (Exception pe) {
             return false;
         }
     }
