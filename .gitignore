@@ -216,3 +216,4 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 /webconfig/sdk/cloud-desktop/java/educloudsdk/nbproject/private/
+/webconfig/sdk/cloud-desktop/java/sdkSample/nbproject/private/
