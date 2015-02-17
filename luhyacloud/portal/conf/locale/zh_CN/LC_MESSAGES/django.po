@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-15 02:58+0000\n"
+"POT-Creation-Date: 2015-02-17 12:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,40 +66,38 @@ msgid "Show by windows-tool"
 msgstr "用RDP客户端工具显示"
 
 #: templates/portal/cloud-desktop.html:49
-#, fuzzy
 msgid "Download plugin for Cloud Desktop Connection"
 msgstr "包含如何开发云桌面客户端的SDK"
 
-#: templates/portal/cloud-desktop.html:57
+#: templates/portal/cloud-desktop.html:56
 msgid "Stop"
 msgstr "停止"
 
-#: templates/portal/cloud-desktop.html:71
+#: templates/portal/cloud-desktop.html:70
 msgid "Upload Private Data"
 msgstr "上传私人数据"
 
-#: templates/portal/cloud-desktop.html:82
+#: templates/portal/cloud-desktop.html:81
 msgid "Step 1: create and select directory"
 msgstr "步骤1：创建并选择目录"
 
-#: templates/portal/cloud-desktop.html:85
+#: templates/portal/cloud-desktop.html:84
 msgid "Private Data Directory in Server"
 msgstr "云平台上的私人数据空间"
 
-#: templates/portal/cloud-desktop.html:88
-#, fuzzy
+#: templates/portal/cloud-desktop.html:87
 msgid "Add"
 msgstr "地址"
 
-#: templates/portal/cloud-desktop.html:103
+#: templates/portal/cloud-desktop.html:102
 msgid "Step 2: select files to upload"
 msgstr "步骤2：选择一个文件上传"
 
-#: templates/portal/cloud-desktop.html:104
+#: templates/portal/cloud-desktop.html:103
 msgid "Your browser doesn't support HTML5."
 msgstr ""
 
-#: templates/portal/cloud-desktop.html:552
+#: templates/portal/cloud-desktop.html:562
 msgid "booting ... ..."
 msgstr "启动中 ... ..."
 
@@ -122,8 +119,8 @@ msgid "User Manual"
 msgstr "用户手册"
 
 #: templates/portal/documents.html:39 templates/portal/documents.html.py:53
-#: templates/portal/ppts.html:39 templates/portal/sdk.html:39
-#: templates/portal/videos.html:39 templates/portal/videos.html.py:53
+#: templates/portal/ppts.html:39 templates/portal/videos.html:39
+#: templates/portal/videos.html.py:53
 msgid "Under construction ... ..."
 msgstr "编写中 ... ..."
 
@@ -241,11 +238,10 @@ msgid "Product PPTs"
 msgstr "产品PPT"
 
 #: templates/portal/sdk.html:22
-#, fuzzy
 msgid "Cloud Desktop SDK"
-msgstr "云桌面"
+msgstr "云桌面SDK"
 
-#: templates/portal/sdk.html:37
+#: templates/portal/sdk.html:37 templates/portal/sdk.html.py:50
 msgid "client SDK"
 msgstr "云桌面客户端SDK"
 
