@@ -1,14 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vd.remote;
 
+import java.io.IOException;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -142,7 +139,7 @@ public class rvdHttpClient {
     ##
     */
     public JSONObject _create_tvd(JSONObject vmdata) {
-        String url = String.format("http://%s:%d/%s", host_IP, host_port, create_url);
+        String url = String.format("http://%s:%d/%s/%s", host_IP, host_port, create_url, (String)vmdata.get("ecid"));
         
         try {
             String myret = Request.Post(url).bodyForm(Form.form().
@@ -153,7 +150,7 @@ public class rvdHttpClient {
             Object myobj = parser.parse(myret);
             JSONObject response = (JSONObject)myobj;
             return response;
-        } catch (Exception pe) {
+        } catch (IOException | ParseException pe) {
             JSONObject except_ret = new JSONObject();
             return except_ret;
         }
@@ -167,7 +164,11 @@ public class rvdHttpClient {
     ##
     */
     public JSONObject _start_tvd(JSONObject vmdata) {
-        String url = String.format("http://%s:%d/%s", host_IP, host_port, start_url);
+        String tid = (String)vmdata.get("tid");
+        String[] tidArray = _parseTID(tid);
+        
+        String url = String.format("http://%s:%d/%s/%s/%s/%s", 
+                host_IP, host_port, start_url, tidArray[0], tidArray[1], tidArray[2]);
         
         try {
             String myret = Request.Post(url).bodyForm(Form.form().
@@ -178,7 +179,7 @@ public class rvdHttpClient {
             Object myobj = parser.parse(myret);
             JSONObject response = (JSONObject)myobj;
             return response;
-        } catch (Exception pe) {
+        } catch (IOException | ParseException pe) {
             JSONObject except_ret = new JSONObject();
             return except_ret;
         }
@@ -219,7 +220,7 @@ public class rvdHttpClient {
             Object myobj = parser.parse(myret);
             JSONObject response = (JSONObject)myobj;
             return response;
-        } catch (Exception pe) {
+        } catch (IOException | ParseException pe) {
             JSONObject except_ret = new JSONObject();
             return except_ret;
         }
@@ -248,7 +249,7 @@ public class rvdHttpClient {
             Object myobj = parser.parse(myret);
             JSONObject response = (JSONObject)myobj;
             return response;
-        } catch (Exception pe) {
+        } catch (IOException | ParseException pe) {
             JSONObject except_ret = new JSONObject();
             return except_ret;
         }
@@ -284,7 +285,7 @@ public class rvdHttpClient {
             Object myobj = parser.parse(myret);
             JSONObject response = (JSONObject)myobj;
             return response;
-        } catch (Exception pe) {
+        } catch (IOException | ParseException pe) {
             JSONObject except_ret = new JSONObject();
             return except_ret;
         }
@@ -312,7 +313,7 @@ public class rvdHttpClient {
             Object myobj = parser.parse(myret);
             JSONObject response = (JSONObject)myobj;
             return response;
-        } catch (Exception pe) {
+        } catch (IOException | ParseException pe) {
             JSONObject except_ret = new JSONObject();
             return except_ret;
         }
@@ -345,7 +346,7 @@ public class rvdHttpClient {
             Object myobj = parser.parse(myret);
             JSONObject response = (JSONObject)myobj;
             return response;
-        } catch (Exception pe) {
+        } catch (IOException | ParseException pe) {
             JSONObject except_ret = new JSONObject();
             return except_ret;
         }
@@ -373,7 +374,7 @@ public class rvdHttpClient {
             Object myobj = parser.parse(myret);
             JSONObject response = (JSONObject)myobj;
             return response;
-        } catch (Exception pe) {
+        } catch (IOException | ParseException pe) {
             JSONObject except_ret = new JSONObject();
             return except_ret;
         }
@@ -395,7 +396,7 @@ public class rvdHttpClient {
             Object myobj = parser.parse(myret);
             JSONObject response = (JSONObject)myobj;
             return response;
-        } catch (Exception pe) {
+        } catch (IOException | ParseException pe) {
             JSONObject except_ret = new JSONObject();
             return except_ret;
         }
