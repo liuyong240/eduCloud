@@ -20,7 +20,7 @@ class nc_statusPublisherThread(run4everThread):
                 self.send_node_status_to_cc(node_status)
                 time.sleep(5*60)
             except Exception as e:
-                logger.error('nc_statusPublisherThread exception = %s' % e.message)
+                logger.error('nc_statusPublisherThread exception = %s' % str(e))
 
     def collect_node_status(self):
 

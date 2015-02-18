@@ -120,7 +120,7 @@ def main():
             obj.start()
 
         except Exception as e:
-            logger.error(e.message)
+            logger.error(str(e))
             time.sleep(3)
 
 if __name__ == '__main__':

@@ -1,0 +1,96 @@
+{% load i18n %}
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>{% trans "eduCloud portal" %}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <link rel="stylesheet" href="{% static "portal/css/bootstrap.min.css" %}">
+        <link rel="stylesheet" href="{% static "portal/css/icomoon-social.css" %}">
+
+        <link rel="stylesheet" href="{% static "portal/css/leaflet.css" %}" />
+		<!--[if lte IE 8]>
+		    <link rel="stylesheet" href="{% static "portal/css/leaflet.ie.css" %}" />
+		<![endif]-->
+		<link rel="stylesheet" href="{% static "portal/css/main.css" %}">
+
+        <script src="{% static "portal/js/modernizr-2.6.2-respond-1.1.0.min.js" %}"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+        
+
+        <!-- Navigation & Logo-->
+        <div class="mainmenu-wrapper">
+	        <div class="container">
+	        	<div class="menuextras">
+		        </div>
+		        <nav id="mainmenu" class="mainmenu">
+					<ul>
+						<li>
+							<h1>{% trans "EduCloud Platform Portal" %}</h1>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+
+            {% block content %}
+            {% endblock %}
+
+	    <!-- Footer -->
+	    <div class="footer">
+	    	<div class="container">
+		    	<div class="row">
+		    		<div class="col-footer col-md-4 col-xs-6">
+		    			<h3>{% trans "Contacts" %}</h3>
+		    			<p class="contact-us-details">
+	        				<b>{% trans "Address" %}:</b>{% trans "Floor 7, XiXi Habour, Hanghzou, zhejiang" %}<br/>
+	        				<b>{% trans "Phone" %}:</b>+86 189-5715-3111<br/>
+	        				<b>{% trans "Person" %}:</b>{% trans "Mr.zhou" %}<br/>
+	        				<b>{% trans "Email" %}:</b> <a href="mailto:767052996@qq.com">767052996@qq.com</a>
+
+	        			</p>
+		    		</div>
+		    		<div class="col-footer col-md-2 col-xs-6">
+		    			<h3>{% trans "Connected" %}</h3>
+		    			<ul class="footer-stay-connected no-list-style">
+		    				<li><a href="#" class="facebook"></a></li>
+		    				<li><a href="#" class="twitter"></a></li>
+		    				<li><a href="#" class="googleplus"></a></li>
+		    			</ul>
+		    		</div>
+		    	</div>
+		    	<div class="row">
+		    		<div class="col-md-12">
+		    			<div class="footer-copyright">&copy; 2014 {% trans "EduCloud. All rights reserved" %}.</div>
+		    		</div>
+		    	</div>
+		    </div>
+	    </div>
+
+        <!-- Javascripts -->
+        <script src="{% static "portal/js/jquery-1.9.1.min.js" %}"><\/script>')</script>
+        <script src="{% static "portal/js/bootstrap.min.js" %}"></script>
+        <script src="{% static "portal/js/leaflet.js" %}"></script>
+        <script src="{% static "portal/js/jquery.fitvids.js" %}"></script>
+        <script src="{% static "portal/js/jquery.sequence-min.js" %}"></script>
+        <script src="{% static "portal/js/jquery.bxslider.js" %}"></script>
+        <script src="{% static "portal/js/main-menu.js" %}"></script>
+        <script src="{% static "portal/js/template.js" %}"></script>
+
+        {% block myjs %}
+        {% endblock %}
+
+    </body>
+</html>

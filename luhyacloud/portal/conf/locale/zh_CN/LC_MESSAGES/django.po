@@ -1,0 +1,267 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-02-17 12:26+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/portal/adm_login.html:11
+msgid "Login For Cloud Adminstration"
+msgstr "云平台管理登录"
+
+#: templates/portal/adm_login.html:24 templates/portal/index.html:43
+#: templates/portal/login.html:24
+msgid "Cloud Desktop"
+msgstr "云桌面"
+
+#: templates/portal/adm_login.html:33 templates/portal/login.html:33
+msgid "Username or Email"
+msgstr "登录账号"
+
+#: templates/portal/adm_login.html:37 templates/portal/login.html:37
+msgid "Password"
+msgstr "登录密码"
+
+#: templates/portal/adm_login.html:45 templates/portal/login.html:45
+msgid "Login"
+msgstr "登录"
+
+#: templates/portal/adm_login.html:66 templates/portal/login.html:66
+msgid "Please input user email address !"
+msgstr "请输入登录账号！"
+
+#: templates/portal/adm_login.html:70 templates/portal/login.html:70
+msgid "Please input user password !"
+msgstr "请输入登录密码！"
+
+#: templates/portal/cloud-desktop.html:13
+msgid "'s Cloud Desktop"
+msgstr "的云桌面"
+
+#: templates/portal/cloud-desktop.html:39
+msgid "Run"
+msgstr "运行"
+
+#: templates/portal/cloud-desktop.html:42
+msgid "Show"
+msgstr "显示"
+
+#: templates/portal/cloud-desktop.html:45
+msgid "Show by Browser"
+msgstr "在浏览器中显示"
+
+#: templates/portal/cloud-desktop.html:47
+msgid "Show by windows-tool"
+msgstr "用RDP客户端工具显示"
+
+#: templates/portal/cloud-desktop.html:49
+msgid "Download plugin for Cloud Desktop Connection"
+msgstr "包含如何开发云桌面客户端的SDK"
+
+#: templates/portal/cloud-desktop.html:56
+msgid "Stop"
+msgstr "停止"
+
+#: templates/portal/cloud-desktop.html:70
+msgid "Upload Private Data"
+msgstr "上传私人数据"
+
+#: templates/portal/cloud-desktop.html:81
+msgid "Step 1: create and select directory"
+msgstr "步骤1：创建并选择目录"
+
+#: templates/portal/cloud-desktop.html:84
+msgid "Private Data Directory in Server"
+msgstr "云平台上的私人数据空间"
+
+#: templates/portal/cloud-desktop.html:87
+msgid "Add"
+msgstr "地址"
+
+#: templates/portal/cloud-desktop.html:102
+msgid "Step 2: select files to upload"
+msgstr "步骤2：选择一个文件上传"
+
+#: templates/portal/cloud-desktop.html:103
+msgid "Your browser doesn't support HTML5."
+msgstr ""
+
+#: templates/portal/cloud-desktop.html:562
+msgid "booting ... ..."
+msgstr "启动中 ... ..."
+
+#: templates/portal/cloud-services.html:12
+msgid "Cloud Applications"
+msgstr "云应用"
+
+#: templates/portal/cloud-services.html:27 templates/portal/index.html:31
+#: templates/portal/index.html.py:45 templates/portal/index.html:59
+msgid "Enter"
+msgstr "进入"
+
+#: templates/portal/documents.html:22
+msgid "Product Technical Documents"
+msgstr "产品技术文档"
+
+#: templates/portal/documents.html:37
+msgid "User Manual"
+msgstr "用户手册"
+
+#: templates/portal/documents.html:39 templates/portal/documents.html.py:53
+#: templates/portal/ppts.html:39 templates/portal/videos.html:39
+#: templates/portal/videos.html.py:53
+msgid "Under construction ... ..."
+msgstr "编写中 ... ..."
+
+#: templates/portal/documents.html:51
+msgid "Administrator's Manual"
+msgstr "管理员手册"
+
+#: templates/portal/index.html:20
+msgid "EduCloud Platform Services"
+msgstr "云平台服务"
+
+#: templates/portal/index.html:29
+msgid "Cloud Application"
+msgstr "云应用"
+
+#: templates/portal/index.html:57
+msgid "Cloud Adminstation"
+msgstr "云平台管理"
+
+#: templates/portal/index.html:71
+msgid "EduCloud Platform Documents"
+msgstr "云平台资料和文档"
+
+#: templates/portal/index.html:76 templates/portal/ppts.html:37
+msgid "Product Introduction"
+msgstr "产品介绍"
+
+#: templates/portal/index.html:77
+msgid "including PPTs for introduction level"
+msgstr "入门级的产品介绍PPT"
+
+#: templates/portal/index.html:78 templates/portal/index.html.py:86
+#: templates/portal/index.html:94 templates/portal/index.html.py:102
+msgid "Read more..."
+msgstr "了解更多..."
+
+#: templates/portal/index.html:84
+msgid "Demo Video"
+msgstr "演示视频"
+
+#: templates/portal/index.html:85
+msgid "including video for both user & administrator's operation"
+msgstr "普通用户和管理操作演示视频"
+
+#: templates/portal/index.html:92
+msgid "Tech Documents"
+msgstr "技术文档"
+
+#: templates/portal/index.html:93
+msgid "including manual for both user & administrator"
+msgstr "包括普通用户和管理员操作手册"
+
+#: templates/portal/index.html:100
+msgid "SDK Info"
+msgstr "云桌面开发包"
+
+#: templates/portal/index.html:101
+msgid "including SDK for cloud Desktop client"
+msgstr "包含如何开发云桌面客户端的SDK"
+
+#: templates/portal/index.html:112
+msgid "Our Clients"
+msgstr "我们的客户"
+
+#: templates/portal/login.html:11
+msgid "Login For Cloud Desktop"
+msgstr "登录云桌面"
+
+#: templates/portal/portal_template.html:12
+msgid "eduCloud portal"
+msgstr "云平台门户"
+
+#: templates/portal/portal_template.html:41
+msgid "EduCloud Platform Portal"
+msgstr "云平台门户"
+
+#: templates/portal/portal_template.html:56
+msgid "Contacts"
+msgstr "联系信息"
+
+#: templates/portal/portal_template.html:58
+msgid "Address"
+msgstr "地址"
+
+#: templates/portal/portal_template.html:58
+msgid "Floor 7, XiXi Habour, Hanghzou, zhejiang"
+msgstr "浙江省杭州市文三路1号西溪数码港7楼"
+
+#: templates/portal/portal_template.html:59
+msgid "Phone"
+msgstr "电话"
+
+#: templates/portal/portal_template.html:60
+msgid "Person"
+msgstr "联系人"
+
+#: templates/portal/portal_template.html:60
+msgid "Mr.zhou"
+msgstr "周经理"
+
+#: templates/portal/portal_template.html:61
+msgid "Email"
+msgstr "电子邮件"
+
+#: templates/portal/portal_template.html:66
+msgid "Connected"
+msgstr "链接"
+
+#: templates/portal/portal_template.html:76
+msgid "EduCloud. All rights reserved"
+msgstr "云平台. 版权所有"
+
+#: templates/portal/ppts.html:22
+msgid "Product PPTs"
+msgstr "产品PPT"
+
+#: templates/portal/sdk.html:22
+msgid "Cloud Desktop SDK"
+msgstr "云桌面SDK"
+
+#: templates/portal/sdk.html:37 templates/portal/sdk.html.py:50
+msgid "client SDK"
+msgstr "云桌面客户端SDK"
+
+#: templates/portal/videos.html:22
+msgid "Product Demo Videos"
+msgstr "产品演示视频"
+
+#: templates/portal/videos.html:37
+msgid "User Demo Video"
+msgstr "用户操作视频"
+
+#: templates/portal/videos.html:51
+msgid "Administrator Demo Video"
+msgstr "管理员操作视频"
+
+#~ msgid "Portal to all available cloud applications"
+#~ msgstr "云应用门户"
+
+#~ msgid "Portal to all available cloud desktops"
+#~ msgstr "云桌面门户"
+
+#~ msgid "Portal for system administration"
+#~ msgstr "云平台管理门户"

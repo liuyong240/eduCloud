@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<RDF:RDF xmlns:NC="http://home.netscape.com/NC-rdf#"
+         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <RDF:Description RDF:about="about:config#prefCol"
+                   ordinal="1"
+                   sortDirection="ascending" />
+  <RDF:Description RDF:about="about:config#lockCol"
+                   ordinal="3" />
+  <RDF:Description RDF:about="chrome://browser/content/preferences/applicationManager.xul">
+    <NC:persist RDF:resource="chrome://browser/content/preferences/applicationManager.xul#appManager"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="chrome://mozapps/content/handling/dialog.xul#handling"
+                   width="381"
+                   height="381"
+                   screenX="433"
+                   screenY="142" />
+  <RDF:Description RDF:about="chrome://browser/content/preferences/preferences.xul#BrowserPreferences"
+                   screenX="211"
+                   screenY="99"
+                   lastSelected="paneApplications" />
+  <RDF:Description RDF:about="chrome://browser/content/browser.xul">
+    <NC:persist RDF:resource="chrome://browser/content/browser.xul#main-window"/>
+    <NC:persist RDF:resource="chrome://browser/content/browser.xul#addon-bar"/>
+    <NC:persist RDF:resource="chrome://browser/content/browser.xul#sidebar-box"/>
+    <NC:persist RDF:resource="chrome://browser/content/browser.xul#sidebar-title"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="chrome://browser/content/preferences/preferences.xul">
+    <NC:persist RDF:resource="chrome://browser/content/preferences/preferences.xul#BrowserPreferences"/>
+    <NC:persist RDF:resource="chrome://browser/content/preferences/preferences.xul#handlersView"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="about:config#typeCol"
+                   ordinal="5" />
+  <RDF:Description RDF:about="chrome://global/content/viewSource.xul#viewSource"
+                   width="640"
+                   height="480"
+                   sizemode="normal"
+                   screenX="144"
+                   screenY="131" />
+  <RDF:Description RDF:about="about:config#valueCol"
+                   ordinal="7" />
+  <RDF:Description RDF:about="chrome://global/content/viewSource.xul">
+    <NC:persist RDF:resource="chrome://global/content/viewSource.xul#viewSource"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="chrome://browser/content/browser.xul#addon-bar"
+                   collapsed="true" />
+  <RDF:Description RDF:about="chrome://browser/content/preferences/applicationManager.xul#appManager"
+                   screenX="113"
+                   screenY="130" />
+  <RDF:Description RDF:about="chrome://mozapps/content/handling/dialog.xul">
+    <NC:persist RDF:resource="chrome://mozapps/content/handling/dialog.xul#handling"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="chrome://browser/content/browser.xul#main-window"
+                   width="957"
+                   height="715"
+                   sizemode="normal"
+                   screenX="65"
+                   screenY="26" />
+  <RDF:Description RDF:about="chrome://browser/content/preferences/preferences.xul#handlersView"
+                   lastSelectedType="luhyavm" />
+  <RDF:Description RDF:about="chrome://browser/content/browser.xul#sidebar-title"
+                   value="" />
+  <RDF:Description RDF:about="about:config">
+    <NC:persist RDF:resource="about:config#prefCol"/>
+    <NC:persist RDF:resource="about:config#lockCol"/>
+    <NC:persist RDF:resource="about:config#typeCol"/>
+    <NC:persist RDF:resource="about:config#valueCol"/>
+  </RDF:Description>
+</RDF:RDF>

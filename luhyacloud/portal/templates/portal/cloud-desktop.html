@@ -1,0 +1,826 @@
+{% extends "portal/portal_template.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block content %}
+<link href="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/css/jquery.plupload.queue.css" %}" rel="stylesheet">
+<link href="{% static "clc/zTree_v3/css/zTreeStyle/zTreeStyle.css" %}" rel="stylesheet">
+        <!-- Page Title -->
+		<div class="section section-breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<h1>{{ uid }}{% trans "'s Cloud Desktop" %}</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+
+        <div id="sid" style="display:none;">{{ sid }}</div>
+
+        <div class="section section-white">
+	        <div class="container">
+	        	<div class="row">
+
+                    {% for vd in vds %}
+	        		<div class="col-md-3 col-sm-6">
+	        			<div class="service-wrapper">
+		        			<img src='/static/portal/img/desktop/{{ vd.ostype }}.png'>
+		        			<h3>{{ vd.name }}</h3>
+
+		        			<p id="error_msg_{{ vd.id}}" style="display:none;"></p>
+
+                            <div class="progress progress-striped active" id="progress_{{ vd.id }}" style="display:none">
+                                <div id="progressbar_{{ vd.id }}" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0"
+                                     aria-valuemin="0" aria-valuemax="100" style="width: 0%;">0%</span>
+                                </div>
+                            </div>
+
+                            <button type="button" id="run_{{ vd.id }}" onclick="startVD('{{ vd.ecid }}', '{{ vd.id }}');"  class="btn ">{% trans "Run" %}</button>
+
+                            <div class="btn-group ">
+                                <button type="button" id="show_{{ vd.id }}"  class="btn  dropdown-toggle" data-toggle="dropdown">{% trans "Show" %}<span class="caret"></span></button>
+                                <ul class="dropdown-menu" role="menu">
+
+                                    <li><a href="JavaScript:void(0);" onclick="show_in_browser( '{{ vd.id }}' );">{% trans "Show by Browser" %}</a>
+                                    </li>
+                                    <li><a href="JavaScript:void(0);" onclick="show_in_tools( '{{ vd.id }}' );">{% trans "Show by windows-tool" %}</a>
+                                    </li>
+                                    <li><a href="/static/clc/plugin/rdp-plugin.zip">{% trans "Download plugin for Cloud Desktop Connection" %}</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
+
+                            <button type="button" id="stop_{{ vd.id }}" onclick="stop_tvd('{{ vd.id }}');"   class="btn ">{% trans "Stop" %}</button>
+
+	        			</div>
+	        		</div>
+                    {% endfor %}
+
+	        	</div>
+	        </div>
+	    </div>
+
+		<div class="section section-breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<h1>{% trans "Upload Private Data" %}</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+
+        <div class="section section-white">
+	        <div class="container">
+	        	<div class="row">
+                        <div class="col-md-6 col-sm-6">
+	        			    <div class="service-wrapper">
+                                <p>{% trans "Step 1: create and select directory" %}</p>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        {% trans "Private Data Directory in Server" %}
+                                        <div class="pull-right">
+                                            <div class="btn-group">
+                                                <button id="add_prv_node" type="button" class="btn btn-default btn-xs">{% trans "Add" %}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /.panel-heading -->
+                                    <div class="panel-body">
+                                        <div id="selected_prv_folder" style="display:none"></div>
+                                        <ul id="prv_tree" class="ztree" style="height:250px; overflow:auto;"></ul>
+                                    </div>
+                                    <!-- .panel-body -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="service-wrapper">
+                                <p>{% trans "Step 2: select files to upload" %}</p>
+                                <div id="prv_uploader" style="height:330px; overflow:auto;">{% trans "Your browser doesn't support HTML5." %}</div>
+                            </div>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block myjs %}
+<script src="{% static "clc/plupload-2.1.2/js/plupload.full.min.js" %}"></script>
+<script src="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/jquery.plupload.queue.min.js" %}"></script>
+<script src="{% static "clc/plupload-2.1.2/js/i18n/zh_CN.js" %}"></script>
+
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.core-3.5.js" %}"></script>
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.excheck-3.5.js" %}"></script>
+<script src="{% static "clc/zTree_v3/js/jquery.ztree.exedit-3.5.js" %}"></script>
+
+<style type="text/css">
+img {
+	display:inline-block;
+	width:150px;
+	height:120px;
+	overflow:hidden;
+	}
+</style>
+
+<script>
+// show & set progress bar:
+//  $('#progress_myvd0').css('display', 'none');
+//  $('#progressbar_myvd0').css('width', '90%');
+//  $('#progressbar_myvd0').text('90%');
+
+var timer_interval = 1000;
+
+var create_url      = "/clc/api/1.0/rvd/create/";
+var start_url       = "/clc/api/1.0/rvd/start/";
+var prepare_url     = "/clc/api/1.0/rvd/prepare/";
+var progress_url    = "/clc/api/1.0/rvd/getprogress/";
+var run_url         = "/clc/api/1.0/rvd/run/";
+var stop_url        = "/clc/api/1.0/rvd/stop/" ;
+var vmstatus_url    = "/clc/api/1.0/rvd/getvmstatus/";
+var remove_task_url = "/clc/api/1.0/tasks/delete";
+var get_rdp_url     = "/clc/api/1.0/rvd/get_rdp_url/";
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//   failed :  ['Result': 'FAIL',  'error' : error msg]
+//
+///////////////////////////////////////////////////////
+
+function create_tvd(id, srcid) {
+    //console.log("create_tvd() is called.");
+
+    url = create_url + srcid;
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        if ( items['Result'] != 'OK' ) {
+            errorMsgBox(items['error']);
+            return ;
+        }
+
+        taskid = items['tid'];
+        setTimeout( prepare_tvd, timer_interval, id,  taskid);
+    });
+
+}
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//   failed :  ['Result': 'FAIL',  'error' : error msg]
+//
+///////////////////////////////////////////////////////
+function start_tvd(id, taskid) {
+    //console.log("start_tvd() is called.");
+    tmp = taskid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = start_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        if ( items['Result'] != 'OK' ) {
+            errorMsgBox(items['error']);
+            return ;
+        }
+
+        taskid = items['tid'];
+        setTimeout( prepare_tvd, timer_interval, id, taskid);
+    });
+
+}
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//   failed :  ['Result': 'FAIL',  'error' : error msg]
+//
+///////////////////////////////////////////////////////
+function prepare_tvd(id, taskid) {
+    //console.log("prepare_tvd() is called.");
+    tmp = taskid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = prepare_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        if (items['Result'] != 'OK') {
+            errorMsgBox(items['error']);
+            return;
+        }
+
+        data['id']      = id;
+        data['phase']   = 'preparing';
+        data['state']   = 'downloading';
+        data['tid']     = taskid,
+        data['promt']   = '';
+        data['errormsg']= '';
+        data['failed']  = 0;
+        data['progress']= 0;
+
+        setTimeout( gui_update, timer_interval, data, 1);
+    });
+
+}
+
+///////////////////////////////////////////////////////
+//
+//  return = {
+//    'type': 'taskstatus',
+//    'phase': "preparing",
+//    'state': 'downloading',
+//    'progress': 0,
+//    'tid': tid,
+//    'prompt': '',
+//    'errormsg': '',
+//    'failed' : 0
+//  }
+//
+///////////////////////////////////////////////////////
+function get_progress(id, taskid, do2run) {
+    tmp = taskid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+    url = progress_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+
+    $.getJSON(url,function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        //console.log("get_progress() is called with progress = " + items['progress']);
+        items['id'] = id;
+        gui_update(items, do2run);
+    });
+
+}
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//
+///////////////////////////////////////////////////////
+function run_tvd(id, taskid) {
+    //console.log("run_tvd() is called.");
+
+    tmp = taskid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = run_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        data['id']      = id;
+        data['phase']   = 'editing';
+        data['state']   = 'booting';
+        data['tid']     = taskid,
+        data['promt']   = '';
+        data['errormsg']= '';
+        data['failed']  = 0;
+        data['progress']= 0;
+
+        setTimeout( gui_update, timer_interval, data, 0);
+    });
+
+}
+
+///////////////////////////////////////////////////////
+//
+//  return = {
+//        'type'    : 'taskstatus',
+//        'phase'  : "editing",
+//        'state'  : 'stopped', 'booting', 'running' ,
+//        'tid'    : _tid,
+//        'failed' : 0
+//  }
+//
+///////////////////////////////////////////////////////
+function get_vmstatus(id, taskid) {
+    //console.log("get_vmstatus() is called.");
+
+    tmp = taskid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = vmstatus_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+
+    $.getJSON(url,function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        items['id'] = id;
+        gui_update(items, 0);
+    });
+
+}
+
+function sleep(sleepTime) {
+    for (var start = Date.now(); Date.now() - start <= sleepTime;) {}
+}
+
+
+function delete_task(taskid) {
+    //console.log("delete_task() is called.");
+
+    url = remove_task_url ;
+    postdata = {
+        tid:         taskid,
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        location.reload();
+    });
+}
+
+///////////////////////////////////////////////////////
+//
+// return :
+//   sucess :  ['Result': 'OK',    'tid'   : tid]
+//
+///////////////////////////////////////////////////////
+function stop_tvd(id) {
+    //console.log("stop_tvd() is called.");
+    taskid = $('#taskid_for_show_in_browser_' + id ).text();
+    tmp = taskid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = stop_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        delete_task(taskid);
+    });
+}
+
+
+function errorMsgBox(msg) {
+    //console.log(msg);
+}
+
+function startVD( ecid, id ) {
+    taskid = $('#taskid_for_show_in_browser_' + id ).text();
+    if ( taskid == '' ) {
+        items = create_tvd(id, ecid);
+    } else {
+        items = start_tvd(id, taskid);
+    }
+}
+
+function show_in_browser( id ) {
+    taskid = $('#taskid_for_show_in_browser_' + id ).text();
+    tmp = taskid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url="/clc/api/1.0/rvd/display/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+
+    var mapForm = document.createElement("form");
+    mapForm.target = "_blank";
+    mapForm.method = "POST";
+    mapForm.action = url;
+
+    var mapInput = document.createElement("input");
+    mapInput.type = "text";
+    mapInput.name = 'sid';
+    mapInput.value = $("#sid").text();
+
+    mapForm.appendChild(mapInput);
+
+    document.body.appendChild(mapForm);
+
+    mapForm.submit();
+
+    setTimeout( delete_form, timer_interval, mapForm);
+}
+
+function delete_form(form_name) {
+    //console.log("document.body.removeChild() is called.");
+    document.body.removeChild(form_name);
+}
+
+function show_in_tools( id ) {
+    taskid = $('#taskid_for_show_in_browser_' + id ).text();
+    tmp = taskid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+
+    url = get_rdp_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        url = "luhyavm://" + $.trim(items['mgr_url'])
+        window.open(url, '', 'height=10,width=10,left=0, top=0');
+    });
+}
+
+
+function gui_update(items, do2run) {
+    //console.log("gui_update() is called.");
+    id       = items['id'];
+    phase    = items['phase'];
+    state    = items['state'];
+    progress = items['progress'];
+    taskid   = items['tid'];
+    vm_prompt   = items['prompt'];
+    errormsg = items['errormsg'];
+    failed   = items['failed'];
+
+    if (phase == 'preparing') {
+        if ( state == 'init') {
+            $('#run_'  + id).removeClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+
+            if (failed == 1) {
+                $('#error_msg_' + id).text(errormsg);
+                $('#error_msg_' + id).css('color',   'red');
+                $('#error_msg_' + id).css('display', 'block');
+            }
+        }
+
+        if (state == 'downloading' || state == "cloning") {
+            $('#run_'  + id).addClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_'    + id).css('display', 'block');
+            $('#progressbar_' + id).css('width', progress + '%');
+            $('#progressbar_' + id).text(progress + '%');
+
+            $('#error_msg_' + id).text(vm_prompt);
+            $('#error_msg_' + id).css('color',   'blue');
+            $('#error_msg_' + id).css('display', 'block');
+
+            // start to get progress till it is done
+            setTimeout( get_progress, timer_interval, id, taskid, do2run);
+        }
+
+        if (state == 'done') {
+            $('#run_'  + id).removeClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+            $('#error_msg_' + id).text('');
+
+            if (do2run == 1) {
+                setTimeout( run_tvd, timer_interval, id, taskid);
+            }
+        }
+    }
+
+    if ( phase == 'editing' ) {
+        if (state == 'stopped') {
+            $('#run_'  + id).removeClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+
+             if (failed == 1) {
+                $('#error_msg_' + id).text(errormsg);
+                $('#error_msg_' + id).css('color',   'red');
+                $('#error_msg_' + id).css('display', 'block');
+            }
+        }
+
+        if (state == 'booting') {
+            $('#run_'  + id).addClass('disabled');
+            $('#show_' + id).addClass('disabled');
+            $('#stop_' + id).addClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+
+            $('#error_msg_' + id).text('{% trans "booting ... ..." %}');
+            $('#error_msg_' + id).css('color',   'blue');
+            $('#error_msg_' + id).css('display', 'block');
+
+            // start to get vm status till it is running
+            setTimeout( get_vmstatus, timer_interval, id, taskid);
+        }
+
+        if (state == 'running' || state == 'Running') {
+            $('#run_'  + id).addClass('disabled');
+            $('#show_' + id).removeClass('disabled');
+            $('#stop_' + id).removeClass('disabled');
+
+            $('#progress_' + id).css('display', 'none');
+            $('#error_msg_' + id).css('display', 'none');
+
+            $('#taskid_for_show_in_browser_' + id).text(taskid);
+        }
+    }
+}
+
+function init_GUI() {
+    var data = {};
+    {% for vd in vds %}
+        {% if vd.tid == '' %}
+            $('#show_{{ vd.id }}').removeClass('disabled');
+            $('#show_{{ vd.id }}').addClass('disabled');
+            $('#stop_{{ vd.id }}').addClass('disabled');
+        {% else %}
+            data['id']      = '{{ vd.id }}'
+            data['phase']   = '{{ vd.phase }}';
+            data['state']   = '{{ vd.state}}';
+            data['tid']     = '{{ vd.tid }}',
+            data['promt']   = '';
+            data['errormsg']= '';
+            data['failed']  = 0;
+            data['progress']= 0;
+
+            gui_update(data, 0);
+        {% endif %}
+    {% endfor%}
+}
+
+
+///////////////////////////////////////////////////////
+//
+// UPLOAD USER'S PRIVATE DATA BY WEB
+//
+///////////////////////////////////////////////////////
+
+
+var prv_setting = {
+    async: {
+        enable: true,
+        url: getUrl,
+        //otherParam: {"parent":"true", "child":"false"},
+    },
+    view: {
+        selectedMulti: false,
+        expandSpeed: "",
+    },
+    edit: {
+        enable: true,
+        showRemoveBtn: true,
+        showRenameBtn: true
+    },
+    data: {
+        keep: {
+            parent:true,
+            leaf:true
+        },
+        simpleData: {
+            enable: true
+        }
+    },
+    callback: {
+        onMouseDown:    prv_onMouseDown_handle,
+        beforeExpand:   prv_beforeExpand,
+        beforeRemove:   prv_beforeRemoveNode,
+        beforeRename:   prv_beforeRenameNode,
+        beforeDrag:     prv_beforeDrag,
+		onAsyncSuccess: prv_onAsyncSuccess,
+		onAsyncError:   prv_onAsyncError
+    }
+};
+
+
+function getUrl(treeId, treeNode) {
+    return "/clc/list_directory/prv-data/" + '{{ uid }}';
+}
+
+function prv_beforeDrag(treeId, treeNodes) {
+    return false;
+}
+function prv_beforeRemoveNode(treeId, treeNode) {
+    // get dir_name
+
+    url = '/clc/api/1.0/prv_data/op/' + '{{ uid }}';
+    postdata = {
+        cmd:         'rm',
+        opt:         '-rf',
+        arg1:        getFullPathbyNode(treeNode).toString()
+    };
+    $.post(url, postdata, function(data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        if (items['Result'] == "OK") {
+            return true;
+        } else {
+            return false;
+        }
+    });
+}
+
+function prv_beforeRenameNode(treeId, treeNode, newName, isCancel) {
+// send remove command to server
+    url = '/clc/api/1.0/prv_data/op/' + '{{ uid }}';
+
+    _arg1 = getFullPathbyNode(treeNode);
+    _arg2 = getFullPathbyNode(treeNode);
+    _arg2[_arg2.length-1] = newName;
+
+    postdata = {
+        cmd:         'mv',
+        opt:         '',
+        arg1:        _arg1.toString(),
+        arg2:        _arg2.toString(),
+    };
+    $.post(url, postdata, function(data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        if (items['Result'] == "OK") {
+            return true;
+        } else {
+            return false;
+        }
+    });
+}
+
+function getFullPathbyNode(treeNode) {
+    var start_node = treeNode;
+    var path_param = [];
+
+    while (start_node != null) {
+        path_param.unshift(start_node.name);
+        start_node = start_node.getParentNode();
+    }
+
+    return path_param;
+}
+
+function getOtherParam(treeNode) {
+
+    var param = {
+        'full_path': getFullPathbyNode(treeNode).toString()
+    }
+    return param;
+}
+
+function prv_beforeExpand(treeId, treeNode) {
+    var zTree = $.fn.zTree.getZTreeObj("prv_tree");
+    zTree.setting.async.otherParam = getOtherParam(treeNode);
+    if (!treeNode.isAjaxing) {
+        ajaxGetNodes(treeNode, "refresh");
+        return true;
+    } else {
+        alert("zTree 正在下载数据中，请稍后展开节点。。。");
+        return false;
+    }
+}
+
+function ajaxGetNodes(treeNode, reloadType) {
+    var zTree = $.fn.zTree.getZTreeObj("prv_tree");
+    if (reloadType == "refresh") {
+        //treeNode.icon = "{% static "clc/zTree_v3/css/zTreeStyle/img/loading.gif" %}"
+        zTree.updateNode(treeNode);
+    }
+    zTree.reAsyncChildNodes(treeNode, reloadType, true);
+}
+
+function prv_onAsyncSuccess(event, treeId, treeNode, msg) {
+    if (!msg || msg.length == 0) {
+        return;
+    }
+
+}
+
+function prv_onAsyncError(event, treeId, treeNode, XMLHttpRequest, textStatus, errorThrown) {
+    var zTree = $.fn.zTree.getZTreeObj("prv_tree");
+    //alert("异步获取数据出现异常。");
+    //treeNode.icon = "";
+    //zTree.updateNode(treeNode);
+}
+
+$("#add_prv_node").click(function(){
+    var folder_name = prompt("Please enter new folder name", "NewFolder");
+    if (folder_name != null) {
+        var zTree = $.fn.zTree.getZTreeObj("prv_tree")
+        var selectedNode = zTree.getSelectedNodes();
+        zTree.addNodes(selectedNode[0], { name:folder_name, isParent:true } );
+    }
+});
+
+function prv_onMouseDown_handle(event, treeId, treeNode) {
+    if (treeNode == null) {
+        $("#selected_prv_folder").text('');
+        $("#prv_uploader").show();
+        $("#add_prv_node").show();
+
+        var zTree = $.fn.zTree.getZTreeObj("prv_tree")
+        zTree.cancelSelectedNode();
+    }
+    else if (treeNode && treeNode.isParent) {
+        $("#selected_prv_folder").text(treeNode.name);
+        $("#prv_uploader").show();
+        $("#add_prv_node").show();
+    } else {
+        $("#selected_prv_folder").text('');
+        $("#prv_uploader").hide();
+        $("#add_prv_node").hide();
+    }
+};
+
+function add_prv_leaf(parent_node_name, filename) {
+    var zTree = $.fn.zTree.getZTreeObj("prv_tree")
+    var pnode = zTree.getNodeByParam("name", parent_node_name, null);
+    zTree.addNodes(pnode, { name:filename, isParent:false } );
+};
+
+$(document).ready(function () {
+     init_GUI();
+
+     $("#prv_uploader").pluploadQueue({
+        // General settings
+        runtimes : 'html5,html4',
+        url : "/clc/tools/prv_upload/" + '{{ uid }}',
+        chunk_size : '10Mb',
+        rename: true,
+        drapgrop: true,
+
+        init : {
+            BeforeUpload: function(up, file) {
+                // Called right before the upload for a given file starts, can be used to cancel it if required
+                var zTree = $.fn.zTree.getZTreeObj("prv_tree")
+                var selectedNode = zTree.getSelectedNodes();
+                up.setOption('multipart_params', getOtherParam(selectedNode[0]));
+            },
+            UploadComplete: function(up, file) {
+                var zTree = $.fn.zTree.getZTreeObj("prv_tree")
+                var selectedNode = zTree.getSelectedNodes();
+                zTree.reAsyncChildNodes(selectedNode[0], "refresh", false)
+            },
+        }
+    });
+
+    $.fn.zTree.init($("#prv_tree"), prv_setting, []);
+
+});
+</script>
+
+{% endblock %}

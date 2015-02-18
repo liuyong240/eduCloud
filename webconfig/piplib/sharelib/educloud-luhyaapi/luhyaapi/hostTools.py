@@ -1,10 +1,16 @@
-import socket, psutil, netinfo
+import socket, netifaces, psutil
 from luhyaTools import configuration
 from vboxWrapper import *
 from settings import *
 import random, os, commands
 from linux_metrics import cpu_stat
 from sortedcontainers import SortedList
+from IPy import IP
+
+# PUBLIC or PRIVATE
+def getIPType(ipaddr):
+    ip = IP(ipaddr)
+    return ip.iptype()
 
 def parseTID(tid):
     _tmp = tid.spit(':')
@@ -171,13 +177,15 @@ def getHostNetInfo():
         'mac3': '',
     }
     index = 0
-
-    for interface in netinfo.list_active_devs():
-        if not interface.startswith('lo'):
+    list_of_nic = netifaces.interfaces()
+    for nic in list_of_nic:
+        if not nic.startswith('lo'):
             ipstr = 'ip' + str(index)
             macstr = 'mac' + str(index)
-            hostnetinfo[ipstr]  = netinfo.get_ip(interface)
-            hostnetinfo[macstr] = netinfo.get_hwaddr(interface)
+            addr = netifaces.ifaddresses(nic)
+            if netifaces.AF_INET in addr.keys():
+                hostnetinfo[ipstr]  = addr[netifaces.AF_INET][0]['addr']
+                hostnetinfo[macstr] = addr[netifaces.AF_LINK][0]['addr']
             index = index + 1
 
     hostnetinfo['exip'] = hostnetinfo['ip0']
@@ -251,9 +259,18 @@ def getSysMemUtil():
 ### Service tools
 import socket, commands
 
+def init_socket():
+    _my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    return _my_socket
+
+gSocket = init_socket()
+
+def getSocket():
+    return gSocket
+
 def DoesServiceExist(host, port):
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s = getSocket()
         s.settimeout(1)
         s.connect((host, port))
         s.close()

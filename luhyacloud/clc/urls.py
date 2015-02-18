@@ -12,7 +12,7 @@ urlpatterns = patterns('',
 
     # Web Page
     url(r'^login$',         views.display_login_window,               name='logon_view'),
-    url(r'^user_login$',    views.user_login,                         name='user_login'),
+    url(r'^admin_login$',   views.admin_login,                        name='admin_login'),
     url(r'^user_logout$',   views.user_logout,                        name='user_logout'),
     url(r'^index$',         views.index_view,                         name='index_view'),
     url(r'^accounts$',      views.accounts_view,                      name='accounts_view'),
@@ -24,13 +24,13 @@ urlpatterns = patterns('',
     url(r'^cc_mgr$',        views.cc_mgr_view,          name='cc_mgr_view'),
     url(r'^cc_mgr/(?P<ccname>\w+)/$',        views.cc_mgr_ccname,          name='cc_mgr_ccname'),
     url(r'^nc_mgr$',        views.nc_mgr_view,          name='nc_mgr_view'),
-    url(r'^nc_mgr/(?P<ccname>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',        views.nc_mgr_mac,          name='nc_mgr_mac'),
+    url(r'^nc_mgr/(?P<ccname>\w+)/(?P<mac>([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2}))$',        views.nc_mgr_mac,          name='nc_mgr_mac'),
     url(r'^lnc_mgr$',       views.lnc_mgr_view,         name='lnc_mgr_view'),
     url(r'^terminal_mgr$',  views.terminal_mgr_view,    name='terminal_mgr_view'),
 
-    url(r'^edit_eip/(?P<role>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',       views.edit_eip_view,         name='edit_eip_view'),
+    url(r'^edit_eip/(?P<role>\w+)/(?P<mac>([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2}))$',       views.edit_eip_view,         name='edit_eip_view'),
     url(r'^api/1.0/eip/update$',      views.eip_update,               name='eip_update'),
-    url(r'^edit/server/permission/(?P<srole>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',       views.edit_server_permission_view,         name='edit_server_permission_view'),
+    url(r'^edit/server/permission/(?P<srole>\w+)/(?P<mac>([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2}))$',       views.edit_server_permission_view,         name='edit_server_permission_view'),
     url(r'^edit/vm/permission/(?P<insid>\w+)/$',       views.edit_vm_permission_view,         name='edit_vm_permission_view'),
 
     url(r'^hosts$',         views.hosts_view,                         name='hosts_view'),
@@ -45,7 +45,10 @@ urlpatterns = patterns('',
     url(r'^tools$',         views.tools_view,                         name='tools_view'),
     url(r'^tools/image_upload$',         views.tools_image_upload,                       name='tools_image_upload'),
     url(r'^tools/file_upload$',          views.tools_file_upload,                        name='tools_file_upload'),
+    url(r'^tools/prv_upload/(?P<uid>\w+)$',           views.tools_prv_upload,                         name='tools_prv_upload'),
     url(r'^list_directory/software$',    views.tools_list_dir_software,             name='tools_list_dir_software'),
+    url(r'^list_directory/prv-data/(?P<uid>\w+)$',    views.tools_list_dir_prv_data,             name='tools_list_dir_prv_data'),
+
 
     url(r'^adm_add_new_account',                    views.adm_add_new_account,              name='adm_add_new_account'),
     url(r'^admin_batch_add_new_accounts',           views.admin_batch_add_new_accounts,     name='admin_batch_add_new_accounts'),
@@ -112,7 +115,27 @@ urlpatterns = patterns('',
 
     url(r'^jt/ethers/(?P<cc_name>\w+)$',    views.jtable_ethers,                  name='jtable_ethers_view'),
 
-    # API v1.0
+    ###############################
+    # API v1.0 for portal
+    ###############################
+    url(r'^api/1.0/user_login$',    views.user_login,                         name='user_login$'),
+    url(r'^api/1.0/admin_login$',   views.admin_login,                        name='admin_login'),
+    url(r'^api/1.0/list_sites$',    views.list_sites,                         name='list_sites'),
+    url(r'^api/1.0/list_myvds$',    views.list_myvds,                         name='list_myvds'),
+
+    url(r'^api/1.0/rvd/start/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',            views.rvd_start,              name='rvd_start'),
+    url(r'^api/1.0/rvd/create/(?P<srcid>\w+)$',                                         views.rvd_create,             name='rvd_create'),
+    url(r'^api/1.0/rvd/prepare/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',          views.rvd_prepare,            name='rvd_prepare'),
+    url(r'^api/1.0/rvd/getprogress/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_getprogress,        name='rvd_getprogress'),
+    url(r'^api/1.0/rvd/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',              views.rvd_run,                name='rvd_run'),
+    url(r'^api/1.0/rvd/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',             views.rvd_stop,               name='rvd_stop'),
+    url(r'^api/1.0/rvd/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_getvmstatus,        name='rvd_getvmstatus'),
+    url(r'^api/1.0/rvd/display/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',          views.rvd_display,            name='rvd_display'),
+    url(r'^api/1.0/rvd/get_rdp_url/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_get_rdp_url,        name='rvd_get_rdp_url'),
+
+
+
+    # API v1.0 for system administration
     # system setting table ops by POST
     url(r'^api/1.0/settings/listauthpath$',      views.list_authpath,               name='list_authpath_view'),
     url(r'^api/1.0/settings/deleteauthpath$',    views.delete_authpath,             name='delete_authpath_view'),
@@ -222,8 +245,9 @@ urlpatterns = patterns('',
 
     url(r'^api/1.0/perm/update$',     views.perm_update,                     name='perm_update'),
     url(r'^api/1.0/software/op$',     views.software_operation,              name='software_operation'),
-
+    url(r'^api/1.0/prv_data/op/(?P<uid>\w+)$',     views.prv_data_operation,              name='prv_data_operation'),
     url(r'^api/1.0/vrde$',     views.rdp_web_client,              name='rdp_web_client'),
+
 
 
     )

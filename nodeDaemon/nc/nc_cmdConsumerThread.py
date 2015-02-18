@@ -209,7 +209,7 @@ class prepareImageTaskThread(threading.Thread):
                     need_delete = False
                     need_clone  = False
 
-            if self.insid.find('VD')  == 0:
+            if self.insid.find('VD')  == 0 or self.insid.find('TVD') == 0 :
                 pass
             if self.insid.find('VS')  == 0:
                 dstfile  = "/storage/space/database/instances/%s/database" % self.insid
@@ -306,7 +306,7 @@ class prepareImageTaskThread(threading.Thread):
             self.download_rpc.call(cmd="image/prepare/failure", tid=data['tid'], paras=data['rsync'])
 
             payload['failed'] = 1
-            payload['errormsg'] = e.message
+            payload['errormsg'] = str(e)
             payload['state'] = 'init'
             self.forwardTaskStatus2CC(json.dumps(payload))
 
@@ -528,7 +528,7 @@ class SubmitImageTaskThread(threading.Thread):
             self.download_rpc.call(cmd="image/submit/failure", tid=self.tid, paras=data['rsync'])
 
             payload['failed'] = 1
-            payload['errormsg'] = e.message
+            payload['errormsg'] = str(e)
             payload['state'] = 'init'
             self.forwardTaskStatus2CC(json.dumps(payload))
 
@@ -610,8 +610,8 @@ class runImageTaskThread(threading.Thread):
 
                     # add folders
                     for folder in self.runtime_option['folders']:
-                        ret = vboxmgr.attachSharedFolder(folder)
-                        logger.error("--- --- --- vboxmgr.attachSharedFolder %s, error=%s" % (folder , ret))
+                        ret = vboxmgr.attachSharedFolder(folder['name'], folder['path'])
+                        logger.error("--- --- --- vboxmgr.attachSharedFolder %s=%s, error=%s" % (folder['name'], folder['path'] , ret))
                         time.sleep(2)
 
                     # in servere side, each VM has 4G mem
@@ -756,7 +756,7 @@ def nc_task_delete_handle(tid, runtime_option):
         if srcimgid != dstimgid:
             disks.append('/storage/tmp/images/%s/machine' % dstimgid)
 
-    if insid.find('VD') == 0:
+    if insid.find('VD') == 0 or insid.find('TVD') == 0:
         pass
 
     if insid.find('VS') == 0:
@@ -814,7 +814,7 @@ def nc_image_stop_handle(tid, runtime_option):
         pass
 
     # running vd   insid is VDxxxx,   when stopped, delete all except image file
-    if insid.find('VD') == 0:
+    if insid.find('VD') == 0 or insid.find('TVD') == 0:
         # restore snapshot
         if vboxmgr.isSnapshotExist('thomas'):
             vboxmgr.restore_snapshot('thomas')

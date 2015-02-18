@@ -1,0 +1,59 @@
+{% extends "portal/portal_template.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block myjs %}
+<style type="text/css">
+.mydoc {
+	display:inline-block;
+	width:150px;
+	height:120px;
+	overflow:hidden;
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+        <!-- Page Title -->
+		<div class="section section-breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<h1>{% trans "Cloud Desktop SDK" %}</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+        
+        <div class="section">
+	        <div class="container">
+	        	<div class="row service-wrapper-row">
+        			<div class="col-sm-4">
+        				<div class="service-image">
+        					<img class="mydoc" src="{% static "portal/img/documents/sdk.png" %}">
+        				</div>
+        			</div>
+        			<div class="col-sm-8">
+    					<h3>{% trans "client SDK" %}(Python)</h3>
+                        <li><a href="http://share.weiyun.com/8df5b311010668c6aa848f4847525071">示例程序源代码</a></li>
+                        <li><a href="http://share.weiyun.com/e3f0f91edd5461a08e2199c29e8dc73c">SDK源代码</a></li>
+    				</div>
+				</div>
+
+                <div class="row service-wrapper-row">
+        			<div class="col-sm-4">
+        				<div class="service-image">
+        					<img class="mydoc" src="{% static "portal/img/documents/sdk.png" %}">
+        				</div>
+        			</div>
+        			<div class="col-sm-8">
+    					<h3>{% trans "client SDK" %}(Java)</h3>
+    					<li><a href="http://share.weiyun.com/c5d03e96703b5c70c96843c730a960a9">示例程序源代码</a></li>
+                        <li><a href="http://share.weiyun.com/713e5a80e0088be313820fbfd3d62f08">SDK源代码</a></li>
+                        <li><a href="http://share.weiyun.com/0dff0d7829b0d9d1799d2d6a2e42dd1e">SDK jar包</a></li>
+                        <li><a href="http://share.weiyun.com/08caf2349fdd2eb71944942a7aed75b9">第三方依赖jar包</a></li>
+    				</div>
+				</div>
+	        </div>
+	    </div>
+{% endblock %}

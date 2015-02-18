@@ -1,0 +1,35 @@
+{% extends "portal/portal_template.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+
+{% block content %}
+        <!-- Page Title -->
+		<div class="section section-breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<h1>{% trans "Cloud Applications" %}</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+        
+        <div class="section">
+	        <div class="container">
+	        	<div class="row">
+                    {% for site in sites %}
+	        		<div class="col-md-4 col-sm-6">
+	        			<div class="service-wrapper">
+		        			<img src="{% static "portal/img/cloud-website.png" %}">
+		        			<h3>{{ site.name }}</h3>
+		        			<p>{{ site.desc }}</p>
+		        			<a href="{{ site.web_url }}" target='_blank' class="btn">{% trans "Enter" %}</a>
+		        		</div>
+	        		</div>
+                    {% endfor %}
+	        	</div>
+	        </div>
+	    </div>
+
+{% endblock %}

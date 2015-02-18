@@ -13,7 +13,7 @@ class run4everThread(threading.Thread):
         try:
             self.run4ever()
         except Exception as e:
-            print e.message
+            print str(e)
             self.bucket.put(self.__class__.__name__)
 
 
