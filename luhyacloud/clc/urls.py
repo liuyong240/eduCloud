@@ -24,7 +24,7 @@ urlpatterns = patterns('',
     url(r'^cc_mgr$',        views.cc_mgr_view,          name='cc_mgr_view'),
     url(r'^cc_mgr/(?P<ccname>\w+)/$',        views.cc_mgr_ccname,          name='cc_mgr_ccname'),
     url(r'^nc_mgr$',        views.nc_mgr_view,          name='nc_mgr_view'),
-    url(r'^nc_mgr/(?P<ccname>\w+)/(?P<mac>([0-9A-F]{2}[:-]){5}([0-9A-F]{2}))$',        views.nc_mgr_mac,          name='nc_mgr_mac'),
+    url(r'^nc_mgr/(?P<ccname>\w+)/(?P<mac>([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2}))$',        views.nc_mgr_mac,          name='nc_mgr_mac'),
     url(r'^lnc_mgr$',       views.lnc_mgr_view,         name='lnc_mgr_view'),
     url(r'^terminal_mgr$',  views.terminal_mgr_view,    name='terminal_mgr_view'),
 
