@@ -379,13 +379,13 @@ def findVMRunningResource(insid):
     if insid.find('VD') == 0:
         vmrec = ecVDS.objects.get(insid=insid)
         filter = 'rvd'
-        vm_res_matrix = VALID_NC_RES['desktop']
+        vm_res_matrix = VALID_NC_RES['desktop'].copy()
         vm_res_matrix['mem'] += vmrec.memory
 
     if insid.find('VS') == 0:
         vmrec = ecVSS.objects.get(insid=insid)
         filter = 'vs'
-        vm_res_matrix = VALID_NC_RES['server']
+        vm_res_matrix = VALID_NC_RES['server'].copy()
         vm_res_matrix['mem'] += vmrec.memory
 
     logger.error('vm_res_matrix for %s is  %s' % (insid, json.dumps(vm_res_matrix)))
