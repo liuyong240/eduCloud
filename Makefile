@@ -28,12 +28,17 @@ install:
 	####################
 	#     WEB_CLOUD    #
 	####################
-	install -d $(WEB_CLOUD)/usr/local/www/luhyacloud/
 	install -d $(WEB_CLOUD)/var/log/educloud
-	install -d $(WEB_CLOUD)/etc/educloud/modules
+	install -d $(WEB_CLOUD)/usr/local/www/luhyacloud/
+	install -d $(WEB_CLOUD)/usr/local/www/webconfig/3rd
 
 	cp $(CURDIR)/luhyacloud/*.py                        $(WEB_CLOUD)/usr/local/www/
 	cp $(CURDIR)/luhyacloud/luhyacloud/*.py             $(WEB_CLOUD)/usr/local/www/luhyacloud/
+
+	cp $(CURDIR)/debian/sudoers                         $(WEB_CLOUD)/usr/local/www/webconfig/
+	cp -r $(CURDIR)/webconfig/apache2                   $(WEB_CLOUD)/usr/local/www/webconfig/
+	cp -r $(CURDIR)/webconfig/rsync                     $(WEB_CLOUD)/usr/local/www/webconfig/
+	cp $(CURDIR)/webconfig/piplib/3rd/*                 $(WEB_CLOUD)/usr/local/www/webconfig/3rd/
 
 	#####################
 	#     WEB_PORTAL    #
@@ -69,19 +74,55 @@ install:
 	#####################
 	#     DAEMON_CLC    #
 	#####################
+	install -d $(DAEMON_CLC)/etc
+	install -d $(DAEMON_CLC)/etc/educloud/modules
 	install -d $(DAEMON_CLC)/usr/local/nodedaemon/clc
+
+	install -d $(DAEMON_CLC)/storage
+	install -d $(DAEMON_CLC)/storage/images
+	install -d $(DAEMON_CLC)/storage/VMs
+	install -d $(DAEMON_CLC)/storage/config
+	install -d $(DAEMON_CLC)/storage/space
+
+	install -d $(DAEMON_CLC)/storage/space/software
+	install -d $(DAEMON_CLC)/storage/space/pub-data
+	install -d $(DAEMON_CLC)/storage/space/prv-data
+	install -d $(DAEMON_CLC)/storage/space/database
+
+	install -d $(DAEMON_CLC)/storage/space/database/images
+	install -d $(DAEMON_CLC)/storage/space/database/instances
+
+	touch $(DAEMON_CLC)/etc/educloud/modules/clc
+
 
 	########################
 	#     DAEMON_WALRUS    #
 	########################
+	install -d $(DAEMON_WALRUS)/etc/educloud/modules
 	install -d $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
+
+	touch $(DAEMON_WALRUS)/etc/educloud/modules/walrus
 
 	####################
 	#     DAEMON_CC    #
 	####################
+	install -d $(DAEMON_CC)/etc/educloud/modules
 	install -d $(DAEMON_CC)/usr/local/nodedaemon/cc
+
+	touch $(DAEMON_CC)/etc/educloud/modules/cc
 
 	####################
 	#     DAEMON_NC    #
 	####################
+	install -d $(DAEMON_NC)/var/log/educloud
 	install -d $(DAEMON_NC)/usr/local/nodedaemon/nc
+
+	install -d $(DAEMON_CLC)/storage
+	install -d $(DAEMON_CLC)/storage/images
+	install -d $(DAEMON_CLC)/storage/VMs
+	install -d $(DAEMON_CLC)/storage/config
+	install -d $(DAEMON_CLC)/storage/space
+	install -d $(DAEMON_CLC)/storage/tmp
+
+	install -d $(DAEMON_CLC)/storage/tmp/images
+	install -d $(DAEMON_CLC)/storage/tmp/VMs

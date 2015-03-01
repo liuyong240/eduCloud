@@ -1,9 +1,9 @@
-WSGIPythonPath    /usr/local/www/luhyaServer
+WSGIPythonPath    /usr/local/www/
 <VirtualHost *:80>
     LogLevel info
-    ServerName www.example.com
-    ServerAlias example.com
-    ServerAdmin webmaster@example.com
+    ServerName www.educloud.com
+    ServerAlias educloud.com
+    ServerAdmin webmaster@educloud.com
 
     DocumentRoot /usr/local/www/documents
 
@@ -12,18 +12,19 @@ WSGIPythonPath    /usr/local/www/luhyaServer
         Allow from all
     </Directory>
 
-    Alias /static/luhyaAdmin/   /usr/local/www/luhyaServer/luhyaAdmin/static/luhyaAdmin/
-    Alias /static/admin         /usr/local/lib/python2.7/dist-packages/django/contrib/admin/static/admin
+    Alias /static/portal/   /usr/local/www/portal/static/portal/
+    Alias /static/clc/      /usr/local/www/clc/static/clc/
+    Alias /static/admin     /usr/local/lib/python2.7/dist-packages/django/contrib/admin/static/admin
 
     AddType text/cache-manifest .manifest
     # ExpiresActive On
     # ExpiresByType text/cache-manifest "access plus 0 seconds"
 	
-    WSGIDaemonProcess example.com processes=2 threads=15 display-name=%{GROUP} python-path=/usr/local/www/luhyaServer
-    WSGIProcessGroup example.com
-    WSGIScriptAlias / /usr/local/www/luhyaServer/luhyaServer/wsgi.py 
+    WSGIDaemonProcess educloud.com processes=2 threads=15 display-name=%{GROUP} python-path=/usr/local/www/
+    WSGIProcessGroup educloud.com
+    WSGIScriptAlias / /usr/local/www/luhyacloud/wsgi.py
 
-    <Directory /usr/local/www/luhyaServer>
+    <Directory /usr/local/www/>
     <Files wsgi.py>
         Order deny,allow
         Allow from all

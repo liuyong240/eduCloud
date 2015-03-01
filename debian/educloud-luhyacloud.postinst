@@ -1,0 +1,40 @@
+#!/bin/bash -e
+
+. /usr/share/debconf/confmodule
+
+if [ "$1" = "configure" ]; then
+   # configure sudoers
+   cp /usr/local/www/webconfig/sudoers          /etc/
+
+   # configure rsync
+   cp /usr/local/www/webconfig/rsync/rsync          /etc/default
+   cp /usr/local/www/webconfig/rsync/rsync.conf     /etc/
+   /etc/init.d/rsync start
+
+   # install python library
+   pip install /usr/local/www/webconfig/3rd/amqp-1.4.3.tar.gz
+   pip install /usr/local/www/webconfig/3rd/Django-1.6.1.tar.gz
+   pip install /usr/local/www/webconfig/3rd/linux-metrics-0.1.4.tar.gz
+   pip install /usr/local/www/webconfig/3rd/MySQL-python-1.2.3.tar.gz
+   pip install /usr/local/www/webconfig/3rd/pika-0.9.14.tar.gz
+   pip install /usr/local/www/webconfig/3rd/psutil-2.2.1.tar.gz
+   pip install /usr/local/www/webconfig/3rd/netifaces-0.10.4.tar
+   pip install /usr/local/www/webconfig/3rd/python-iptables-0.4.0.tar.gz
+   pip install /usr/local/www/webconfig/3rd/python-memcached-1.53.tar.gz
+   pip install /usr/local/www/webconfig/3rd/sortedcontainers-0.9.4.tar.gz
+   pip install /usr/local/www/webconfig/3rd/IPy-0.82a.tar.gz
+
+   # configure apache2
+   cp /usr/local/www/webconfig/apache2/envvars  /etc/apache2
+   cp /usr/local/www/webconfig/apache2/wsgi     /etc/apache2/sites-available/
+   a2dissites default
+   a2ensites wsgi
+
+   # configure clc.conf
+
+
+   # change owner
+   chown -R luhya:luhya /var/log/luhyacloud
+   chown -R luhya:luhya /usr/local/www
+   chown -R luhya:luhya /storage
+fi
