@@ -1,0 +1,6 @@
+educloud (3.0) lucid; urgency=low
+
+  [ Thomas Li ]
+  * create debian package
+
+ -- Signing Key (Thomas Li) <package@educloud.com>  Tue, 1 Mar 2015 02:04:53 -0400
