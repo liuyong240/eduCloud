@@ -1,0 +1,18 @@
+#!/bin/bash -e
+
+if [ "$1" = "configure" ]; then
+   # configure cc.conf
+   echo -n "Please input cc ip address, followed by [ENTER]:"
+   read ccip
+
+   echo -n "Please input cc name, followed by [ENTER]:"
+   read ccname
+
+   echo "[server]"        > /storage/config/cc.conf
+   echo "IP=$ccip"       >> /storage/config/cc.conf
+   echo "ccname=$ccname" >> /storage/config/cc.conf
+
+   # change owner
+   chown -R luhya:luhya /var/log/educloud
+   chown -R luhya:luhya /storage
+fi

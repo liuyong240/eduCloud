@@ -1,0 +1,27 @@
+#!/bin/bash -e
+
+. /usr/share/debconf/confmodule
+
+if [ "$1" = "configure" ]; then
+    # configure rabbitmq service"
+    rabbitmqctl add_user luhya luhya || true
+    rabbitmqctl set_permissions luhya  ".*" ".*" ".*" || true
+    service rabbitmq-server restart
+
+    # configure clc.conf
+    echo -n "Please input clc ip address, followed by [ENTER]:"
+    read clcip
+    echo "[server]"    > /storage/config/clc.conf
+    echo "IP=$clcip" >> /storage/config/clc.conf
+
+    # change owner
+    chown -R luhya:luhya /var/log/educloud
+    chown -R luhya:luhya /usr/local/www
+    chown -R luhya:luhya /storage
+
+    # config django
+    # cd /usr/local/www/
+    # python python manage.py syncdb
+    # python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com
+    # python manage.py changepassword luhya
+fi

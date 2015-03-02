@@ -22,7 +22,7 @@ WSGIPythonPath    /usr/local/www/
 	
     WSGIDaemonProcess educloud.com processes=2 threads=15 display-name=%{GROUP} python-path=/usr/local/www/
     WSGIProcessGroup educloud.com
-    WSGIScriptAlias / /usr/local/www/luhyacloud/wsgi.py
+    WSGIScriptAlias / /usr/local/www/educloud/wsgi.py
 
     <Directory /usr/local/www/>
     <Files wsgi.py>

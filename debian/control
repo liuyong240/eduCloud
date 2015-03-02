@@ -6,34 +6,34 @@ Build-Depends:
 Homepage: http://www.google.com
 Standards-Version: 3.8.3
 
-Package: educloud-luhyacloud
+Package: educloud-core
 Architecture: all
-Depends:  python2.7, , rsync(>=3.1.0)
-Description: educloud luhyacloud package
+Depends:  python2.7, apache2, libapache2-mod-wsgi, python-pip, python-dev, ifstat, sysstat, sudo, openssh-server, sshfs, iperf, rsync(>=3.1.0),
+Description: educloud basic package
 
 Package: educloud-portal
 Architecture: all
-Depends:  educloud-luhyacloud
+Depends:  educloud-core
 Description: educloud portal package
 
 Package: educloud-clc
 Architecture: all
-Depends:  educloud-luhyacloud, virtual-box
+Depends:  educloud-core, virtual-box, mysql-server, libmysqld-dev, libmysqlclient-dev, rabbitmq-server, memcached, libmemcached-tools,
 Description: educloud clc package
 
 Package: educloud-walrus
 Architecture: all
-Depends:  educloud-luhyacloud
+Depends:  educloud-core, educloud-clc
 Description: educloud walrus package
 
 Package: educloud-cc
 Architecture: all
-Depends:  educloud-luhyacloud
+Depends:  educloud-core, rabbitmq-server
 Description: educloud cc package
 
 Package: nodedaemon-clc
 Architecture: all
-Depends:  educloud-clc, memcached, libmemcached-tools, mysql-server, libmysqld-dev, libmysqlclient-dev, apache2, rabbitmq-server, libapache2-mod-wsgi, python-dev, ifstat, sysstat, sudo, openssh-server, python-pip, sshfs, iperf
+Depends:  educloud-clc,
 Description: educloud clc daemon package
 
 Package: nodedaemon-walrus
@@ -43,7 +43,7 @@ Description: educloud walrus daemon package
 
 Package: nodedaemon-cc
 Architecture: all
-Depends:  educloud-cc, memcached, libmemcached-tools, apache2, rabbitmq-server, libapache2-mod-wsgi, python-dev, ifstat, sysstat, sudo, openssh-server, python-pip, sshfs, iperf
+Depends:  educloud-cc,
 Description: educloud cc daemon package
 
 Package: nodedaemon-nc

@@ -4,11 +4,7 @@
 
 .PHONY: build clean
 
-CLIENT_DEST		=debian/luhya-client
-SERVER_DEST		=debian/luhya-server
-SERVER_DEST_CN  =debian/luhya-server-cn
-
-WEB_CLOUD       =debian/educloud-luhyacloud
+WEB_CLOUD       =debian/educloud-core
 WEB_PORTAL      =debian/educloud-portal
 WEB_CLC         =debian/educloud-clc
 WEB_WALRUS      =debian/educloud-walrus
@@ -29,16 +25,17 @@ install:
 	#     WEB_CLOUD    #
 	####################
 	install -d $(WEB_CLOUD)/var/log/educloud
-	install -d $(WEB_CLOUD)/usr/local/www/luhyacloud/
-	install -d $(WEB_CLOUD)/usr/local/www/webconfig/3rd
+	install -d $(WEB_CLOUD)/usr/local/www/educloud/
+	install -d $(WEB_CLOUD)/usr/local/webconfig/3rd
 
 	cp $(CURDIR)/luhyacloud/*.py                        $(WEB_CLOUD)/usr/local/www/
-	cp $(CURDIR)/luhyacloud/luhyacloud/*.py             $(WEB_CLOUD)/usr/local/www/luhyacloud/
+	cp $(CURDIR)/luhyacloud/luhyacloud/*.py             $(WEB_CLOUD)/usr/local/www/educloud/
 
-	cp $(CURDIR)/debian/sudoers                         $(WEB_CLOUD)/usr/local/www/webconfig/
-	cp -r $(CURDIR)/webconfig/apache2                   $(WEB_CLOUD)/usr/local/www/webconfig/
-	cp -r $(CURDIR)/webconfig/rsync                     $(WEB_CLOUD)/usr/local/www/webconfig/
-	cp $(CURDIR)/webconfig/piplib/3rd/*                 $(WEB_CLOUD)/usr/local/www/webconfig/3rd/
+	cp $(CURDIR)/debian/sudoers                         $(WEB_CLOUD)/usr/local/webconfig/
+	cp -r $(CURDIR)/webconfig/apache2                   $(WEB_CLOUD)/usr/local/webconfig/
+	cp -r $(CURDIR)/webconfig/rsync                     $(WEB_CLOUD)/usr/local/webconfig/
+	cp $(CURDIR)/webconfig/piplib/3rd/*.tar.gz          $(WEB_CLOUD)/usr/local/webconfig/3rd/
+	cp $(CURDIR)/webconfig/piplib/3rd/*.zip             $(WEB_CLOUD)/usr/local/webconfig/3rd/
 
 	#####################
 	#     WEB_PORTAL    #
