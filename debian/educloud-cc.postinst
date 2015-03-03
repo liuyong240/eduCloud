@@ -1,23 +1,64 @@
 #!/bin/bash -e
 
 #if [ "$1" = "configure" ]; then
-   ##############################
-   # configure clc.conf
-   ##############################
-   echo -n "Please input clc ip address, followed by [ENTER]:"
-   read clcip
-   echo "[server]"    > /storage/config/clc.conf
-   echo "IP=$clcip"  >> /storage/config/clc.conf
+    ##############################
+    # configure clc.conf
+    ##############################
+    echo -n "Please input clc ip address, followed by [ENTER]:"
+    read clcip
+    echo "[server]"    > /storage/config/clc.conf
+    echo "IP=$clcip"  >> /storage/config/clc.conf
 
-   ##############################
-   # change owner
-   ##############################
-   usermod -a -G luhya www-data
+    ##############################
+    # configure cc.conf
+    ##############################
+    echo -n "Please input cc ip address, followed by [ENTER]:"
+    read ccip
 
-   chown -R luhya:luhya /var/log/educloud
-   chown -R luhya:luhya /usr/local/www
-   chown -R luhya:luhya /storage
-   chmod -R 777 /storage
-   chmod -R 777 /usr/local/www
-   chmod -R 777 /var/log/educloud
+    echo -n "Please input cc name, followed by [ENTER]:"
+    read ccname
+
+    echo "[server]"        > /storage/config/cc.conf
+    echo "IP=$ccip"       >> /storage/config/cc.conf
+    echo "ccname=$ccname" >> /storage/config/cc.conf
+
+    ##############################
+    # configure rabbitmq service
+    ##############################
+    rabbitmqctl add_user luhya luhya || true
+    rabbitmqctl set_permissions luhya  ".*" ".*" ".*" || true
+    service rabbitmq-server restart
+
+    ##############################
+    # create /storage directories
+    ##############################
+    test -d "/storage" || mkdir /storage/
+    cd /storage
+    test -d "images"   || mkdir images VMs config space
+    cd /storage/space
+    test -d "software" || mkdir software pub-data prv-data database
+    cd database
+    test -d "images"   || mkdir images instances
+
+    ##############################
+    # prepare sshfs
+    ##############################
+    cp /usr/local/webconfig/fuse.conf   /etc/
+    adduser luhya fuse
+    ssh-keygen
+    echo "Type the clc ip address, followed by [ENTER]:"
+    read ip
+    ssh-copy-id $ip
+
+    ##############################
+    # change owner
+    ##############################
+    usermod -a -G luhya www-data
+
+    chown -R luhya:luhya /var/log/educloud
+    chown -R luhya:luhya /usr/local/www
+    chown -R luhya:luhya /storage
+    chmod -R 777 /storage
+    chmod -R 777 /usr/local/www
+    chmod -R 777 /var/log/educloud
 #fi

@@ -1,18 +1,61 @@
 #!/bin/bash -e
 
 if [ "$1" = "configure" ]; then
-   # configure cc.conf
-   echo -n "Please input cc ip address, followed by [ENTER]:"
-   read ccip
+    ##############################
+    # configure cc.conf
+    ##############################
+    echo -n "Please input cc ip address, followed by [ENTER]:"
+    read ccip
 
-   echo -n "Please input cc name, followed by [ENTER]:"
-   read ccname
+    echo -n "Please input cc name, followed by [ENTER]:"
+    read ccname
 
-   echo "[server]"        > /storage/config/cc.conf
-   echo "IP=$ccip"       >> /storage/config/cc.conf
-   echo "ccname=$ccname" >> /storage/config/cc.conf
+    echo "[server]"        > /storage/config/cc.conf
+    echo "IP=$ccip"       >> /storage/config/cc.conf
+    echo "ccname=$ccname" >> /storage/config/cc.conf
 
-   # change owner
-   chown -R luhya:luhya /var/log/educloud
-   chown -R luhya:luhya /storage
+   ##############################
+   # configure rsync
+   ##############################
+   cp /usr/local/webconfig/rsync/rsync          /etc/default
+   cp /usr/local/webconfig/rsync/rsyncd.conf    /etc/
+   /etc/init.d/rsync start
+
+    ##############################
+    # create /storage directories
+    ##############################
+    test -d "/storage" || sudo mkdir /storage/
+    cd /storage
+    test -d "images"   || sudo mkdir images VMs config space tmp
+    cd /storage/tmp
+    test -d "images"   || sudo mkdir images VMs
+
+    ##############################
+    # install python library
+    ##############################
+    pip install /usr/local/webconfig/3rd/linux-metrics-0.1.4.tar.gz
+    pip install /usr/local/webconfig/3rd/pika-0.9.14.tar.gz
+    pip install /usr/local/webconfig/3rd/psutil-2.2.1.tar.gz
+    pip install /usr/local/webconfig/3rd/netifaces-0.10.4.tar
+    pip install /usr/local/webconfig/3rd/python-iptables-0.4.0.tar.gz
+    pip install /usr/local/webconfig/3rd/sortedcontainers-0.9.4.tar.gz
+    pip install /usr/local/webconfig/3rd/luhyaapi-1.1.tar.gz
+
+    ##############################
+    # prepare sshfs
+    ##############################
+    cp /usr/local/webconfig/fuse.conf   /etc/
+    adduser luhya fuse
+    ssh-keygen
+    echo "Type the cc ip address, followed by [ENTER]:"
+    read ip
+    ssh-copy-id $ip
+
+    ##############################
+    # change owner
+    ##############################
+    chown -R luhya:luhya /var/log/educloud
+    chown -R luhya:luhya /storage
+    chmod -R 777 /storage
+    chmod -R 777 /var/log/educloud
 fi

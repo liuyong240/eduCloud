@@ -24,7 +24,7 @@ install:
 	####################
 	#     LUHYA API    #
 	####################
-	cd $(CURDIR)/webconfig/piplib/sharelib/educloud-luhyaapi || python setup.py sdist
+	cd $(CURDIR)/webconfig/piplib/sharelib/educloud-luhyaapi && python setup.py sdist
 	cp $(CURDIR)/webconfig/piplib/sharelib/educloud-luhyaapi/dist/*.tar.gz  $(CURDIR)/webconfig/piplib/3rd/
 	rm -fr $(CURDIR)/webconfig/piplib/sharelib/educloud-luhyaapi/dist
 
@@ -47,9 +47,6 @@ install:
 	#####################
 	#     WEB_PORTAL    #
 	#####################
-	install -d $(WEB_PORTAL)/usr/local/webconfig/
-	cp $(CURDIR)/debian/sudoers                         $(WEB_PORTAL)/usr/local/webconfig/
-
 	install -d $(WEB_PORTAL)/usr/local/www/portal
 	cp $(CURDIR)/luhyacloud/portal/*.py                 $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/conf              $(WEB_PORTAL)/usr/local/www/portal/
@@ -59,9 +56,6 @@ install:
 	##################
 	#     WEB_CLC    #
 	##################
-	install -d $(WEB_CLC)/usr/local/webconfig/
-	cp $(CURDIR)/debian/sudoers                         $(WEB_CLC)/usr/local/webconfig/
-
 	install -d $(WEB_CLC)/etc/educloud/modules
 	touch $(WEB_CLC)/etc/educloud/modules/clc
 
@@ -75,9 +69,6 @@ install:
 	#####################
 	#     WEB_WALRUS    #
 	#####################
-	install -d $(WEB_WALRUS)/usr/local/webconfig/
-	cp $(CURDIR)/debian/sudoers                         $(WEB_WALRUS)/usr/local/webconfig/
-
 	install -d $(WEB_WALRUS)/etc/educloud/modules
 	touch $(WEB_WALRUS)/etc/educloud/modules/walrus
 
@@ -87,33 +78,34 @@ install:
 	#################
 	#     WEB_CC    #
 	#################
-	install -d $(WEB_CC)/usr/local/webconfig/
-	cp $(CURDIR)/debian/sudoers                         $(WEB_CC)/usr/local/webconfig/
-
 	install -d $(WEB_CC)/etc/educloud/modules
 	touch $(WEB_CC)/etc/educloud/modules/cc
 
 	install -d $(WEB_CC)/usr/local/www/cc
 	cp $(CURDIR)/luhyacloud/cc/*.py                     $(WEB_CC)/usr/local/www/cc/
 
+	install -d $(WEB_CC)/usr/local/webconfig
+	cp $(CURDIR)/debian/fuse.conf                       $(WEB_CC)/usr/local/webconfig/
+
+
+
 	#####################
 	#     DAEMON_CLC    #
 	#####################
 	install -d $(DAEMON_CLC)/usr/local/nodedaemon/clc
-
-
+	cp $(CURDIR)/nodeDaemon/clc/*.py                       $(DAEMON_CLC)/usr/local/nodedaemon/clc
 
 	########################
 	#     DAEMON_WALRUS    #
 	########################
 	install -d $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
-
+	cp $(CURDIR)/nodeDaemon/walrus/*.py                    $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
 
 	####################
 	#     DAEMON_CC    #
 	####################
 	install -d $(DAEMON_CC)/usr/local/nodedaemon/cc
-
+	cp $(CURDIR)/nodeDaemon/cc/*.py                       $(DAEMON_CC)/usr/local/nodedaemon/cc
 
 	####################
 	#     DAEMON_NC    #
@@ -126,3 +118,10 @@ install:
 	cp -r $(CURDIR)/webconfig/rsync                     $(DAEMON_NC)/usr/local/webconfig/
 	cp $(CURDIR)/webconfig/piplib/3rd/*.tar.gz          $(DAEMON_NC)/usr/local/webconfig/3rd/
 	cp $(CURDIR)/webconfig/piplib/3rd/*.zip             $(DAEMON_NC)/usr/local/webconfig/3rd/
+
+	cp $(CURDIR)/nodeDaemon/nc/*.py                     $(DAEMON_NC)/usr/local/nodedaemon/nc
+
+	install -d $(DAEMON_NC)/etc/educloud/modules
+	touch $(DAEMON_NC)/etc/educloud/modules/nc
+
+	cp $(CURDIR)/debian/fuse.conf                       $(DAEMON_NC)/usr/local/webconfig/
