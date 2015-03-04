@@ -95,17 +95,27 @@ install:
 	install -d $(DAEMON_CLC)/usr/local/nodedaemon/clc
 	cp $(CURDIR)/nodeDaemon/clc/*.py                       $(DAEMON_CLC)/usr/local/nodedaemon/clc
 
+	install -d $(DAEMON_CLC)/usr/local/bin/
+	cp $(CURDIR)/webconfig/scripts/nodedaemon-clc          $(DAEMON_CLC)/usr/local/bin
+
+
 	########################
 	#     DAEMON_WALRUS    #
 	########################
 	install -d $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
 	cp $(CURDIR)/nodeDaemon/walrus/*.py                    $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
 
+	install -d $(DAEMON_WALRUS)/usr/local/bin/
+	cp $(CURDIR)/webconfig/scripts/nodedaemon-walrus          $(DAEMON_WALRUS)/usr/local/bin
+
 	####################
 	#     DAEMON_CC    #
 	####################
 	install -d $(DAEMON_CC)/usr/local/nodedaemon/cc
 	cp $(CURDIR)/nodeDaemon/cc/*.py                       $(DAEMON_CC)/usr/local/nodedaemon/cc
+
+	install -d $(DAEMON_CC)/usr/local/bin/
+	cp $(CURDIR)/webconfig/scripts/nodedaemon-cc          $(DAEMON_CC)/usr/local/bin
 
 	####################
 	#     DAEMON_NC    #
@@ -125,3 +135,6 @@ install:
 	touch $(DAEMON_NC)/etc/educloud/modules/nc
 
 	cp $(CURDIR)/debian/fuse.conf                       $(DAEMON_NC)/usr/local/webconfig/
+
+	install -d $(DAEMON_NC)/usr/local/bin/
+	cp $(CURDIR)/webconfig/scripts/nodedaemon-nc          $(DAEMON_NC)/usr/local/bin

@@ -58,4 +58,7 @@ if [ "$1" = "configure" ]; then
     chown -R luhya:luhya /storage
     chmod -R 777 /storage
     chmod -R 777 /var/log/educloud
+
+    chown -R luhya:luhya /usr/local/nodedaemon
+    chmod -R 777 /usr/local/nodedaemon
 fi
