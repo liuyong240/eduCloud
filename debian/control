@@ -18,7 +18,7 @@ Description: educloud portal package
 
 Package: educloud-clc
 Architecture: all
-Depends:  educloud-core, virtual-box, mysql-server, libmysqld-dev, libmysqlclient-dev, rabbitmq-server, memcached, libmemcached-tools,
+Depends:  educloud-core, virtualbox-4.3, mysql-server, libmysqld-dev, libmysqlclient-dev, rabbitmq-server, memcached, libmemcached-tools,
 Description: educloud clc package
 
 Package: educloud-walrus
@@ -48,6 +48,6 @@ Description: educloud cc daemon package
 
 Package: nodedaemon-nc
 Architecture: all
-Depends:  python-dev, ifstat, sysstat, sudo, openssh-server, python-pip, sshfs, iperf, virtual-box, rsync(>=3.1.0)
+Depends:  python-dev, ifstat, sysstat, sudo, openssh-server, python-pip, sshfs, iperf, virtualbox-4.3, rsync(>=3.1.0)
 Description: educloud nc daemon package
 

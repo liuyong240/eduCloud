@@ -2,6 +2,11 @@
 
 if [ "$1" = "configure" ]; then
     ##############################
+    # configure sudoers
+    ##############################
+    cp /usr/local/webconfig/node/sudoers              /etc/
+
+    ##############################
     # configure cc.conf
     ##############################
     echo -n "Please input cc ip address, followed by [ENTER]:"
@@ -14,42 +19,46 @@ if [ "$1" = "configure" ]; then
     echo "IP=$ccip"       >> /storage/config/cc.conf
     echo "ccname=$ccname" >> /storage/config/cc.conf
 
-   ##############################
-   # configure rsync
-   ##############################
-   cp /usr/local/webconfig/rsync/rsync          /etc/default
-   cp /usr/local/webconfig/rsync/rsyncd.conf    /etc/
-   /etc/init.d/rsync start
+    ##############################
+    # configure rsync
+    ##############################
+    cp /usr/local/webconfig/node/rsync/rsync          /etc/default
+    cp /usr/local/webconfig/node/rsync/rsyncd.conf    /etc/
+    /etc/init.d/rsync start
 
     ##############################
     # create /storage directories
     ##############################
-    test -d "/storage" || sudo mkdir /storage/
+    test -d "/storage" || mkdir /storage/
     cd /storage
-    test -d "images"   || sudo mkdir images VMs config space tmp
+    test -d "images"    || mkdir images VMs config space
+    test -d "tmp"      || mkdir tmp
     cd /storage/tmp
-    test -d "images"   || sudo mkdir images VMs
+    test -d "images"   || mkdir images VMs
 
     ##############################
     # install python library
     ##############################
-    pip install /usr/local/webconfig/3rd/linux-metrics-0.1.4.tar.gz
-    pip install /usr/local/webconfig/3rd/pika-0.9.14.tar.gz
-    pip install /usr/local/webconfig/3rd/psutil-2.2.1.tar.gz
-    pip install /usr/local/webconfig/3rd/netifaces-0.10.4.tar
-    pip install /usr/local/webconfig/3rd/python-iptables-0.4.0.tar.gz
-    pip install /usr/local/webconfig/3rd/sortedcontainers-0.9.4.tar.gz
-    pip install /usr/local/webconfig/3rd/luhyaapi-1.1.tar.gz
+    pip install /usr/local/webconfig/node/3rd/linux-metrics-0.1.4.tar.gz
+    pip install /usr/local/webconfig/node/3rd/pika-0.9.14.tar.gz
+    pip install /usr/local/webconfig/node/3rd/psutil-2.2.1.tar.gz
+    pip install /usr/local/webconfig/node/3rd/netifaces-0.10.4.tar.gz
+    pip install /usr/local/webconfig/node/3rd/python-iptables-0.4.0.tar.gz
+    pip install /usr/local/webconfig/node/3rd/sortedcontainers-0.9.4.tar.gz
+    pip install /usr/local/webconfig/node/3rd/luhyaapi-1.1.tar.gz
 
     ##############################
     # prepare sshfs
     ##############################
-    cp /usr/local/webconfig/fuse.conf   /etc/
+    cp /usr/local/webconfig/node/fuse.conf   /etc/
     adduser luhya fuse
-    ssh-keygen
-    echo "Type the cc ip address, followed by [ENTER]:"
-    read ip
-    ssh-copy-id $ip
+    if [ !  -f /etc/educloud/modules/cc ]
+    then
+        ssh-keygen
+        echo "Type the cc ip address, followed by [ENTER]:"
+        read ip
+        ssh-copy-id $ip
+    fi
 
     ##############################
     # change owner

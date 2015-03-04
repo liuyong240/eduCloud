@@ -1,23 +1,6 @@
 #!/bin/bash -e
 
-. /usr/share/debconf/confmodule
-
 if [ "$1" = "configure" ]; then
-    ##############################
-    # configure rabbitmq service
-    ##############################
-    rabbitmqctl add_user luhya luhya || true
-    rabbitmqctl set_permissions luhya  ".*" ".*" ".*" || true
-    service rabbitmq-server restart
-
-    ##############################
-    # configure clc.conf
-    ##############################
-    echo -n "Please input clc ip address, followed by [ENTER]:"
-    read clcip
-    echo "[server]"    > /storage/config/clc.conf
-    echo "IP=$clcip"  >> /storage/config/clc.conf
-
     ##############################
     # create /storage directories
     ##############################
@@ -31,10 +14,25 @@ if [ "$1" = "configure" ]; then
     test -d "images"   ||  mkdir images instances
 
     ##############################
+    # configure clc.conf
+    ##############################
+    echo -n "Please input clc ip address, followed by [ENTER]:"
+    read clcip
+    echo "[server]"    > /storage/config/clc.conf
+    echo "IP=$clcip"  >> /storage/config/clc.conf
+
+    ##############################
+    # configure rabbitmq service
+    ##############################
+    rabbitmqctl add_user luhya luhya || true
+    rabbitmqctl set_permissions luhya  ".*" ".*" ".*" || true
+    service rabbitmq-server restart
+
+    ##############################
     # config django
     ##############################
     cd /usr/local/www/
-    python python manage.py syncdb
+    python manage.py syncdb
     python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com || true
     python manage.py changepassword luhya || true
 
@@ -49,4 +47,6 @@ if [ "$1" = "configure" ]; then
     chmod -R 777 /storage
     chmod -R 777 /usr/local/www
     chmod -R 777 /var/log/educloud
+
+    service apache2 reload || true
 fi

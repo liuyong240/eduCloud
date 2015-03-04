@@ -31,22 +31,28 @@ install:
 	####################
 	#     WEB_CLOUD    #
 	####################
+	install -d $(WEB_CLOUD)/etc/educloud/modules
+	touch $(WEB_CLOUD)/etc/educloud/modules/core
+
 	install -d $(WEB_CLOUD)/var/log/educloud
-	install -d $(WEB_CLOUD)/usr/local/www/educloud/
-	install -d $(WEB_CLOUD)/usr/local/webconfig/3rd
+	install -d $(WEB_CLOUD)/usr/local/www/luhyacloud/
+	install -d $(WEB_CLOUD)/usr/local/webconfig/3rd/web
 
 	cp $(CURDIR)/luhyacloud/*.py                        $(WEB_CLOUD)/usr/local/www/
-	cp $(CURDIR)/luhyacloud/luhyacloud/*.py             $(WEB_CLOUD)/usr/local/www/educloud/
+	cp $(CURDIR)/luhyacloud/luhyacloud/*.py             $(WEB_CLOUD)/usr/local/www/luhyacloud/
 
 	cp $(CURDIR)/debian/sudoers                         $(WEB_CLOUD)/usr/local/webconfig/
 	cp -r $(CURDIR)/webconfig/apache2                   $(WEB_CLOUD)/usr/local/webconfig/
 	cp -r $(CURDIR)/webconfig/rsync                     $(WEB_CLOUD)/usr/local/webconfig/
-	cp $(CURDIR)/webconfig/piplib/3rd/*.tar.gz          $(WEB_CLOUD)/usr/local/webconfig/3rd/
-	cp $(CURDIR)/webconfig/piplib/3rd/*.zip             $(WEB_CLOUD)/usr/local/webconfig/3rd/
+	cp $(CURDIR)/webconfig/piplib/3rd/*.tar.gz          $(WEB_CLOUD)/usr/local/webconfig/3rd/web/
+	cp $(CURDIR)/webconfig/piplib/3rd/*.zip             $(WEB_CLOUD)/usr/local/webconfig/3rd/web/
 
 	#####################
 	#     WEB_PORTAL    #
 	#####################
+	install -d $(WEB_PORTAL)/etc/educloud/modules
+	touch $(WEB_PORTAL)/etc/educloud/modules/portal
+
 	install -d $(WEB_PORTAL)/usr/local/www/portal
 	cp $(CURDIR)/luhyacloud/portal/*.py                 $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/conf              $(WEB_PORTAL)/usr/local/www/portal/
@@ -122,19 +128,19 @@ install:
 	####################
 	install -d $(DAEMON_NC)/var/log/educloud
 	install -d $(DAEMON_NC)/usr/local/nodedaemon/nc
-	install -d $(DAEMON_NC)/usr/local/webconfig/3rd
+	install -d $(DAEMON_NC)/usr/local/webconfig/node/3rd
 
-	cp $(CURDIR)/debian/sudoers                         $(DAEMON_NC)/usr/local/webconfig/
-	cp -r $(CURDIR)/webconfig/rsync                     $(DAEMON_NC)/usr/local/webconfig/
-	cp $(CURDIR)/webconfig/piplib/3rd/*.tar.gz          $(DAEMON_NC)/usr/local/webconfig/3rd/
-	cp $(CURDIR)/webconfig/piplib/3rd/*.zip             $(DAEMON_NC)/usr/local/webconfig/3rd/
+	cp $(CURDIR)/debian/sudoers                         $(DAEMON_NC)/usr/local/webconfig/node
+	cp -r $(CURDIR)/webconfig/rsync                     $(DAEMON_NC)/usr/local/webconfig/node/
+	cp $(CURDIR)/webconfig/piplib/3rd/*.tar.gz          $(DAEMON_NC)/usr/local/webconfig/node/3rd/
+	cp $(CURDIR)/webconfig/piplib/3rd/*.zip             $(DAEMON_NC)/usr/local/webconfig/node/3rd/
 
 	cp $(CURDIR)/nodeDaemon/nc/*.py                     $(DAEMON_NC)/usr/local/nodedaemon/nc
 
 	install -d $(DAEMON_NC)/etc/educloud/modules
 	touch $(DAEMON_NC)/etc/educloud/modules/nc
 
-	cp $(CURDIR)/debian/fuse.conf                       $(DAEMON_NC)/usr/local/webconfig/
+	cp $(CURDIR)/debian/fuse.conf                       $(DAEMON_NC)/usr/local/webconfig/node
 
 	install -d $(DAEMON_NC)/usr/local/bin/
 	cp $(CURDIR)/webconfig/scripts/nodedaemon-nc          $(DAEMON_NC)/usr/local/bin
