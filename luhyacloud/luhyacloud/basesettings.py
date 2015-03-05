@@ -91,6 +91,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
+    '/usr/local/www/static/',
 )
 
 SESSION_COOKIE_AGE = 86400

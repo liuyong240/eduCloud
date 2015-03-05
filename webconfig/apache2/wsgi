@@ -1,4 +1,4 @@
-WSGIPythonPath    /usr/local/www/
+WSGIPythonPath    /usr/local/www/luhyacloud
 <VirtualHost *:80>
     LogLevel info
     ServerName www.educloud.com
@@ -20,14 +20,13 @@ WSGIPythonPath    /usr/local/www/
     # ExpiresActive On
     # ExpiresByType text/cache-manifest "access plus 0 seconds"
 	
-    WSGIDaemonProcess educloud.com processes=2 threads=15 display-name=%{GROUP} python-path=/usr/local/www/
+    WSGIDaemonProcess educloud.com processes=2 threads=15 display-name=%{GROUP} python-path=/usr/local/www/luhyacloud
     WSGIProcessGroup educloud.com
-    WSGIScriptAlias / /usr/local/www/educloud/wsgi.py
+    WSGIScriptAlias / /usr/local/www/luhyacloud/wsgi.py
 
-    <Directory /usr/local/www/>
+    <Directory /usr/local/www/luhyacloud>
     <Files wsgi.py>
-        Order deny,allow
-        Allow from all
+        Require al granted
     </Files>
     </Directory>
 </VirtualHost>

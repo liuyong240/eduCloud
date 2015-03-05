@@ -1,1 +1,0 @@
-../../../../../../webconfig/sdk/cloud-desktop/python/sample.py
