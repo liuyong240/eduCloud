@@ -1,6 +1,8 @@
 # coding=UTF-8
 
 from __future__ import absolute_import
+import os
+from luhyaapi.hostTools import *
 
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
@@ -34,13 +36,25 @@ TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
 SECRET_KEY = 'niy^4ow#z1#)gls#+m0k(f49l6uaiqqt@2+jpb*ey5flqs6bj_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-TEMPLATE_DEBUG = True
+if os.path.exists("/etc/educloud/modules/core") == True:
+    DEBUG = False
+    TEMPLATE_DEBUG = False
+else:
+    DEBUG = True
+    TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = [
-    '127.0.0.1', '192.168.56.101'
+    '127.0.0.1'
 ]
-
+nics = getHostNetInfo()
+if nics['ip0'] != '':
+    ALLOWED_HOSTS.append(nics['ip0'])
+if nics['ip1'] != '':
+    ALLOWED_HOSTS.append(nics['ip1'])
+if nics['ip2'] != '':
+    ALLOWED_HOSTS.append(nics['ip2'])
+if nics['ip3'] != '':
+    ALLOWED_HOSTS.append(nics['ip3'])
 
 # Application definition
 INSTALLED_APPS = (
@@ -91,7 +105,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
-    '/usr/local/www/static/',
 )
 
 SESSION_COOKIE_AGE = 86400

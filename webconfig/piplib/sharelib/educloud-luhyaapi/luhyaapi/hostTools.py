@@ -259,23 +259,14 @@ def getSysMemUtil():
 ### Service tools
 import socket, commands
 
-def init_socket():
-    _my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    return _my_socket
-
-gSocket = init_socket()
-
-def getSocket():
-    return gSocket
-
 def DoesServiceExist(host, port):
     try:
-        s = getSocket()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(1)
         s.connect((host, port))
         s.close()
-    except:
-        return 'Closed'
+    except Exception as e:
+        return str(e)
 
     return "Running"
 
@@ -302,11 +293,11 @@ def restart_web():
 
 
 daemon_list = {
-    "clc":      "clc_daemon",
-    "walrus":   "walrus_daemon",
-    "cc":       "cc_daemon",
-    "nc":       "nc_daemon",
-    "sc":       "clc_daemon",
+    "clc":      "nodedaemon-clc",
+    "walrus":   "nodedaemon-walrus",
+    "cc":       "nodedaemon-cc",
+    "nc":       "nodedaemon-nc",
+    "sc":       "nodedaemon-sc",
 }
 
 def get_daemon_status(dtype):

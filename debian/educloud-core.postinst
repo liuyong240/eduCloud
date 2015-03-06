@@ -46,5 +46,6 @@ if [ "$1" = "configure" ]; then
    chmod -R 777 /usr/local/www
    chmod -R 777 /var/log/educloud
 
-   service apache2 reload || true
+   killall -9 apache2 || true
+   service apache2 start || true
 fi
