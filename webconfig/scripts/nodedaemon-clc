@@ -1,4 +1,4 @@
 #! /bin/bash
 
 cd /usr/local/nodedaemon/clc
-python clc_daemon.py
+python clc_daemon.pyc

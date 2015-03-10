@@ -39,7 +39,10 @@ install:
 	install -d $(WEB_CLOUD)/usr/local/webconfig/3rd/web
 
 	cp $(CURDIR)/luhyacloud/*.py                        $(WEB_CLOUD)/usr/local/www/
-	cp $(CURDIR)/luhyacloud/luhyacloud/*.py             $(WEB_CLOUD)/usr/local/www/luhyacloud/
+	python -m compileall $(CURDIR)/luhyacloud/luhyacloud/
+	mv $(CURDIR)/luhyacloud/luhyacloud/*.pyc             $(WEB_CLOUD)/usr/local/www/luhyacloud/
+	cp $(CURDIR)/luhyacloud/luhyacloud/wsgi.py           $(WEB_CLOUD)/usr/local/www/luhyacloud/
+	rm $(WEB_CLOUD)/usr/local/www/luhyacloud/wsgi.pyc
 
 	cp $(CURDIR)/debian/sudoers                         $(WEB_CLOUD)/usr/local/webconfig/
 	cp -r $(CURDIR)/webconfig/apache2                   $(WEB_CLOUD)/usr/local/webconfig/
@@ -54,7 +57,8 @@ install:
 	touch $(WEB_PORTAL)/etc/educloud/modules/portal
 
 	install -d $(WEB_PORTAL)/usr/local/www/portal
-	cp $(CURDIR)/luhyacloud/portal/*.py                 $(WEB_PORTAL)/usr/local/www/portal/
+	python -m compileall $(CURDIR)/luhyacloud/portal/
+	mv $(CURDIR)/luhyacloud/portal/*.pyc                 $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/conf              $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/static            $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/templates         $(WEB_PORTAL)/usr/local/www/portal/
@@ -66,7 +70,8 @@ install:
 	touch $(WEB_CLC)/etc/educloud/modules/clc
 
 	install -d $(WEB_CLC)/usr/local/www/clc
-	cp $(CURDIR)/luhyacloud/clc/*.py                    $(WEB_CLC)/usr/local/www/clc/
+	python -m compileall $(CURDIR)/luhyacloud/clc/
+	mv $(CURDIR)/luhyacloud/clc/*.pyc                   $(WEB_CLC)/usr/local/www/clc/
 	cp -r $(CURDIR)/luhyacloud/clc/conf                 $(WEB_CLC)/usr/local/www/clc/
 	cp -r $(CURDIR)/luhyacloud/clc/static               $(WEB_CLC)/usr/local/www/clc/
 	cp -r $(CURDIR)/luhyacloud/clc/templates            $(WEB_CLC)/usr/local/www/clc/
@@ -79,7 +84,8 @@ install:
 	touch $(WEB_WALRUS)/etc/educloud/modules/walrus
 
 	install -d $(WEB_WALRUS)/usr/local/www/walrus
-	cp $(CURDIR)/luhyacloud/walrus/*.py                 $(WEB_WALRUS)/usr/local/www/walrus/
+	python -m compileall $(CURDIR)/luhyacloud/walrus/
+	mv $(CURDIR)/luhyacloud/walrus/*.pyc                $(WEB_WALRUS)/usr/local/www/walrus/
 
 	#################
 	#     WEB_CC    #
@@ -88,7 +94,8 @@ install:
 	touch $(WEB_CC)/etc/educloud/modules/cc
 
 	install -d $(WEB_CC)/usr/local/www/cc
-	cp $(CURDIR)/luhyacloud/cc/*.py                     $(WEB_CC)/usr/local/www/cc/
+	python -m compileall $(CURDIR)/luhyacloud/cc/
+	mv $(CURDIR)/luhyacloud/cc/*.pyc                    $(WEB_CC)/usr/local/www/cc/
 
 	install -d $(WEB_CC)/usr/local/webconfig
 	cp $(CURDIR)/debian/fuse.conf                       $(WEB_CC)/usr/local/webconfig/
@@ -99,7 +106,8 @@ install:
 	#     DAEMON_CLC    #
 	#####################
 	install -d $(DAEMON_CLC)/usr/local/nodedaemon/clc
-	cp $(CURDIR)/nodeDaemon/clc/*.py                       $(DAEMON_CLC)/usr/local/nodedaemon/clc
+	python -m compileall $(CURDIR)/nodeDaemon/clc/
+	mv $(CURDIR)/nodeDaemon/clc/*.pyc                      $(DAEMON_CLC)/usr/local/nodedaemon/clc
 
 	install -d $(DAEMON_CLC)/usr/local/bin/
 	cp $(CURDIR)/webconfig/scripts/nodedaemon-clc          $(DAEMON_CLC)/usr/local/bin
@@ -109,7 +117,8 @@ install:
 	#     DAEMON_WALRUS    #
 	########################
 	install -d $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
-	cp $(CURDIR)/nodeDaemon/walrus/*.py                    $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
+	python -m compileall $(CURDIR)/nodeDaemon/walrus/
+	mv $(CURDIR)/nodeDaemon/walrus/*.pyc                    $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
 
 	install -d $(DAEMON_WALRUS)/usr/local/bin/
 	cp $(CURDIR)/webconfig/scripts/nodedaemon-walrus          $(DAEMON_WALRUS)/usr/local/bin
@@ -118,7 +127,8 @@ install:
 	#     DAEMON_CC    #
 	####################
 	install -d $(DAEMON_CC)/usr/local/nodedaemon/cc
-	cp $(CURDIR)/nodeDaemon/cc/*.py                       $(DAEMON_CC)/usr/local/nodedaemon/cc
+	python -m compileall $(CURDIR)/nodeDaemon/cc/
+	mv $(CURDIR)/nodeDaemon/cc/*.pyc                      $(DAEMON_CC)/usr/local/nodedaemon/cc
 
 	install -d $(DAEMON_CC)/usr/local/bin/
 	cp $(CURDIR)/webconfig/scripts/nodedaemon-cc          $(DAEMON_CC)/usr/local/bin
@@ -135,6 +145,7 @@ install:
 	cp $(CURDIR)/webconfig/piplib/3rd/*.tar.gz          $(DAEMON_NC)/usr/local/webconfig/node/3rd/
 	cp $(CURDIR)/webconfig/piplib/3rd/*.zip             $(DAEMON_NC)/usr/local/webconfig/node/3rd/
 
+	python -m compileall $(CURDIR)/nodeDaemon/nc/
 	cp $(CURDIR)/nodeDaemon/nc/*.py                     $(DAEMON_NC)/usr/local/nodedaemon/nc
 
 	install -d $(DAEMON_NC)/etc/educloud/modules
