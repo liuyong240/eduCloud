@@ -1,14 +1,6 @@
 #!/bin/bash -e
 
-#if [ "$1" = "configure" ]; then
-   ##############################
-   # configure clc.conf
-   ##############################
-   echo -n "Please input clc ip address, followed by [ENTER]:"
-   read clcip
-   echo "[server]"    > /storage/config/clc.conf
-   echo "IP=$clcip"  >> /storage/config/clc.conf
-
+if [ "$1" = "configure" ]; then
    ##############################
    # change owner
    ##############################
@@ -18,6 +10,4 @@
    chown -R luhya:luhya /usr/local/www
    chmod -R 777 /usr/local/www
    chmod -R 777 /var/log/educloud
-
-   service apache2 reload || true
-#fi
+fi

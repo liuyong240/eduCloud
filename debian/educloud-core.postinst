@@ -2,6 +2,18 @@
 
 if [ "$1" = "configure" ]; then
    ##############################
+   # create a user named luhya
+   ##############################
+   ret=`cut -d: -f1 /etc/passwd | grep luhya`
+   if [ $ret == 'luhya' ]
+   then
+        echo "user luhya already exist."
+   else
+        useradd  -m -s /bin/bash -U luhya
+        passwd luhya
+   fi
+
+   ##############################
    # configure sudoers
    ##############################
    cp /usr/local/webconfig/sudoers              /etc/

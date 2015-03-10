@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-#if [ "$1" = "configure" ]; then
+if [ "$1" = "configure" ]; then
     ##############################
     # create /storage directories
     ##############################
@@ -13,44 +13,14 @@
     test -d "images"   || mkdir images instances
 
     ##############################
-    # configure clc.conf
-    ##############################
-    echo -n "Please input clc ip address, followed by [ENTER]:"
-    read clcip
-    echo "[server]"    > /storage/config/clc.conf
-    echo "IP=$clcip"  >> /storage/config/clc.conf
-
-    ##############################
-    # configure cc.conf
-    ##############################
-    echo -n "Please input cc ip address, followed by [ENTER]:"
-    read ccip
-
-    echo -n "Please input cc name, followed by [ENTER]:"
-    read ccname
-
-    echo "[server]"        > /storage/config/cc.conf
-    echo "IP=$ccip"       >> /storage/config/cc.conf
-    echo "ccname=$ccname" >> /storage/config/cc.conf
-
-    ##############################
     # configure rabbitmq service
     ##############################
-    rabbitmqctl add_user luhya luhya || true
-    rabbitmqctl set_permissions luhya  ".*" ".*" ".*" || true
-    service rabbitmq-server restart
-
-    ##############################
-    # prepare sshfs
-    ##############################
-    cp /usr/local/webconfig/fuse.conf   /etc/
-    adduser luhya fuse
-    if [ !  -f /etc/educloud/modules/clc ]
+    ret=`rabbitmqctl list_users | grep luhya | awk '{ print $1 }'`
+    if [ $ret == 'luhya' ]
     then
-        ssh-keygen
-        echo "Type the clc ip address, followed by [ENTER]:"
-        read ip
-        ssh-copy-id $ip
+        rabbitmqctl add_user luhya luhya || true
+        rabbitmqctl set_permissions luhya  ".*" ".*" ".*" || true
+        service rabbitmq-server restart
     fi
 
     ##############################
@@ -64,6 +34,4 @@
     chmod -R 777 /storage
     chmod -R 777 /usr/local/www
     chmod -R 777 /var/log/educloud
-
-    service apache2 reload || true
-#fi
+fi

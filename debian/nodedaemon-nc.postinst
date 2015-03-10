@@ -2,22 +2,21 @@
 
 if [ "$1" = "configure" ]; then
     ##############################
+    # create a user named luhya
+    ##############################
+    ret=`cut -d: -f1 /etc/passwd | grep luhya`
+    if [ $ret == 'luhya' ]
+    then
+        echo "user luhya already exist."
+    else
+        useradd  -m -s /bin/bash -U luhya
+        passwd luhya
+    fi
+
+    ##############################
     # configure sudoers
     ##############################
     cp /usr/local/webconfig/node/sudoers              /etc/
-
-    ##############################
-    # configure cc.conf
-    ##############################
-    echo -n "Please input cc ip address, followed by [ENTER]:"
-    read ccip
-
-    echo -n "Please input cc name, followed by [ENTER]:"
-    read ccname
-
-    echo "[server]"        > /storage/config/cc.conf
-    echo "IP=$ccip"       >> /storage/config/cc.conf
-    echo "ccname=$ccname" >> /storage/config/cc.conf
 
     ##############################
     # configure rsync
@@ -46,19 +45,6 @@ if [ "$1" = "configure" ]; then
     pip install /usr/local/webconfig/node/3rd/python-iptables-0.4.0.tar.gz
     pip install /usr/local/webconfig/node/3rd/sortedcontainers-0.9.4.tar.gz
     pip install /usr/local/webconfig/node/3rd/luhyaapi-1.1.tar.gz
-
-    ##############################
-    # prepare sshfs
-    ##############################
-    cp /usr/local/webconfig/node/fuse.conf   /etc/
-    adduser luhya fuse
-    if [ !  -f /etc/educloud/modules/cc ]
-    then
-        ssh-keygen
-        echo "Type the cc ip address, followed by [ENTER]:"
-        read ip
-        ssh-copy-id $ip
-    fi
 
     ##############################
     # change owner

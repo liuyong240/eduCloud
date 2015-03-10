@@ -1,4 +1,6 @@
 # coding=UTF-8
+import os
+
 if os.path.exists("/etc/educloud/modules/core") == True:
     DAEMON_DEBUG = False
     ALLOWED_VD_IN_VS_CC = False
