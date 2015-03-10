@@ -1,8 +1,13 @@
 # coding=UTF-8
+import os
 
-DAEMON_DEBUG = True
+if os.path.exists("/etc/educloud/modules/core") == True:
+    DAEMON_DEBUG = False
+    ALLOWED_VD_IN_VS_CC = False
+else:
+    DAEMON_DEBUG = True
+    ALLOWED_VD_IN_VS_CC = True
 
-ALLOWED_VD_IN_VS_CC = True
 
 VALID_NC_RES = {
     'server': {

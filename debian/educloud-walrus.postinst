@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+if [ "$1" = "configure" ]; then
+   ##############################
+   # change owner
+   ##############################
+   usermod -a -G luhya www-data
+
+   chown -R luhya:luhya /var/log/educloud
+   chown -R luhya:luhya /usr/local/www
+   chmod -R 777 /usr/local/www
+   chmod -R 777 /var/log/educloud
+fi

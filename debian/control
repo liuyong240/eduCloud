@@ -6,12 +6,48 @@ Build-Depends:
 Homepage: http://www.google.com
 Standards-Version: 3.8.3
 
-Package: educloud-client
+Package: educloud-core
 Architecture: all
-Depends:  python2.7, python-wxgtk2.8, python-wxtools, wx2.8-i18n, libwxgtk2.8-dev, libgtk2.0-dev, ifstat, sudo, ttf-arphic-uming, python-psutil, openssh-server, wmctrl, xdotool
-Description: educloud client package 
+Depends:  python2.7, apache2, libapache2-mod-wsgi, python-pip, python-dev, ifstat, sysstat, sudo, openssh-server, sshfs, iperf, rsync(>=3.1.0),
+Description: educloud basic package
 
-Package: educloud-server
+Package: educloud-portal
 Architecture: all
-Depends: memcached, libmemcached-tools, mysql-server, libmysqld-dev, libmysqlclient-dev, apache2, rabbitmq-server, libapache2-mod-wsgi, python2.7, python-dev, ifstat, sysstat, sudo, openssh-server, python-pip
-Description: educloud server package
+Depends:  educloud-core
+Description: educloud portal package
+
+Package: educloud-clc
+Architecture: all
+Depends:  educloud-core, virtualbox-4.3, mysql-server, libmysqld-dev, libmysqlclient-dev, rabbitmq-server, memcached, libmemcached-tools,
+Description: educloud clc package
+
+Package: educloud-walrus
+Architecture: all
+Depends:  educloud-core, educloud-clc
+Description: educloud walrus package
+
+Package: educloud-cc
+Architecture: all
+Depends:  educloud-core, rabbitmq-server
+Description: educloud cc package
+
+Package: nodedaemon-clc
+Architecture: all
+Depends:  educloud-clc,
+Description: educloud clc daemon package
+
+Package: nodedaemon-walrus
+Architecture: all
+Depends:  educloud-walrus
+Description: educloud walrus daemon package
+
+Package: nodedaemon-cc
+Architecture: all
+Depends:  educloud-cc,
+Description: educloud cc daemon package
+
+Package: nodedaemon-nc
+Architecture: all
+Depends:  python-dev, ifstat, sysstat, sudo, openssh-server, python-pip, sshfs, iperf, virtualbox-4.3, rsync(>=3.1.0)
+Description: educloud nc daemon package
+
