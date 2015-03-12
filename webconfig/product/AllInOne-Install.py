@@ -32,18 +32,20 @@ print cmd_line
 os.system(cmd_line)
 
 # 3.1 install mysql-server without password prompt
-cmd_line = 'sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password root"'
+with open('/tmp/mysql-server.list', 'w') as myfile:
+    myfile.write('mysql-server mysql-server/root_password password root\n')
+    myfile.write('mysql-server mysql-server/root_password_again password root\n')
+
+cmd_line = 'sudo debconf-set-selections /tmp/mysql-server.list'
 print cmd_line
 commands.getoutput(cmd_line)
-cmd_line = 'sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password root"'
-print cmd_line
-commands.getoutput(cmd_line)
+
 cmd_line = 'sudo apt-get -y install mysql-server'
 print cmd_line
 commands.getoutput(cmd_line)
 
 # 4. install educloud in one machine by apt-get
-cmd_line = 'sudo apt-get install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc nodedaemon-nc'
+cmd_line = 'sudo apt-get -y install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc nodedaemon-nc'
 print cmd_line
 os.system(cmd_line)
 
