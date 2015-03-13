@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from luhyacloud import views
 import os
+from settings import DEBUG
 
 admin.autodiscover()
 
@@ -16,23 +17,32 @@ urlpatterns = patterns('',
         url(r'^machine/get_hardware_status$',      views.get_hardware_status,              name='get_hardware_status'),
     )
 
-if os.path.exists("/etc/educloud/modules/portal") == True:
+if DEBUG == True:
     urlpatterns += patterns('',
         url(r'^$',              include('portal.urls')),
         url(r'^portal/',        include('portal.urls')),
+        url(r'^clc/',           include('clc.urls')),
+        url(r'^walrus/',        include('walrus.urls')),
+        url(r'^cc/',            include('cc.urls')),
     )
+else:
+    if os.path.exists("/etc/educloud/modules/portal") == True:
+        urlpatterns += patterns('',
+            url(r'^$',              include('portal.urls')),
+            url(r'^portal/',        include('portal.urls')),
+        )
 
-if os.path.exists("/etc/educloud/modules/clc") == True:
-    urlpatterns += patterns('',
-        url(r'^clc/',       include('clc.urls')),
-    )
+    if os.path.exists("/etc/educloud/modules/clc") == True:
+        urlpatterns += patterns('',
+            url(r'^clc/',       include('clc.urls')),
+        )
 
-if os.path.exists("/etc/educloud/modules/walrus") == True:
-    urlpatterns += patterns('',
-        url(r'^walrus/',    include('walrus.urls')),
-    )
+    if os.path.exists("/etc/educloud/modules/walrus") == True:
+        urlpatterns += patterns('',
+            url(r'^walrus/',    include('walrus.urls')),
+        )
 
-if os.path.exists("/etc/educloud/modules/cc") == True:
-    urlpatterns += patterns('',
-        url(r'^cc/',    include('cc.urls')),
-    )
+    if os.path.exists("/etc/educloud/modules/cc") == True:
+        urlpatterns += patterns('',
+            url(r'^cc/',    include('cc.urls')),
+        )

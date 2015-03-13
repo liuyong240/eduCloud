@@ -46,6 +46,7 @@ else:
 ALLOWED_HOSTS = [
     '127.0.0.1'
 ]
+
 nics = getHostNetInfo()
 if nics['ip0'] != '':
     ALLOWED_HOSTS.append(nics['ip0'])
@@ -65,7 +66,6 @@ INSTALLED_APPS = (
      'django.contrib.messages',
      'django.contrib.staticfiles',
 )
-
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
