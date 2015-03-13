@@ -32,7 +32,7 @@ if [ "$1" = "configure" ]; then
     ret=`mysql -uroot -proot mysql -e "select count(*) from clc_ecaccount where userid='luhya';" | tr -dc '[0-9]'`
     if [ $ret == '0' ]
     then
-        python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com || true
+        python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com --noinput || true
         python manage.py changepassword luhya || true
     fi
 

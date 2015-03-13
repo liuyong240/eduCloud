@@ -432,6 +432,18 @@ iptables -A FORWARD -d 10.181.4.103 -s 10.181.0.252 -j ACCEPT
    cc
    nc
 
+- compile python script
+  pyinstall  :  https://github.com/pyinstaller/pyinstaller/wiki
+   pip install pyinstaller
+
+  example :
+     pyinstall myscript.py -F # create a one executable file
+
+- generate *.pyc file
+  python -m compileall .
+
+- compile django app
+  https://github.com/pyinstaller/pyinstaller/wiki/Recipe-Executable-From-Django
 
 -------------------------------------
 incoming coding work

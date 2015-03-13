@@ -1,4 +1,4 @@
 #! /bin/bash
 
 cd /usr/local/nodedaemon/walrus
-python walrus_daemon.py
+python walrus_daemon.pyc

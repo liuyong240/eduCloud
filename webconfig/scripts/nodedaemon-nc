@@ -1,4 +1,4 @@
 #! /bin/bash
 
 cd /usr/local/nodedaemon/nc
-python nc_daemon.py
+python nc_daemon.pyc
