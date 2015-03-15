@@ -34,7 +34,6 @@ install:
 	install -d $(WEB_CLOUD)/etc/educloud/modules
 	touch $(WEB_CLOUD)/etc/educloud/modules/core
 
-	install -d $(WEB_CLOUD)/var/log/educloud
 	install -d $(WEB_CLOUD)/usr/local/www/luhyacloud/
 	install -d $(WEB_CLOUD)/usr/local/webconfig/3rd/web
 
@@ -98,8 +97,6 @@ install:
 	install -d $(WEB_CC)/usr/local/webconfig
 	cp $(CURDIR)/debian/fuse.conf                       $(WEB_CC)/usr/local/webconfig/
 
-
-
 	#####################
 	#     DAEMON_CLC    #
 	#####################
@@ -134,7 +131,6 @@ install:
 	####################
 	#     DAEMON_NC    #
 	####################
-	install -d $(DAEMON_NC)/var/log/educloud
 	install -d $(DAEMON_NC)/usr/local/nodedaemon/nc
 	install -d $(DAEMON_NC)/usr/local/webconfig/node/3rd
 
@@ -142,7 +138,7 @@ install:
 	cp -r $(CURDIR)/webconfig/rsync                     $(DAEMON_NC)/usr/local/webconfig/node/
 
 	python -m compileall $(CURDIR)/nodeDaemon/nc/
-	cp $(CURDIR)/nodeDaemon/nc/*.py                     $(DAEMON_NC)/usr/local/nodedaemon/nc
+	mv $(CURDIR)/nodeDaemon/nc/*.pyc                     $(DAEMON_NC)/usr/local/nodedaemon/nc
 
 	install -d $(DAEMON_NC)/etc/educloud/modules
 	touch $(DAEMON_NC)/etc/educloud/modules/nc
