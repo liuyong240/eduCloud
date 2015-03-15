@@ -6,10 +6,10 @@ if [ "$1" = "configure" ]; then
     ##############################
     # change owner
     ##############################
-    usermod -a -G luhya www-data
+    usermod -a -G luhya www-data || true
 
-    chown -R luhya:luhya /var/log/educloud
-    chown -R luhya:luhya /usr/local/www
-    chmod -R 777 /usr/local/www
-    chmod -R 777 /var/log/educloud
+    chown -R luhya:luhya /var/log/educloud || true
+    chown -R luhya:luhya /usr/local/www || true
+    chmod -R 777 /usr/local/www || true
+    chmod -R 777 /var/log/educloud || true
 fi

@@ -47,8 +47,6 @@ install:
 	cp $(CURDIR)/debian/sudoers                         $(WEB_CLOUD)/usr/local/webconfig/
 	cp -r $(CURDIR)/webconfig/apache2                   $(WEB_CLOUD)/usr/local/webconfig/
 	cp -r $(CURDIR)/webconfig/rsync                     $(WEB_CLOUD)/usr/local/webconfig/
-	cp $(CURDIR)/webconfig/piplib/3rd/*.tar.gz          $(WEB_CLOUD)/usr/local/webconfig/3rd/web/
-	cp $(CURDIR)/webconfig/piplib/3rd/*.zip             $(WEB_CLOUD)/usr/local/webconfig/3rd/web/
 
 	#####################
 	#     WEB_PORTAL    #
@@ -142,8 +140,6 @@ install:
 
 	cp $(CURDIR)/debian/sudoers                         $(DAEMON_NC)/usr/local/webconfig/node
 	cp -r $(CURDIR)/webconfig/rsync                     $(DAEMON_NC)/usr/local/webconfig/node/
-	cp $(CURDIR)/webconfig/piplib/3rd/*.tar.gz          $(DAEMON_NC)/usr/local/webconfig/node/3rd/
-	cp $(CURDIR)/webconfig/piplib/3rd/*.zip             $(DAEMON_NC)/usr/local/webconfig/node/3rd/
 
 	python -m compileall $(CURDIR)/nodeDaemon/nc/
 	cp $(CURDIR)/nodeDaemon/nc/*.py                     $(DAEMON_NC)/usr/local/nodedaemon/nc

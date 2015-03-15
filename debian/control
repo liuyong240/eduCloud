@@ -8,7 +8,7 @@ Standards-Version: 3.8.3
 
 Package: educloud-core
 Architecture: all
-Depends:  python2.7, apache2, libapache2-mod-wsgi, python-pip, python-dev, ifstat, sysstat, sudo, openssh-server, sshfs, iperf, rsync(>=3.1.0),
+Depends:  python2.7, apache2, libapache2-mod-wsgi, python-pip, python-dev, ifstat, sysstat, sudo, openssh-server, sshfs, iperf
 Description: educloud basic package
 
 Package: educloud-portal
@@ -48,6 +48,6 @@ Description: educloud cc daemon package
 
 Package: nodedaemon-nc
 Architecture: all
-Depends:  python-dev, ifstat, sysstat, sudo, openssh-server, python-pip, sshfs, iperf, virtualbox-4.3, rsync(>=3.1.0)
+Depends:  python-dev, ifstat, sysstat, sudo, openssh-server, python-pip, sshfs, iperf, virtualbox-4.3
 Description: educloud nc daemon package
 

@@ -2,16 +2,10 @@
 
 if [ "$1" = "configure" ]; then
     ##############################
-    # create a user named luhya
+    # change owner
     ##############################
-    ret=`cut -d: -f1 /etc/passwd | grep luhya`
-    if [ $ret == 'luhya' ]
-    then
-        echo "user luhya already exist."
-    else
-        useradd  -m -s /bin/bash -U luhya
-        passwd luhya
-    fi
+    cp /usr/local/webconfig/node/fuse.conf   /etc/
+    adduser luhya fuse
 
     ##############################
     # configure sudoers
@@ -26,34 +20,13 @@ if [ "$1" = "configure" ]; then
     /etc/init.d/rsync start
 
     ##############################
-    # create /storage directories
-    ##############################
-    test -d "/storage" || mkdir /storage/
-    cd /storage
-    test -d "images"    || mkdir images VMs config space
-    test -d "tmp"      || mkdir tmp
-    cd /storage/tmp
-    test -d "images"   || mkdir images VMs
-
-    ##############################
-    # install python library
-    ##############################
-    pip install /usr/local/webconfig/node/3rd/linux-metrics-0.1.4.tar.gz
-    pip install /usr/local/webconfig/node/3rd/pika-0.9.14.tar.gz
-    pip install /usr/local/webconfig/node/3rd/psutil-2.2.1.tar.gz
-    pip install /usr/local/webconfig/node/3rd/netifaces-0.10.4.tar.gz
-    pip install /usr/local/webconfig/node/3rd/python-iptables-0.4.0.tar.gz
-    pip install /usr/local/webconfig/node/3rd/sortedcontainers-0.9.4.tar.gz
-    pip install /usr/local/webconfig/node/3rd/luhyaapi-1.1.tar.gz
-
-    ##############################
     # change owner
     ##############################
-    chown -R luhya:luhya /var/log/educloud
-    chown -R luhya:luhya /storage
-    chmod -R 777 /storage
-    chmod -R 777 /var/log/educloud
+    chown -R luhya:luhya /var/log/educloud || true
+    chown -R luhya:luhya /storage || true
+    chmod -R 777 /storage || true
+    chmod -R 777 /var/log/educloud || true
 
-    chown -R luhya:luhya /usr/local/nodedaemon
-    chmod -R 777 /usr/local/nodedaemon
+    chown -R luhya:luhya /usr/local/nodedaemon || true
+    chmod -R 777 /usr/local/nodedaemon || true
 fi

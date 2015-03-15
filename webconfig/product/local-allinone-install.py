@@ -7,11 +7,12 @@ import time
 if not os.path.exists('/etc/apt/sources.list.luhya'):
     cmd_line = 'sudo cp /etc/apt/sources.list /etc/apt/sources.list.luhya'
     commands.getoutput(cmd_line)
+
     cmd_line = 'cp /etc/apt/sources.list /tmp/'
     commands.getoutput(cmd_line)
 
-    with open('/tmp/sources.list', 'a') as myfile:
-        myfile.write('deb http://121.41.80.147/debian/ zhejiang non-free')
+    with open('/tmp/sources.list', 'w') as myfile:
+        myfile.write('deb http://192.168.56.103/debian/ zhejiang non-free')
 
     cmd_line = 'sudo cp /tmp/sources.list /etc/apt/sources.list'
     commands.getoutput(cmd_line)
@@ -22,7 +23,7 @@ if not os.path.exists('/etc/apt/sources.list.luhya'):
 cmd_line = 'apt-key list | grep luhya'
 ret = commands.getoutput(cmd_line)
 if ret == '':
-    cmd_line = 'curl http://121.41.80.147/packages.educloud.key > /tmp/packages.educloud.key'
+    cmd_line = 'curl http://192.168.56.103/packages.educloud.key > /tmp/packages.educloud.key'
     commands.getoutput(cmd_line)
     cmd_line = 'sudo apt-key add /tmp/packages.educloud.key'
     commands.getoutput(cmd_line)
@@ -46,7 +47,6 @@ with open('/tmp/mysql-server.list', 'w') as myfile:
 
 cmd_line = 'sudo debconf-set-selections /tmp/mysql-server.list'
 commands.getoutput(cmd_line)
-
 cmd_line = 'sudo apt-get -y install mysql-server'
 os.system(cmd_line)
 
@@ -99,7 +99,7 @@ os.system(cmd_line)
 ##############################################################################
 # 8. install 3rd python and rsync lib
 ##############################################################################
-cmd_line = 'wget http://121.41.80.147/pip.tar'
+cmd_line = 'wget http://192.168.56.103/pip.tar'
 os.system(cmd_line)
 cmd_line = 'tar vxf pip.tar -C /tmp/'
 commands.getoutput(cmd_line)

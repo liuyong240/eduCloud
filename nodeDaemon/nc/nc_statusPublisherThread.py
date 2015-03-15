@@ -2,6 +2,7 @@ from luhyaapi.run4everProcess import *
 from luhyaapi.educloudLog import *
 from luhyaapi.hostTools import *
 from luhyaapi.rabbitmqWrapper import *
+from luhyaapi.vboxWrapper import *
 
 import time, psutil
 

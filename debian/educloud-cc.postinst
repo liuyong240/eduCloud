@@ -2,36 +2,20 @@
 
 if [ "$1" = "configure" ]; then
     ##############################
-    # create /storage directories
+    # change owner
     ##############################
-    test -d "/storage" || mkdir /storage/
-    cd /storage
-    test -d "images"   || mkdir images VMs config space
-    cd /storage/space
-    test -d "software" || mkdir software pub-data prv-data database
-    cd database
-    test -d "images"   || mkdir images instances
-
-    ##############################
-    # configure rabbitmq service
-    ##############################
-    ret=`rabbitmqctl list_users | grep luhya | awk '{ print $1 }'`
-    if [ $ret == 'luhya' ]
-    then
-        rabbitmqctl add_user luhya luhya || true
-        rabbitmqctl set_permissions luhya  ".*" ".*" ".*" || true
-        service rabbitmq-server restart
-    fi
+    cp /usr/local/webconfig/fuse.conf   /etc/
+    adduser luhya fuse
 
     ##############################
     # change owner
     ##############################
-    usermod -a -G luhya www-data
+    usermod -a -G luhya www-data || true
 
-    chown -R luhya:luhya /var/log/educloud
-    chown -R luhya:luhya /usr/local/www
-    chown -R luhya:luhya /storage
-    chmod -R 777 /storage
-    chmod -R 777 /usr/local/www
-    chmod -R 777 /var/log/educloud
+    chown -R luhya:luhya /var/log/educloud || true
+    chown -R luhya:luhya /usr/local/www || true
+    chown -R luhya:luhya /storage || true
+    chmod -R 777 /storage || true
+    chmod -R 777 /usr/local/www || true
+    chmod -R 777 /var/log/educloud || true
 fi
