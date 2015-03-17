@@ -1,6 +1,14 @@
 import os, commands, sys
 import time
 
+def checkPackage( pname ):
+    cmd_line = 'dpkg -l | grep %s' % pname
+    output = commands.getoutput(cmd_line)
+    if output.split()[0] == 'ii':
+       return True
+    else:
+       return False
+  
 ##############################################################################
 # 1. update /etc/apt/sources.list
 ##############################################################################
@@ -50,6 +58,12 @@ commands.getoutput(cmd_line)
 cmd_line = 'sudo apt-get -y install mysql-server'
 os.system(cmd_line)
 
+if checkPackage('mysql-server-5.5') == False:
+   print "--------------------------------------------------"
+   print "Install mysql-server-5.5 Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1) 
+
 ##############################################################################
 # 5. create a user named luhya
 ##############################################################################
@@ -96,6 +110,53 @@ if not os.path.exists('/storage/tmp/images'):
 cmd_line = 'sudo apt-get -y install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc nodedaemon-nc'
 os.system(cmd_line)
 
+# verify deb package install status
+if checkPackage('educloud-core') == False:
+   print "--------------------------------------------------"
+   print "Install educloud-core Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1)
+if checkPackage('educloud-portal') == False:
+   print "--------------------------------------------------"
+   print "Install educloud-portal Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1)
+if checkPackage('educloud-clc') == False:
+   print "--------------------------------------------------"
+   print "Install educloud-clc Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1)
+if checkPackage('educloud-walrus') == False:
+   print "--------------------------------------------------"
+   print "Install educloud-walrus Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1)
+if checkPackage('educloud-cc') == False:
+   print "--------------------------------------------------"
+   print "Install educloud-cc Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1)
+if checkPackage('nodedaemon-clc') == False:
+   print "--------------------------------------------------"
+   print "Install nodedaemon-clc Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1)
+if checkPackage('nodedaemon-walrus') == False:
+   print "--------------------------------------------------"
+   print "Install nodedaemon-walrus Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1)
+if checkPackage('nodedaemon-cc') == False:
+   print "--------------------------------------------------"
+   print "Install nodedaemon-cc Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1)
+if checkPackage('nodedaemon-nc') == False:
+   print "--------------------------------------------------"
+   print "Install nodedaemon-nc Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1)
+
 ##############################################################################
 # 8. install 3rd python and rsync lib
 ##############################################################################
@@ -126,7 +187,9 @@ if ret == '':
 ##############################################################################
 # 10. config django
 ##############################################################################
-cmd_line= 'cd /usr/local/www/ && python manage.py syncdb --noinput'
+cmd_line = 'cd /usr/local/www/ && python manage.py syncdb --noinput'
+os.system(cmd_line)
+cmd_line = 'cd /usr/local/www/clc/sql && ./init_data.sh'
 os.system(cmd_line)
 cmd_line = 'mysql -uroot -proot mysql -e "select count(*) from auth_user where username=\'luhya\';" | tr -dc \'[0-9]\''
 ret = commands.getoutput(cmd_line)
@@ -177,7 +240,7 @@ commands.getoutput(cmd_line)
 ##############################################################################
 # 8. clear download packages
 ##############################################################################
-# cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
-# commands.getoutput(cmd_line)
-# cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
-# commands.getoutput(cmd_line)
+cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
+commands.getoutput(cmd_line)
