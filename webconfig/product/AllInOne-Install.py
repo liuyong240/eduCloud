@@ -244,3 +244,11 @@ cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 commands.getoutput(cmd_line)
 cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
 commands.getoutput(cmd_line)
+
+print '----------------------------------------------------------'
+print  'Now system will reboot to enable all services ... ... ...'
+time.sleep(1)
+print '... ... ... ... ...'
+cmd_line = 'sudo reboot'
+commands.getoutput(cmd_line)
+
