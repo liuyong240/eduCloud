@@ -353,7 +353,7 @@ def get_nc_avail_res(nc_mac):
         reported_avail_res['mem'] = data['mem']  * (1 - data['mem_usage']  / 100.0)
 
         # get allocate but not used yet res
-        ncobj = ecServers.objects.get(mac0=nc_mac)
+        ncobj = ecServers.objects.get(mac0=nc_mac, role='nc')
         trecs = ectaskTransaction.objects.filter(ncip = ncobj.ip0)
         if trecs.count() > 0:
             for trec in trecs:
@@ -379,13 +379,13 @@ def findVMRunningResource(insid):
     if insid.find('VD') == 0:
         vmrec = ecVDS.objects.get(insid=insid)
         filter = 'rvd'
-        vm_res_matrix = VALID_NC_RES['desktop'].copy()
+        vm_res_matrix = get_desktop_res()
         vm_res_matrix['mem'] += vmrec.memory
 
     if insid.find('VS') == 0:
         vmrec = ecVSS.objects.get(insid=insid)
         filter = 'vs'
-        vm_res_matrix = VALID_NC_RES['server'].copy()
+        vm_res_matrix = get_server_res()
         vm_res_matrix['mem'] += vmrec.memory
 
     logger.error('vm_res_matrix for %s is  %s' % (insid, json.dumps(vm_res_matrix)))
@@ -394,7 +394,7 @@ def findVMRunningResource(insid):
     nc_def = vmrec.nc_def
 
     if cc_def == 'any':
-        if ALLOWED_VD_IN_VS_CC == True:
+        if is_vd_allowed_in_vscc() == True:
             ccs = ecCCResources.objects.filter()
         else:
             ccs = ecCCResources.objects.filter(cc_usage=filter)
@@ -446,12 +446,12 @@ def findBuildResource(srcid):
     rec = ecImages.objects.get(ecid=srcid)
     if rec.img_usage == "server":
         filter = 'vs'
-        vm_res_matrix = VALID_NC_RES['server']
+        vm_res_matrix = get_server_res()
         vmtypeobj = ecVMTypes.objects.get(name='vssmall')
         vm_res_matrix['mem'] += vmtypeobj.memory
     else:
         filter = 'rvd'
-        vm_res_matrix = VALID_NC_RES['desktop']
+        vm_res_matrix = get_desktop_res()
         logger.error("origin resource request is %s" % json.dumps(vm_res_matrix))
         vmtypeobj = ecVMTypes.objects.get(name='vdsmall')
         vm_res_matrix['mem'] += vmtypeobj.memory
@@ -460,7 +460,7 @@ def findBuildResource(srcid):
     logger.error('vm_res_matrix for %s is  %s' % (srcid, json.dumps(vm_res_matrix)))
 
     # get a list of cc
-    if ALLOWED_VD_IN_VS_CC == True:
+    if is_vd_allowed_in_vscc() == True:
         ccs = ecCCResources.objects.filter()
     else:
         ccs = ecCCResources.objects.filter(cc_usage=filter)
@@ -2505,7 +2505,7 @@ def image_add_vm(request, imgid):
 
     if imgobj.img_usage == 'desktop':
         _instanceid      = 'VD' + genHexRandom()
-        if ALLOWED_VD_IN_VS_CC == True:
+        if is_vd_allowed_in_vscc() == True:
             ccs  = ecCCResources.objects.filter()
         else:
             ccs  = ecCCResources.objects.filter(cc_usage='vd')

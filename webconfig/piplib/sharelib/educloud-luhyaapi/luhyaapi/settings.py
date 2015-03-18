@@ -1,30 +1,37 @@
 # coding=UTF-8
 import os
+from luhyaapi.luhyaTools import configuration
 
 if os.path.exists("/etc/educloud/modules/core") == True:
     DAEMON_DEBUG = False
-    ALLOWED_VD_IN_VS_CC = False
 else:
     DAEMON_DEBUG = True
-    ALLOWED_VD_IN_VS_CC = True
 
+def is_vd_allowed_in_vscc():
+    conf_obj = configuration('/etc/educloud/modules/educloud.conf')
+    ret = conf_obj.getvalue('common', 'ALLOWED_VD_IN_VS_CC')
+    if ret == '1':
+        return True
+    else:
+        return False
 
-VALID_NC_RES = {
-    'server': {
-        'cpu_usage'     : 10,
-        'cpu'           : 2,
-        'disk'          : 20,
-        'mem'           : 2,
-    },
+def get_server_res():
+    res = {}
+    conf_obj = configuration('/etc/educloud/modules/educloud.conf')
+    res['cpu_usage'] = int(conf_obj.getvalue('server', 'cpu_usage'))
+    res['cpu']       = int(conf_obj.getvalue('server', 'cpu'))
+    res['disk']      = int(conf_obj.getvalue('server', 'disk'))
+    res['mem']       = int(conf_obj.getvalue('server', 'mem'))
+    return res
 
-    'desktop': {
-        'cpu_usage'     : 20,
-        'cpu'           : 1,
-        'disk'          : 10,
-        'mem'           : 2,
-    }
-}
-
+def get_desktop_res():
+    res = {}
+    conf_obj = configuration('/etc/educloud/modules/educloud.conf')
+    res['cpu_usage'] = int(conf_obj.getvalue('desktop', 'cpu_usage'))
+    res['cpu']       = int(conf_obj.getvalue('desktop', 'cpu'))
+    res['disk']      = int(conf_obj.getvalue('desktop', 'disk'))
+    res['mem']       = int(conf_obj.getvalue('desktop', 'mem'))
+    return res
 
 # NODE_DAEMON_LANG = 'en-us'
 NODE_DAEMON_LANG = 'zh-CN'

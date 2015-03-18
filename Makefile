@@ -55,7 +55,7 @@ install:
 
 	install -d $(WEB_PORTAL)/usr/local/www/portal
 	python -m compileall $(CURDIR)/luhyacloud/portal/
-	mv $(CURDIR)/luhyacloud/portal/*.pyc                 $(WEB_PORTAL)/usr/local/www/portal/
+	mv $(CURDIR)/luhyacloud/portal/*.pyc                $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/conf              $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/static            $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/templates         $(WEB_PORTAL)/usr/local/www/portal/
@@ -65,6 +65,7 @@ install:
 	##################
 	install -d $(WEB_CLC)/etc/educloud/modules
 	touch $(WEB_CLC)/etc/educloud/modules/clc
+	cp $(CURDIR)/debian/educloud.conf                   $(WEB_CLC)/etc/educloud/modules/
 
 	install -d $(WEB_CLC)/usr/local/www/clc
 	python -m compileall $(CURDIR)/luhyacloud/clc/
