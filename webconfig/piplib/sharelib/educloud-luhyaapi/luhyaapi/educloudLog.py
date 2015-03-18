@@ -53,3 +53,6 @@ def getcclogger():
 
 def getnclogger():
     return luhya_debug_logger
+
+def geteducloudlogger():
+    return luhya_debug_logger

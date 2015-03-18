@@ -224,7 +224,7 @@ def verify_clc_cc_file_ver(request):
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
     clc_img_info = getImageInfo(clcip, tid)
-    cc_img_info  = getImageVersionFromCC('localhost', tid)
+    cc_img_info  = getImageVersionFromCC('127.0.0.1', tid)
 
     response = {}
     response['Result']  = "OK"

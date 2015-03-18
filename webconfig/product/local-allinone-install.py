@@ -1,6 +1,8 @@
 import os, commands, sys
 import time
 
+DST_IP = '10.0.0.17'
+
 def checkPackage( pname ):
     cmd_line = 'dpkg -l | grep %s' % pname
     output = commands.getoutput(cmd_line)
@@ -20,7 +22,7 @@ if not os.path.exists('/etc/apt/sources.list.luhya'):
     commands.getoutput(cmd_line)
 
     with open('/tmp/sources.list', 'w') as myfile:
-        myfile.write('deb http://192.168.56.103/debian/ zhejiang non-free')
+        myfile.write('deb http://%s/debian/ zhejiang non-free' % DST_IP)
 
     cmd_line = 'sudo cp /tmp/sources.list /etc/apt/sources.list'
     commands.getoutput(cmd_line)
@@ -31,7 +33,7 @@ if not os.path.exists('/etc/apt/sources.list.luhya'):
 cmd_line = 'apt-key list | grep luhya'
 ret = commands.getoutput(cmd_line)
 if ret == '':
-    cmd_line = 'curl http://192.168.56.103/packages.educloud.key > /tmp/packages.educloud.key'
+    cmd_line = 'curl http://%s/packages.educloud.key > /tmp/packages.educloud.key' % DST_IP
     commands.getoutput(cmd_line)
     cmd_line = 'sudo apt-key add /tmp/packages.educloud.key'
     commands.getoutput(cmd_line)
@@ -161,15 +163,15 @@ if checkPackage('nodedaemon-nc') == False:
 ##############################################################################
 # 8. install 3rd python and rsync lib
 ##############################################################################
-cmd_line = 'wget http://192.168.56.103/pip.tar'
+cmd_line = 'wget http://%s/pip.tar' % DST_IP
 os.system(cmd_line)
 cmd_line = 'tar vxf pip.tar -C /tmp/'
 commands.getoutput(cmd_line)
-cmd_line = 'sudo pip install /tmp/pip/*.tar.gz'
+cmd_line = 'sudo pip install /tmp/*.tar.gz'
 os.system(cmd_line)
-cmd_line = 'sudo dpkg -i /tmp/pip/*.deb'
+cmd_line = 'sudo dpkg -i /tmp/*.deb'
 os.system(cmd_line)
-cmd_line = 'rm pip.tar && rm -fr /tmp/pip'
+cmd_line = 'rm pip.tar'
 commands.getoutput(cmd_line)
 
 ##############################################################################
