@@ -27,6 +27,7 @@ install:
 	cd $(CURDIR)/webconfig/piplib/sharelib/educloud-luhyaapi && python setup.py sdist
 	cp $(CURDIR)/webconfig/piplib/sharelib/educloud-luhyaapi/dist/*.tar.gz  $(CURDIR)/webconfig/piplib/3rd/
 	rm -fr $(CURDIR)/webconfig/piplib/sharelib/educloud-luhyaapi/dist
+	tar cvf $(CURDIR)/../pip.tar  $(CURDIR)/webconfig/piplib/3rd/*.gz 
 
 	####################
 	#     WEB_CLOUD    #
