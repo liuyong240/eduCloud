@@ -780,7 +780,7 @@ def activate_user(request, uid):
     u.save()
     addUserPrvDataDir(uid)
 
-    Message = _(" user %s is activated now.") % uid
+    Message = _("user " ) + uid + _( " is activated now.") 
     return HttpResponse(Message, content_type="application/json")
 
 @login_required(login_url='/portal/admlogin')

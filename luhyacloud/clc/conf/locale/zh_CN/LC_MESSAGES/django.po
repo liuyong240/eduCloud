@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-02 05:13+0000\n"
+"POT-Creation-Date: 2015-03-20 00:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -181,11 +181,11 @@ msgstr "虚拟CPU"
 msgid "Virtual Machine Data"
 msgstr "虚拟机状态数据"
 
-#: views.py:433 views.py:490
+#: views.py:433 views.py:492
 msgid "available nc resource is "
 msgstr "工作服务器可用的资源是 "
 
-#: views.py:433 views.py:490
+#: views.py:433 views.py:492
 msgid ", but required is "
 msgstr "，但是虚拟机要求的是 "
 
@@ -193,73 +193,76 @@ msgstr "，但是虚拟机要求的是 "
 msgid "Can't Find appropriate cluster machine and node machine ."
 msgstr "没有找到满足虚拟机运行资源要求的工作服务器。"
 
-#: views.py:512 views.py:538
+#: views.py:514 views.py:541
 msgid "account is not activated."
 msgstr "账号还未激活！"
 
-#: views.py:517
+#: views.py:519
 msgid "Admin is NOT allowd to login"
 msgstr "不允许管理员登陆！"
 
-#: views.py:527 views.py:553
+#: views.py:530 views.py:556
 msgid "account is invalid"
 msgstr "账号无效！"
 
-#: views.py:543
+#: views.py:546
 msgid "Only Admin is allowd to login"
 msgstr "只允许管理员登陆！"
 
-#: views.py:643
+#: views.py:648
 msgid "duplicated user name: "
 msgstr "重复的用户名"
 
-#: views.py:680
+#: views.py:685
 msgid "duplicated user name."
 msgstr "重复的用户名"
 
-#: views.py:772
-#, python-format
-msgid " user %s is activated now."
-msgstr " 用户 %s 已经激活了。"
+#: views.py:783
+msgid "user "
+msgstr "用户 "
 
-#: views.py:792
+#: views.py:783
+msgid " is activated now."
+msgstr " 已经激活了。"
+
+#: views.py:804
 msgid "Password is not correct!"
 msgstr "密码不正确。"
 
-#: views.py:805
+#: views.py:817
 msgid "System Run-time Status Overview"
 msgstr "系统运行状态"
 
-#: views.py:817
+#: views.py:829
 msgid "Account Management"
 msgstr "用户账户管理"
 
-#: views.py:829
+#: views.py:841
 msgid "Images Management"
 msgstr "镜像文件管理"
 
-#: views.py:888
+#: views.py:900
 msgid "Cloud Control Management"
 msgstr "云控制器管理"
 
-#: views.py:945
+#: views.py:957
 msgid "Cloud Walrus Management"
 msgstr "云存储控制器管理"
 
-#: views.py:960
+#: views.py:972
 msgid "Cloud Cluster Management"
 msgstr "云集群控制器管理"
 
-#: views.py:1018
+#: views.py:1031
 msgid "Cloud Node Management"
 msgstr "云工作服务器管理"
 
-#: views.py:1050
+#: views.py:1062
 msgid ""
 "<div class=\"col-lg-6\"><p>detail information is NOT available.</p></div>"
 msgstr "<div class=\"col-lg-6\"><p>无法获取详细信息。</p></div>"
 
-#: views.py:1068
+#: views.py:1080
 msgid ""
 "\n"
 "                <p class=\"list-group-item\">\n"
@@ -273,84 +276,84 @@ msgstr ""
 "                </p>\n"
 "        "
 
-#: views.py:1115
+#: views.py:1126
 msgid "Cloud Local Node Management"
 msgstr "云本地工作节点管理"
 
-#: views.py:1127
+#: views.py:1138
 msgid "Cloud Terminal Management"
 msgstr "云终端管理"
 
-#: views.py:1139
+#: views.py:1150
 msgid "Hosts Management"
 msgstr "主机管理"
 
-#: views.py:1151
+#: views.py:1162
 msgid "System Settings Management"
 msgstr "系统参数设置"
 
-#: views.py:1163
+#: views.py:1174
 msgid "Cloud Server Management"
 msgstr "云服务器管理"
 
-#: views.py:1176
+#: views.py:1187
 msgid "Remote Cloud Desktop Management"
 msgstr "远程云桌面管理"
 
-#: views.py:1189
+#: views.py:1200
 msgid "Local Cloud Desktop Management"
 msgstr "本地云桌面管理"
 
-#: views.py:1202
+#: views.py:1213
 msgid "Tasks Management"
 msgstr "系统任务管理"
 
-#: views.py:1220
+#: views.py:1231
 msgid "Administrator Tools"
 msgstr "管理员工具"
 
-#: views.py:1440
+#: views.py:1528
 msgid "Configure CC Network Resources"
 msgstr "设置集群网络参数"
 
-#: views.py:1693
+#: views.py:1792
 msgid "Need more rdp port resources!."
 msgstr "需要更多的RDP端口资源"
 
-#: views.py:1712
+#: views.py:1811
 msgid "Need more ether resources."
 msgstr "需要更多的IP/MAC资源"
 
-#: views.py:1756
+#: views.py:1855
 msgid "Need more Proxy Web IP resources for Cluster."
 msgstr "需要更多的WEB代理IP资源"
 
-#: views.py:1799
+#: views.py:1924
 msgid "cloud desktop"
 msgstr "本地云桌面"
 
-#: views.py:1806 views.py:1829 views.py:1851 views.py:1877 views.py:1900
-#: views.py:2229 views.py:2251 templates/clc/error.html:34
+#: views.py:1931 views.py:1954 views.py:1976 views.py:2001 views.py:2024
+#: views.py:2349 views.py:2371 templates/clc/error.html:34
 msgid "Error Report"
 msgstr "错误报告"
 
-#: views.py:2273
+#: views.py:2393
 msgid "image build"
 msgstr ""
 
-#: views.py:2397 views.py:2413
+#: views.py:2517 views.py:2533
 msgid "VM Create"
 msgstr "创建虚拟机"
 
-#: views.py:4117
+#: views.py:4235
 msgid "Image "
 msgstr "镜像文件"
 
-#: views.py:4343
+#: views.py:4461
 msgid "Server "
 msgstr "物理服务器"
 
-#: views.py:4388
+#: views.py:4506
 msgid "VM "
 msgstr "虚拟机"
 
@@ -609,6 +612,15 @@ msgstr "本地云桌面状态"
 msgid "Action"
 msgstr "操作"
 
+#: templates/clc/lvds.html:19
+#, fuzzy
+msgid "Another action"
+msgstr "操作"
+
+#: templates/clc/lvds.html:21
+msgid "Something else here"
+msgstr ""
+
 #: templates/clc/rvds.html:12 templates/clc/vss.html:12
 msgid "Run/View"
 msgstr "运行/查看"
@@ -641,10 +653,6 @@ msgstr "步骤1：创建并选择目录"
 #: templates/clc/tools.html:340
 msgid "Image Directory in Server"
 msgstr "云平台上的镜像文件目录"
-
-#: templates/clc/tools.html:343 templates/clc/tools.html.py:378
-msgid "Add"
-msgstr "添加"
 
 #: templates/clc/tools.html:356
 msgid "Step 2: Select image file to upload"
@@ -1540,6 +1548,9 @@ msgstr "配置内存(G)"
 #: templates/clc/wizard/vs_create_wizard.html:211
 msgid "Select MAC/IP"
 msgstr "配置MAC/IP"
+
+#~ msgid "Add"
+#~ msgstr "添加"
 
 #, fuzzy
 #~ msgid "Allocated Role:"
