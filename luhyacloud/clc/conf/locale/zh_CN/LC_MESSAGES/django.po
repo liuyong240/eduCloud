@@ -218,12 +218,12 @@ msgid "duplicated user name."
 msgstr "重复的用户名"
 
 #: views.py:783
-msgid "user "
-msgstr "用户 "
+msgid "user"
+msgstr "用户"
 
 #: views.py:783
-msgid " is activated now."
-msgstr " 已经激活了。"
+msgid "is activated now."
+msgstr "已经激活了。"
 
 #: views.py:804
 msgid "Password is not correct!"

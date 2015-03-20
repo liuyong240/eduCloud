@@ -780,8 +780,8 @@ def activate_user(request, uid):
     u.save()
     addUserPrvDataDir(uid)
 
-    Message = _("user " ) + uid + _( " is activated now.") 
-    return HttpResponse(Message, content_type="application/json")
+    Message =  _('user')+ (' %s ' % uid) +  _('is activated now.')
+    return HttpResponse(Message, content_type="application/json; charset=utf-8")
 
 @login_required(login_url='/portal/admlogin')
 def account_reset_password(request):
