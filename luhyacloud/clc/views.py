@@ -4727,33 +4727,38 @@ def list_myvds(request):
         return HttpResponse(retvalue, content_type="application/json")
 
     imgobjs = ecImages.objects.filter(img_usage='desktop')
+    # get current user's role
+    ua = ecAccount.objects.get(userid=_user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     for imgobj in imgobjs:
-        vd = {}
-        vd['ecid'] = imgobj.ecid
-        vd['name'] = imgobj.name
-        vd['ostype'] = imgobj.ostype
-        vd['desc'] = imgobj.description
+        objs = ecImages_auth.objects.filter(ecid=imgobj.ecid, role_value=ua_role_value.ec_authpath_value )
+        if objs.count() > 0 and objs[0].execute == True:
+            vd = {}
+            vd['ecid']   = imgobj.ecid
+            vd['name']   = imgobj.name
+            vd['ostype'] = imgobj.ostype
+            vd['desc']   = imgobj.description
 
-        trecs = ectaskTransaction.objects.filter(srcimgid=imgobj.ecid, dstimgid=imgobj.ecid, user=_user, insid__contains='TVD')
-        if trecs.count() > 0:
-            for trec in trecs:
-                vd['tid'] = trec.tid
-                vd['phase'] = trec.phase
-                vd['state'] = trec.state
-                runtime_option = json.loads(trec.runtime_option)
-                vd['mgr_url'] = getValidMgrURL(request, runtime_option)
+            trecs = ectaskTransaction.objects.filter(srcimgid=imgobj.ecid, dstimgid=imgobj.ecid, user=_user, insid__contains='TVD')
+            if trecs.count() > 0:
+                for trec in trecs:
+                    vd['tid'] = trec.tid
+                    vd['phase'] = trec.phase
+                    vd['state'] = trec.state
+                    runtime_option = json.loads(trec.runtime_option)
+                    vd['mgr_url'] = getValidMgrURL(request, runtime_option)
+                    vd['id']  = 'myvd' + str(index)
+                    vds.append(vd)
+                    index += 1
+            else:
+                vd['tid'] = ''
+                vd['phase'] = ''
+                vd['state'] = ''
+                vd['mgr_url'] = ''
                 vd['id']  = 'myvd' + str(index)
                 vds.append(vd)
                 index += 1
-        else:
-            vd['tid'] = ''
-            vd['phase'] = ''
-            vd['state'] = ''
-            vd['mgr_url'] = ''
-            vd['id']  = 'myvd' + str(index)
-            vds.append(vd)
-            index += 1
 
     trecs = ectaskTransaction.objects.filter(user=_user)
     for trec in trecs:
