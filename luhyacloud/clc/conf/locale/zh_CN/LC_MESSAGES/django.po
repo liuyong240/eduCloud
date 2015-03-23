@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-20 00:34+0000\n"
+"POT-Creation-Date: 2015-03-23 10:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -209,60 +209,74 @@ msgstr "账号无效！"
 msgid "Only Admin is allowd to login"
 msgstr "只允许管理员登陆！"
 
-#: views.py:648
+#: views.py:658
 msgid "duplicated user name: "
 msgstr "重复的用户名"
 
-#: views.py:685
+#: views.py:695
 msgid "duplicated user name."
 msgstr "重复的用户名"
 
-#: views.py:783
+#: views.py:791 views.py:1952 views.py:1976 views.py:1998 views.py:2016
+#: views.py:2035 views.py:2058 views.py:2376 views.py:2396 views.py:2418
+#: views.py:2557 views.py:4323 templates/clc/error.html:34
+msgid "Error Report"
+msgstr "错误报告"
+
+#: views.py:792
+msgid "user Role MUST be set before approved."
+msgstr "批准前必须设置用户角色。"
+
+#: views.py:793
+msgid "Please edit user's role first"
+msgstr "请编辑用户角色。"
+
+#: views.py:802
 msgid "user"
 msgstr "用户"
 
-#: views.py:783
+#: views.py:802
 msgid "is activated now."
 msgstr "已经激活了。"
 
-#: views.py:804
+#: views.py:823
 msgid "Password is not correct!"
 msgstr "密码不正确。"
 
-#: views.py:817
+#: views.py:836
 msgid "System Run-time Status Overview"
 msgstr "系统运行状态"
 
-#: views.py:829
+#: views.py:849
 msgid "Account Management"
 msgstr "用户账户管理"
 
-#: views.py:841
+#: views.py:862
 msgid "Images Management"
 msgstr "镜像文件管理"
 
-#: views.py:900
+#: views.py:921
 msgid "Cloud Control Management"
 msgstr "云控制器管理"
 
-#: views.py:957
+#: views.py:978
 msgid "Cloud Walrus Management"
 msgstr "云存储控制器管理"
 
-#: views.py:972
+#: views.py:993
 msgid "Cloud Cluster Management"
 msgstr "云集群控制器管理"
 
-#: views.py:1031
+#: views.py:1052
 msgid "Cloud Node Management"
 msgstr "云工作服务器管理"
 
-#: views.py:1062
+#: views.py:1083
 msgid ""
 "<div class=\"col-lg-6\"><p>detail information is NOT available.</p></div>"
 msgstr "<div class=\"col-lg-6\"><p>无法获取详细信息。</p></div>"
 
-#: views.py:1080
+#: views.py:1101
 msgid ""
 "\n"
 "                <p class=\"list-group-item\">\n"
@@ -276,84 +290,107 @@ msgstr ""
 "                </p>\n"
 "        "
 
-#: views.py:1126
+#: views.py:1147
 msgid "Cloud Local Node Management"
 msgstr "云本地工作节点管理"
 
-#: views.py:1138
+#: views.py:1159
 msgid "Cloud Terminal Management"
 msgstr "云终端管理"
 
-#: views.py:1150
+#: views.py:1171
 msgid "Hosts Management"
 msgstr "主机管理"
 
-#: views.py:1162
+#: views.py:1183
 msgid "System Settings Management"
 msgstr "系统参数设置"
 
-#: views.py:1174
+#: views.py:1195
 msgid "Cloud Server Management"
 msgstr "云服务器管理"
 
-#: views.py:1187
+#: views.py:1208
 msgid "Remote Cloud Desktop Management"
 msgstr "远程云桌面管理"
 
-#: views.py:1200
+#: views.py:1221
 msgid "Local Cloud Desktop Management"
 msgstr "本地云桌面管理"
 
-#: views.py:1213
+#: views.py:1234
 msgid "Tasks Management"
 msgstr "系统任务管理"
 
-#: views.py:1231
+#: views.py:1252
 msgid "Administrator Tools"
 msgstr "管理员工具"
 
-#: views.py:1528
+#: views.py:1549
 msgid "Configure CC Network Resources"
 msgstr "设置集群网络参数"
 
-#: views.py:1792
+#: views.py:1813
 msgid "Need more rdp port resources!."
 msgstr "需要更多的RDP端口资源"
 
-#: views.py:1811
+#: views.py:1832
 msgid "Need more ether resources."
 msgstr "需要更多的IP/MAC资源"
 
-#: views.py:1855
+#: views.py:1876
 msgid "Need more Proxy Web IP resources for Cluster."
 msgstr "需要更多的WEB代理IP资源"
 
-#: views.py:1924
+#: views.py:1945
 msgid "cloud desktop"
 msgstr "本地云桌面"
 
-#: views.py:1931 views.py:1954 views.py:1976 views.py:2001 views.py:2024
-#: views.py:2349 views.py:2371 templates/clc/error.html:34
-msgid "Error Report"
-msgstr "错误报告"
+#: views.py:2017
+msgid "current user not allowed to create new images"
+msgstr ""
 
-#: views.py:2393
+#: views.py:2018 views.py:2559
+msgid "Ask eduCloud.admin to assign CREATE rigth."
+msgstr ""
+
+#: views.py:2377
+msgid "current user not allowed to modify images"
+msgstr ""
+
+#: views.py:2378
+msgid "Ask eduCloud.admin to assign WRITE rigth."
+msgstr ""
+
+#: views.py:2440
 msgid "image build"
 msgstr ""
 
-#: views.py:2517 views.py:2533
+#: views.py:2558
+msgid "current user not allowed to create new VM"
+msgstr ""
+
+#: views.py:2576 views.py:2592
 msgid "VM Create"
 msgstr "创建虚拟机"
 
-#: views.py:4235
+#: views.py:4324
+msgid "Only eduCloud.Admin can change image permission!"
+msgstr ""
+
+#: views.py:4325
+msgid "Please logon as eduCloud.Admin."
+msgstr ""
+
+#: views.py:4358
 msgid "Image "
 msgstr "镜像文件"
 
-#: views.py:4461
+#: views.py:4584
 msgid "Server "
 msgstr "物理服务器"
 
-#: views.py:4506
+#: views.py:4629
 msgid "VM "
 msgstr "虚拟机"
 
@@ -373,15 +410,15 @@ msgstr "批量增加账号"
 msgid "Active Accounts"
 msgstr "已激活账号"
 
-#: templates/clc/accounts.html:33
+#: templates/clc/accounts.html:34
 msgid "Inactive Accounts"
 msgstr "待激活账号"
 
-#: templates/clc/accounts.html:42 templates/clc/accounts.html.py:49
+#: templates/clc/accounts.html:44 templates/clc/accounts.html.py:52
 msgid "Reset Password"
 msgstr "重置密码"
 
-#: templates/clc/accounts.html:50
+#: templates/clc/accounts.html:53
 msgid "Approval"
 msgstr "批准"
 
@@ -1039,8 +1076,12 @@ msgid "new password can't be empty."
 msgstr "新密码不能为空。"
 
 #: templates/clc/form/reset_account_password.html:89
-msgid "Reset {{ uid }}'s Password"
-msgstr "重置{{ uid }}的密码"
+msgid "Reset"
+msgstr "重设"
+
+#: templates/clc/form/reset_account_password.html:89
+msgid "'s Password"
+msgstr "的密码"
 
 #: templates/clc/form/reset_account_password.html:99
 msgid "Old Password*"
@@ -1142,11 +1183,11 @@ msgstr ""
 msgid "AuthPath List"
 msgstr "用户角色"
 
-#: templates/clc/jtable/authpath_table.html:32
+#: templates/clc/jtable/authpath_table.html:34
 msgid "rolename"
 msgstr "角色名称"
 
-#: templates/clc/jtable/authpath_table.html:36
+#: templates/clc/jtable/authpath_table.html:38
 msgid "rolevalue"
 msgstr "角色取值"
 
@@ -1185,13 +1226,13 @@ msgstr "虚拟机ID"
 #: templates/clc/jtable/servers_lnc_table.html:80
 #: templates/clc/jtable/servers_nc_table.html:47
 #: templates/clc/jtable/vds_table.html:84
-#: templates/clc/jtable/vmtypes_table.html:32
+#: templates/clc/jtable/vmtypes_table.html:34
 #: templates/clc/jtable/vss_table.html:84
 msgid "Name"
 msgstr "名称"
 
 #: templates/clc/jtable/images_table.html:9
-#: templates/clc/jtable/ostypes_table.html:32
+#: templates/clc/jtable/ostypes_table.html:34
 msgid "OS Type"
 msgstr "操作系统类型"
 
@@ -1224,7 +1265,7 @@ msgstr "操作系统类型"
 
 #: templates/clc/jtable/images_table.html:102
 #: templates/clc/jtable/servers_lnc_table.html:89
-#: templates/clc/jtable/vmusage_table.html:32
+#: templates/clc/jtable/vmusage_table.html:34
 msgid "Usage"
 msgstr "用途"
 
@@ -1251,15 +1292,15 @@ msgstr "待激活账号列表"
 msgid "OS Types"
 msgstr "操作系统类型"
 
-#: templates/clc/jtable/ostypes_table.html:36
+#: templates/clc/jtable/ostypes_table.html:38
 msgid "disk"
 msgstr "硬盘"
 
-#: templates/clc/jtable/ostypes_table.html:40
+#: templates/clc/jtable/ostypes_table.html:42
 msgid "nic"
 msgstr "网卡"
 
-#: templates/clc/jtable/ostypes_table.html:45
+#: templates/clc/jtable/ostypes_table.html:47
 msgid "audio"
 msgstr "声卡"
 
@@ -1280,11 +1321,11 @@ msgstr ""
 msgid "Server Role"
 msgstr "服务器角色"
 
-#: templates/clc/jtable/serverrole_table.html:32
+#: templates/clc/jtable/serverrole_table.html:34
 msgid "fullname"
 msgstr "全称"
 
-#: templates/clc/jtable/serverrole_table.html:36
+#: templates/clc/jtable/serverrole_table.html:38
 msgid "shortname"
 msgstr "缩写"
 
@@ -1387,7 +1428,7 @@ msgid "Node"
 msgstr "工作服务器"
 
 #: templates/clc/jtable/vds_table.html:110
-#: templates/clc/jtable/vmtypes_table.html:40
+#: templates/clc/jtable/vmtypes_table.html:42
 #: templates/clc/jtable/vss_table.html:110
 msgid "CPUs"
 msgstr "CPUs"
@@ -1401,7 +1442,7 @@ msgstr "内存"
 msgid "VM Types"
 msgstr "虚拟机类型"
 
-#: templates/clc/jtable/vmtypes_table.html:36
+#: templates/clc/jtable/vmtypes_table.html:38
 msgid "Memeory"
 msgstr "内存"
 
@@ -1548,6 +1589,9 @@ msgstr "配置内存(G)"
 #: templates/clc/wizard/vs_create_wizard.html:211
 msgid "Select MAC/IP"
 msgstr "配置MAC/IP"
+
+#~ msgid "Reset {{ uid }}'s Password"
+#~ msgstr "重置{{ uid }}的密码"
 
 #~ msgid "Add"
 #~ msgstr "添加"

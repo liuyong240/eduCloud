@@ -566,11 +566,16 @@ def user_logout(request):
 ##########################################################################
 @login_required(login_url='/portal/admlogin')
 def adm_add_new_account(request):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    role_prefix = ua_role_value.ec_authpath_value.split('.admin')[0]
+
     authnamelist =  ecAuthPath.objects.all()
     roles = []
 
     for authname in authnamelist:
-        roles.append(authname.ec_authpath_name)
+        if authname.ec_authpath_value.startswith(role_prefix):
+            roles.append(authname.ec_authpath_name)
 
     context = {
         'roles': roles,
@@ -610,11 +615,16 @@ def account_create(request):
 
 @login_required(login_url='/portal/admlogin')
 def admin_batch_add_new_accounts(request):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    role_prefix = ua_role_value.ec_authpath_value.split('.admin')[0]
+
     authnamelist =  ecAuthPath.objects.all()
     roles = []
 
     for authname in authnamelist:
-        roles.append(authname.ec_authpath_name)
+        if authname.ec_authpath_value.startswith(role_prefix):
+            roles.append(authname.ec_authpath_name)
 
     context = {
         'roles': roles,
@@ -775,13 +785,22 @@ def edit_password(request, uid):
 
 @login_required(login_url='/portal/admlogin')
 def activate_user(request, uid):
-    u = User.objects.get(username=uid)
-    u.is_active = 1
-    u.save()
-    addUserPrvDataDir(uid)
+    ua = ecAccount.objects.get(userid=uid)
+    if ua.ec_authpath_name == '':
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('user Role MUST be set before approved.'),
+            'suggestion'    : _('Please edit user\'s role first'),
+        }
+        return render(request, 'clc/error.html', context)
+    else:
+        u = User.objects.get(username=uid)
+        u.is_active = 1
+        u.save()
+        addUserPrvDataDir(uid)
 
-    Message =  _('user')+ (' %s ' % uid) +  _('is activated now.')
-    return HttpResponse(Message, content_type="application/json; charset=utf-8")
+        Message =  _('user')+ (' %s ' % uid) +  _('is activated now.')
+        return HttpResponse(Message, content_type="application/json; charset=utf-8")
 
 @login_required(login_url='/portal/admlogin')
 def account_reset_password(request):
@@ -822,11 +841,13 @@ def index_view(request):
 def accounts_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     context = {
         'uid':   u.username,
         'showname': ua.showname,
         'dashboard' : _("Account Management"),
+        'role'      : ua_role_value.ec_authpath_value,
     }
     return render(request, 'clc/accounts.html', context)
 
@@ -4016,6 +4037,10 @@ def list_inactive_account(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def list_active_account(request):
+    ua_admin = ecAccount.objects.get(userid=request.user)
+    ua_admin_role_value = ecAuthPath.objects.get(ec_authpath_name = ua_admin.ec_authpath_name)
+    role_prefix = ua_admin_role_value.ec_authpath_value.split('.admin')[0]
+
     response = {}
     data = []
 
@@ -4034,6 +4059,14 @@ def list_active_account(request):
             ecuser = ecAccount.objects.filter(userid=u.username)
         if ecuser.count() == 0:
             continue
+
+        try:
+            ecuser_role_value = ecAuthPath.objects.get(ec_authpath_name = ecuser[0].ec_authpath_name)
+            if not ecuser_role_value.ec_authpath_value.startswith(role_prefix):
+                continue
+        except:
+            continue
+
         jrec = {}
         jrec['id'] = u.id
         jrec['ec_username'] = u.username
