@@ -1930,6 +1930,7 @@ def vm_display(request, srcid, dstid, insid):
         context = {
             'pagetitle'     : _('Error Report'),
             'error'         : str(e),
+            'suggestion'    : 'check your CC configuration and release some running VMs '
         }
         return render(request, 'clc/error.html', context)
 
@@ -1985,6 +1986,18 @@ def vm_run(request, insid):
 
 def image_create_task_start(request, srcid):
     logger.error("--- --- --- start_image_create_task")
+    #############
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    objs = ecImages_auth.objects.filter(ecid=srcid, role_value=ua_role_value.ec_authpath_value )
+    if objs[0].create != True:
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('current user not allowed to create new images'),
+            'suggestion'    : _('Ask eduCloud.admin to assign CREATE rigth.'),
+        }
+        return render(request, 'clc/error.html', context)
+
     # create ectaskTransation Record
     _srcimgid        = srcid
     _dstimageid      = 'IMG' + genHexRandom()
@@ -2333,6 +2346,19 @@ def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
     return HttpResponse(response, content_type="application/json")
 
 def image_modify_task_start(request, srcid):
+    #############
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    objs = ecImages_auth.objects.filter(ecid=srcid, role_value=ua_role_value.ec_authpath_value )
+    if objs[0].create != True:
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('current user not allowed to modify images'),
+            'suggestion'    : _('Ask eduCloud.admin to assign WRITE rigth.'),
+        }
+        return render(request, 'clc/error.html', context)
+
+
     # create ectaskTransation Record
     _srcimgid        = srcid
     _dstimageid      = srcid
@@ -2501,6 +2527,18 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
     return HttpResponse(retvalue, content_type="application/json")
 
 def image_add_vm(request, imgid):
+    #############
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    objs = ecImages_auth.objects.filter(ecid=imgid, role_value=ua_role_value.ec_authpath_value )
+    if objs[0].create != True:
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('current user not allowed to create new VM'),
+            'suggestion'    : _('Ask eduCloud.admin to assign CREATE rigth.'),
+        }
+        return render(request, 'clc/error.html', context)
+
     imgobj = ecImages.objects.get(ecid = imgid)
 
     if imgobj.img_usage == 'desktop':
@@ -3815,17 +3853,23 @@ def list_images(request):
         else:
             recs = ecImages.objects.all()
 
+    # get current user's role
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
     for rec in recs:
-        jrec = {}
-        jrec['id'] = rec.id
-        jrec['ecid'] = rec.ecid
-        jrec['name'] = rec.name
-        jrec['ostype']=rec.ostype
-        jrec['usage'] = rec.img_usage
-        jrec['description'] = rec.description
-        jrec['version'] = ReadImageVersionFile(rec.ecid)
-        jrec['size'] = rec.size
-        data.append(jrec)
+        objs = ecImages_auth.objects.filter(ecid=rec.ecid, role_value=ua_role_value.ec_authpath_value )
+        if objs.count() > 0 and objs[0].read == True:
+            jrec = {}
+            jrec['id'] = rec.id
+            jrec['ecid'] = rec.ecid
+            jrec['name'] = rec.name
+            jrec['ostype']=rec.ostype
+            jrec['usage'] = rec.img_usage
+            jrec['description'] = rec.description
+            jrec['version'] = ReadImageVersionFile(rec.ecid)
+            jrec['size'] = rec.size
+            data.append(jrec)
 
     response['Records'] = data
     response['Result'] = 'OK'
@@ -4203,6 +4247,16 @@ def get_image_info(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def image_permission_edit(request, srcid):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    if ua_role_value.ec_authpath_value != 'eduCloud.admin':
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('Only eduCloud.Admin can change image permission!'),
+            'suggestion'    : _('Please logon as eduCloud.Admin.'),
+        }
+        return render(request, 'clc/error.html', context)
+
     index = 0
     authlist =  ecAuthPath.objects.all()
     roles = []
