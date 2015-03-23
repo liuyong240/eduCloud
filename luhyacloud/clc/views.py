@@ -2598,27 +2598,63 @@ def jtable_vds(request):
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_authapth(request):
-    return render(request, 'clc/jtable/authpath_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/authpath_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_ostypes(request):
-    return render(request, 'clc/jtable/ostypes_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/ostypes_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_rbac(request):
-    return render(request, 'clc/jtable/rbac_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/rbac_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_vmusage(request):
-    return render(request, 'clc/jtable/vmusage_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/vmusage_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_serverrole(request):
-    return render(request, 'clc/jtable/serverrole_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/serverrole_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_vmtypes(request):
-    return render(request, 'clc/jtable/vmtypes_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/vmtypes_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_servers_cc(request):

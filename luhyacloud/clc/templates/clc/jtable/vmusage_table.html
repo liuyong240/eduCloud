@@ -16,9 +16,11 @@
 
             actions: {
                 listAction:    '/clc/api/1.0/settings/listvmusage',
+                {% if role == "eduCloud.admin" %}
                 createAction:  '/clc/api/1.0/settings/createvmusage',
                 updateAction:  '/clc/api/1.0/settings/updatevmusage',
-                deleteAction:  '/clc/api/1.0/settings/deletevmusage'
+                deleteAction:  '/clc/api/1.0/settings/deletevmusage',
+                {% endif %}
             },
 
             fields: {

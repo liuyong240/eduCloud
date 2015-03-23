@@ -16,9 +16,11 @@
 
             actions: {
                 listAction:    '/clc/api/1.0/settings/listvmtypes',
+                {% if role == "eduCloud.admin" %}
                 createAction:  '/clc/api/1.0/settings/createvmtypes',
                 updateAction:  '/clc/api/1.0/settings/updatevmtypes',
-                deleteAction:  '/clc/api/1.0/settings/deletevmtypes'
+                deleteAction:  '/clc/api/1.0/settings/deletevmtypes',
+                {% endif %}
             },
 
             fields: {
