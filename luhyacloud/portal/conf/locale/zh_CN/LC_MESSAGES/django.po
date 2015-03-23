@@ -63,11 +63,11 @@ msgstr "在浏览器中显示"
 
 #: templates/portal/cloud-desktop.html:47
 msgid "Show by windows-tool"
-msgstr "用RDP客户端工具显示"
+msgstr "在RDP客户端中显示"
 
 #: templates/portal/cloud-desktop.html:49
 msgid "Download plugin for Cloud Desktop Connection"
-msgstr "包含如何开发云桌面客户端的SDK"
+msgstr "RDP客户端浏览器插件下载"
 
 #: templates/portal/cloud-desktop.html:56
 msgid "Stop"

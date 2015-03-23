@@ -4735,19 +4735,17 @@ def list_myvds(request):
         vd['ostype'] = imgobj.ostype
         vd['desc'] = imgobj.description
 
-        trecs = ectaskTransaction.objects.filter(srcimgid=imgobj.ecid, dstimgid=imgobj.ecid, user=_user)
+        trecs = ectaskTransaction.objects.filter(srcimgid=imgobj.ecid, dstimgid=imgobj.ecid, user=_user, insid__contains='TVD')
         if trecs.count() > 0:
             for trec in trecs:
-                insid = trec.insid
-                if insid.find('TVD') == 0:
-                    vd['tid'] = trec.tid
-                    vd['phase'] = trec.phase
-                    vd['state'] = trec.state
-                    runtime_option = json.loads(trec.runtime_option)
-                    vd['mgr_url'] = getValidMgrURL(request, runtime_option)
-                    vd['id']  = 'myvd' + str(index)
-                    vds.append(vd)
-                    index += 1
+                vd['tid'] = trec.tid
+                vd['phase'] = trec.phase
+                vd['state'] = trec.state
+                runtime_option = json.loads(trec.runtime_option)
+                vd['mgr_url'] = getValidMgrURL(request, runtime_option)
+                vd['id']  = 'myvd' + str(index)
+                vds.append(vd)
+                index += 1
         else:
             vd['tid'] = ''
             vd['phase'] = ''
