@@ -154,7 +154,9 @@
                 <p class="list-group-item">
                     {% trans "External IP Address" %}
                     <span class="pull-right text-muted"><em>{{  host_ips.eip }}</em></span>
+                    {% if role == "eduCloud.admin" %}
                     <button type="button" id="exip_edit">{% trans "Edit" %}</button>
+                    {% endif %}
                 </p>
                 <p class="list-group-item">
                     {% trans "IP Address 0" %}
@@ -190,7 +192,9 @@
                     <span class="pull-right text-muted"><em>{{  host_ips.mac3 }}</em></span>
                 </p>
                 <p></p>
+                {% if role == "eduCloud.admin" %}
                 <button id="permission" type="button" class="btn btn-primary">{% trans "Edit Permission" %}</button>
+                {% endif %}
              </div>
         </div>
     </div>

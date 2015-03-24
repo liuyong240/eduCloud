@@ -145,7 +145,7 @@ CC_DETAIL_TEMPLATE = \
             '<span class="pull-right text-muted"><em>{{host_ips.mac3}}</em></span>' + \
         '</p>' + \
         '<p></p>' + \
-        '<button id="permission" type="button" class="btn btn-primary">' + _("Edit Permission") + '</button>' + \
+        '{{permission_button}}' + \
     '</div>' + \
 '</div>'
 
@@ -908,6 +908,7 @@ def getHostIPs(hrole, hmac0):
 def clc_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     cloud_data = getCloudStatisticData()
     host_ips = getHostIPs("clc", "")
@@ -923,6 +924,7 @@ def clc_mgr_view(request):
         'service_data': service_data,
         'hardware_data': hardware_data,
         'host_ips': host_ips,
+        'role' : ua_role_value.ec_authpath_value,
     }
     return render(request, 'clc/clc_mgr.html', context)
 
@@ -961,6 +963,7 @@ def remote_getHostHardware(ip):
 def walrus_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     wobj = ecServers.objects.get(role="walrus")
     if DoesServiceExist(wobj.ip0, 80) == "Running" :
@@ -979,6 +982,7 @@ def walrus_mgr_view(request):
         'service_data': service_data,
         'hardware_data': hardware_data,
         'host_ips': host_ips,
+        'role' : ua_role_value.ec_authpath_value,
     }
     return render(request, 'clc/walrus_mgr.html', context)
 
@@ -996,6 +1000,9 @@ def cc_mgr_view(request):
 
 @login_required(login_url='/portal/admlogin')
 def cc_mgr_ccname(request, ccname):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
     ccobj = ecServers.objects.get(role="cc", ccname=ccname)
     if DoesServiceExist(ccobj.ip0, 80) == "Running" :
         sip = ccobj.ip0
@@ -1035,6 +1042,12 @@ def cc_mgr_ccname(request, ccname):
     htmlstr = htmlstr.replace('{{host_ips.mac1}}', host_ips['mac1'])
     htmlstr = htmlstr.replace('{{host_ips.mac2}}', host_ips['mac2'])
     htmlstr = htmlstr.replace('{{host_ips.mac3}}', host_ips['mac3'])
+
+    pbt = '<button id="permission" type="button" class="btn btn-primary">' + _("Edit Permission") + '</button>'
+    if ua_role_value.ec_authpath_value == 'eduCloud.admin':
+        htmlstr = htmlstr.replace('{{permission_button}}', pbt)
+    else:
+        htmlstr = htmlstr.replace('{{permission_button}}', '')
 
     response = {}
     response['Result'] = 'OK'
@@ -2679,6 +2692,7 @@ def jtable_settings_for_vmtypes(request):
 
 @login_required(login_url='/portal/admlogin')
 def jtable_servers_cc(request):
+
     return render(request, 'clc/jtable/servers_cc_table.html', {})
 
 @login_required(login_url='/portal/admlogin')
@@ -3365,6 +3379,10 @@ def create_cc_resource(request):
 
 # core table functions for ecServers
 def list_servers_by_role(request, roletype):
+    ua_admin = ecAccount.objects.get(userid=request.user)
+    ua_admin_role_value = ecAuthPath.objects.get(ec_authpath_name = ua_admin.ec_authpath_name)
+    role_prefix = ua_admin_role_value.ec_authpath_value.split('.admin')[0]
+
     response = {}
     data = []
 
@@ -3382,6 +3400,10 @@ def list_servers_by_role(request, roletype):
             recs = ecServers.objects.filter(role=roletype)
 
     for rec in recs:
+        sobjs = ecServers_auth.objects.filter(srole=roletype, mac0=rec.mac0, role_value__contains=role_prefix)
+        if sobjs.count() == 0:
+            continue
+            
         jrec = {}
         jrec['id'] = rec.id
         jrec['role'] = rec.role
