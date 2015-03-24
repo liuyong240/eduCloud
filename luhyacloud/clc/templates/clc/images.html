@@ -9,7 +9,9 @@
                 <div id="imgid" style="display: none;"></div>
                 <button id="create" type="button" class="btn btn-primary disabled">{% trans "Create" %}</button>
                 <button id="modify" type="button" class="btn btn-primary disabled">{% trans "Modify" %}</button>
+                {% if role == "eduCloud.admin" %}
                 <button id="permission" type="button" class="btn btn-primary disabled">{% trans "Edit Permission" %}</button>
+                {% endif %}
                 <div class="pull-right">
                     <button id="add_vm" type="button" class="btn btn-primary disabled">{% trans "Add VM" %}</button>
                 </div>

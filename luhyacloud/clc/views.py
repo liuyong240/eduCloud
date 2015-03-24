@@ -853,11 +853,13 @@ def accounts_view(request):
 def images_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     context = {
         'uid':   u.username,
         'showname': ua.showname,
         'dashboard' : _("Images Management"),
+        'role':  ua_role_value.ec_authpath_value,
     }
 
     return render(request, 'clc/images.html', context)
@@ -2615,7 +2617,13 @@ def image_edit_vm(request, imgid, insid):
 #################################################################################
 @login_required(login_url='/portal/admlogin')
 def jtable_images(request):
-    return render(request, 'clc/jtable/images_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/images_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_tasks(request):
@@ -3660,12 +3668,14 @@ def list_tasks(request):
             pass
         else:
             if rec.user != request.user.username:
+                if rec.insid.find('TMP') == 0:
+                    continue
                 if rec.insid.find('VD') == 0:
-                    vdobj = ecVDS.objects.get(insid = rec.insid)
+                    vdobj = ecVDS.objects.get(insid=rec.insid)
                     if vdobj.creator != request.user.username:
                         continue
                 if rec.insid.find('VS') == 0:
-                    vsobj = ecVSS.objects.get(insid = rec.insid)
+                    vsobj = ecVSS.objects.get(insid=rec.insid)
                     if vsobj.creator != request.user.username:
                         continue
 
@@ -4057,8 +4067,14 @@ def list_images(request):
 
 def delete_images(request):
     response = {}
-
     rec = ecImages.objects.get(id=request.POST['id'])
+
+    # delete image files
+    shutil.rmtree('/storage/images/' + rec.ecid)
+    if rec.img_usage == 'server':
+        shutil.rmtree('/storage/space/database/images' + rec.ecid)
+
+    # delete image records
     rec.delete()
 
     response['Result'] = 'OK'

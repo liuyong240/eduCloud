@@ -32,9 +32,11 @@
 
             actions: {
                 listAction:   '/clc/api/1.0/images/list',
+                {% if role == "eduCloud.admin" %}
                 deleteAction: '/clc/api/1.0/images/delete',
                 updateAction: '/clc/api/1.0/images/update',
                 //createAction: '/clc/api/1.0/images/create'
+                {% endif %}
             },
             fields: {
                 id: {

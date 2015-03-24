@@ -348,19 +348,19 @@ msgstr "本地云桌面"
 
 #: views.py:2017
 msgid "current user not allowed to create new images"
-msgstr ""
+msgstr "当前用户没有权限来创建新的镜像文件。"
 
 #: views.py:2018 views.py:2559
 msgid "Ask eduCloud.admin to assign CREATE rigth."
-msgstr ""
+msgstr "向系统管理员申请CREATE权限。"
 
 #: views.py:2377
 msgid "current user not allowed to modify images"
-msgstr ""
+msgstr "当前用户没有权限来修改镜像文件。"
 
 #: views.py:2378
 msgid "Ask eduCloud.admin to assign WRITE rigth."
-msgstr ""
+msgstr "向系统管理员申请WRITE权限。"
 
 #: views.py:2440
 msgid "image build"
@@ -368,7 +368,7 @@ msgstr ""
 
 #: views.py:2558
 msgid "current user not allowed to create new VM"
-msgstr ""
+msgstr "当前用户没有权限来创建新的虚拟机。"
 
 #: views.py:2576 views.py:2592
 msgid "VM Create"
@@ -376,11 +376,11 @@ msgstr "创建虚拟机"
 
 #: views.py:4324
 msgid "Only eduCloud.Admin can change image permission!"
-msgstr ""
+msgstr "只有系统管理员才能修改镜像文件访问权限！"
 
 #: views.py:4325
 msgid "Please logon as eduCloud.Admin."
-msgstr ""
+msgstr "请以系统管理员身份登录。"
 
 #: views.py:4358
 msgid "Image "
