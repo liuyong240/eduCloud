@@ -215,8 +215,6 @@ NC_DETAIL_TEMPLATE = \
             _("Disk Usage") + \
             '<span class="pull-right text-muted"><em>{{hardware_data.disk_usage}}%</em></span>' + \
         '</p>' + \
-        '<p></p>' + \
-        '<button id="permission" type="button" class="btn btn-primary">' + _("Edit Permission") + '</button>' + \
     '</div>' + \
 '</div>' + \
 '<div class="col-lg-6">' + \
@@ -1069,6 +1067,7 @@ def nc_mgr_view(request):
 @login_required(login_url='/portal/admlogin')
 def nc_mgr_mac(request, ccname, mac):
     logger.error("enter nc_mgr_mac --- --- ")
+
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     key = str("nc#" + mac + "#status")
 
@@ -3377,8 +3376,8 @@ def update_cc_resource(request):
 def create_cc_resource(request):
     pass
 
-# core table functions for ecServers
-def list_servers_by_role(request, roletype):
+
+def list_cc_servers(request):
     ua_admin = ecAccount.objects.get(userid=request.user)
     ua_admin_role_value = ecAuthPath.objects.get(ec_authpath_name = ua_admin.ec_authpath_name)
     role_prefix = ua_admin_role_value.ec_authpath_value.split('.admin')[0]
@@ -3390,20 +3389,20 @@ def list_servers_by_role(request, roletype):
     f_ip = request.POST['ip']
 
     if len(f_ccname) > 0 and len(f_ip) > 0:
-        recs = ecServers.objects.filter(ccname__contains=f_ccname, ip0__contains=f_ip, role=roletype)
+        recs = ecServers.objects.filter(ccname__contains=f_ccname, ip0__contains=f_ip, role='cc')
     else:
         if len(f_ccname) > 0:
-            recs = ecServers.objects.filter(ccname__contains=f_ccname, role=roletype)
+            recs = ecServers.objects.filter(ccname__contains=f_ccname, role='cc')
         elif len(f_ip) > 0:
-            recs = ecServers.objects.filter(ip0__contains=f_ip, role=roletype)
+            recs = ecServers.objects.filter(ip0__contains=f_ip, role='cc')
         else:
-            recs = ecServers.objects.filter(role=roletype)
+            recs = ecServers.objects.filter(role='cc')
 
     for rec in recs:
-        sobjs = ecServers_auth.objects.filter(srole=roletype, mac0=rec.mac0, role_value__contains=role_prefix)
+        sobjs = ecServers_auth.objects.filter(srole='cc', mac0=rec.mac0, role_value__contains=role_prefix)
         if sobjs.count() == 0:
             continue
-            
+
         jrec = {}
         jrec['id'] = rec.id
         jrec['role'] = rec.role
@@ -3425,6 +3424,77 @@ def list_servers_by_role(request, roletype):
         jrec['location'] = rec.location
 
         data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def list_nc_servers(request):
+    ua_admin = ecAccount.objects.get(userid=request.user)
+    ua_admin_role_value = ecAuthPath.objects.get(ec_authpath_name = ua_admin.ec_authpath_name)
+    role_prefix = ua_admin_role_value.ec_authpath_value.split('.admin')[0]
+
+    response = {}
+    data = []
+    f_ccname = request.POST['ccname']
+    f_ip = request.POST['ip']
+
+    # step 1 : get all cc
+    cc_list = ecServers.objects.filter(role='cc')
+    for ccobj in cc_list:
+        # step 2 : check filter
+        if len(f_ccname) > 0 and ccobj.ccname.find(f_ccname) < 0:
+            continue
+
+        # step 3 : check permission
+        sobjs = ecServers_auth.objects.filter(srole='cc', mac0=ccobj.mac0, role_value__contains=role_prefix)
+        if sobjs.count() == 0:
+            continue
+
+        # step 4:  now this cluster is authorized to manage
+        if len(f_ip) > 0:
+            recs = ecServers.objects.filter(ip0__contains=f_ip, role='nc', ccname=ccobj.ccname)
+        else:
+            recs = ecServers.objects.filter(role='nc', ccname=ccobj.ccname)
+
+        for rec in recs:
+            jrec = {}
+            jrec['id'] = rec.id
+            jrec['role'] = rec.role
+            jrec['eip']  = rec.eip
+            jrec['ip0'] = rec.ip0
+            jrec['ip1']=rec.ip1
+            jrec['ip2'] = rec.ip2
+            jrec['ip3'] = rec.ip3
+            jrec['mac0'] = rec.mac0
+            jrec['mac1']=rec.mac1
+            jrec['mac2'] = rec.mac2
+            jrec['mac3'] = rec.mac3
+            jrec['name'] = rec.name
+            jrec['location'] = rec.location
+            jrec['cores'] = rec.cpu_cores
+            jrec['memory'] = rec.memory
+            jrec['disk'] = rec.disk
+            jrec['ccname'] = rec.ccname
+            jrec['location'] = rec.location
+
+            data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+# core table functions for ecServers
+def list_servers_by_role(request, roletype):
+    if roletype == 'cc':
+        return list_cc_servers(request)
+    
+    if roletype == 'nc':
+        return list_nc_servers(request)
 
     response['Records'] = data
     response['Result'] = 'OK'
