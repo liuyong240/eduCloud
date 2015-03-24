@@ -3651,8 +3651,24 @@ def list_tasks(request):
     response = {}
     data = []
 
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
     recs = ectaskTransaction.objects.all()
     for rec in recs:
+        if ua_role_value.ec_authpath_value == 'eduCloud.admin':
+            pass
+        else:
+            if rec.user != request.user.username:
+                if rec.insid.find('VD') == 0:
+                    vdobj = ecVDS.objects.get(insid = rec.insid)
+                    if vdobj.creator != request.user.username:
+                        continue
+                if rec.insid.find('VS') == 0:
+                    vsobj = ecVSS.objects.get(insid = rec.insid)
+                    if vsobj.creator != request.user.username:
+                        continue
+
         jrec = {}
         jrec['id']       = rec.id
         jrec['tid']      = rec.tid
