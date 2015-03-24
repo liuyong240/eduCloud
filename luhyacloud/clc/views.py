@@ -3492,7 +3492,7 @@ def list_nc_servers(request):
 def list_servers_by_role(request, roletype):
     if roletype == 'cc':
         return list_cc_servers(request)
-    
+
     if roletype == 'nc':
         return list_nc_servers(request)
 
@@ -3720,9 +3720,15 @@ def list_vds(request):
     response = {}
     data = []
 
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
     recs = ecVDS.objects.all()
 
     for rec in recs:
+        if ua_role_value.ec_authpath_value != 'eduCloud.admin' and rec.creator != request.user.username:
+            continue
+
         jrec = {}
         jrec['id'] = rec.id
         jrec['insid'] = rec.insid
@@ -3837,9 +3843,15 @@ def list_vss(request):
     response = {}
     data = []
 
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
     recs = ecVSS.objects.all()
 
     for rec in recs:
+        if ua_role_value.ec_authpath_value != 'eduCloud.admin' and rec.creator != request.user.username:
+            continue
+
         jrec = {}
         jrec['id'] = rec.id
         jrec['insid'] = rec.insid
