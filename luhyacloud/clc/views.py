@@ -145,7 +145,7 @@ CC_DETAIL_TEMPLATE = \
             '<span class="pull-right text-muted"><em>{{host_ips.mac3}}</em></span>' + \
         '</p>' + \
         '<p></p>' + \
-        '<button id="permission" type="button" class="btn btn-primary">' + _("Edit Permission") + '</button>' + \
+        '{{permission_button}}' + \
     '</div>' + \
 '</div>'
 
@@ -215,8 +215,6 @@ NC_DETAIL_TEMPLATE = \
             _("Disk Usage") + \
             '<span class="pull-right text-muted"><em>{{hardware_data.disk_usage}}%</em></span>' + \
         '</p>' + \
-        '<p></p>' + \
-        '<button id="permission" type="button" class="btn btn-primary">' + _("Edit Permission") + '</button>' + \
     '</div>' + \
 '</div>' + \
 '<div class="col-lg-6">' + \
@@ -370,6 +368,10 @@ def get_nc_avail_res(nc_mac):
     return final_avail_res
 
 def findVMRunningResource(insid):
+    ua_admin = ecAccount.objects.get(userid=request.user)
+    ua_admin_role_value = ecAuthPath.objects.get(ec_authpath_name = ua_admin.ec_authpath_name)
+    role_prefix = ua_admin_role_value.ec_authpath_value.split('.admin')[0]
+
     l = SortedList()
 
     _ccip = None
@@ -403,6 +405,12 @@ def findVMRunningResource(insid):
 
     for cc in ccs:
         ccobj = ecServers.objects.get(ccname=cc.ccname, role='cc')
+
+        # add permission check here for those admin
+        sobjs = ecServers_auth.objects.filter(srole='cc', mac0=ccobj.mac0, role_value__contains=role_prefix)
+        if sobjs.count() == 0:
+            continue
+
         if nc_def == 'any':
             ncs = ecServers.objects.filter(ccname=cc.ccname, role='nc')
             for nc in ncs:
@@ -566,11 +574,16 @@ def user_logout(request):
 ##########################################################################
 @login_required(login_url='/portal/admlogin')
 def adm_add_new_account(request):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    role_prefix = ua_role_value.ec_authpath_value.split('.admin')[0]
+
     authnamelist =  ecAuthPath.objects.all()
     roles = []
 
     for authname in authnamelist:
-        roles.append(authname.ec_authpath_name)
+        if authname.ec_authpath_value.startswith(role_prefix):
+            roles.append(authname.ec_authpath_name)
 
     context = {
         'roles': roles,
@@ -610,11 +623,16 @@ def account_create(request):
 
 @login_required(login_url='/portal/admlogin')
 def admin_batch_add_new_accounts(request):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    role_prefix = ua_role_value.ec_authpath_value.split('.admin')[0]
+
     authnamelist =  ecAuthPath.objects.all()
     roles = []
 
     for authname in authnamelist:
-        roles.append(authname.ec_authpath_name)
+        if authname.ec_authpath_value.startswith(role_prefix):
+            roles.append(authname.ec_authpath_name)
 
     context = {
         'roles': roles,
@@ -775,13 +793,22 @@ def edit_password(request, uid):
 
 @login_required(login_url='/portal/admlogin')
 def activate_user(request, uid):
-    u = User.objects.get(username=uid)
-    u.is_active = 1
-    u.save()
-    addUserPrvDataDir(uid)
+    ua = ecAccount.objects.get(userid=uid)
+    if ua.ec_authpath_name == '':
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('user Role MUST be set before approved.'),
+            'suggestion'    : _('Please edit user\'s role first'),
+        }
+        return render(request, 'clc/error.html', context)
+    else:
+        u = User.objects.get(username=uid)
+        u.is_active = 1
+        u.save()
+        addUserPrvDataDir(uid)
 
-    Message =  _('user')+ (' %s ' % uid) +  _('is activated now.')
-    return HttpResponse(Message, content_type="application/json; charset=utf-8")
+        Message =  _('user')+ (' %s ' % uid) +  _('is activated now.')
+        return HttpResponse(Message, content_type="application/json; charset=utf-8")
 
 @login_required(login_url='/portal/admlogin')
 def account_reset_password(request):
@@ -822,11 +849,13 @@ def index_view(request):
 def accounts_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     context = {
         'uid':   u.username,
         'showname': ua.showname,
         'dashboard' : _("Account Management"),
+        'role'      : ua_role_value.ec_authpath_value,
     }
     return render(request, 'clc/accounts.html', context)
 
@@ -834,11 +863,13 @@ def accounts_view(request):
 def images_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     context = {
         'uid':   u.username,
         'showname': ua.showname,
         'dashboard' : _("Images Management"),
+        'role':  ua_role_value.ec_authpath_value,
     }
 
     return render(request, 'clc/images.html', context)
@@ -887,6 +918,7 @@ def getHostIPs(hrole, hmac0):
 def clc_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     cloud_data = getCloudStatisticData()
     host_ips = getHostIPs("clc", "")
@@ -902,6 +934,7 @@ def clc_mgr_view(request):
         'service_data': service_data,
         'hardware_data': hardware_data,
         'host_ips': host_ips,
+        'role' : ua_role_value.ec_authpath_value,
     }
     return render(request, 'clc/clc_mgr.html', context)
 
@@ -940,6 +973,7 @@ def remote_getHostHardware(ip):
 def walrus_mgr_view(request):
     u = User.objects.get(username=request.user)
     ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     wobj = ecServers.objects.get(role="walrus")
     if DoesServiceExist(wobj.ip0, 80) == "Running" :
@@ -958,6 +992,7 @@ def walrus_mgr_view(request):
         'service_data': service_data,
         'hardware_data': hardware_data,
         'host_ips': host_ips,
+        'role' : ua_role_value.ec_authpath_value,
     }
     return render(request, 'clc/walrus_mgr.html', context)
 
@@ -975,6 +1010,9 @@ def cc_mgr_view(request):
 
 @login_required(login_url='/portal/admlogin')
 def cc_mgr_ccname(request, ccname):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
     ccobj = ecServers.objects.get(role="cc", ccname=ccname)
     if DoesServiceExist(ccobj.ip0, 80) == "Running" :
         sip = ccobj.ip0
@@ -1015,6 +1053,12 @@ def cc_mgr_ccname(request, ccname):
     htmlstr = htmlstr.replace('{{host_ips.mac2}}', host_ips['mac2'])
     htmlstr = htmlstr.replace('{{host_ips.mac3}}', host_ips['mac3'])
 
+    pbt = '<button id="permission" type="button" class="btn btn-primary">' + _("Edit Permission") + '</button>'
+    if ua_role_value.ec_authpath_value == 'eduCloud.admin':
+        htmlstr = htmlstr.replace('{{permission_button}}', pbt)
+    else:
+        htmlstr = htmlstr.replace('{{permission_button}}', '')
+
     response = {}
     response['Result'] = 'OK'
     response['data'] = htmlstr
@@ -1035,6 +1079,7 @@ def nc_mgr_view(request):
 @login_required(login_url='/portal/admlogin')
 def nc_mgr_mac(request, ccname, mac):
     logger.error("enter nc_mgr_mac --- --- ")
+
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     key = str("nc#" + mac + "#status")
 
@@ -1930,6 +1975,7 @@ def vm_display(request, srcid, dstid, insid):
         context = {
             'pagetitle'     : _('Error Report'),
             'error'         : str(e),
+            'suggestion'    : 'check your CC configuration and release some running VMs '
         }
         return render(request, 'clc/error.html', context)
 
@@ -1985,6 +2031,18 @@ def vm_run(request, insid):
 
 def image_create_task_start(request, srcid):
     logger.error("--- --- --- start_image_create_task")
+    #############
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    objs = ecImages_auth.objects.filter(ecid=srcid, role_value=ua_role_value.ec_authpath_value )
+    if objs[0].create != True:
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('current user not allowed to create new images'),
+            'suggestion'    : _('Ask eduCloud.admin to assign CREATE rigth.'),
+        }
+        return render(request, 'clc/error.html', context)
+
     # create ectaskTransation Record
     _srcimgid        = srcid
     _dstimageid      = 'IMG' + genHexRandom()
@@ -2333,6 +2391,19 @@ def image_create_task_getsubmitprogress(request, srcid, dstid, insid):
     return HttpResponse(response, content_type="application/json")
 
 def image_modify_task_start(request, srcid):
+    #############
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    objs = ecImages_auth.objects.filter(ecid=srcid, role_value=ua_role_value.ec_authpath_value )
+    if objs[0].create != True:
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('current user not allowed to modify images'),
+            'suggestion'    : _('Ask eduCloud.admin to assign WRITE rigth.'),
+        }
+        return render(request, 'clc/error.html', context)
+
+
     # create ectaskTransation Record
     _srcimgid        = srcid
     _dstimageid      = srcid
@@ -2500,7 +2571,36 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def getCCObjListbyRequestUser(request, ccs):
+    #############
+    ua              = ecAccount.objects.get(userid=request.user)
+    ua_role_value   = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    role_prefix     = ua_role_value.ec_authpath_value.split('.admin')[0]
+
+    ccobj_list = []
+    for cc in ccs:
+        sobjs = ecServers_auth.objects.filter(srole='cc', mac0=cc.ccmac0, role_value__contains=role_prefix)
+        if sobjs.count() == 0:
+            continue
+        ccobj_list.append(cc)
+
+    return ccobj_list
+
+
 def image_add_vm(request, imgid):
+    #############
+    ua              = ecAccount.objects.get(userid=request.user)
+    ua_role_value   = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    objs            = ecImages_auth.objects.filter(ecid=imgid, role_value=ua_role_value.ec_authpath_value )
+    
+    if objs[0].create != True:
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('current user not allowed to create new VM'),
+            'suggestion'    : _('Ask eduCloud.admin to assign CREATE rigth.'),
+        }
+        return render(request, 'clc/error.html', context)
+
     imgobj = ecImages.objects.get(ecid = imgid)
 
     if imgobj.img_usage == 'desktop':
@@ -2513,15 +2613,25 @@ def image_add_vm(request, imgid):
         _instanceid      = 'VS' + genHexRandom()
         ccs  = ecCCResources.objects.filter(cc_usage='vs')
 
-    context = {
-            'pagetitle' : _("VM Create"),
-            'imgobj'    : imgobj,
-            'insid'     : _instanceid,
-            'ccs'       : ccs,
-            'vm'        : None,
-    }
+    ccs = getCCObjListbyRequestUser(request, ccs)
 
-    return render(request, 'clc/wizard/vs_create_wizard.html', context)
+    if ccs == []:
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('current user not allowed to manage any cluster'),
+            'suggestion'    : _('Ask eduCloud.admin to assign a cluster to current user.'),
+        }
+        return render(request, 'clc/error.html', context)
+    else:
+        context = {
+                'pagetitle' : _("VM Create"),
+                'imgobj'    : imgobj,
+                'insid'     : _instanceid,
+                'ccs'       : ccs,
+                'vm'        : None,
+        }
+
+        return render(request, 'clc/wizard/vs_create_wizard.html', context)
 
 def image_edit_vm(request, imgid, insid):
 
@@ -2544,7 +2654,13 @@ def image_edit_vm(request, imgid, insid):
 #################################################################################
 @login_required(login_url='/portal/admlogin')
 def jtable_images(request):
-    return render(request, 'clc/jtable/images_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/images_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_tasks(request):
@@ -2560,30 +2676,67 @@ def jtable_vds(request):
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_authapth(request):
-    return render(request, 'clc/jtable/authpath_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/authpath_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_ostypes(request):
-    return render(request, 'clc/jtable/ostypes_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/ostypes_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_rbac(request):
-    return render(request, 'clc/jtable/rbac_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/rbac_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_vmusage(request):
-    return render(request, 'clc/jtable/vmusage_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/vmusage_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_serverrole(request):
-    return render(request, 'clc/jtable/serverrole_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/serverrole_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_settings_for_vmtypes(request):
-    return render(request, 'clc/jtable/vmtypes_table.html', {})
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/vmtypes_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def jtable_servers_cc(request):
+
     return render(request, 'clc/jtable/servers_cc_table.html', {})
 
 @login_required(login_url='/portal/admlogin')
@@ -3268,8 +3421,12 @@ def update_cc_resource(request):
 def create_cc_resource(request):
     pass
 
-# core table functions for ecServers
-def list_servers_by_role(request, roletype):
+
+def list_cc_servers(request):
+    ua_admin = ecAccount.objects.get(userid=request.user)
+    ua_admin_role_value = ecAuthPath.objects.get(ec_authpath_name = ua_admin.ec_authpath_name)
+    role_prefix = ua_admin_role_value.ec_authpath_value.split('.admin')[0]
+
     response = {}
     data = []
 
@@ -3277,16 +3434,20 @@ def list_servers_by_role(request, roletype):
     f_ip = request.POST['ip']
 
     if len(f_ccname) > 0 and len(f_ip) > 0:
-        recs = ecServers.objects.filter(ccname__contains=f_ccname, ip0__contains=f_ip, role=roletype)
+        recs = ecServers.objects.filter(ccname__contains=f_ccname, ip0__contains=f_ip, role='cc')
     else:
         if len(f_ccname) > 0:
-            recs = ecServers.objects.filter(ccname__contains=f_ccname, role=roletype)
+            recs = ecServers.objects.filter(ccname__contains=f_ccname, role='cc')
         elif len(f_ip) > 0:
-            recs = ecServers.objects.filter(ip0__contains=f_ip, role=roletype)
+            recs = ecServers.objects.filter(ip0__contains=f_ip, role='cc')
         else:
-            recs = ecServers.objects.filter(role=roletype)
+            recs = ecServers.objects.filter(role='cc')
 
     for rec in recs:
+        sobjs = ecServers_auth.objects.filter(srole='cc', mac0=rec.mac0, role_value__contains=role_prefix)
+        if sobjs.count() == 0:
+            continue
+
         jrec = {}
         jrec['id'] = rec.id
         jrec['role'] = rec.role
@@ -3308,6 +3469,77 @@ def list_servers_by_role(request, roletype):
         jrec['location'] = rec.location
 
         data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def list_nc_servers(request):
+    ua_admin = ecAccount.objects.get(userid=request.user)
+    ua_admin_role_value = ecAuthPath.objects.get(ec_authpath_name = ua_admin.ec_authpath_name)
+    role_prefix = ua_admin_role_value.ec_authpath_value.split('.admin')[0]
+
+    response = {}
+    data = []
+    f_ccname = request.POST['ccname']
+    f_ip = request.POST['ip']
+
+    # step 1 : get all cc
+    cc_list = ecServers.objects.filter(role='cc')
+    for ccobj in cc_list:
+        # step 2 : check filter
+        if len(f_ccname) > 0 and ccobj.ccname.find(f_ccname) < 0:
+            continue
+
+        # step 3 : check permission
+        sobjs = ecServers_auth.objects.filter(srole='cc', mac0=ccobj.mac0, role_value__contains=role_prefix)
+        if sobjs.count() == 0:
+            continue
+
+        # step 4:  now this cluster is authorized to manage
+        if len(f_ip) > 0:
+            recs = ecServers.objects.filter(ip0__contains=f_ip, role='nc', ccname=ccobj.ccname)
+        else:
+            recs = ecServers.objects.filter(role='nc', ccname=ccobj.ccname)
+
+        for rec in recs:
+            jrec = {}
+            jrec['id'] = rec.id
+            jrec['role'] = rec.role
+            jrec['eip']  = rec.eip
+            jrec['ip0'] = rec.ip0
+            jrec['ip1']=rec.ip1
+            jrec['ip2'] = rec.ip2
+            jrec['ip3'] = rec.ip3
+            jrec['mac0'] = rec.mac0
+            jrec['mac1']=rec.mac1
+            jrec['mac2'] = rec.mac2
+            jrec['mac3'] = rec.mac3
+            jrec['name'] = rec.name
+            jrec['location'] = rec.location
+            jrec['cores'] = rec.cpu_cores
+            jrec['memory'] = rec.memory
+            jrec['disk'] = rec.disk
+            jrec['ccname'] = rec.ccname
+            jrec['location'] = rec.location
+
+            data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+# core table functions for ecServers
+def list_servers_by_role(request, roletype):
+    if roletype == 'cc':
+        return list_cc_servers(request)
+
+    if roletype == 'nc':
+        return list_nc_servers(request)
 
     response['Records'] = data
     response['Result'] = 'OK'
@@ -3464,8 +3696,26 @@ def list_tasks(request):
     response = {}
     data = []
 
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
     recs = ectaskTransaction.objects.all()
     for rec in recs:
+        if ua_role_value.ec_authpath_value == 'eduCloud.admin':
+            pass
+        else:
+            if rec.user != request.user.username:
+                if rec.insid.find('TMP') == 0:
+                    continue
+                if rec.insid.find('VD') == 0:
+                    vdobj = ecVDS.objects.get(insid=rec.insid)
+                    if vdobj.creator != request.user.username:
+                        continue
+                if rec.insid.find('VS') == 0:
+                    vsobj = ecVSS.objects.get(insid=rec.insid)
+                    if vsobj.creator != request.user.username:
+                        continue
+
         jrec = {}
         jrec['id']       = rec.id
         jrec['tid']      = rec.tid
@@ -3488,6 +3738,7 @@ def update_tasks(request):
     response = {}
 
     rec = ectaskTransaction.objects.get(id=request.POST['id'])
+    rec.user  = request.POST['user']
     rec.state = request.POST['state']
     rec.save()
 
@@ -3532,9 +3783,15 @@ def list_vds(request):
     response = {}
     data = []
 
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
     recs = ecVDS.objects.all()
 
     for rec in recs:
+        if ua_role_value.ec_authpath_value != 'eduCloud.admin' and rec.creator != request.user.username:
+            continue
+
         jrec = {}
         jrec['id'] = rec.id
         jrec['insid'] = rec.insid
@@ -3649,9 +3906,15 @@ def list_vss(request):
     response = {}
     data = []
 
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
     recs = ecVSS.objects.all()
 
     for rec in recs:
+        if ua_role_value.ec_authpath_value != 'eduCloud.admin' and rec.creator != request.user.username:
+            continue
+
         jrec = {}
         jrec['id'] = rec.id
         jrec['insid'] = rec.insid
@@ -3815,17 +4078,23 @@ def list_images(request):
         else:
             recs = ecImages.objects.all()
 
+    # get current user's role
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
     for rec in recs:
-        jrec = {}
-        jrec['id'] = rec.id
-        jrec['ecid'] = rec.ecid
-        jrec['name'] = rec.name
-        jrec['ostype']=rec.ostype
-        jrec['usage'] = rec.img_usage
-        jrec['description'] = rec.description
-        jrec['version'] = ReadImageVersionFile(rec.ecid)
-        jrec['size'] = rec.size
-        data.append(jrec)
+        objs = ecImages_auth.objects.filter(ecid=rec.ecid, role_value=ua_role_value.ec_authpath_value )
+        if objs.count() > 0 and objs[0].read == True:
+            jrec = {}
+            jrec['id'] = rec.id
+            jrec['ecid'] = rec.ecid
+            jrec['name'] = rec.name
+            jrec['ostype']=rec.ostype
+            jrec['usage'] = rec.img_usage
+            jrec['description'] = rec.description
+            jrec['version'] = ReadImageVersionFile(rec.ecid)
+            jrec['size'] = rec.size
+            data.append(jrec)
 
     response['Records'] = data
     response['Result'] = 'OK'
@@ -3835,8 +4104,14 @@ def list_images(request):
 
 def delete_images(request):
     response = {}
-
     rec = ecImages.objects.get(id=request.POST['id'])
+
+    # delete image files
+    shutil.rmtree('/storage/images/' + rec.ecid)
+    if rec.img_usage == 'server':
+        shutil.rmtree('/storage/space/database/images' + rec.ecid)
+
+    # delete image records
     rec.delete()
 
     response['Result'] = 'OK'
@@ -3936,6 +4211,10 @@ def list_inactive_account(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def list_active_account(request):
+    ua_admin = ecAccount.objects.get(userid=request.user)
+    ua_admin_role_value = ecAuthPath.objects.get(ec_authpath_name = ua_admin.ec_authpath_name)
+    role_prefix = ua_admin_role_value.ec_authpath_value.split('.admin')[0]
+
     response = {}
     data = []
 
@@ -3954,6 +4233,14 @@ def list_active_account(request):
             ecuser = ecAccount.objects.filter(userid=u.username)
         if ecuser.count() == 0:
             continue
+
+        try:
+            ecuser_role_value = ecAuthPath.objects.get(ec_authpath_name = ecuser[0].ec_authpath_name)
+            if not ecuser_role_value.ec_authpath_value.startswith(role_prefix):
+                continue
+        except:
+            continue
+
         jrec = {}
         jrec['id'] = u.id
         jrec['ec_username'] = u.username
@@ -4203,6 +4490,16 @@ def get_image_info(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def image_permission_edit(request, srcid):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    if ua_role_value.ec_authpath_value != 'eduCloud.admin':
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('Only eduCloud.Admin can change image permission!'),
+            'suggestion'    : _('Please logon as eduCloud.Admin.'),
+        }
+        return render(request, 'clc/error.html', context)
+
     index = 0
     authlist =  ecAuthPath.objects.all()
     roles = []
@@ -4603,19 +4900,22 @@ def list_myvds(request):
         return HttpResponse(retvalue, content_type="application/json")
 
     imgobjs = ecImages.objects.filter(img_usage='desktop')
+    # get current user's role
+    ua = ecAccount.objects.get(userid=_user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     for imgobj in imgobjs:
-        vd = {}
-        vd['ecid'] = imgobj.ecid
-        vd['name'] = imgobj.name
-        vd['ostype'] = imgobj.ostype
-        vd['desc'] = imgobj.description
+        objs = ecImages_auth.objects.filter(ecid=imgobj.ecid, role_value=ua_role_value.ec_authpath_value )
+        if objs.count() > 0 and objs[0].execute == True:
+            vd = {}
+            vd['ecid']   = imgobj.ecid
+            vd['name']   = imgobj.name
+            vd['ostype'] = imgobj.ostype
+            vd['desc']   = imgobj.description
 
-        trecs = ectaskTransaction.objects.filter(srcimgid=imgobj.ecid, dstimgid=imgobj.ecid, user=_user)
-        if trecs.count() > 0:
-            for trec in trecs:
-                insid = trec.insid
-                if insid.find('TVD') == 0:
+            trecs = ectaskTransaction.objects.filter(srcimgid=imgobj.ecid, dstimgid=imgobj.ecid, user=_user, insid__contains='TVD')
+            if trecs.count() > 0:
+                for trec in trecs:
                     vd['tid'] = trec.tid
                     vd['phase'] = trec.phase
                     vd['state'] = trec.state
@@ -4624,25 +4924,36 @@ def list_myvds(request):
                     vd['id']  = 'myvd' + str(index)
                     vds.append(vd)
                     index += 1
-                elif insid.find('VD') == 0:
-                    def_vd = ecVDS.objects.get(insid=insid)
-                    vd['name'] = def_vd.name
-                    if len(def_vd.description) > 0:
-                        vd['desc'] = def_vd.description
+            else:
+                vd['tid'] = ''
+                vd['phase'] = ''
+                vd['state'] = ''
+                vd['mgr_url'] = ''
+                vd['id']  = 'myvd' + str(index)
+                vds.append(vd)
+                index += 1
 
-                    vd['tid'] = trec.tid
-                    vd['phase'] = trec.phase
-                    vd['state'] = trec.state
-                    runtime_option = json.loads(trec.runtime_option)
-                    vd['mgr_url'] = getValidMgrURL(request, runtime_option)
-                    vd['id']  = 'myvd' + str(index)
-                    vds.append(vd)
-                    index += 1
-        else:
-            vd['tid'] = ''
-            vd['phase'] = ''
-            vd['state'] = ''
-            vd['mgr_url'] = ''
+    trecs = ectaskTransaction.objects.filter(user=_user)
+    for trec in trecs:
+        insid = trec.insid
+        if insid.find('VD') == 0:
+            imgobj = ecImages.objects.get(ecid=trec.srcimgid)
+            vd = {}
+            vd['ecid'] = imgobj.ecid
+            vd['name'] = imgobj.name
+            vd['ostype'] = imgobj.ostype
+            vd['desc'] = imgobj.description
+
+            def_vd = ecVDS.objects.get(insid=insid)
+            vd['name'] = def_vd.name
+            if len(def_vd.description) > 0:
+                vd['desc'] = def_vd.description
+
+            vd['tid'] = trec.tid
+            vd['phase'] = trec.phase
+            vd['state'] = trec.state
+            runtime_option = json.loads(trec.runtime_option)
+            vd['mgr_url'] = getValidMgrURL(request, runtime_option)
             vd['id']  = 'myvd' + str(index)
             vds.append(vd)
             index += 1

@@ -57,7 +57,7 @@ urlpatterns = patterns('',
     url(r'^send_feedback',                    views.send_feedback,              name='send_feedback'),
 
     url(r'^user/edit_profile/(?P<uid>\w+)$',                    views.edit_profile,              name='edit_profile'),
-    url(r'^user/edit_password/(?P<uid>\w+)$',                   views.edit_password,             name='edit_profile'),
+    url(r'^user/edit_password/(?P<uid>\w+)$',                   views.edit_password,             name='edit_password'),
     url(r'^user/activate/(?P<uid>\w+)$',                        views.activate_user,             name='activate_user'),
 
     # image create and modify URL

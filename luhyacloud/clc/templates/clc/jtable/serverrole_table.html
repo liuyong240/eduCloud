@@ -16,9 +16,11 @@
 
             actions: {
                 listAction:    '/clc/api/1.0/settings/listserverrole',
+                {% if role == "eduCloud.admin" %}
                 createAction:  '/clc/api/1.0/settings/createserverrole',
                 updateAction:  '/clc/api/1.0/settings/updateserverrole',
-                deleteAction:  '/clc/api/1.0/settings/deleteserverrole'
+                deleteAction:  '/clc/api/1.0/settings/deleteserverrole',
+                {% endif %}
             },
 
             fields: {

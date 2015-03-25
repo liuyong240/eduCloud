@@ -16,9 +16,11 @@
 
             actions: {
                 listAction:    '/clc/api/1.0/settings/listauthpath',
+                {% if role == "eduCloud.admin" %}
                 createAction:  '/clc/api/1.0/settings/createauthpath',
                 updateAction:  '/clc/api/1.0/settings/updateauthpath',
-                deleteAction:  '/clc/api/1.0/settings/deleteauthpath'
+                deleteAction:  '/clc/api/1.0/settings/deleteauthpath',
+                {% endif %}
             },
 
             fields: {
