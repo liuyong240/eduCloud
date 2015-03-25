@@ -368,6 +368,10 @@ def get_nc_avail_res(nc_mac):
     return final_avail_res
 
 def findVMRunningResource(insid):
+    ua_admin = ecAccount.objects.get(userid=request.user)
+    ua_admin_role_value = ecAuthPath.objects.get(ec_authpath_name = ua_admin.ec_authpath_name)
+    role_prefix = ua_admin_role_value.ec_authpath_value.split('.admin')[0]
+
     l = SortedList()
 
     _ccip = None
@@ -401,6 +405,12 @@ def findVMRunningResource(insid):
 
     for cc in ccs:
         ccobj = ecServers.objects.get(ccname=cc.ccname, role='cc')
+
+        # add permission check here for those admin
+        sobjs = ecServers_auth.objects.filter(srole='cc', mac0=ccobj.mac0, role_value__contains=role_prefix)
+        if sobjs.count() == 0:
+            continue
+
         if nc_def == 'any':
             ncs = ecServers.objects.filter(ccname=cc.ccname, role='nc')
             for nc in ncs:
@@ -2561,11 +2571,28 @@ def image_create_task_submit_success(request, srcid, dstid, insid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def getCCObjListbyRequestUser(request, ccs):
+    #############
+    ua              = ecAccount.objects.get(userid=request.user)
+    ua_role_value   = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    role_prefix     = ua_role_value.ec_authpath_value.split('.admin')[0]
+
+    ccobj_list = []
+    for cc in ccs:
+        sobjs = ecServers_auth.objects.filter(srole='cc', mac0=cc.ccmac0, role_value__contains=role_prefix)
+        if sobjs.count() == 0:
+            continue
+        ccobj_list.append(cc)
+
+    return ccobj_list
+
+
 def image_add_vm(request, imgid):
     #############
-    ua = ecAccount.objects.get(userid=request.user)
-    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
-    objs = ecImages_auth.objects.filter(ecid=imgid, role_value=ua_role_value.ec_authpath_value )
+    ua              = ecAccount.objects.get(userid=request.user)
+    ua_role_value   = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    objs            = ecImages_auth.objects.filter(ecid=imgid, role_value=ua_role_value.ec_authpath_value )
+    
     if objs[0].create != True:
         context = {
             'pagetitle'     : _('Error Report'),
@@ -2586,15 +2613,25 @@ def image_add_vm(request, imgid):
         _instanceid      = 'VS' + genHexRandom()
         ccs  = ecCCResources.objects.filter(cc_usage='vs')
 
-    context = {
-            'pagetitle' : _("VM Create"),
-            'imgobj'    : imgobj,
-            'insid'     : _instanceid,
-            'ccs'       : ccs,
-            'vm'        : None,
-    }
+    ccs = getCCObjListbyRequestUser(request, ccs)
 
-    return render(request, 'clc/wizard/vs_create_wizard.html', context)
+    if ccs == []:
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('current user not allowed to manage any cluster'),
+            'suggestion'    : _('Ask eduCloud.admin to assign a cluster to current user.'),
+        }
+        return render(request, 'clc/error.html', context)
+    else:
+        context = {
+                'pagetitle' : _("VM Create"),
+                'imgobj'    : imgobj,
+                'insid'     : _instanceid,
+                'ccs'       : ccs,
+                'vm'        : None,
+        }
+
+        return render(request, 'clc/wizard/vs_create_wizard.html', context)
 
 def image_edit_vm(request, imgid, insid):
 
