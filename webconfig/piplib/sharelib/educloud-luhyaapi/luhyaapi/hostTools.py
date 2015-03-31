@@ -1,4 +1,4 @@
-import socket, netifaces, psutil
+import socket, netifaces, psutil, shutil
 from luhyaTools import configuration
 from vboxWrapper import *
 from settings import *
@@ -25,7 +25,7 @@ def addUserPrvDataDir(uid):
 def delUserPrvDataDir(uid):
     path = '/storage/space/prv-data/%s' % uid
     if os.path.exists(path):
-        os.removedirs(path)
+        shutil.rmtree(path)
         logger.error("remove user %s prv-data directory" % uid)
 
 class RepeatedTimer(object):
