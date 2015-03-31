@@ -367,7 +367,7 @@ def get_nc_avail_res(nc_mac):
 
     return final_avail_res
 
-def findVMRunningResource(insid):
+def findVMRunningResource(request, insid):
     ua_admin = ecAccount.objects.get(userid=request.user)
     ua_admin_role_value = ecAuthPath.objects.get(ec_authpath_name = ua_admin.ec_authpath_name)
     role_prefix = ua_admin_role_value.ec_authpath_value.split('.admin')[0]
@@ -1993,7 +1993,7 @@ def vm_run(request, insid):
     if trecs.count() > 0:
         return image_create_task_view(request, vmrec.imageid, vmrec.imageid, insid)
     else:
-        _ccip, _ncip, _msg = findVMRunningResource(insid)
+        _ccip, _ncip, _msg = findVMRunningResource(request, insid)
         if _ncip == None:
             # not find proper cc,nc for build image
             context = {
@@ -4990,7 +4990,7 @@ def rvd_start(request, srcid, dstid, insid):
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
     else:
-        _ccip, _ncip, _msg = findVMRunningResource(insid)
+        _ccip, _ncip, _msg = findVMRunningResource(request, insid)
         if _ncip == None:
             response['Result'] = 'FAIL'
             response['error']  = _msg
