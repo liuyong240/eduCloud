@@ -602,12 +602,6 @@ class runImageTaskThread(threading.Thread):
                         logger.error("--- --- --- vboxmgr.attachHDD %s, error=%s" % (disk['file'], ret))
                         time.sleep(2)
 
-                    if self.runtime_option['run_with_snapshot'] == 1:
-                        snapshot_name = "thomas"
-                        if not vboxmgr.isSnapshotExist(snapshot_name):
-                            ret = vboxmgr.take_snapshot(snapshot_name)
-                            logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % ret)
-
                     # add folders
                     for folder in self.runtime_option['folders']:
                         ret = vboxmgr.attachSharedFolder(folder['name'], folder['path'])
@@ -633,6 +627,12 @@ class runImageTaskThread(threading.Thread):
                     if self.runtime_option['usage'] == 'desktop':
                         ret = vboxmgr.addVRDPproperty()
                         logger.error("--- --- --- vboxmgr.addVRDPproperty for video channel, error=%s" % ret)
+
+                    if self.runtime_option['run_with_snapshot'] == 1:
+                        snapshot_name = "thomas"
+                        if not vboxmgr.isSnapshotExist(snapshot_name):
+                            ret = vboxmgr.take_snapshot(snapshot_name)
+                            logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % ret)
 
                     vboxmgr.unregisterVM()
                     vboxmgr.registerVM()

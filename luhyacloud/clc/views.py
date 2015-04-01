@@ -4852,9 +4852,11 @@ def list_sites(request):
 
         tobjs = ectaskTransaction.objects.filter(tid=_tid)
         if tobjs.count() > 0:
-           runtime_option = json.loads( tobjs[0].runtime_option )
-           one_site['web_url'] = getValidWebURL(request, runtime_option)
-           list_of_sites.append(one_site)
+           if tobjs[0].phase == 'editing':
+               if tobjs[0].state == 'running' or tobjs[0].state == 'Running':
+                   runtime_option = json.loads( tobjs[0].runtime_option )
+                   one_site['web_url'] = getValidWebURL(request, runtime_option)
+                   list_of_sites.append(one_site)
 
     response = {}
     response['Result'] = 'OK'
