@@ -3650,7 +3650,6 @@ def update_ethers(request):
     response = {}
 
     rec = ecDHCPEthers.objects.get(id=request.POST['id'])
-    rec.mac                 = request.POST['mac']
     rec.ip                  = request.POST['ip']
     rec.ex_web_proxy_port   = request.POST['ex_web_port']
 

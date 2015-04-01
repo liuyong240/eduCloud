@@ -157,6 +157,16 @@ if checkPackage('nodedaemon-nc') == False:
    print "--------------------------------------------------"
    exit(1)
 
+# install vbox ext pack
+cmd_line = 'wget http://121.41.80.147/Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack'
+os.system(cmd_line)
+
+cmd_line = 'sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack'
+os.system(cmd_line)
+
+cmd_line = 'rm Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack'
+os.system(cmd_line)
+
 ##############################################################################
 # 8. install 3rd python and rsync lib
 ##############################################################################
