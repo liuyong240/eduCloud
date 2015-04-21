@@ -43,7 +43,7 @@ install:
 	cp $(CURDIR)/luhyacloud/*.py                        $(WEB_CLOUD)/usr/local/www/
 	python -m compileall $(CURDIR)/luhyacloud/luhyacloud/
 	mv $(CURDIR)/luhyacloud/luhyacloud/*.pyc             $(WEB_CLOUD)/usr/local/www/luhyacloud/
-	cp $(CURDIR)/luhyacloud/luhyacloud/*.py              $(WEB_CLOUD)/usr/local/www/luhyacloud/
+	#cp $(CURDIR)/luhyacloud/luhyacloud/*.py              $(WEB_CLOUD)/usr/local/www/luhyacloud/
 	cp $(CURDIR)/luhyacloud/luhyacloud/wsgi.py           $(WEB_CLOUD)/usr/local/www/luhyacloud/
 	rm $(WEB_CLOUD)/usr/local/www/luhyacloud/wsgi.pyc
 
@@ -60,7 +60,7 @@ install:
 	install -d $(WEB_PORTAL)/usr/local/www/portal
 	python -m compileall $(CURDIR)/luhyacloud/portal/
 	mv $(CURDIR)/luhyacloud/portal/*.pyc                $(WEB_PORTAL)/usr/local/www/portal/
-	cp $(CURDIR)/luhyacloud/portal/*.py		    $(WEB_PORTAL)/usr/local/www/portal/
+	#cp $(CURDIR)/luhyacloud/portal/*.py		    $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/conf              $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/static            $(WEB_PORTAL)/usr/local/www/portal/
 	cp -r $(CURDIR)/luhyacloud/portal/templates         $(WEB_PORTAL)/usr/local/www/portal/
@@ -75,7 +75,7 @@ install:
 	install -d $(WEB_CLC)/usr/local/www/clc
 	python -m compileall $(CURDIR)/luhyacloud/clc/
 	mv $(CURDIR)/luhyacloud/clc/*.pyc                   $(WEB_CLC)/usr/local/www/clc/
-	cp $(CURDIR)/luhyacloud/clc/*.py		    $(WEB_CLC)/usr/local/www/clc/
+	#cp $(CURDIR)/luhyacloud/clc/*.py		    $(WEB_CLC)/usr/local/www/clc/
 	cp -r $(CURDIR)/luhyacloud/clc/conf                 $(WEB_CLC)/usr/local/www/clc/
 	cp -r $(CURDIR)/luhyacloud/clc/static               $(WEB_CLC)/usr/local/www/clc/
 	cp -r $(CURDIR)/luhyacloud/clc/templates            $(WEB_CLC)/usr/local/www/clc/
@@ -90,7 +90,7 @@ install:
 	install -d $(WEB_WALRUS)/usr/local/www/walrus
 	python -m compileall $(CURDIR)/luhyacloud/walrus/
 	mv $(CURDIR)/luhyacloud/walrus/*.pyc                $(WEB_WALRUS)/usr/local/www/walrus/
-	cp $(CURDIR)/luhyacloud/walrus/*.py		    $(WEB_WALRUS)/usr/local/www/walrus/
+	#cp $(CURDIR)/luhyacloud/walrus/*.py		    $(WEB_WALRUS)/usr/local/www/walrus/
 
 	#################
 	#     WEB_CC    #
@@ -101,7 +101,7 @@ install:
 	install -d $(WEB_CC)/usr/local/www/cc
 	python -m compileall $(CURDIR)/luhyacloud/cc/
 	mv $(CURDIR)/luhyacloud/cc/*.pyc                    $(WEB_CC)/usr/local/www/cc/
-	cp $(CURDIR)/luhyacloud/cc/*.py                     $(WEB_CC)/usr/local/www/cc/
+	#cp $(CURDIR)/luhyacloud/cc/*.py                     $(WEB_CC)/usr/local/www/cc/
 
 	install -d $(WEB_CC)/usr/local/webconfig
 	cp $(CURDIR)/debian/fuse.conf                       $(WEB_CC)/usr/local/webconfig/

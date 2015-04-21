@@ -177,9 +177,9 @@ cmd_line = 'wget http://121.41.80.147/pip.tar'
 os.system(cmd_line)
 cmd_line = 'tar vxf pip.tar -C /tmp/'
 commands.getoutput(cmd_line)
-cmd_line = 'sudo pip install /tmp/pip/*.tar.gz'
+cmd_line = 'sudo pip install /tmp/*.tar.gz'
 os.system(cmd_line)
-cmd_line = 'sudo dpkg -i /tmp/pip/*.deb'
+cmd_line = 'sudo dpkg -i /tmp/*.deb'
 os.system(cmd_line)
 cmd_line = 'rm pip.tar && rm -fr /tmp/pip'
 commands.getoutput(cmd_line)
