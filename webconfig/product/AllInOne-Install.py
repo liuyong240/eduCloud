@@ -110,6 +110,9 @@ if not os.path.exists('/storage/tmp/images'):
 cmd_line = 'sudo apt-get -y install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc nodedaemon-nc'
 os.system(cmd_line)
 
+cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
+os.system(cmd_line)
+
 # verify deb package install status
 if checkPackage('educloud-core') == False:
    print "--------------------------------------------------"

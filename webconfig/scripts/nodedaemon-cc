@@ -1,4 +1,3 @@
 #! /bin/bash
 
-cd /usr/local/nodedaemon/cc
-python cc_daemon.pyc
+cd /usr/local/nodedaemon/cc && ./cc_daemon

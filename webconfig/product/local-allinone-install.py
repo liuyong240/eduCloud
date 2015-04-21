@@ -1,7 +1,7 @@
 import os, commands, sys
 import time
 
-DST_IP = '10.0.0.17'
+DST_IP = '192.168.56.103'
 
 def checkPackage( pname ):
     cmd_line = 'dpkg -l | grep %s' % pname
@@ -111,6 +111,9 @@ if not os.path.exists('/storage/tmp/images'):
 # 7. install educloud in one machine by apt-get
 ##############################################################################
 cmd_line = 'sudo apt-get -y install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc nodedaemon-nc'
+os.system(cmd_line)
+
+cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 os.system(cmd_line)
 
 # verify deb package install status
