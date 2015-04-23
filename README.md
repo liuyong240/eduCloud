@@ -794,20 +794,63 @@ vs cluster
     public IP + private IP + port
 
 
+========================================
+IX. App virtualization
+========================================
+9.1 Prepare
+- Windows 2008 Server + Terminal Service, Windows 7 and Windows 8 are not supported.
+- install tl-wts-tools.exe (include SeamlessRDP)
+- rdesktop 1.8.0 or later from http://www.rdesktop.org/.
+- allow execution of "seamlessrdpshell.exe" as an initial program or enable the option "Allow users to start both listed
+  and unlisted programs on initial connection". This is accomplished through the "RemoteApp Manager" tool
+  (remoteprograms.msc). Add "seamlessrdpshell.exe" as a "RemoteApp Program",
+
+9.2 Running SeamlessRDP Without ThinLinc
+  rdesktop -A 'c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe' -s 'notepad' 192.168.56.101
+  rdesktop -A 'c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe' -s 'c:\Program Files (x86)\Microsoft Office\Office12\winword.exe' 192.168.56.101
+  rdesktop -A 'c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe' -s 'c:\Program Files (x86)\Microsoft Office\Office12\winword.exe' -r disk:mydisk=/Users/luhya -u 'Administrator' -p '1qaz!2wsx@' 192.168.56.101
+
+9.3 Open Issues
+- account issue
+  * Add a active directory server, sync cloud account to it
+  * all windows 2008 VM should be in Domain
+    Automating the Domain Join: https://technet.microsoft.com/en-us/library/cc730845(WS.10).aspx
+    change computer name (sysprep.exe)
+
+  solution: Automated Windows system preparation (Vbox User Manuel 9.3 page 164)
+
+  VBoxManage guestproperty enumerate win2k8
+      some valuable properties
+      - /VirtualBox/GuestInfo/Net/0/V4/IP,          value: 192.168.56.101
+      - /VirtualBox/GuestInfo/Net/0/MAC,            value: 080027AE378E
+      - /VirtualBox/GuestInfo/Net/0/V4/Netmask,     value: 255.255.255.0
+      - /VirtualBox/GuestInfo/Net/0/V4/Broadcast,   value: 255.255.255.255
+      - /VirtualBox/GuestInfo/Net/0/Status,         value: Up
+      - /VirtualBox/GuestInfo/Net/Count,            value: 1
+
+      - /VirtualBox/HostGuest/SysprepExec,      value:
+      - /VirtualBox/HostGuest/SysprepArgs,      value:
+      - /VirtualBox/GuestInfo/OS/LoggedInUsersList, value: luhya,Administrator,
+
+      - /VirtualBox/GuestInfo/OS/LoggedInUsers
+
+  VBoxManage metrics list
+      get vm performance data
+
+  VBoxManage guestcontrol vmname execute "c:\Windows\System32\sysprep\sysprep.exe"
+      run syspre automatically
+      - How to Create the Sysprep.inf Answer File(https://support.microsoft.com/en-us/kb/298491)
+
+  tools: python-ad
+  - https://code.google.com/p/python-ad/
+  - https://github.com/geertj/python-ad
+  -
+
+- scale issue
 
 
 
-Some Issues:
-- Doen: rvd need add public & provate network mode
-- Done: when vm get into running, stopped state, wizard web page need to update clc's db
-- Done:delete snapshot before submitting
-- wizard always contains 3 steps.
-- Done:when submit finished, nc send message to cc to
-  1. delete task thread in cc.tasks_status
-  2. delete task thread in cc.
 
-  cc then send rquest to clc, to
-  1. add a new image record, and set it properties
-  2. delete transaction record
+
 
 
