@@ -812,34 +812,47 @@ IX. App virtualization
 
 9.3 Open Issues
 - account issue
-  * Add a active directory server, sync cloud account to it
-  * all windows 2008 VM should be in Domain
-    Automating the Domain Join: https://technet.microsoft.com/en-us/library/cc730845(WS.10).aspx
+  * Enable domain user 'remote desktop logon' ( one ADC with multiple TSs )
+    step 1: in ADC,
+            Group Policy Management Console ->
+            Group Policy Objects ->
+            right click your default domain policy ->
+            edit -> Policies -> Windows Settings -> Security Settings ->
+            Local Policies -> User Rights Assignment -> Allow log on through remote desktop services
+            Add "Remote Desktop Users" and "Domain User" to this policy.
+    step 2: in ADC, run 'gpupdate /force'
+    step 3: in TS server,
+            Start -> Administrative Tools -> Remote Desktop Services ->
+            Remote Desktop Session Host Configuration - RDP-Tcp ->
+            right click - properties - security - Add - Domain Users - Grant then User Access and Guest Access - OK.
+    step 4: in TS server, restart the machine
+
+  * Automating the Domain Join: https://technet.microsoft.com/en-us/library/cc730845(WS.10).aspx
     change computer name (sysprep.exe)
 
-  solution: Automated Windows system preparation (Vbox User Manuel 9.3 page 164)
 
-  VBoxManage guestproperty enumerate win2k8
-      some valuable properties
-      - /VirtualBox/GuestInfo/Net/0/V4/IP,          value: 192.168.56.101
-      - /VirtualBox/GuestInfo/Net/0/MAC,            value: 080027AE378E
-      - /VirtualBox/GuestInfo/Net/0/V4/Netmask,     value: 255.255.255.0
-      - /VirtualBox/GuestInfo/Net/0/V4/Broadcast,   value: 255.255.255.255
-      - /VirtualBox/GuestInfo/Net/0/Status,         value: Up
-      - /VirtualBox/GuestInfo/Net/Count,            value: 1
+  * some usefull vbox cmd line
+      VBoxManage guestproperty enumerate win2k8
+          some valuable properties
+          - /VirtualBox/GuestInfo/Net/0/V4/IP,          value: 192.168.56.101
+          - /VirtualBox/GuestInfo/Net/0/MAC,            value: 080027AE378E
+          - /VirtualBox/GuestInfo/Net/0/V4/Netmask,     value: 255.255.255.0
+          - /VirtualBox/GuestInfo/Net/0/V4/Broadcast,   value: 255.255.255.255
+          - /VirtualBox/GuestInfo/Net/0/Status,         value: Up
+          - /VirtualBox/GuestInfo/Net/Count,            value: 1
 
-      - /VirtualBox/HostGuest/SysprepExec,      value:
-      - /VirtualBox/HostGuest/SysprepArgs,      value:
-      - /VirtualBox/GuestInfo/OS/LoggedInUsersList, value: luhya,Administrator,
+          - /VirtualBox/HostGuest/SysprepExec,      value:
+          - /VirtualBox/HostGuest/SysprepArgs,      value:
+          - /VirtualBox/GuestInfo/OS/LoggedInUsersList, value: luhya,Administrator,
 
-      - /VirtualBox/GuestInfo/OS/LoggedInUsers
+          - /VirtualBox/GuestInfo/OS/LoggedInUsers
 
-  VBoxManage metrics list
-      get vm performance data
+      VBoxManage metrics list
+          get vm performance data
 
-  VBoxManage guestcontrol vmname execute "c:\Windows\System32\sysprep\sysprep.exe"
-      run syspre automatically
-      - How to Create the Sysprep.inf Answer File(https://support.microsoft.com/en-us/kb/298491)
+      VBoxManage guestcontrol vmname execute "c:\Windows\System32\sysprep\sysprep.exe"
+          run syspre automatically
+          - How to Create the Sysprep.inf Answer File(https://support.microsoft.com/en-us/kb/298491)
 
   tools: python-ad
   - https://code.google.com/p/python-ad/
