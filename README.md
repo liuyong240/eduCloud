@@ -860,6 +860,34 @@ IX. App virtualization
   -
 
 - scale issue
+- 
+
+9.4 task & scripts
+9.4.1 change host name
+      $computerName = Get-WmiObject Win32_ComputerSystem
+      $name = "virt-app-22"
+      $computername.Rename($name)
+9.4.2 join to domain
+      $domain = "myDomain" 
+      $user = "myUserAccount"
+      $password = Read-Host -Prompt "Enter password for $user" -AsSecureString 
+      $password = "myPassword!" | ConvertTo-SecureString -asPlainText -Force
+      $username = "$domain\$user" 
+      $credential = New-Object System.Management.Automation.PSCredential($username,$password) 
+      Add-Computer -DomainName $domain -Credential $credential
+      Restart-Computer
+9.4.3 Install Power Shell 3.0
+      Guide:   https://technet.microsoft.com/en-us/library/hh847837.aspx#BKMK_InstallingOnWindowsServer2008LH
+      Package: http://pan.baidu.com/s/1jGJ1V74
+9.4.3 run power shell script on windows startup
+      - set execution policy
+        PowerShell -Command "Set-ExecutionPolicy Unrestricted"
+      - in "任务计划程序"中
+        创建一个新的任务，并制定需运行的脚本和启动条件
+        https://msdn.microsoft.com/en-us/library/azure/jj130675.aspx
+      - 
+        
+    
 
 
 
