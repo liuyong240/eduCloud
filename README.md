@@ -879,13 +879,15 @@ IX. App virtualization
 9.4.3 Install Power Shell 3.0
       Guide:   https://technet.microsoft.com/en-us/library/hh847837.aspx#BKMK_InstallingOnWindowsServer2008LH
       Package: http://pan.baidu.com/s/1jGJ1V74
-9.4.3 run power shell script on windows startup
+9.4.4 run power shell script on windows startup
       - set execution policy
         PowerShell -Command "Set-ExecutionPolicy Unrestricted"
       - in "任务计划程序"中
         创建一个新的任务，并制定需运行的脚本和启动条件
         https://msdn.microsoft.com/en-us/library/azure/jj130675.aspx
-      - 
+9.4.5 manage AD from Linux by adtool
+      - Managing Active Directory from Linux with adtool  (http://www.linux-magazine.com/Issues/2013/152/adtool)
+      - adtool home page (http://gp2x.org/adtool/)
         
     
 

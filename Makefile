@@ -10,6 +10,7 @@ WEB_CLC         =debian/educloud-clc
 WEB_WALRUS      =debian/educloud-walrus
 WEB_CC          =debian/educloud-cc
 WEB_NC          =debian/educloud-nc
+WEB_VIRTAPP     =debian/educloud-virtapp
 
 DAEMON_CLC      =debian/nodedaemon-clc
 DAEMON_WALRUS   =debian/nodedaemon-walrus
@@ -105,6 +106,11 @@ install:
 
 	install -d $(WEB_CC)/usr/local/webconfig
 	cp $(CURDIR)/debian/fuse.conf                       $(WEB_CC)/usr/local/webconfig/
+
+	######################
+	#     WEB_VIRTAPP    #
+	######################
+	
 
 	#####################
 	#     DAEMON_CLC    #
