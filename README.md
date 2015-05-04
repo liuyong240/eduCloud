@@ -888,6 +888,36 @@ IX. App virtualization
 9.4.5 manage AD from Linux by adtool
       - Managing Active Directory from Linux with adtool  (http://www.linux-magazine.com/Issues/2013/152/adtool)
       - adtool home page (http://gp2x.org/adtool/)
+
+      Appendex
+      - http://www.cosonok.com/2014/04/enabling-ldap-over-ssl-with-windows.html
+      - https://msdn.microsoft.com/en-us/library/cc725767(v=ws.10).aspx
+      - http://social.technet.microsoft.com/wiki/contents/articles/2980.ldap-over-ssl-ldaps-certificate.aspx#SingleTierLDAPS
+      - https://support.microsoft.com/en-us/kb/321051
+      - https://technet.microsoft.com/en-us/library/dd941846(v=ws.10).aspx
+
+      Steps
+      1. install AD, AD LDS, AD CA on windows 2008 server, this make LDAPS enabled by default
+      2. change password policy :
+         Default Domain Policy -> 计算机配置 -> 策略 -> windows设置 -> 安全设置 -> 账户策略 -> 密码策略 -> 禁用“密码必须符合复杂性要求”
+      3. install adtool in Ubuntu: apt-get install ldap-util openssl adtool
+         configure as below:
+         ---------------
+         /etc/adtool.cfg
+         ---------------
+         uri ldaps://win2k8.educloud.com
+         binddn cn=administrator,cn=Users,dc=educloud,dc=com
+         bindpw 1qaz!2wsx@
+         searchbase dc=educloud,dc=com
+
+         --------------------
+         /etc/ldap/ldap.conf
+         --------------------
+         BASE    dc=educloud,dc=com
+         URI     ldaps://win2k8.educloud.com
+         TLS_REQCERT allow
+
+
         
     
 
