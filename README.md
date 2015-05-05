@@ -821,15 +821,15 @@ IX. App virtualization
             Local Policies -> User Rights Assignment -> Allow log on through remote desktop services
             Add "Remote Desktop Users" and "Domain User" to this policy.
     step 2: in ADC, run 'gpupdate /force'
-    step 3: in TS server,
+    step 3: in TS server, install terminal service.
+    step 4: in TS server,
             Start -> Administrative Tools -> Remote Desktop Services ->
             Remote Desktop Session Host Configuration - RDP-Tcp ->
             right click - properties - security - Add - Domain Users - Grant then User Access and Guest Access - OK.
-    step 4: in TS server, restart the machine
+    step 5: in TS server, restart the machine
 
   * Automating the Domain Join: https://technet.microsoft.com/en-us/library/cc730845(WS.10).aspx
     change computer name (sysprep.exe)
-
 
   * some usefull vbox cmd line
       VBoxManage guestproperty enumerate win2k8
