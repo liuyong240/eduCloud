@@ -24,6 +24,7 @@ if DEBUG == True:
         url(r'^clc/',           include('clc.urls')),
         url(r'^walrus/',        include('walrus.urls')),
         url(r'^cc/',            include('cc.urls')),
+        url(r'^virtapp/',       include('virtapp.urls')),
     )
 else:
     if os.path.exists("/etc/educloud/modules/portal") == True:
@@ -45,4 +46,9 @@ else:
     if os.path.exists("/etc/educloud/modules/cc") == True:
         urlpatterns += patterns('',
             url(r'^cc/',    include('cc.urls')),
+        )
+
+    if os.path.exists("/etc/educloud/modules/virtapp") == True:
+        urlpatterns += patterns('',
+            url(r'^virtapp/',       include('virtapp.urls')),
         )

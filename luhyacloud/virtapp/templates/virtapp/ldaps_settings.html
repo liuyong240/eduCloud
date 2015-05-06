@@ -1,0 +1,124 @@
+{% extends "clc/clctemplate.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="row">
+<div class="col-lg-12">
+<div class="panel panel-default">
+<div class="panel-heading">
+    {% trans " Configure LDAPS Parametters" %}
+</div>
+<div class="panel-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- /.col-lg-6 (nested) -->
+            <div class="col-lg-12">
+                <div role="form">
+                    <div class="form-group">
+                        <label>{% trans "URI*" %}</label>
+                        <input id="uri" class="form-control" type="text" placeholder="ldaps://win2k8.educloud.com" autofocus="" value="{{ para.uri }}">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Bind DN*" %}</label>
+                        <input id="binddn" class="form-control" type="text" placeholder="cn=administrator,cn=Users,dc=educloud,dc=com" value="{{ para.binddn }}">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Password*" %}</label>
+                        <input id="password1" class="form-control" type="password" placeholder="password" value="{{ para.bindpw }}">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Password Again*" %}</label>
+                        <input id="password2" class="form-control" type="password" placeholder="password" value="{{ para.bindpw }}">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Search Base*" %}</label>
+                        <input id="searchbase" class="form-control" type="text" placeholder="dc=educloud,dc=com" value="{{ para.searchbase }}">
+                    </div>
+                </div>
+
+                <button id="mysubmit" type="submit" class="btn btn-primary">{% trans "Submit Button" %}</button>
+                <button id="myreset"  type="reset" class="btn btn-default">{% trans "Reset Button" %}</button>
+                <p></p>
+                <div class="alert alert-success" style="display: none">
+                      {% trans "Set LDAPS Parameters is Successfully." %}
+                </div>
+                <div class="alert alert-danger" style="display: none">
+                      {% trans "Set LDAPS Parameters Failed, try again." %}
+                </div>
+        </div>
+        <!-- /.col-lg-6 (nested) -->
+    </div>
+    <!-- /.row (nested) -->
+</div>
+<!-- /.panel-body -->
+</div>
+<!-- /.panel -->
+</div>
+<!-- /.col-lg-12 -->
+</div>
+{% endblock %}
+
+{% block myjs %}
+<script type="text/javascript">
+    var uri;
+    var binddn;
+    var password1;
+    var password2;
+    var searchbase;
+    var errormsg;
+
+
+    function submit_ldaps_settings() {
+        uri = $('#uri').val();
+        binddn = $('#binddn').val();
+        password1  = $('#password1').val();
+        password2  = $('#password2').val();
+        searchbase = $('#searchbase').val();
+
+        if (password1 != password2) {
+            errormsg = "password does not matche!"
+            $('.alert-success').css('display', 'none');
+            $('.alert-danger').text(errormsg);
+            $('.alert-danger').css( 'display', 'block');
+            return;
+        }
+
+        url = "/virtapp/api/1.0/set/ldaps/setting";
+        postdata = {
+            uri:            uri,
+            binddn:         binddn,
+            password:       password1,
+            searchbase:     searchbase,
+        }
+
+        $.post(url, postdata, function(data) {
+            var items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+            if (items['Result'] == "OK") {
+                $('.alert-success').css('display', 'block');
+                $('.alert-danger').css( 'display', 'none');
+                $('.btn').addClass('disabled');
+            } else {
+                $('.alert-success').css('display', 'none');
+                $('.alert-danger').text(items['errormsg']);
+                $('.alert-danger').css( 'display', 'block');
+            }
+        });
+
+    }
+
+    $(document).ready(function () {
+        $("#mysubmit").click(function(){
+            submit_ldaps_settings();
+        });
+
+        $("#myreset").click(function(){
+            location.reload();
+        });
+
+    });
+</script>
+{% endblock %}
