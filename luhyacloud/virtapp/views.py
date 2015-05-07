@@ -95,7 +95,7 @@ def updateLDAPSConf():
     cmd = "sudo mv /tmp/adtool.cfg /etc/adtool.cfg"
     commands.getoutput(cmd)
 
-def updateLDAPSConf(request):
+def set_ldaps_para(request):
     ldaps_para = ldapsPara.objects.filter()
     if ldaps_para.count() > 0:
         rec = ldaps_para[0]
@@ -115,7 +115,7 @@ def updateLDAPSConf(request):
 
         rec.save()
 
-    updateSystemLdapConf()
+    updateLDAPSConf()
 
     response = {}
     response['Result'] = 'OK'
