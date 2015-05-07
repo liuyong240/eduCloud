@@ -64,7 +64,38 @@ def vapp_mgr(request):
     }
     return render(request, 'virtapp/vapp_mgr.html', context)
 
-def set_ldaps_para(request):
+def updateLDAPSConf():
+    ldaps_para = ldapsPara.objects.filter()
+    URI  = "URI %s" % ldaps_para[0].uri
+    uri  = "uri %s" % ldaps_para[0].uri
+    BASE = "BASE %s" % ldaps_para[0].searchbase
+    TLS  = "TLS_REQCERT allow"
+    binddn = "binddn %s" % ldaps_para[0].binddn
+    bindpw = "bindpw %s" % ldaps_para[0].bindpw
+    searchbase = "searchbase %s" % ldaps_para[0].searchbase
+
+    # update /etc/ldap/ldap.conf
+    filepath = "/tmp/ldap.conf/"
+    text_file = open (filepath, "w")
+    text_file.writelines(BASE)
+    text_file.writelines(URI)
+    text_file.writelines(TLS)
+    text_file.close()
+    cmd = "sudo mv /tmp/ldap.conf /etc/ldap/ldap.conf"
+    commands.getoutput(cmd)
+
+    # update /etc/adtool.cfg
+    filepath = "/tmp/adtool.cfg"
+    text_file = open (filepath, "w")
+    text_file.writelines(base)
+    text_file.writelines(binddn)
+    text_file.writelines(bindpw)
+    text_file.writelines(searchbase)
+    text_file.close()
+    cmd = "sudo mv /tmp/adtool.cfg /etc/adtool.cfg"
+    commands.getoutput(cmd)
+
+def updateLDAPSConf(request):
     ldaps_para = ldapsPara.objects.filter()
     if ldaps_para.count() > 0:
         rec = ldaps_para[0]
@@ -83,6 +114,55 @@ def set_ldaps_para(request):
         )
 
         rec.save()
+
+    updateSystemLdapConf()
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def usercreate(request):
+    ldaps_para = ldapsPara.objects.filter()
+    group = 'cn=Users,' % ldaps_para[0].searchbase
+
+    cmd = 'adtool usercreate %s %s' % (request.POST['username'], group)
+    commands.getoutput(cmd)
+    cmd = 'adtool setpass %s %s' % (request.POST['username'], request.POST['password'])
+    commands.getoutput(cmd)
+    cmd = 'adtool userunlock %s' % request.POST['username']
+    commands.getoutput(cmd)
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def userdelete(request):
+    cmd = 'adtool userdelete %s' % request.POST['username']
+    commands.getoutput(cmd)
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def userupdate(request):
+    is_en_vapp = request.POST['vapp_en']
+    if is_en_vapp == 'yes':
+        cmd = 'adtool userunlock %s' % request.POST['username']
+    else:
+        cmd = 'adtool userlock %s' % request.POST['username']
+    commands.getoutput(cmd)
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def setpass(request):
+    cmd = 'adtool setpass %s %s' % (request.POST['username'], request.POST['password'])
+    commands.getoutput(cmd)
 
     response = {}
     response['Result'] = 'OK'

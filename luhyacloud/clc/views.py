@@ -21,6 +21,7 @@ from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 from luhyaapi.settings import *
+from luhyaapi.adToolWrapper import *
 from sortedcontainers import SortedList
 import requests, memcache
 from django.utils.translation import ugettext as _
@@ -619,6 +620,9 @@ def account_create(request):
     rec.save()
     addUserPrvDataDir(request.POST['userid'])
 
+    if _vdparar['vapp'] == 'yes':
+        addAccount2AD(request.POST['userid'], request.POST['password'])
+
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -680,6 +684,9 @@ def account_create_batch(request):
         )
         rec.save()
         addUserPrvDataDir(u)
+
+        if _vdparar['vapp'] == 'yes':
+            addAccount2AD(u, password)
 
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
@@ -825,6 +832,12 @@ def account_reset_password(request):
          # set new password
         user.set_password(newpw)
         user.save()
+
+        ua = ecAccount.objects.get(userid=request.POST['userid'])
+        _vdpara = json.loads(ua.vdpara)
+        if _vdpara['vapp'] == 'yes':
+            virtapp_setPassword2AD(uid, newpw)
+
         response['Result'] = "OK"
         return HttpResponse(json.dumps(response), content_type='application/json')
     else:
@@ -4265,6 +4278,7 @@ def delete_active_account(request):
 
     u = User.objects.get(id=request.POST['id'])
     ecu = ecAccount.objects.get(userid=u.username)
+    virtapp_removeAccount2AD(u.username)
     delUserPrvDataDir(ecu.userid)
     u.delete()
     ecu.delete()
@@ -4291,8 +4305,10 @@ def update_active_account(request):
     u.save()
     ecu.save()
 
-    response['Result'] = 'OK'
+    _vdpara = json.loads(ecu.vdpara)
+    virtapp_updateAccount2AD(u.username, _vdpara['vapp'])
 
+    response['Result'] = 'OK'
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
