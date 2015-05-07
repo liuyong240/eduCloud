@@ -607,6 +607,7 @@ def account_create(request):
     _vdparar = {}
     _vdparar['pds'] = request.POST['pds']
     _vdparar['sds'] = request.POST['sds']
+    _vdparar['vapp'] = request.POST['vapp']
     rec = ecAccount(
         userid  = request.POST['userid'],
         showname = request.POST['displayname'],
@@ -653,6 +654,7 @@ def account_create_batch(request):
     _vdparar = {}
     _vdparar['pds'] = request.POST['pds']
     _vdparar['sds'] = request.POST['sds']
+    _vdparar['vapp'] = request.POST['vapp']
 
     # construct user list
     user_list = []
