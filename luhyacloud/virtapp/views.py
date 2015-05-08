@@ -187,7 +187,7 @@ def list_vapp(request):
     for rec in recs:
         jrec = {}
         jrec['id']      = rec.id
-        #jrec['uuid']    = rec.uuid
+        jrec['uuid']    = rec.uuid
         jrec['appname'] = rec.appname
         jrec['apppath'] = rec.apppath
         jrec['ecids']   = rec.ecids
@@ -208,3 +208,52 @@ def delete_vapp(request):
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
+
+def vapp_add(request):
+    context = {
+    }
+    return render(request, 'virtapp/form/new_vapp.html', context)
+
+def create_vapp(request):
+    rec = virtApp(
+        uuid=       genHexRandom(),
+        appname=    request.POST['vapp_name'],
+        apppath=    request.POST['vapp_path'],
+        ecids=      request.POST['vapp_ecids'],
+    )
+    rec.save()
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def vapp_edit(request, appid):
+    rec = virtApp.objects.get(uuid=appid)
+    context = {
+        'vappobj': rec,
+    }
+    return render(request, 'virtapp/form/edit_vapp.html', context)
+
+def edit_vapp(request):
+    rec = virtApp.objects.get(uuid=request.POST['vapp_uuid'])
+    rec.appname = request.POST['vapp_name']
+    rec.apppath = request.POST['vapp_path']
+    rec.ecids   = request.POST['vapp_ecids']
+    rec.save()
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+
+def vapp_perm_edit(request, appid):
+    rec = virtApp.objects.get(uuid=appid)
+    context = {
+        'uuid': rec.uuid,
+    }
+    return render(request, 'virtapp/form/permission.html', context)
+
+def update_perm(request):
+    pass

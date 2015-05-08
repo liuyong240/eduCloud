@@ -39,13 +39,13 @@
                 },
                 apppath: {
                     title: '{% trans "vapp path" %}',
-                    width: '40%',
+                    width: '60%',
                     edit: true,
                     create: false,
                 },
                 ecids: {
-                    title: '{% trans "Image IDs" %}',
-                    width: '40%',
+                    title: '{% trans "vapp location" %}',
+                    width: '20%',
                     edit: true,
                     create: false,
                 },
@@ -59,12 +59,11 @@
                     $selectedRows.each(function () {
                         //Show selected rows
                         var record = $(this).data('record');
-                        window.parent.vssSelected(record.uuid);
-
+                        window.parent.vappSelected(record.uuid);
                     });
                 } else {
                     //No rows selected
-                    window.parent.vssSelected(null, null);
+                    window.parent.vappSelected(null);
                 }
             },
         });

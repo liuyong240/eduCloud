@@ -12,7 +12,7 @@
                 <button id="permission" type="button" class="btn btn-primary disabled">{% trans "Edit Permission" %}</button>
                 {% endif %}
                 <div class="pull-right">
-                    <button id="add_vapp" type="button" class="btn btn-primary disabled">{% trans "Add VAPP" %}</button>
+                    <button id="add_vapp" type="button" class="btn btn-primary">{% trans "Add VAPP" %}</button>
                 </div>
             </div>
             <div class="panel-body">
@@ -29,16 +29,14 @@
 </script>
 
 <script type="text/javascript" language="javascript">
-function imageSelected(appid){
+function vappSelected(appid){
     if (appid == null) {
         $('#permission').addClass('disabled');
         $('#edit_vapp').addClass('disabled');
-        $('#add_vapp').addClass('disabled');
-        $('#appii').html(null);
+        $('#appid').html(null);
     } else {
         $('#permission').removeClass('disabled');
         $('#edit_vapp').removeClass('disabled');
-        $('#add_vapp').removeClass('disabled');
         $('#appid').html(appid);
     }
 }
@@ -51,7 +49,7 @@ $(document).ready(function()
         url="/virtapp/vapp/edit/" + appid;
         var left = ($(window).width() / 2) - (800 / 2);
         var top = ($(window).height() / 2) - (600 / 2);
-        window.open(url, '', 'height=1000,width=800,left=' + left + ',top=' + top);
+        window.open(url, '', 'height=500,width=800,left=' + left + ',top=' + top);
   });
 
   $("#permission").click(function(){
@@ -64,12 +62,10 @@ $(document).ready(function()
   });
 
   $("#add_vapp").click(function(){
-        imgid=$("#appid").text()
-
         url="/virtapp/vapp/add" ;
         var left = ($(window).width() / 2) - (800 / 2);
         var top = ($(window).height() / 2) - (600 / 2);
-        window.open(url, '', 'height=350,width=800,left=' + left + ',top=' + top);
+        window.open(url, '', 'height=500,width=800,left=' + left + ',top=' + top);
   });
 });
 
