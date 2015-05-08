@@ -168,3 +168,43 @@ def setpass(request):
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
+
+
+def jtable_vapps(request):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'virtapp/jtable/vapp_table.html', context)
+
+def list_vapp(request):
+    response = {}
+    data = []
+
+    recs = virtApp.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['id']      = rec.id
+        #jrec['uuid']    = rec.uuid
+        jrec['appname'] = rec.appname
+        jrec['apppath'] = rec.apppath
+        jrec['ecids']   = rec.ecids
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def delete_vapp(request):
+    response = {}
+
+    rec = virtApp.objects.get(id=request.POST['id'])
+    rec.delete()
+
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")

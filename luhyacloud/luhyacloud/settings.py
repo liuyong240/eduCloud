@@ -16,7 +16,7 @@ if DEBUG == True:
 
     TEMPLATE_DIRS.append(os.path.join(BASE_DIR, 'portal',   'templates'))
     TEMPLATE_DIRS.append(os.path.join(BASE_DIR, 'clc',      'templates'))
-    TEMPLATE_DIRS.append(os.path.join(BASE_DIR, 'virtapp',    'templates'))
+    TEMPLATE_DIRS.append(os.path.join(BASE_DIR, 'virtapp',  'templates'))
 
     STATICFILES_DIRS += (
         os.path.join(BASE_DIR, 'portal', "static"),

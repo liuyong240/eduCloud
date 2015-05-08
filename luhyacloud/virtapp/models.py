@@ -8,6 +8,7 @@ class ldapsPara(models.Model):
     searchbase          = models.CharField(max_length=100)
 
 class virtApp(models.Model):
-    appName = models.CharField(max_length=100)
-    appPath = models.CharField(max_length=500)
-    ecid    = models.CharField(max_length=20)
+    uuid    = models.CharField(max_length=100)
+    appname = models.CharField(max_length=100)
+    apppath = models.CharField(max_length=500)
+    ecids   = models.CharField(max_length=500)
