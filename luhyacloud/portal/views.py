@@ -96,6 +96,7 @@ def portal_vds(request):
     context = {
         'uid' : request.user.username,
         'vds' : result['data'],
+        'vapps': result['vapp'],
         'sid' : request.session.session_key,
 
     }

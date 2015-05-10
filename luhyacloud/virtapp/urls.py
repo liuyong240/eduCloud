@@ -24,5 +24,7 @@ urlpatterns = patterns('',
         url(r'^api/1.0/vapp/create$',    views.create_vapp,             name='create_vapp'),
         url(r'^api/1.0/vapp/edit$',      views.edit_vapp,               name='edit_vapp'),
         url(r'^api/1.0/perm/update$',    views.update_perm,             name='update_perm'),
+        url(r'^api/1.0/listmyvapp$',     views.list_my_vapps,           name='list_my_vapps'),
+
 
     )

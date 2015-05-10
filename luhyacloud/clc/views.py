@@ -4899,6 +4899,16 @@ def verifySessionKey(session_key):
     else:
         return False
 
+def list_myvapps(uid):
+    vapp = []
+    userobj = ecAccount.objects.get(userid = uid)
+    para = json.loads(userobj.vdpara)
+    if para['vapp'] != 'yes':
+        return vapp
+
+    # check vapp list available for this user
+    return list_my_availed_vapp
+
 def list_myvds(request):
     '''
     :param request:
@@ -4979,9 +4989,17 @@ def list_myvds(request):
             vds.append(vd)
             index += 1
 
+
     response = {}
     response['Result'] = 'OK'
     response['data'] = vds
+
+    para = json.loads(ua.vdpara)
+    if para['vapp'] == 'yes':
+        myvapps = list_my_availed_vapp(_user)
+        response['vapp'] = myvapps['data']
+    else:
+        response['vapp'] = []
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")

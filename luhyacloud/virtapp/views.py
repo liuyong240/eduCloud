@@ -343,3 +343,34 @@ def update_perm(request):
     response['Result'] = "OK"
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
+
+def list_my_vapps(request):
+    index = 0
+    available_vapps = []
+    # get current user's role
+    ua = ecAccount.objects.get(userid=request.POST['uid'])
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    vo_auths = vapp_auth.objects.filter(role_value=ua_role_value.ec_authpath_value)
+    for vo_auth in vo_auths:
+        vo = virtApp.objects.get(uuid=vo_auth.uuid)
+        vap = {}
+        vap['uuid']     = vo.uuid
+        vap['name']     = vo.appname
+        vap['path']     = vo.apppath
+        vap['id']       = 'myapp' + str(index)
+        available_vapps.append(vap)
+        index = index + 1
+
+    response = {}
+    response['Result'] = "OK"
+    response['data']   = available_vapps
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+
+
+
+
+
+

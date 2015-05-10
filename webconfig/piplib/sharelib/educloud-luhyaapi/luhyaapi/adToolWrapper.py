@@ -7,6 +7,23 @@ logger = geteducloudlogger()
 def isVAPPModuelEnabled():
     return os.path.exists('/etc/educloud/modules/virtapp')
 
+def list_my_availed_vapp(userid):
+    vapps = []
+    if not isVAPPModuelEnabled():
+        return vapps
+
+    if DAEMON_DEBUG == True:
+        url = "http://127.0.0.1:8000/virtapp/api/1.0/listmyvapp"
+    else:
+        url = "http://127.0.0.1/virtappc/api/1.0/listmyvapp"
+    logger.error('list_my_availed_vapp:' + url)
+    payload = {
+        'uid'   : userid,
+    }
+    r = requests.post(url, data=payload)
+    logger.error(r.content)
+    return json.loads(r.content)
+
 def virtapp_addAccount2AD(userid, password):
     if not isVAPPModuelEnabled():
         return
