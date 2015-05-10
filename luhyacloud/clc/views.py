@@ -621,7 +621,7 @@ def account_create(request):
     addUserPrvDataDir(request.POST['userid'])
 
     if _vdparar['vapp'] == 'yes':
-        addAccount2AD(request.POST['userid'], request.POST['password'])
+        virtapp_addAccount2AD(request.POST['userid'], request.POST['password'])
 
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
@@ -686,7 +686,7 @@ def account_create_batch(request):
         addUserPrvDataDir(u)
 
         if _vdparar['vapp'] == 'yes':
-            addAccount2AD(u, password)
+            virtapp_addAccount2AD(u, password)
 
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
@@ -720,6 +720,8 @@ def account_request(request):
     _vdpara = {}
     _vdpara['pds'] = 0
     _vdpara['sds'] = "no"
+    _vdpara['vapp'] = "no"
+
     # create ecAccount record
     rec = ecAccount(
         userid  = userid,
