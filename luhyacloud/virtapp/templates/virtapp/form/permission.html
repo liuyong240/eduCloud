@@ -6,9 +6,8 @@
     var perm_str = "";
 
     function submit_resources() {
-        uuid = $('#uuid').text();
-        table = $('#table').text();
-        rows  = $('#next').text();
+        id      = $('#id').text();
+        rows    = $('#next').text();
 
         for (index=0; index<parseInt(rows); index++) {
             idstr = '#perm' + index.toString();
@@ -27,9 +26,8 @@
 
         url = "/virtapp/api/1.0/perm/update";
         postdata = {
-            uuid:             imgid,
-            table:          table,
-            data:           perm_str,
+            id:           id,
+            data:         perm_str,
         }
 
         $.post(url, postdata, function(data) {
@@ -119,8 +117,7 @@
             <!-- /.col-lg-6 (nested) -->
             <div class="col-lg-9">
                 <div role="form" id="myform">
-                    <div id="imgid" style="display:none">{{ imgobj.ecid }}</div>
-                    <div id="table" style="display:none">{{ table }}</div>
+                    <div id="id" style="display:none">{{ id }}</div>
                     <div id="next" style="display:none">{{ next }}</div>
                     {% for perm in perms %}
                     <div class="well well-sm">

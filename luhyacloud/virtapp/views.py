@@ -249,11 +249,97 @@ def edit_vapp(request):
 
 
 def vapp_perm_edit(request, appid):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+    if ua_role_value.ec_authpath_value != 'eduCloud.admin':
+        context = {
+            'pagetitle'     : _('Error Report'),
+            'error'         : _('Only eduCloud.Admin can change vapp permission!'),
+            'suggestion'    : _('Please logon as eduCloud.Admin.'),
+        }
+        return render(request, 'clc/error.html', context)
+
+    index = 0
+    authlist =  ecAuthPath.objects.all()
+    roles = []
+    for auth in authlist:
+        role={}
+        role['name']    =auth.ec_authpath_name
+        role['value']   = auth.ec_authpath_value
+        roles.append(role)
+
     rec = virtApp.objects.get(uuid=appid)
+    permsObjs = vapp_auth.objects.filter(uuid=rec.uuid)
+    perms = []
+    for perm_obj in permsObjs:
+        perm = {}
+        perm['id'] = 'perm' +  str(index)
+        perm['role_value'] = perm_obj.role_value
+        perm['read'] =  perm_obj.read
+        perm['write'] = perm_obj.write
+        perm['execute'] = perm_obj.execute
+        perm['create'] = perm_obj.create
+        perm['delete'] = perm_obj.delete
+        perms.append(perm)
+        index += 1
+
+    rows = len(perms)
+
     context = {
-        'uuid': rec.uuid,
+        'res'   : rec.appname,
+        'id'    :  rec.uuid,
+        'roles' :  roles,
+         'lists':  range(0,rows),
+        'next'  :   rows,
+        'perms' :  perms,
     }
+
     return render(request, 'virtapp/form/permission.html', context)
 
+def vapp_perm_update(id, data):
+    tflist = {
+        'true': True,
+        'false': False,
+    }
+
+    perms = data.split('#')
+    for perm in perms:
+        if len(perm) > 0:
+            auth = perm.split(':')
+            _role   = auth[0]
+            _read   = tflist[auth[1]]
+            _write  = tflist[auth[2]]
+            _execute= tflist[auth[3]]
+            _create = tflist[auth[4]]
+            _delete = tflist[auth[5]]
+
+            try:
+                rec = vapp_auth.objects.get(uuid=id, role_value= _role)
+                rec.read    = _read
+                rec.write   = _write
+                rec.execute = _execute
+                rec.create  = _create
+                rec.delete  = _delete
+                rec.save()
+            except:
+                rec = vapp_auth(
+                    uuid        = id,
+                    role_value  = _role,
+                    read        = _read,
+                    write       = _write,
+                    execute     = _execute,
+                    create      = _create,
+                    delete      = _delete,
+                )
+                rec.save()
+
 def update_perm(request):
-    pass
+    id = request.POST['id']
+    data = request.POST['data']
+
+    vapp_perm_update(id, data)
+
+    response = {}
+    response['Result'] = "OK"
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
