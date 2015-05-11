@@ -56,9 +56,7 @@ else:
             os.path.join(BASE_DIR, 'clc',    'conf/locale'),
         )
 
-    if os.path.exists("/etc/educloud/modules/clc") == True:
-        from virtappsettings import *
-
+    if os.path.exists("/etc/educloud/modules/virtapp") == True:
         TEMPLATE_DIRS.append(os.path.join(BASE_DIR, 'virtapp',    'templates'))
         INSTALLED_APPS += (
             'virtapp',

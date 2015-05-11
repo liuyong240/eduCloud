@@ -797,6 +797,11 @@ vs cluster
 ========================================
 IX. App virtualization
 ========================================
+9.0 restore ubuntu
+    sudo apt-add-repository -y ppa:teejee2008/ppa
+    sudo aptitude update
+    sudo aptitude install timeshift
+
 9.1 Prepare
 - Windows 2008 Server + Terminal Service, Windows 7 and Windows 8 are not supported.
 - install tl-wts-tools.exe (include SeamlessRDP)
