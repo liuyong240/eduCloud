@@ -368,6 +368,39 @@ def list_my_vapps(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def run_vapp(request):
+    bFindInstance = False
+
+    vapp_obj = virtApp.objects.get(uuid=request.POST['uuid'])
+    cmdline = 'rdesktop -A "c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe" -s "%s" %s -u "%s"'
+
+    # looking for instance that runs this vapp
+    ecids = vapp_obj.ecids
+    imgids = ecids.split(',')
+    for imgid in imgids:
+        imgid = imgid.strip()
+        insts = ecVSS.objects.filter(imageid=imgid)
+        for inst in insts:
+            trec = ectaskTransaction.objects.filter(insid = inst)
+            phase = trec.phase
+            state = trec.state
+            if phase == 'editing':
+                if state == 'Running' or state == 'running':
+                    runtime_options = json.loads(trec.runtime_option)
+                    cmdline = cmdline % (vapp_obj.apppath, runtime_options['web_ip'], request.POST['uid'])
+                    bFindInstance = True
+                    break
+
+    response = {}
+    if bFindInstance:
+        response['Result'] = "OK"
+        response['cmdline'] = cmdline
+    else:
+        response['Result'] = "FAIL"
+        response['error'] = 'Not Find running instances'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
 
 
 

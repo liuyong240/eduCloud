@@ -89,7 +89,7 @@
                                 </div>
                             </div>
 
-                            <button type="button" id="run_{{ vapp.id }}" onclick="startVAPP('{{ vapp.uuid }}', '{{ vapp.id }}');"  class="btn ">{% trans "Run" %}</button>
+                            <button type="button" id="run_{{ vapp.id }}" onclick="start_vapp('{{ vapp.uuid }}', '{{ vapp.id }}');"  class="btn ">{% trans "Run" %}</button>
 	        			</div>
 	        		</div>
                     {% endfor %}
@@ -179,6 +179,7 @@ var stop_url        = "/clc/api/1.0/rvd/stop/" ;
 var vmstatus_url    = "/clc/api/1.0/rvd/getvmstatus/";
 var remove_task_url = "/clc/api/1.0/tasks/delete";
 var get_rdp_url     = "/clc/api/1.0/rvd/get_rdp_url/";
+var run_vapp_url    = "/virtapp/api/1.0/runvapp/";
 
 ///////////////////////////////////////////////////////
 //
@@ -445,7 +446,7 @@ function stop_tvd(id) {
 
 
 function errorMsgBox(msg) {
-    //console.log(msg);
+    alert(msg);
 }
 
 function startVD( ecid, id ) {
@@ -510,7 +511,6 @@ function show_in_tools( id ) {
         window.open(url, '', 'height=10,width=10,left=0, top=0');
     });
 }
-
 
 function gui_update(items, do2run) {
     //console.log("gui_update() is called.");
@@ -635,6 +635,33 @@ function init_GUI() {
             gui_update(data, 0);
         {% endif %}
     {% endfor%}
+}
+
+
+////////////////////////////////////////////////////////
+//
+// Virtualized Application
+//
+////////////////////////////////////////////////////////
+function start_vapp(vapp_uuid, vapp_id) {
+    postdata = {
+        'uuid': vapp_uuid,
+        'uid':  "{{ uid }}",
+    }
+    $.post(run_vapp_url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        if ( items['Result'] == 'OK' ) {
+            cmdline = items['cmdline']
+            // run cmdline
+            errorMsgBox(items['cmdline']);
+        } else {
+            errorMsgBox(items['error']);
+            return ;
+        }
+    });
 }
 
 
