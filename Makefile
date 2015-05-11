@@ -110,7 +110,16 @@ install:
 	######################
 	#     WEB_VIRTAPP    #
 	######################
-	
+	install -d $(WEB_VIRTAPP)/etc/educloud/modules
+	touch $(WEB_VIRTAPP)/etc/educloud/modules/virtapp
+
+	install -d $(WEB_VIRTAPP)/usr/local/www/virtapp
+	python -m compileall $(CURDIR)/luhyacloud/virtapp/
+	mv $(CURDIR)/luhyacloud/virtapp/*.pyc                    $(WEB_VIRTAPP)/usr/local/www/virtapp/
+	#cp $(CURDIR)/luhyacloud/virtapp/*.py                    $(WEB_VIRTAPP)/usr/local/www/virtapp/
+	#cp -r $(CURDIR)/luhyacloud/virtapp/static               $(WEB_VIRTAPP)/usr/local/www/virtapp/
+	cp -r $(CURDIR)/luhyacloud/virtapp/templates             $(WEB_VIRTAPP)/usr/local/www/virtapp/
+	cp -r $(CURDIR)/luhyacloud/virtapp/sql                   $(WEB_VIRTAPP)/usr/local/www/virtapp/
 
 	#####################
 	#     DAEMON_CLC    #
@@ -165,89 +174,3 @@ install:
 
 	install -d $(DAEMON_NC)/usr/local/bin/
 	cp $(CURDIR)/webconfig/scripts/nodedaemon-nc          $(DAEMON_NC)/usr/local/bin
-
-	#####################
-	#     ALL_IN_ONE    #
-	#####################
-
-	install -d $(ALL_IN_ONE)/etc/educloud/modules
-	touch $(ALL_IN_ONE)/etc/educloud/modules/core
-	touch $(ALL_IN_ONE)/etc/educloud/modules/portal
-	touch $(ALL_IN_ONE)/etc/educloud/modules/clc
-	touch $(ALL_IN_ONE)/etc/educloud/modules/walrus
-	touch $(ALL_IN_ONE)/etc/educloud/modules/cc
-	touch $(ALL_IN_ONE)/etc/educloud/modules/nc
-
-	install -d $(ALL_IN_ONE)/usr/local/bin/
-
-	install -d $(ALL_IN_ONE)/usr/local/webconfig/3rd/web
-
-	cp $(CURDIR)/debian/fuse.conf                       $(ALL_IN_ONE)/usr/local/webconfig/
-	cp $(CURDIR)/debian/sudoers                         $(ALL_IN_ONE)/usr/local/webconfig/
-	cp -r $(CURDIR)/webconfig/apache2                   $(ALL_IN_ONE)/usr/local/webconfig/
-	cp -r $(CURDIR)/webconfig/rsync                     $(ALL_IN_ONE)/usr/local/webconfig/
-
-	cp $(CURDIR)/webconfig/scripts/all-in-one           $(ALL_IN_ONE)/usr/local/bin/
-
-	############### WEB_CLOUD
-	install -d $(ALL_IN_ONE)/usr/local/www/luhyacloud/
-
-	cp $(CURDIR)/luhyacloud/*.py                         $(ALL_IN_ONE)/usr/local/www/
-	python -m compileall $(CURDIR)/luhyacloud/luhyacloud/
-	mv $(CURDIR)/luhyacloud/luhyacloud/*.pyc             $(ALL_IN_ONE)/usr/local/www/luhyacloud/
-	cp $(CURDIR)/luhyacloud/luhyacloud/wsgi.py           $(ALL_IN_ONE)/usr/local/www/luhyacloud/
-	rm $(ALL_IN_ONE)/usr/local/www/luhyacloud/wsgi.pyc
-
-	############### WEB_PORTAL
-	install -d $(ALL_IN_ONE)/usr/local/www/portal
-	python -m compileall $(CURDIR)/luhyacloud/portal/
-	mv $(CURDIR)/luhyacloud/portal/*.pyc                $(ALL_IN_ONE)/usr/local/www/portal/
-	cp -r $(CURDIR)/luhyacloud/portal/conf              $(ALL_IN_ONE)/usr/local/www/portal/
-	cp -r $(CURDIR)/luhyacloud/portal/static            $(ALL_IN_ONE)/usr/local/www/portal/
-	cp -r $(CURDIR)/luhyacloud/portal/templates         $(ALL_IN_ONE)/usr/local/www/portal/
-
-	############### WEB_CLC
-	cp $(CURDIR)/debian/educloud.conf                   $(ALL_IN_ONE)/etc/educloud/modules/
-
-	install -d $(ALL_IN_ONE)/usr/local/www/clc
-	python -m compileall $(CURDIR)/luhyacloud/clc/
-	mv $(CURDIR)/luhyacloud/clc/*.pyc                   $(ALL_IN_ONE)/usr/local/www/clc/
-	cp -r $(CURDIR)/luhyacloud/clc/conf                 $(ALL_IN_ONE)/usr/local/www/clc/
-	cp -r $(CURDIR)/luhyacloud/clc/static               $(ALL_IN_ONE)/usr/local/www/clc/
-	cp -r $(CURDIR)/luhyacloud/clc/templates            $(ALL_IN_ONE)/usr/local/www/clc/
-	cp -r $(CURDIR)/luhyacloud/clc/sql                  $(ALL_IN_ONE)/usr/local/www/clc/
-
-	############### WEB_WALRUS
-	install -d $(ALL_IN_ONE)/usr/local/www/walrus
-	python -m compileall $(CURDIR)/luhyacloud/walrus/
-	mv $(CURDIR)/luhyacloud/walrus/*.pyc                $(ALL_IN_ONE)/usr/local/www/walrus/
-
-	############### WEB_CC
-	install -d $(ALL_IN_ONE)/usr/local/www/cc
-	python -m compileall $(CURDIR)/luhyacloud/cc/
-	mv $(CURDIR)/luhyacloud/cc/*.pyc                    $(ALL_IN_ONE)/usr/local/www/cc/
-
-	############### DAEMON_CLC
-	install -d $(ALL_IN_ONE)/usr/local/nodedaemon/clc
-
-	cp $(CURDIR)/nodeDaemon/clc/dist/clc_daemon            $(ALL_IN_ONE)/usr/local/nodedaemon/clc
-	rm -fr $(CURDIR)/nodeDaemon/clc/dist        $(CURDIR)/nodeDaemon/clc/build
-
-	############### DAEMON_WALRUS
-	install -d $(ALL_IN_ONE)/usr/local/nodedaemon/walrus
-
-	cp $(CURDIR)/nodeDaemon/walrus/dist/walrus_daemon            $(ALL_IN_ONE)/usr/local/nodedaemon/walrus
-	rm -fr $(CURDIR)/nodeDaemon/walrus/dist     $(CURDIR)/nodeDaemon/walrus/build
-
-	############### DAEMON_CC
-	install -d $(ALL_IN_ONE)/usr/local/nodedaemon/cc
-
-	cp $(CURDIR)/nodeDaemon/cc/dist/cc_daemon            $(ALL_IN_ONE)/usr/local/nodedaemon/cc
-	rm -fr $(CURDIR)/nodeDaemon/cc/dist        $(CURDIR)/nodeDaemon/cc/build
-
-	############### DAEMON_NC
-	install -d $(ALL_IN_ONE)/usr/local/nodedaemon/nc
-
-	cp $(CURDIR)/nodeDaemon/nc/dist/nc_daemon            $(ALL_IN_ONE)/usr/local/nodedaemon/nc
-	rm -fr $(CURDIR)/nodeDaemon/nc/dist        $(CURDIR)/nodeDaemon/nc/build
-

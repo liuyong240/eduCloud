@@ -51,13 +51,8 @@ Architecture: all
 Depends:  python-dev, ifstat, sysstat, sudo, openssh-server, python-pip, sshfs, iperf, virtualbox-4.3
 Description: educloud nc daemon package
 
-Package: all-in-one
-Architecture: all
-Depends: python2.7, apache2, libapache2-mod-wsgi, python-pip, python-dev, ifstat, sysstat, sudo, openssh-server, python-pip, sshfs, iperf, virtualbox-4.3, mysql-server, libmysqld-dev, libmysqlclient-dev, rabbitmq-server, memcached, libmemcached-tools
-Description: educloud allinone package
-
 Package: educloud-virtapp
 Architecture: all
-Depends:  educloud-clc, adtool, openssl
+Depends:  educloud-portal, educloud-clc, adtool, openssl
 Description: educloud virt app web package
 
