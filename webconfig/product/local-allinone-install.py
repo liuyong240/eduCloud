@@ -80,7 +80,7 @@ if ret == '':
     #os.system(cmd_line)
 
 ##############################################################################
-# 6. create /storage directories
+# 6. create /storage directories and download data.vdi
 ##############################################################################
 if not os.path.exists('/var/log/educloud'):
     os.system('sudo mkdir -p /var/log/educloud')
@@ -106,6 +106,18 @@ if not os.path.exists('/storage/tmp'):
 if not os.path.exists('/storage/tmp/images'):
     os.system('sudo mkdir -p /storage/tmp/images')
     os.system('sudo mkdir -p /storage/tmp/VMs')
+
+cmd_line = 'cd /tmp && wget http://%s/database.vdi' % DST_IP
+os.system(cmd_line)
+cmd_line = 'sudo mv /tmp/database.vdi /storage/images/database'
+os.system(cmd_line)
+
+cmd_line = 'cd /tmp && wget http://%s/data.vdi' % DST_IP
+os.system(cmd_line)
+cmd_line = 'sudo mv /tmp/data.vdi /storage/images/data'
+os.system(cmd_line)
+
+
 
 ##############################################################################
 # 7. install educloud in one machine by apt-get

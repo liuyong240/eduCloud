@@ -922,8 +922,10 @@ IX. App virtualization
          URI     ldaps://win2k8.educloud.com
          TLS_REQCERT allow
 
-
-        
+9.4.6 add new protocol handler for browser in Ubuntu
+- http://stackoverflow.com/questions/28713665/how-to-add-a-new-mime-protocol-handler-to-firefox-and-chrome-in-ubuntu
+- http://askubuntu.com/questions/465586/how-to-reset-external-protocol-handler-in-chrome
+- http://askubuntu.com/questions/330937/is-it-possible-to-open-an-ubuntu-app-from-html
     
 
 

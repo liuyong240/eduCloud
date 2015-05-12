@@ -420,7 +420,7 @@ def findVMRunningResource(request, insid):
                 final_avail_res['xccip'] = ccobj.ip0
                 l.add(final_avail_res)
         else:
-            ncobj = ecServers.objects.get(ccname=cc.ccname, ip0=nc_def)
+            ncobj = ecServers.objects.get(ccname=cc.ccname, ip0=nc_def, role='nc')
             final_avail_res = get_nc_avail_res(ncobj.mac0)
             final_avail_res['xncip'] = ncobj.ip0
             final_avail_res['xccip'] = ccobj.ip0
