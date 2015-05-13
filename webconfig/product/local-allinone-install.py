@@ -122,10 +122,7 @@ os.system(cmd_line)
 ##############################################################################
 # 7. install educloud in one machine by apt-get
 ##############################################################################
-cmd_line = 'sudo apt-get -y install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc nodedaemon-nc'
-os.system(cmd_line)
-
-cmd_line = 'sudo apt-get -y install educloud-virtapp'
+cmd_line = 'sudo apt-get -y install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc nodedaemon-nc educloud-virtapp'
 os.system(cmd_line)
 
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'

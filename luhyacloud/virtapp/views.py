@@ -66,16 +66,16 @@ def vapp_mgr(request):
 
 def updateLDAPSConf():
     ldaps_para = ldapsPara.objects.filter()
-    URI  = "URI %s" % ldaps_para[0].uri
-    uri  = "uri %s" % ldaps_para[0].uri
-    BASE = "BASE %s" % ldaps_para[0].searchbase
-    TLS  = "TLS_REQCERT allow"
-    binddn = "binddn %s" % ldaps_para[0].binddn
-    bindpw = "bindpw %s" % ldaps_para[0].bindpw
-    searchbase = "searchbase %s" % ldaps_para[0].searchbase
+    URI  = "URI %s\n" % ldaps_para[0].uri
+    uri  = "uri %s\n" % ldaps_para[0].uri
+    BASE = "BASE %s\n" % ldaps_para[0].searchbase
+    TLS  = "TLS_REQCERT allow\n"
+    binddn = "binddn %s\n" % ldaps_para[0].binddn
+    bindpw = "bindpw %s\n" % ldaps_para[0].bindpw
+    searchbase = "searchbase %s\n" % ldaps_para[0].searchbase
 
     # update /etc/ldap/ldap.conf
-    filepath = "/tmp/ldap.conf/"
+    filepath = "/tmp/ldap.conf"
     text_file = open (filepath, "w")
     text_file.writelines(BASE)
     text_file.writelines(URI)
@@ -87,7 +87,7 @@ def updateLDAPSConf():
     # update /etc/adtool.cfg
     filepath = "/tmp/adtool.cfg"
     text_file = open (filepath, "w")
-    text_file.writelines(base)
+    text_file.writelines(uri)
     text_file.writelines(binddn)
     text_file.writelines(bindpw)
     text_file.writelines(searchbase)
