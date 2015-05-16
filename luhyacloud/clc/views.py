@@ -2784,14 +2784,25 @@ def jtable_ethers(request, cc_name):
 
 def ethers_allocate(ccname, _insid):
     if _insid.find('VS') == 0:
-        vssobj = ecVSS.objects.get(insid = _insid)
-        e = ecDHCPEthers.objects.get(mac=vssobj.mac)
-        e.insid = _insid
-        e.save()
-        logger.error("allocate ether %s-%s-%s" % (e.mac, e.ip, e.ex_web_proxy_port))
-        return e.mac, e.ip, e.ex_web_proxy_port
+        try:
+            vssobj = ecVSS.objects.get(insid = _insid)
+            e = ecDHCPEthers.objects.get(mac=vssobj.mac)
+            e.insid = _insid
+            e.save()
+            logger.error("allocate VS ether %s-%s-%s" % (e.mac, e.ip, e.ex_web_proxy_port))
+            return e.mac, e.ip, e.ex_web_proxy_port
+        except:
+            return None, None, None
     else:
-        return None, None, None
+        es = ecDHCPEthers.objects.filter(insid='')
+        if es.count() > 0:
+            e = ecDHCPEthers.objects.get(mac=es[0].mac)
+            e.insid = _insid
+            e.save()
+            logger.error("allocate TMP ether %s-%s-%s" % (e.mac, e.ip, e.ex_web_proxy_port))
+            return e.mac, e.ip, e.ex_web_proxy_port
+        else:
+            return None, None, None
 
 def ethers_free(insid):
     ecs = ecDHCPEthers.objects.filter(insid=insid)
@@ -3976,6 +3987,10 @@ def delete_vss(request):
         # delete vds_auth records
         ecVSS_auth.objects.filter(insid=request.POST['insid']).delete()
         vss_rec.delete()
+        # delete database file
+        dbpath = '/storage/space/database/instances/%s' %  request.POST['insid']
+        shutil.rmtree(dbpath)
+
         response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
