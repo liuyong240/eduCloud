@@ -1,0 +1,15 @@
+#!/bin/bash -e
+
+. /usr/share/debconf/confmodule
+
+if [ "$1" = "configure" ]; then
+   ##############################
+   # change owner
+   ##############################
+   usermod -a -G luhya www-data || true
+
+   chown -R luhya:luhya /var/log/educloud || true
+   chown -R luhya:luhya /usr/local/www || true
+   chmod -R 777 /usr/local/www || true
+   chmod -R 777 /var/log/educloud || true
+fi

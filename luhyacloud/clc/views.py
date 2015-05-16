@@ -1661,7 +1661,10 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
     creator = tidrec.user
 
     if _runtime_option == None:
-        runtime_option = json.loads(tidrec.runtime_option)
+        if len(tidrec.runtime_option) > 0:
+            runtime_option = json.loads(tidrec.runtime_option)
+        else:
+            return
     else:
         runtime_option = _runtime_option
 
@@ -1682,7 +1685,7 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
 
         ccres_info.save()
 
-    # 2. release
+    # 2. release web_ip
     if 'web_ip' in runtime_option.keys() and \
         runtime_option['web_ip'] != ''   and \
         runtime_option['networkcards'] == 'tree' and \
@@ -1698,11 +1701,11 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
 
         ccres_info.save()
 
-    # 3. release ether if it is VS
-    if ccres_info.cc_usage == 'vs':
+    # 3. release ether if it is VS and
+    if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
         ethers_free(tidrec.insid)
 
-    # 4. release iptables
+    # 3. release iptables
     if 'iptable_rules' in runtime_option.keys() and runtime_option['iptable_rules'] != []:
         logger.error('--- notify cc %s to release iptables ... ...' % tidrec.ccip)
         if DAEMON_DEBUG == True:
@@ -2779,12 +2782,13 @@ def jtable_ethers(request, cc_name):
     }
     return render(request, 'clc/jtable/ethers_table.html', context)
 
-def ethers_allocate(ccname, insid):
-    es = ecDHCPEthers.objects.filter(ccname=ccname, insid='')
-    if es.count() > 0:
-        e  = ecDHCPEthers.objects.get(mac=es[0].mac)
-        e.insid = insid
+def ethers_allocate(ccname, _insid):
+    if _insid.find('VS') == 0:
+        vssobj = ecVSS.objects.get(insid = _insid)
+        e = ecDHCPEthers.objects.get(mac=vssobj.mac)
+        e.insid = _insid
         e.save()
+        logger.error("allocate ether %s-%s-%s" % (e.mac, e.ip, e.ex_web_proxy_port))
         return e.mac, e.ip, e.ex_web_proxy_port
     else:
         return None, None, None
@@ -3969,12 +3973,6 @@ def delete_vss(request):
         response['Result'] = 'FAIL'
         response['errormsg'] = "Need to delete this VM's running task first"
     else:
-        # release ip/mac resources
-        if vss_rec.mac != "any":
-            ether = ecDHCPEthers.objects.get(mac = vss_rec.mac)
-            ether.insid = ''
-            ether.save()
-
         # delete vds_auth records
         ecVSS_auth.objects.filter(insid=request.POST['insid']).delete()
         vss_rec.delete()
@@ -4031,13 +4029,6 @@ def create_vss(request):
             )
             new_vm_auth.save()
             logger.error("create new vm_auth record2 --- OK")
-
-        # update ecDHCPEthers table
-        if request.POST['mac'] != 'any':
-            ether = ecDHCPEthers.objects.get(mac=new_vm.mac)
-            ether.insid = new_vm.insid
-            ether.save()
-            logger.error("allocate new ether --- OK")
 
         # prepare database file
         srcdb = '/storage/space/database/images/%s/database'    % request.POST['imageid']

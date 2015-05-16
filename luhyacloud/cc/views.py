@@ -239,7 +239,6 @@ def delete_tasks(request):
     logger.error("--- --- --- cc delete_tasks %s" % tid)
 
     ncip = request.POST['ncip']
-    runtime_option = json.loads(request.POST['runtime_option'])
 
     message = {}
     message['type']             = "cmd"

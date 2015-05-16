@@ -726,7 +726,6 @@ def nc_task_delete_handle(tid, runtime_option):
     srcimgid = retval[0]
     dstimgid = retval[1]
     insid    = retval[2]
-    _runtime_option = json.loads(runtime_option)
 
     # process for different type instance
     rootdir = "/storage"
