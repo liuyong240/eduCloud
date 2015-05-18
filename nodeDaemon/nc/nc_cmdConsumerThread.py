@@ -462,7 +462,8 @@ class SubmitImageTaskThread(threading.Thread):
 
             if os.path.exists(os.path.dirname(dstfile)):
                 logger.error('rm %s' % os.path.dirname(dstfile))
-                shutil.rmtree(os.path.dirname(dstfile))
+                if os.path.exists(os.path.dirname(dstfile)):
+                    shutil.rmtree(os.path.dirname(dstfile))
 
             logger.error("--- task_finish is Done whit src <> dst")
         else:
@@ -769,7 +770,8 @@ def nc_task_delete_handle(tid, runtime_option):
 
         if os.path.exists(os.path.dirname(disk)):
             logger.error('rm %s' % os.path.dirname(disk))
-            shutil.rmtree(os.path.dirname(disk))
+            if os.path.exists(os.path.dirname(disk)):
+                shutil.rmtree(os.path.dirname(disk))
 
 
 def nc_image_stop_handle(tid, runtime_option):

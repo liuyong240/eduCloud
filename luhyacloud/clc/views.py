@@ -1749,12 +1749,12 @@ def genVMDisks(tid, usage):
 
     if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0 :
         c['file']    = '/storage/images/%s/machine' % dst_imgid
-        c['mtype']   = 'normal'
+        c['mtype']   = 'multiattach'
         disks.append(c)
 
     if ins_id.find('VS') == 0:
         c['file']    = '/storage/images/%s/machine' % dst_imgid
-        c['mtype']   = 'normal'
+        c['mtype']   = 'multiattach'
         disks.append(c)
 
         d['file']    = '/storage/space/database/instances/%s/database' % ins_id
@@ -3989,7 +3989,8 @@ def delete_vss(request):
         vss_rec.delete()
         # delete database file
         dbpath = '/storage/space/database/instances/%s' %  request.POST['insid']
-        shutil.rmtree(dbpath)
+        if os.path.exists(dbpath):
+            shutil.rmtree(dbpath)
 
         response['Result'] = 'OK'
 
@@ -4129,9 +4130,13 @@ def delete_images(request):
     rec = ecImages.objects.get(id=request.POST['id'])
 
     # delete image files
-    shutil.rmtree('/storage/images/' + rec.ecid)
+    imgpath = '/storage/images/' + rec.ecid
+    if os.path.exists(imgpath):
+        shutil.rmtree(imgpath)
     if rec.img_usage == 'server':
-        shutil.rmtree('/storage/space/database/images' + rec.ecid)
+        dbpath = '/storage/space/database/images/' + rec.ecid
+        if os.path.exists(dbpath):
+           shutil.rmtree(dbpath)
 
     # delete image records
     rec.delete()
