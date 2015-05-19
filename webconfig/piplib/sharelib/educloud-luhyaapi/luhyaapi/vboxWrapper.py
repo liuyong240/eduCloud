@@ -52,20 +52,23 @@ def getVMlist():
                 logger.error("Find inaccessible vm with uuid=%s" % vm['uuid'])
                 continue
 
-            vm_cmd = "vboxmanage showvminfo %s" % vm['uuid']
-            out = execute_cmd(vm_cmd, True)
-            out = out.split('\n')
-            vm['guest_os'] =  out[2].split(':')[1].strip()  # line 3
-            tmp            =  out[8].split(':')[1].strip()  # line 9
-            vm['mem']      =  int(tmp.split('MB')[0])/1024
-            vm['vcpu']     =  int(out[15].split(':')[1].strip()) # line 16
-            state          =  out[34].split(':')[1].strip()
-            if state.find('running') >= 0:
-                vm['state'] = 'Running'
-            else:
-                vm['state'] = 'Stopped'
+            try:
+                vm_cmd = "vboxmanage showvminfo %s" % vm['insid']
+                out = execute_cmd(vm_cmd, True)
+                out = out.split('\n')
+                vm['guest_os'] =  out[2].split(':')[1].strip()  # line 3
+                tmp            =  out[8].split(':')[1].strip()  # line 9
+                vm['mem']      =  int(tmp.split('MB')[0])/1024
+                vm['vcpu']     =  int(out[15].split(':')[1].strip()) # line 16
+                state          =  out[34].split(':')[1].strip()
+                if state.find('running') >= 0:
+                    vm['state'] = 'Running'
+                else:
+                    vm['state'] = 'Stopped'
 
-            result.append(vm)
+                result.append(vm)
+            except Exception as e:
+                logger.error('%s exception = %s' % (vm_cmd, str(e)))
 
     logger.error("report VMs status: %s" % json.dumps(result))
     return result
