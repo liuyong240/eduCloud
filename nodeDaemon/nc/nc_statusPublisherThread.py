@@ -27,13 +27,24 @@ class nc_statusPublisherThread(run4everThread):
 
         payload = { }
         payload['type']             = 'nodestatus'
-        payload['service_data']     = getServiceStatus('nc')
-        payload['hardware_data']    = getHostHardware()
-        payload['net_data']         = getHostNetInfo()
-        payload['vm_data']          = getVMlist()
+        try:
+            payload['service_data']     = getServiceStatus('nc')
+        except Exception as e:
+            logger.error('getServiceStatus exception = %s' % str(e))
+        try:
+            payload['hardware_data']    = getHostHardware()
+        except Exception as e:
+            logger.error('getHostHardware exception = %s' % str(e))
+        try:
+            payload['net_data']         = getHostNetInfo()
+        except Exception as e:
+            logger.error('getHostNetInfo exception = %s' % str(e))
+        try:
+            payload['vm_data']          = getVMlist()
+        except Exception as e:
+            logger.error('getVMlist exception = %s' % str(e))
 
         payload['nid']              = "nc#" + payload['net_data']['mac0'] + "#status"
-
         return payload
 
     def send_node_status_to_cc(self, node_status):

@@ -48,7 +48,11 @@ def getVMlist():
             vm['insid'] = vms[2*x].replace('"', '')
             vm['uuid'] = vms[2*x+1].replace('{', '').replace('}', '')
 
-            vm_cmd = "vboxmanage showvminfo %s" % vm['insid']
+            if vm['insid'] == 'inaccessible':
+                logger.error("Find inaccessible vm with uuid=%s" % vm['uuid'])
+                continue
+
+            vm_cmd = "vboxmanage showvminfo %s" % vm['uuid']
             out = execute_cmd(vm_cmd, True)
             out = out.split('\n')
             vm['guest_os'] =  out[2].split(':')[1].strip()  # line 3

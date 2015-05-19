@@ -124,14 +124,17 @@ def set_ldaps_para(request):
 
 def usercreate(request):
     ldaps_para = ldapsPara.objects.filter()
-    group = 'cn=Users,' % ldaps_para[0].searchbase
+    group = 'cn=Users,%s' % ldaps_para[0].searchbase
 
     cmd = 'adtool usercreate %s %s' % (request.POST['username'], group)
-    commands.getoutput(cmd)
+    output = commands.getoutput(cmd)
+    logger.error("%s \n %s" % (cmd, output))
     cmd = 'adtool setpass %s %s' % (request.POST['username'], request.POST['password'])
-    commands.getoutput(cmd)
-    cmd = 'adtool userunlock %s' % request.POST['username']
-    commands.getoutput(cmd)
+    output = commands.getoutput(cmd)
+    logger.error("%s \n %s" % (cmd, output))
+    output = cmd = 'adtool userunlock %s' % request.POST['username']
+    output = commands.getoutput(cmd)
+    logger.error("%s \n %s" % (cmd, output))
 
     response = {}
     response['Result'] = 'OK'
@@ -140,7 +143,8 @@ def usercreate(request):
 
 def userdelete(request):
     cmd = 'adtool userdelete %s' % request.POST['username']
-    commands.getoutput(cmd)
+    output = commands.getoutput(cmd)
+    logger.error("%s \n %s" % (cmd, output))
 
     response = {}
     response['Result'] = 'OK'
@@ -148,12 +152,19 @@ def userdelete(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def userupdate(request):
+    group = 'cn=Users,%s' % ldaps_para[0].searchbase
+    cmd = 'adtool list %s' % group
+    output = commands.getoutput(cmd)
+    logger.error("%s \n %s" % (cmd, output))
+
+
     is_en_vapp = request.POST['vapp_en']
     if is_en_vapp == 'yes':
         cmd = 'adtool userunlock %s' % request.POST['username']
     else:
         cmd = 'adtool userlock %s' % request.POST['username']
-    commands.getoutput(cmd)
+    output = commands.getoutput(cmd)
+    logger.error("%s \n %s" % (cmd, output))
 
     response = {}
     response['Result'] = 'OK'
@@ -162,7 +173,8 @@ def userupdate(request):
 
 def setpass(request):
     cmd = 'adtool setpass %s %s' % (request.POST['username'], request.POST['password'])
-    commands.getoutput(cmd)
+    output = commands.getoutput(cmd)
+    logger.error("%s \n %s" % (cmd, output))
 
     response = {}
     response['Result'] = 'OK'
