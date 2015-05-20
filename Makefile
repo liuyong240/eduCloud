@@ -117,7 +117,7 @@ install:
 	python -m compileall $(CURDIR)/luhyacloud/virtapp/
 	mv $(CURDIR)/luhyacloud/virtapp/*.pyc                    $(WEB_VIRTAPP)/usr/local/www/virtapp/
 	#cp $(CURDIR)/luhyacloud/virtapp/*.py                    $(WEB_VIRTAPP)/usr/local/www/virtapp/
-	#cp -r $(CURDIR)/luhyacloud/virtapp/static               $(WEB_VIRTAPP)/usr/local/www/virtapp/
+	cp -r $(CURDIR)/luhyacloud/virtapp/conf                  $(WEB_VIRTAPP)/usr/local/www/virtapp/
 	cp -r $(CURDIR)/luhyacloud/virtapp/templates             $(WEB_VIRTAPP)/usr/local/www/virtapp/
 	cp -r $(CURDIR)/luhyacloud/virtapp/sql                   $(WEB_VIRTAPP)/usr/local/www/virtapp/
 

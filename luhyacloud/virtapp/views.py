@@ -135,8 +135,6 @@ def userupdate(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-
-
 def jtable_vapps(request):
     ua = ecAccount.objects.get(userid=request.user)
     ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
