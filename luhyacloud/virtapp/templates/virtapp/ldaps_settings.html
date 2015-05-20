@@ -21,7 +21,7 @@
                     </div>
                     <div class="form-group">
                         <label>{% trans "Bind DN*" %}</label>
-                        <input id="binddn" class="form-control" type="text" placeholder="cn=administrator,cn=Users,dc=educloud,dc=com" value="{{ para.binddn }}">
+                        <input id="binddn" class="form-control" type="text" placeholder="administrator@educloud.com" value="{{ para.binddn }}">
                     </div>
                     <div class="form-group">
                         <label>{% trans "Password*" %}</label>
@@ -34,6 +34,10 @@
                     <div class="form-group">
                         <label>{% trans "Search Base*" %}</label>
                         <input id="searchbase" class="form-control" type="text" placeholder="dc=educloud,dc=com" value="{{ para.searchbase }}">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Domain*" %}</label>
+                        <input id="domain" class="form-control" type="text" placeholder="educloud.com" value="{{ para.domain }}">
                     </div>
                 </div>
 
@@ -75,6 +79,7 @@
         password1  = $('#password1').val();
         password2  = $('#password2').val();
         searchbase = $('#searchbase').val();
+        domain     = $('#domain').val();
 
         if (password1 != password2) {
             errormsg = "password does not matche!"
@@ -90,6 +95,7 @@
             binddn:         binddn,
             password:       password1,
             searchbase:     searchbase,
+            domain:         domain,
         }
 
         $.post(url, postdata, function(data) {

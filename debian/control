@@ -53,6 +53,6 @@ Description: educloud nc daemon package
 
 Package: educloud-virtapp
 Architecture: all
-Depends:  educloud-portal, educloud-clc, adtool, openssl, ldap-utils, libldap2-dev
+Depends:  educloud-portal, educloud-clc, python-ldap, openssl, ldap-utils, libldap2-dev
 Description: educloud virt app web package
 

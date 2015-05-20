@@ -26,6 +26,8 @@ from sortedcontainers import SortedList
 import requests, memcache
 from django.utils.translation import ugettext as _
 
+from luhyaapi.adToolWrapper import *
+
 logger = getclclogger()
 
 # Create your views here.
@@ -64,37 +66,6 @@ def vapp_mgr(request):
     }
     return render(request, 'virtapp/vapp_mgr.html', context)
 
-def updateLDAPSConf():
-    ldaps_para = ldapsPara.objects.filter()
-    URI  = "URI %s\n" % ldaps_para[0].uri
-    uri  = "uri %s\n" % ldaps_para[0].uri
-    BASE = "BASE %s\n" % ldaps_para[0].searchbase
-    TLS  = "TLS_REQCERT allow\n"
-    binddn = "binddn %s\n" % ldaps_para[0].binddn
-    bindpw = "bindpw %s\n" % ldaps_para[0].bindpw
-    searchbase = "searchbase %s\n" % ldaps_para[0].searchbase
-
-    # update /etc/ldap/ldap.conf
-    filepath = "/tmp/ldap.conf"
-    text_file = open (filepath, "w")
-    text_file.writelines(BASE)
-    text_file.writelines(URI)
-    text_file.writelines(TLS)
-    text_file.close()
-    cmd = "sudo mv /tmp/ldap.conf /etc/ldap/ldap.conf"
-    commands.getoutput(cmd)
-
-    # update /etc/adtool.cfg
-    filepath = "/tmp/adtool.cfg"
-    text_file = open (filepath, "w")
-    text_file.writelines(uri)
-    text_file.writelines(binddn)
-    text_file.writelines(bindpw)
-    text_file.writelines(searchbase)
-    text_file.close()
-    cmd = "sudo mv /tmp/adtool.cfg /etc/adtool.cfg"
-    commands.getoutput(cmd)
-
 def set_ldaps_para(request):
     ldaps_para = ldapsPara.objects.filter()
     if ldaps_para.count() > 0:
@@ -103,6 +74,7 @@ def set_ldaps_para(request):
         rec.binddn      = request.POST['binddn']
         rec.bindpw      = request.POST['password']
         rec.searchbase  = request.POST['searchbase']
+        rec.domain      = request.POST['domain']
 
         rec.save()
     else:
@@ -111,11 +83,10 @@ def set_ldaps_para(request):
             binddn      = request.POST['binddn'],
             bindpw      = request.POST['password'],
             searchbase  = request.POST['searchbase'],
+            domain      = request.POST['domain']
         )
 
         rec.save()
-
-    updateLDAPSConf()
 
     response = {}
     response['Result'] = 'OK'
@@ -124,47 +95,14 @@ def set_ldaps_para(request):
 
 def usercreate(request):
     ldaps_para = ldapsPara.objects.filter()
-    group = 'cn=Users,%s' % ldaps_para[0].searchbase
+    basedn = 'cn=Users,%s' % ldaps_para[0].searchbase
+    adobj = adWrappper(ldaps_para[0].uri, ldaps_para[0].binddn, ldaps_para[0].bindpw, basedn)
 
-    cmd = 'adtool usercreate %s %s' % (request.POST['username'], group)
-    output = commands.getoutput(cmd)
-    logger.error("%s \n %s" % (cmd, output))
-    cmd = 'adtool setpass %s %s' % (request.POST['username'], request.POST['password'])
-    output = commands.getoutput(cmd)
-    logger.error("%s \n %s" % (cmd, output))
-    output = cmd = 'adtool userunlock %s' % request.POST['username']
-    output = commands.getoutput(cmd)
-    logger.error("%s \n %s" % (cmd, output))
-
-    response = {}
-    response['Result'] = 'OK'
-    retvalue = json.dumps(response)
-    return HttpResponse(retvalue, content_type="application/json")
-
-def userdelete(request):
-    cmd = 'adtool userdelete %s' % request.POST['username']
-    output = commands.getoutput(cmd)
-    logger.error("%s \n %s" % (cmd, output))
-
-    response = {}
-    response['Result'] = 'OK'
-    retvalue = json.dumps(response)
-    return HttpResponse(retvalue, content_type="application/json")
-
-def userupdate(request):
-    group = 'cn=Users,%s' % ldaps_para[0].searchbase
-    cmd = 'adtool list %s' % group
-    output = commands.getoutput(cmd)
-    logger.error("%s \n %s" % (cmd, output))
-
-
-    is_en_vapp = request.POST['vapp_en']
-    if is_en_vapp == 'yes':
-        cmd = 'adtool userunlock %s' % request.POST['username']
-    else:
-        cmd = 'adtool userlock %s' % request.POST['username']
-    output = commands.getoutput(cmd)
-    logger.error("%s \n %s" % (cmd, output))
+    if adobj.connect() == True:
+        if adobj.isUserExist(request.POST['username']):
+            adobj.SetPass(request.POST['username'], request.POST['password'], basedn)
+        else:
+            adobj.AddUser(request.POST['username'], request.POST['password'], basedn, ldaps_para[0].domain)
 
     response = {}
     response['Result'] = 'OK'
@@ -172,14 +110,31 @@ def userupdate(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def setpass(request):
-    cmd = 'adtool setpass %s %s' % (request.POST['username'], request.POST['password'])
-    output = commands.getoutput(cmd)
-    logger.error("%s \n %s" % (cmd, output))
+    ldaps_para = ldapsPara.objects.filter()
+    basedn = 'cn=Users,%s' % ldaps_para[0].searchbase
+    adobj = adWrappper(ldaps_para[0].uri, ldaps_para[0].binddn, ldaps_para[0].bindpw, basedn)
+
+    if adobj.connect() == True:
+        if adobj.isUserExist(request.POST['username']):
+            adobj.SetPass(request.POST['username'],  request.POST['password'], basedn)
 
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
+
+def userdelete(request):
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def userupdate(request):
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
 
 
 def jtable_vapps(request):

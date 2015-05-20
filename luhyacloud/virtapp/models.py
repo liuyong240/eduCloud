@@ -6,6 +6,7 @@ class ldapsPara(models.Model):
     binddn              = models.CharField(max_length=100)
     bindpw              = models.CharField(max_length=100)
     searchbase          = models.CharField(max_length=100)
+    domain              = models.CharField(max_length=100)
 
 class virtApp(models.Model):
     uuid    = models.CharField(max_length=100)
