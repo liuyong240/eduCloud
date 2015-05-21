@@ -18,7 +18,7 @@ Description: educloud portal package
 
 Package: educloud-clc
 Architecture: all
-Depends:  educloud-core, virtualbox-4.3, mysql-server, libmysqld-dev, libmysqlclient-dev, rabbitmq-server, memcached, libmemcached-tools,
+Depends:  educloud-core, virtualbox-4.3, mysql-server, libmysqld-dev, libmysqlclient-dev, rabbitmq-server, memcached, libmemcached-tools, python-ldap
 Description: educloud clc package
 
 Package: educloud-walrus

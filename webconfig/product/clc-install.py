@@ -49,6 +49,25 @@ cmd_line = 'sudo apt-get update'
 os.system(cmd_line)
 
 ##############################################################################
+# 4. install mysql-server without password prompt
+##############################################################################
+with open('/tmp/mysql-server.list', 'w') as myfile:
+    myfile.write('mysql-server mysql-server/root_password password root\n')
+    myfile.write('mysql-server mysql-server/root_password_again password root\n')
+
+cmd_line = 'sudo debconf-set-selections /tmp/mysql-server.list'
+commands.getoutput(cmd_line)
+
+cmd_line = 'sudo apt-get -y install mysql-server'
+os.system(cmd_line)
+
+if checkPackage('mysql-server-5.5') == False:
+   print "--------------------------------------------------"
+   print "Install mysql-server-5.5 Failed, please try again."
+   print "--------------------------------------------------"
+   exit(1)
+
+##############################################################################
 # 5. create a user named luhya
 ##############################################################################
 cmd_line = 'sudo cut -d: -f1 /etc/passwd | grep luhya'
