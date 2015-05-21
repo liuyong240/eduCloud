@@ -1031,7 +1031,11 @@ def cc_mgr_ccname(request, ccname):
     ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     ccobj = ecServers.objects.get(role="cc", ccname=ccname)
-    if DoesServiceExist(ccobj.ip0, 80) == "Running" :
+    if DAEMON_DEBUG == False:
+        port = 80
+    else:
+        port = 8000
+    if DoesServiceExist(ccobj.ip0, port) == "Running" :
         sip = ccobj.ip0
     else:
         sip = ccobj.eip

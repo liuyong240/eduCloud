@@ -28,7 +28,7 @@ Description: educloud walrus package
 
 Package: educloud-cc
 Architecture: all
-Depends:  educloud-core, rabbitmq-server
+Depends:  educloud-core, rabbitmq-server, memcached, libmemcached-tools,
 Description: educloud cc package
 
 Package: nodedaemon-clc
