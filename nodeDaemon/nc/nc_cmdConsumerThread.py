@@ -579,9 +579,12 @@ class runImageTaskThread(threading.Thread):
         bridged_ifs = get_vm_ifs()
 
         # register VM
+        snapshot_name = "thomas"
         if not vboxmgr.isVMRegistered():
             if vboxmgr.isVMRegisteredBefore():
                 ret = vboxmgr.registerVM()
+                if vboxmgr.isSnapshotExist(snapshot_name):
+                    ret = vboxmgr.restore_snapshot(snapshot_name)
             else:
                 try:
                     ostype_value = self.runtime_option['ostype']
@@ -629,14 +632,12 @@ class runImageTaskThread(threading.Thread):
                         ret = vboxmgr.addVRDPproperty()
                         logger.error("--- --- --- vboxmgr.addVRDPproperty for video channel, error=%s" % ret)
 
+                    vboxmgr.unregisterVM()
+                    vboxmgr.registerVM()
                     if self.runtime_option['run_with_snapshot'] == 1:
-                        snapshot_name = "thomas"
                         if not vboxmgr.isSnapshotExist(snapshot_name):
                             ret = vboxmgr.take_snapshot(snapshot_name)
                             logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % ret)
-
-                    vboxmgr.unregisterVM()
-                    vboxmgr.registerVM()
                 except Exception as e:
                     logger.error("createVM Exception error=%s" % str(e))
                     ret = vboxmgr.unregisterVM()

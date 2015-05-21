@@ -54,7 +54,7 @@ def perform_mount():
         return
 
     ccip = getccipbyconf()
-    base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space  /storage/space'
+    base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space /storage/space'
 
     if not os.path.ismount('/storage/space'):
         cmd = base_cmd % (ccip)

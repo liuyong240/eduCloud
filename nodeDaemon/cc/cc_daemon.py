@@ -37,17 +37,12 @@ def perform_mount():
         return
 
     clcip = getclcipbyconf()
-    base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space/%s /storage/space/%s'
+    base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space /storage/space'
 
-    if not os.path.ismount('/storage/space/software'):
-        cmd1 = base_cmd % (clcip, 'software', 'software')
+    if not os.path.ismount('/storage/space'):
+        cmd1 = base_cmd % (clcip)
         logger.error(cmd1)
         os.system(cmd1)
-
-    if not os.path.ismount('/storage/space/pub-data'):
-        cmd2 = base_cmd % (clcip, 'pub-data', 'pub-data')
-        logger.error(cmd2)
-        os.system(cmd2)
 
 def registerMyselfasCC():
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
