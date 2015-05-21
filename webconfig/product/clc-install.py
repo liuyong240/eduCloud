@@ -22,7 +22,7 @@ if not os.path.exists('/etc/apt/sources.list.luhya'):
     commands.getoutput(cmd_line)
 
     with open('/tmp/sources.list', 'a') as myfile:
-        myfile.write('deb http://%s/debian/ zhejiang non-free' % DST_IP)
+        myfile.write('\ndeb http://%s/debian/ zhejiang non-free' % DST_IP)
 
     cmd_line = 'sudo cp /tmp/sources.list /etc/apt/sources.list'
     commands.getoutput(cmd_line)
@@ -49,25 +49,6 @@ cmd_line = 'sudo apt-get update'
 os.system(cmd_line)
 
 ##############################################################################
-# 4. install mysql-server without password prompt
-##############################################################################
-with open('/tmp/mysql-server.list', 'w') as myfile:
-    myfile.write('mysql-server mysql-server/root_password password root\n')
-    myfile.write('mysql-server mysql-server/root_password_again password root\n')
-
-cmd_line = 'sudo debconf-set-selections /tmp/mysql-server.list'
-commands.getoutput(cmd_line)
-
-cmd_line = 'sudo apt-get -y install mysql-server'
-os.system(cmd_line)
-
-if checkPackage('mysql-server-5.5') == False:
-   print "--------------------------------------------------"
-   print "Install mysql-server-5.5 Failed, please try again."
-   print "--------------------------------------------------"
-   exit(1)
-
-##############################################################################
 # 5. create a user named luhya
 ##############################################################################
 cmd_line = 'sudo cut -d: -f1 /etc/passwd | grep luhya'
@@ -75,9 +56,6 @@ ret = commands.getoutput(cmd_line)
 if ret == '':
     cmd_line = 'sudo useradd  -m -s /bin/bash -U luhya'
     commands.getoutput(cmd_line)
-
-    #cmd_line = 'sudo passwd luhya'
-    #os.system(cmd_line)
 
 ##############################################################################
 # 6. create /storage directories and download data.vdi
@@ -117,12 +95,10 @@ os.system(cmd_line)
 cmd_line = 'sudo mv /tmp/data.vdi /storage/images/data'
 os.system(cmd_line)
 
-
-
 ##############################################################################
 # 7. install educloud in one machine by apt-get
 ##############################################################################
-cmd_line = 'sudo apt-get -y install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc nodedaemon-nc educloud-virtapp'
+cmd_line = 'sudo apt-get -y install educloud-core educloud-portal educloud-clc educloud-walrus nodedaemon-clc nodedaemon-walrus'
 os.system(cmd_line)
 
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
@@ -149,11 +125,6 @@ if checkPackage('educloud-walrus') == False:
    print "Install educloud-walrus Failed, please try again."
    print "--------------------------------------------------"
    exit(1)
-if checkPackage('educloud-cc') == False:
-   print "--------------------------------------------------"
-   print "Install educloud-cc Failed, please try again."
-   print "--------------------------------------------------"
-   exit(1)
 if checkPackage('nodedaemon-clc') == False:
    print "--------------------------------------------------"
    print "Install nodedaemon-clc Failed, please try again."
@@ -162,16 +133,6 @@ if checkPackage('nodedaemon-clc') == False:
 if checkPackage('nodedaemon-walrus') == False:
    print "--------------------------------------------------"
    print "Install nodedaemon-walrus Failed, please try again."
-   print "--------------------------------------------------"
-   exit(1)
-if checkPackage('nodedaemon-cc') == False:
-   print "--------------------------------------------------"
-   print "Install nodedaemon-cc Failed, please try again."
-   print "--------------------------------------------------"
-   exit(1)
-if checkPackage('nodedaemon-nc') == False:
-   print "--------------------------------------------------"
-   print "Install nodedaemon-nc Failed, please try again."
    print "--------------------------------------------------"
    exit(1)
 
@@ -239,42 +200,19 @@ cmd_line = 'echo "IP=127.0.0.1"  >> /tmp/clc.conf'
 commands.getoutput(cmd_line)
 cmd_line = 'sudo cp /tmp/clc.conf  /storage/config/clc.conf'
 commands.getoutput(cmd_line)
-
-#######################################
-# 12 configure , cc.conf
-#######################################
-cmd_line = 'echo "[server]"    > /tmp/cc.conf'
-commands.getoutput(cmd_line)
-cmd_line = 'echo "IP=127.0.0.1"  >> /tmp/cc.conf'
-commands.getoutput(cmd_line)
-cmd_line = 'echo "ccname=allinone"  >> /tmp/cc.conf'
-commands.getoutput(cmd_line)
-cmd_line = 'sudo cp /tmp/cc.conf  /storage/config/cc.conf'
-commands.getoutput(cmd_line)
 cmd_line = 'sudo chown -R luhya:luhya /storage/config'
 commands.getoutput(cmd_line)
-cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
-commands.getoutput(cmd_line)
-
-##############################################################################
-# 13. configure sshfs
-##############################################################################
-# cmd_line = 'sudo -u luhya ssh-keygen'
-# os.system(cmd_line)
-# clcip = raw_input("Enter clc IP Address: ")
-# cmd_line = 'ssh-copy-id ' + clcip
-# os.system(cmd_line)
 
 ##############################################################################
 # 14. clear download packages
 ##############################################################################
-# cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
-# commands.getoutput(cmd_line)
-# cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
-# commands.getoutput(cmd_line)
+cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
+commands.getoutput(cmd_line)
 
 print '----------------------------------------------------------'
-print  'Now system will reboot to enable all services ... ... ...'
+print  'Now system will reboot to enable all clc  ... ... ...'
 time.sleep(1)
 print '... ... ... ... ...'
 cmd_line = 'sudo reboot'

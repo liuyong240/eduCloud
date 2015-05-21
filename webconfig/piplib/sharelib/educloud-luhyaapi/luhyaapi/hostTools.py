@@ -285,7 +285,10 @@ def restart_memcache():
     commands.getoutput(cmd)
 
 def get_web_status():
-    return DoesServiceExist('127.0.0.1', 80)
+    if DAEMON_DEBUG == True:
+        return "Running"
+    else:
+        return DoesServiceExist('127.0.0.1', 80)
 
 def restart_web():
     cmd = "sudo service apache2 restart"
@@ -301,12 +304,15 @@ daemon_list = {
 }
 
 def get_daemon_status(dtype):
-    cmd = "sudo service " + daemon_list[dtype] + " status "
-    output = commands.getoutput(cmd)
-    if "running" in output:
+    if DAEMON_DEBUG == True:
         return "Running"
     else:
-        return "Closed"
+        cmd = "sudo service " + daemon_list[dtype] + " status "
+        output = commands.getoutput(cmd)
+        if "running" in output:
+            return "Running"
+        else:
+            return "Closed"
 
 def restart_daemon(dtype):
     cmd = "sudo service " + daemon_list[dtype] + " restart "

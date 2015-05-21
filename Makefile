@@ -121,6 +121,14 @@ install:
 	cp -r $(CURDIR)/luhyacloud/virtapp/templates             $(WEB_VIRTAPP)/usr/local/www/virtapp/
 	cp -r $(CURDIR)/luhyacloud/virtapp/sql                   $(WEB_VIRTAPP)/usr/local/www/virtapp/
 
+	##################################################
+	# when use pyinstaller to compile exeutable file,
+	# you must set dpkg-buildflags to avoid strip.
+	# before run dpkg-buildpackage, set
+	#   export  DEB_BUILD_OPTIONS="nostrip noopt"
+	##################################################
+
+
 	#####################
 	#     DAEMON_CLC    #
 	#####################
