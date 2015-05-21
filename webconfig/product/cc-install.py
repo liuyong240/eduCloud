@@ -22,7 +22,7 @@ if not os.path.exists('/etc/apt/sources.list.luhya'):
     commands.getoutput(cmd_line)
 
     with open('/tmp/sources.list', 'a') as myfile:
-        myfile.write('\ndeb http://%s/debian/ zhejiang non-free' % DST_IP)
+        myfile.write('deb http://%s/debian/ zhejiang non-free' % DST_IP)
 
     cmd_line = 'sudo cp /tmp/sources.list /etc/apt/sources.list'
     commands.getoutput(cmd_line)
@@ -57,6 +57,9 @@ if ret == '':
     cmd_line = 'sudo useradd  -m -s /bin/bash -U luhya'
     commands.getoutput(cmd_line)
 
+    #cmd_line = 'sudo passwd luhya'
+    #os.system(cmd_line)
+
 ##############################################################################
 # 6. create /storage directories and download data.vdi
 ##############################################################################
@@ -69,82 +72,26 @@ if not os.path.exists('/storage/images'):
     os.system('sudo mkdir -p /storage/VMs')
     os.system('sudo mkdir -p /storage/config')
     os.system('sudo mkdir -p /storage/space')
-if not os.path.exists('/storage/space/software'):
-    os.system('sudo mkdir -p /storage/space/software')
-    os.system('sudo mkdir -p /storage/space/pub-data ')
-    os.system('sudo mkdir -p /storage/space/prv-data')
-    os.system('sudo mkdir -p /storage/space/database')
-if not os.path.exists('/storage/space/prv-data/luhya'):
-    os.system('sudo mkdir -p /storage/space/prv-data/luhya')
-if not os.path.exists('/storage/space/database/images'):
-    os.system('sudo mkdir -p /storage/space/database/images')
-    os.system('sudo mkdir -p /storage/space/database/instances')
 if not os.path.exists('/storage/tmp'):
     os.system('sudo mkdir -p /storage/tmp')
 if not os.path.exists('/storage/tmp/images'):
     os.system('sudo mkdir -p /storage/tmp/images')
     os.system('sudo mkdir -p /storage/tmp/VMs')
 
-cmd_line = 'cd /tmp && wget http://%s/database.vdi' % DST_IP
-os.system(cmd_line)
-cmd_line = 'sudo mv /tmp/database.vdi /storage/images/database'
-os.system(cmd_line)
-
-cmd_line = 'cd /tmp && wget http://%s/data.vdi' % DST_IP
-os.system(cmd_line)
-cmd_line = 'sudo mv /tmp/data.vdi /storage/images/data'
-os.system(cmd_line)
-
 ##############################################################################
 # 7. install educloud in one machine by apt-get
 ##############################################################################
-cmd_line = 'sudo apt-get -y install educloud-core educloud-portal educloud-clc educloud-walrus nodedaemon-clc nodedaemon-walrus'
+cmd_line = 'sudo apt-get -y install nodedaemon-cc'
 os.system(cmd_line)
 
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 os.system(cmd_line)
 
-# verify deb package install status
-if checkPackage('educloud-core') == False:
+if checkPackage('nodedaemon-cc') == False:
    print "--------------------------------------------------"
-   print "Install educloud-core Failed, please try again."
-   print "--------------------------------------------------"
-   exit(1)
-if checkPackage('educloud-portal') == False:
-   print "--------------------------------------------------"
-   print "Install educloud-portal Failed, please try again."
+   print "Install nodedaemon-cc Failed, please try again."
    print "--------------------------------------------------"
    exit(1)
-if checkPackage('educloud-clc') == False:
-   print "--------------------------------------------------"
-   print "Install educloud-clc Failed, please try again."
-   print "--------------------------------------------------"
-   exit(1)
-if checkPackage('educloud-walrus') == False:
-   print "--------------------------------------------------"
-   print "Install educloud-walrus Failed, please try again."
-   print "--------------------------------------------------"
-   exit(1)
-if checkPackage('nodedaemon-clc') == False:
-   print "--------------------------------------------------"
-   print "Install nodedaemon-clc Failed, please try again."
-   print "--------------------------------------------------"
-   exit(1)
-if checkPackage('nodedaemon-walrus') == False:
-   print "--------------------------------------------------"
-   print "Install nodedaemon-walrus Failed, please try again."
-   print "--------------------------------------------------"
-   exit(1)
-
-# install vbox ext pack
-cmd_line = 'wget http://%s/Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack' % DST_IP
-os.system(cmd_line)
-
-cmd_line = 'sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack'
-os.system(cmd_line)
-
-cmd_line = 'rm Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack'
-os.system(cmd_line)
 
 ##############################################################################
 # 8. install 3rd python and rsync lib
@@ -173,30 +120,37 @@ if ret == '':
     cmd_line = 'sudo service rabbitmq-server restart'
     os.system(cmd_line)
 
-##############################################################################
-# 10. config django
-##############################################################################
-cmd_line= 'cd /usr/local/www/ && python manage.py syncdb --noinput'
-os.system(cmd_line)
-cmd_line = 'cd /usr/local/www/clc/sql && ./init_data.sh'
-os.system(cmd_line)
-cmd_line = 'mysql -uroot -proot mysql -e "select count(*) from auth_user where username=\'luhya\';" | tr -dc \'[0-9]\''
-ret = commands.getoutput(cmd_line)
-if ret == '0':
-    cmd_line = 'cd /usr/local/www/ && python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com --noinput'
-    commands.getoutput(cmd_line)
-    print '##########################################################'
-    print "Please input password for default administrator(luhya)    "
-    print '----------------------------------------------------------'
-    cmd_line = 'python /usr/local/www/manage.py changepassword luhya'
-    os.system(cmd_line)
+#######################################
+# 11&12 configure , clc.conf and cc.conf
+#######################################
+if checkPackage('nodedaemon-clc') == False:
+    clcip  = raw_input("Enter Cloud IP    : ")
+    clcipstr = "IP=%s\n" % clcip
+    with open('/storage/config/clc.conf', 'w') as myfile:
+        myfile.write('[server]\n')
+        myfile.write(clcipstr)
 
-#######################################
-# 11. configure /etc/clc.conf
-#######################################
-with open('/storage/config/clc.conf', 'w') as myfile:
-    myfile.write('[server]\n')
-    myfile.write("IP=127.0.0.1\n")
+    ccname = raw_input("Enter Cluster Name: ")
+    ccnamestr = "ccname=%s" % ccname
+    with open('/storage/config/cc.conf', 'w') as myfile:
+        myfile.write('[server]\n')
+        myfile.write("IP=127.0.0.1\n")
+        myfile.write(ccnamestr)
+
+    ##############################################################################
+    # 13. configure sshfs
+    ##############################################################################
+    cmd_line = 'sudo -u luhya ssh-keygen'
+    os.system(cmd_line)
+    cmd_line = 'ssh-copy-id ' + clcip
+    os.system(cmd_line)
+else:
+    ccname = raw_input("Enter Cluster Name: ")
+    ccnamestr = "ccname=%s" % ccname
+    with open('/storage/config/cc.conf', 'w') as myfile:
+        myfile.write('[server]\n')
+        myfile.write("IP=127.0.0.1\n")
+        myfile.write(ccnamestr)
 
 cmd_line = 'sudo chown -R luhya:luhya /storage/config'
 commands.getoutput(cmd_line)
@@ -210,7 +164,7 @@ cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
 commands.getoutput(cmd_line)
 
 print '----------------------------------------------------------'
-print  'Now system will reboot to enable all clc  ... ... ...'
+print  'Now system will reboot to enable node daemon ... ... ...'
 time.sleep(1)
 print '... ... ... ... ...'
 cmd_line = 'sudo reboot'

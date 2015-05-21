@@ -24,7 +24,6 @@ class nc_statusPublisherThread(run4everThread):
                 logger.error('nc_statusPublisherThread exception = %s' % str(e))
 
     def collect_node_status(self):
-
         payload = { }
         payload['type']             = 'nodestatus'
         try:

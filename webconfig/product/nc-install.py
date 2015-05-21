@@ -57,7 +57,6 @@ if ret == '':
     cmd_line = 'sudo useradd  -m -s /bin/bash -U luhya'
     commands.getoutput(cmd_line)
 
-
 ##############################################################################
 # 6. create /storage directories and download data.vdi
 ##############################################################################
@@ -108,6 +107,8 @@ cmd_line = 'wget http://%s/pip.tar' % DST_IP
 os.system(cmd_line)
 cmd_line = 'tar vxf pip.tar -C /tmp/'
 commands.getoutput(cmd_line)
+cmd_line = 'rm /tmp/Django*.tar.gz /tmp/MySQL*.tar.gz /tmp/python-memcached*.tar.gz /tmp/amqp*.tar.gz'
+os.system(cmd_line)
 cmd_line = 'sudo pip install /tmp/*.tar.gz'
 os.system(cmd_line)
 cmd_line = 'sudo dpkg -i /tmp/*.deb'
@@ -116,18 +117,27 @@ cmd_line = 'rm pip.tar'
 commands.getoutput(cmd_line)
 
 #######################################
-# 7 configure , cc.conf
+# 12 configure  cc.conf
 #######################################
-ccname = raw_input("Enter Cluster Name: ")
-ccnamestr = "ccname=%s" % ccname
-ccip   = raw_input("Enter Cluster IP  : ")
-ccipstr =  "IP=%s\n" % ccip
-
-with open('/storage/config/cc.conf', 'w') as myfile:
-    myfile.write('[server]\n')
+if checkPackage('nodedaemon-cc') == False:
+    ccname = raw_input("Enter Cluster Name: ")
+    ccnamestr = "ccname=%s" % ccname
+    ccip   = raw_input("Enter Cluster IP  : ")
     ccipstr =  "IP=%s\n" % ccip
-    myfile.write(ccipstr)
-    myfile.write(ccnamestr)
+
+    with open('/storage/config/cc.conf', 'w') as myfile:
+        myfile.write('[server]\n')
+        ccipstr =  "IP=%s\n" % ccip
+        myfile.write(ccipstr)
+        myfile.write(ccnamestr)
+
+    ##############################################################################
+    # 13. configure sshfs
+    ##############################################################################
+    cmd_line = 'sudo -u luhya ssh-keygen'
+    os.system(cmd_line)
+    cmd_line = 'ssh-copy-id ' + ccip
+    os.system(cmd_line)
 
 cmd_line = 'sudo chown -R luhya:luhya /storage/config'
 commands.getoutput(cmd_line)
