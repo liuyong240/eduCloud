@@ -6,7 +6,7 @@ DST_IP = '192.168.56.103'
 def checkPackage( pname ):
     cmd_line = 'dpkg -l | grep %s' % pname
     output = commands.getoutput(cmd_line)
-    if output.split()[0] == 'ii':
+    if len(output) > 0 and output.split()[0] == 'ii':
        return True
     else:
        return False
@@ -100,6 +100,8 @@ cmd_line = 'wget http://%s/pip.tar' % DST_IP
 os.system(cmd_line)
 cmd_line = 'tar vxf pip.tar -C /tmp/'
 commands.getoutput(cmd_line)
+cmd_line = 'rm /tmp/MySQL*.tar.gz'
+os.system(cmd_line)
 cmd_line = 'sudo pip install /tmp/*.tar.gz'
 os.system(cmd_line)
 cmd_line = 'sudo dpkg -i /tmp/*.deb'

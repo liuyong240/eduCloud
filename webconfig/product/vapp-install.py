@@ -6,7 +6,7 @@ DST_IP = '192.168.56.103'
 def checkPackage( pname ):
     cmd_line = 'dpkg -l | grep %s' % pname
     output = commands.getoutput(cmd_line)
-    if output.split()[0] == 'ii':
+    if len(output) > 0 and output.split()[0] == 'ii':
        return True
     else:
        return False
