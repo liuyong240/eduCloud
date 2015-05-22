@@ -23,6 +23,13 @@ if checkPackage('nodedaemon-clc') == False:
 cmd_line = 'sudo apt-get -y install educloud-virtapp'
 os.system(cmd_line)
 
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+commands.getoutput(cmd_line)
+
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 os.system(cmd_line)
 
@@ -45,6 +52,11 @@ os.system(cmd_line)
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 commands.getoutput(cmd_line)
 cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
+commands.getoutput(cmd_line)
+
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
 commands.getoutput(cmd_line)
 
 print '----------------------------------------------------------'

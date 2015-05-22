@@ -84,6 +84,15 @@ if not os.path.exists('/storage/tmp/images'):
 cmd_line = 'sudo apt-get -y install nodedaemon-cc'
 os.system(cmd_line)
 
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+commands.getoutput(cmd_line)
+
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 os.system(cmd_line)
 
@@ -92,6 +101,11 @@ if checkPackage('nodedaemon-cc') == False:
    print "Install nodedaemon-cc Failed, please try again."
    print "--------------------------------------------------"
    exit(1)
+
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
 
 ##############################################################################
 # 8. install 3rd python and rsync lib
@@ -163,6 +177,15 @@ commands.getoutput(cmd_line)
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 commands.getoutput(cmd_line)
 cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
+commands.getoutput(cmd_line)
+
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
 commands.getoutput(cmd_line)
 
 print '----------------------------------------------------------'

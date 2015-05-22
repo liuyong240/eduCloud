@@ -3,37 +3,47 @@ Section: python
 Priority: optional
 Maintainer: thomas.li  <libiao.2005@gmail.com>
 Build-Depends:
-Homepage: http://www.google.com
+Homepage:
 Standards-Version: 3.8.3
 
 Package: educloud-core
 Architecture: all
-Depends:  python2.7, apache2, libapache2-mod-wsgi, python-pip, python-dev, ifstat, sysstat, sudo, openssh-server, sshfs, iperf
+Depends:  python2.7, python-pip, python-dev, python-ldap, openssl, ldap-utils, libldap2-dev, ifstat, sysstat, sudo, openssh-server, sshfs, iperf
 Description: educloud basic package
 
-Package: educloud-portal
+Package: educloud-webbase
 Architecture: all
-Depends:  educloud-core
-Description: educloud portal package
+Depends: educloud-core, apache2, libapache2-mod-wsgi,
+Description: educloud web base
 
 Package: educloud-clc
 Architecture: all
-Depends:  educloud-core, virtualbox-4.3, mysql-server, libmysqld-dev, libmysqlclient-dev, rabbitmq-server, memcached, libmemcached-tools, python-ldap
+Depends:  educloud-webbase, virtualbox-4.3, mysql-server, libmysqld-dev, libmysqlclient-dev, rabbitmq-server, memcached, libmemcached-tools
 Description: educloud clc package
+
+Package: educloud-portal
+Architecture: all
+Depends:  educloud-clc
+Description: educloud portal package
 
 Package: educloud-walrus
 Architecture: all
-Depends:  educloud-core, educloud-clc
+Depends:  educloud-clc
 Description: educloud walrus package
+
+Package: educloud-virtapp
+Architecture: all
+Depends:  educloud-clc,
+Description: educloud virt app web package
 
 Package: educloud-cc
 Architecture: all
-Depends:  educloud-core, rabbitmq-server, memcached, libmemcached-tools,
+Depends:  educloud-webbase, rabbitmq-server, memcached, libmemcached-tools,
 Description: educloud cc package
 
 Package: nodedaemon-clc
 Architecture: all
-Depends:  educloud-clc,
+Depends:  educloud-clc
 Description: educloud clc daemon package
 
 Package: nodedaemon-walrus
@@ -43,16 +53,13 @@ Description: educloud walrus daemon package
 
 Package: nodedaemon-cc
 Architecture: all
-Depends:  educloud-cc,
+Depends:  educloud-cc
 Description: educloud cc daemon package
 
 Package: nodedaemon-nc
 Architecture: all
-Depends:  python-dev, ifstat, sysstat, sudo, openssh-server, python-pip, sshfs, iperf, virtualbox-4.3
+Depends:  educloud-core, virtualbox-4.3
 Description: educloud nc daemon package
 
-Package: educloud-virtapp
-Architecture: all
-Depends:  educloud-portal, educloud-clc, python-ldap, openssl, ldap-utils, libldap2-dev
-Description: educloud virt app web package
+
 

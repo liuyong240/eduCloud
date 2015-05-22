@@ -1,0 +1,14 @@
+#!/bin/bash -e
+
+if [ "$1" = "configure" ]; then
+    ##############################
+    # configure apache2
+    ##############################
+    cp /usr/local/webconfig/apache2/envvars  /etc/apache2/
+    cp /usr/local/webconfig/apache2/wsgi     /etc/apache2/sites-available/wsgi.conf
+    a2dissite 000-default
+    a2ensite wsgi
+
+    killall -9 apache2 || true
+    service apache2 start || true
+fi

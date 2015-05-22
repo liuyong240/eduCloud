@@ -4,20 +4,19 @@
 
 .PHONY: build clean
 
-WEB_CLOUD       =debian/educloud-core
+EDU_CORE        =debian/educloud-core
+EDU_WEBBASE     =debian/educloud-webbase
+
 WEB_PORTAL      =debian/educloud-portal
 WEB_CLC         =debian/educloud-clc
 WEB_WALRUS      =debian/educloud-walrus
 WEB_CC          =debian/educloud-cc
-WEB_NC          =debian/educloud-nc
 WEB_VIRTAPP     =debian/educloud-virtapp
 
 DAEMON_CLC      =debian/nodedaemon-clc
 DAEMON_WALRUS   =debian/nodedaemon-walrus
 DAEMON_CC       =debian/nodedaemon-cc
 DAEMON_NC       =debian/nodedaemon-nc
-
-ALL_IN_ONE      =debian/all-in-one
 
 build:
 	echo "now is building educloud debian packages ... ... "
@@ -33,24 +32,30 @@ install:
 	cd $(CURDIR)/webconfig/piplib/3rd/ && tar cvf $(CURDIR)/../pip.tar *.gz *.deb
 
 	####################
-	#     WEB_CLOUD    #
+	#     EDU_CORE     #
 	####################
-	install -d $(WEB_CLOUD)/etc/educloud/modules
-	touch $(WEB_CLOUD)/etc/educloud/modules/core
+	install -d $(EDU_CORE)/etc/educloud/modules
+	touch $(EDU_CORE)/etc/educloud/modules/core
 
-	install -d $(WEB_CLOUD)/usr/local/www/luhyacloud/
-	install -d $(WEB_CLOUD)/usr/local/webconfig/3rd/web
+	install -d $(EDU_CORE)/usr/local/webconfig
+	cp    $(CURDIR)/debian/fuse.conf                       $(EDU_CORE)/usr/local/webconfig/
+	cp    $(CURDIR)/debian/sudoers                         $(EDU_CORE)/usr/local/webconfig/
+	cp -r $(CURDIR)/webconfig/rsync                        $(EDU_CORE)/usr/local/webconfig/
 
-	cp $(CURDIR)/luhyacloud/*.py                        $(WEB_CLOUD)/usr/local/www/
+	#####################
+	#     EDU_WEBBASE   #
+	#####################
+	install -d $(EDU_WEBBASE)/usr/local/www/luhyacloud/
+	cp $(CURDIR)/luhyacloud/*.py                         $(EDU_WEBBASE)/usr/local/www/
 	python -m compileall $(CURDIR)/luhyacloud/luhyacloud/
-	mv $(CURDIR)/luhyacloud/luhyacloud/*.pyc             $(WEB_CLOUD)/usr/local/www/luhyacloud/
-	#cp $(CURDIR)/luhyacloud/luhyacloud/*.py              $(WEB_CLOUD)/usr/local/www/luhyacloud/
-	cp $(CURDIR)/luhyacloud/luhyacloud/wsgi.py           $(WEB_CLOUD)/usr/local/www/luhyacloud/
-	rm $(WEB_CLOUD)/usr/local/www/luhyacloud/wsgi.pyc
+	mv $(CURDIR)/luhyacloud/luhyacloud/*.pyc             $(EDU_WEBBASE)/usr/local/www/luhyacloud/
+	#cp $(CURDIR)/luhyacloud/luhyacloud/*.py             $(EDU_WEBBASE)/usr/local/www/luhyacloud/
+	cp $(CURDIR)/luhyacloud/luhyacloud/wsgi.py           $(EDU_WEBBASE)/usr/local/www/luhyacloud/
+	rm $(EDU_WEBBASE)/usr/local/www/luhyacloud/wsgi.pyc
 
-	cp $(CURDIR)/debian/sudoers                         $(WEB_CLOUD)/usr/local/webconfig/
-	cp -r $(CURDIR)/webconfig/apache2                   $(WEB_CLOUD)/usr/local/webconfig/
-	cp -r $(CURDIR)/webconfig/rsync                     $(WEB_CLOUD)/usr/local/webconfig/
+	install -d $(EDU_WEBBASE)/usr/local/webconfig/
+	cp -r $(CURDIR)/webconfig/apache2                    $(EDU_WEBBASE)/usr/local/webconfig/
+
 
 	#####################
 	#     WEB_PORTAL    #
@@ -71,12 +76,13 @@ install:
 	##################
 	install -d $(WEB_CLC)/etc/educloud/modules
 	touch $(WEB_CLC)/etc/educloud/modules/clc
-	cp $(CURDIR)/debian/educloud.conf                   $(WEB_CLC)/etc/educloud/modules/
+	cp $(CURDIR)/debian/educloud.conf                    $(WEB_CLC)/etc/educloud/modules/
 
 	install -d $(WEB_CLC)/usr/local/www/clc
 	python -m compileall $(CURDIR)/luhyacloud/clc/
 	mv $(CURDIR)/luhyacloud/clc/*.pyc                   $(WEB_CLC)/usr/local/www/clc/
-	#cp $(CURDIR)/luhyacloud/clc/*.py		    $(WEB_CLC)/usr/local/www/clc/
+	#cp $(CURDIR)/luhyacloud/clc/*.py		            $(WEB_CLC)/usr/local/www/clc/
+
 	cp -r $(CURDIR)/luhyacloud/clc/conf                 $(WEB_CLC)/usr/local/www/clc/
 	cp -r $(CURDIR)/luhyacloud/clc/static               $(WEB_CLC)/usr/local/www/clc/
 	cp -r $(CURDIR)/luhyacloud/clc/templates            $(WEB_CLC)/usr/local/www/clc/
@@ -91,7 +97,7 @@ install:
 	install -d $(WEB_WALRUS)/usr/local/www/walrus
 	python -m compileall $(CURDIR)/luhyacloud/walrus/
 	mv $(CURDIR)/luhyacloud/walrus/*.pyc                $(WEB_WALRUS)/usr/local/www/walrus/
-	#cp $(CURDIR)/luhyacloud/walrus/*.py		    $(WEB_WALRUS)/usr/local/www/walrus/
+	#cp $(CURDIR)/luhyacloud/walrus/*.py		        $(WEB_WALRUS)/usr/local/www/walrus/
 
 	#################
 	#     WEB_CC    #
@@ -101,11 +107,8 @@ install:
 
 	install -d $(WEB_CC)/usr/local/www/cc
 	python -m compileall $(CURDIR)/luhyacloud/cc/
-	mv $(CURDIR)/luhyacloud/cc/*.pyc                    $(WEB_CC)/usr/local/www/cc/
+	mv $(CURDIR)/luhyacloud/cc/*.pyc                     $(WEB_CC)/usr/local/www/cc/
 	#cp $(CURDIR)/luhyacloud/cc/*.py                     $(WEB_CC)/usr/local/www/cc/
-
-	install -d $(WEB_CC)/usr/local/webconfig
-	cp $(CURDIR)/debian/fuse.conf                       $(WEB_CC)/usr/local/webconfig/
 
 	######################
 	#     WEB_VIRTAPP    #
@@ -117,6 +120,7 @@ install:
 	python -m compileall $(CURDIR)/luhyacloud/virtapp/
 	mv $(CURDIR)/luhyacloud/virtapp/*.pyc                    $(WEB_VIRTAPP)/usr/local/www/virtapp/
 	#cp $(CURDIR)/luhyacloud/virtapp/*.py                    $(WEB_VIRTAPP)/usr/local/www/virtapp/
+
 	cp -r $(CURDIR)/luhyacloud/virtapp/conf                  $(WEB_VIRTAPP)/usr/local/www/virtapp/
 	cp -r $(CURDIR)/luhyacloud/virtapp/templates             $(WEB_VIRTAPP)/usr/local/www/virtapp/
 	cp -r $(CURDIR)/luhyacloud/virtapp/sql                   $(WEB_VIRTAPP)/usr/local/www/virtapp/
@@ -128,7 +132,6 @@ install:
 	#   export  DEB_BUILD_OPTIONS="nostrip noopt"
 	##################################################
 
-
 	#####################
 	#     DAEMON_CLC    #
 	#####################
@@ -139,7 +142,6 @@ install:
 
 	install -d $(DAEMON_CLC)/usr/local/bin/
 	cp $(CURDIR)/webconfig/scripts/nodedaemon-clc          $(DAEMON_CLC)/usr/local/bin
-
 
 	########################
 	#     DAEMON_WALRUS    #
@@ -166,19 +168,13 @@ install:
 	####################
 	#     DAEMON_NC    #
 	####################
-	install -d $(DAEMON_NC)/usr/local/nodedaemon/nc
-	install -d $(DAEMON_NC)/usr/local/webconfig/node/3rd
-
-	cp $(CURDIR)/debian/sudoers                         $(DAEMON_NC)/usr/local/webconfig/node
-	cp -r $(CURDIR)/webconfig/rsync                     $(DAEMON_NC)/usr/local/webconfig/node/
-
-	cd $(CURDIR)/nodeDaemon/nc && su -c "pyinstaller nc_daemon.py -F -s" luhya
-	cp $(CURDIR)/nodeDaemon/nc/dist/nc_daemon            $(DAEMON_NC)/usr/local/nodedaemon/nc
-
 	install -d $(DAEMON_NC)/etc/educloud/modules
 	touch $(DAEMON_NC)/etc/educloud/modules/nc
 
-	cp $(CURDIR)/debian/fuse.conf                       $(DAEMON_NC)/usr/local/webconfig/node
+	install -d $(DAEMON_NC)/usr/local/nodedaemon/nc
+
+	cd $(CURDIR)/nodeDaemon/nc && su -c "pyinstaller nc_daemon.py -F -s" luhya
+	cp $(CURDIR)/nodeDaemon/nc/dist/nc_daemon            $(DAEMON_NC)/usr/local/nodedaemon/nc
 
 	install -d $(DAEMON_NC)/usr/local/bin/
 	cp $(CURDIR)/webconfig/scripts/nodedaemon-nc          $(DAEMON_NC)/usr/local/bin

@@ -117,8 +117,17 @@ os.system(cmd_line)
 ##############################################################################
 # 7. install educloud in one machine by apt-get
 ##############################################################################
-cmd_line = 'sudo apt-get -y install educloud-core educloud-portal educloud-clc educloud-walrus nodedaemon-clc nodedaemon-walrus'
+cmd_line = 'sudo apt-get -y install nodedaemon-clc nodedaemon-walrus educloud-portal'
 os.system(cmd_line)
+
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+commands.getoutput(cmd_line)
 
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 os.system(cmd_line)
@@ -227,6 +236,16 @@ cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 commands.getoutput(cmd_line)
 cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
 commands.getoutput(cmd_line)
+
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+commands.getoutput(cmd_line)
+
 
 print '----------------------------------------------------------'
 print  'Now system will reboot to enable all clc  ... ... ...'

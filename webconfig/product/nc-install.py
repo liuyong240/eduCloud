@@ -81,6 +81,11 @@ if not os.path.exists('/storage/tmp/images'):
 cmd_line = 'sudo apt-get -y install nodedaemon-nc'
 os.system(cmd_line)
 
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+commands.getoutput(cmd_line)
+
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 os.system(cmd_line)
 
@@ -100,6 +105,13 @@ os.system(cmd_line)
 cmd_line = 'rm Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack'
 os.system(cmd_line)
 
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+commands.getoutput(cmd_line)
+
 ##############################################################################
 # 8. install 3rd python and rsync lib
 ##############################################################################
@@ -107,10 +119,6 @@ cmd_line = 'wget http://%s/pip.tar' % DST_IP
 os.system(cmd_line)
 cmd_line = 'tar vxf pip.tar -C /tmp/'
 commands.getoutput(cmd_line)
-cmd_line = 'rm /tmp/Django*.tar.gz /tmp/MySQL*.tar.gz /tmp/python-memcached*.tar.gz /tmp/amqp*.tar.gz'
-os.system(cmd_line)
-cmd_line = 'sudo pip install /tmp/*.tar.gz'
-os.system(cmd_line)
 cmd_line = 'sudo dpkg -i /tmp/*.deb'
 os.system(cmd_line)
 cmd_line = 'rm pip.tar'
@@ -149,6 +157,14 @@ cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 commands.getoutput(cmd_line)
 cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
 commands.getoutput(cmd_line)
+
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+commands.getoutput(cmd_line)
+
 
 print '----------------------------------------------------------'
 print  'Now system will reboot to enable node daemon ... ... ...'

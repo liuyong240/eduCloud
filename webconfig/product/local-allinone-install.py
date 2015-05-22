@@ -128,6 +128,15 @@ os.system(cmd_line)
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 os.system(cmd_line)
 
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+commands.getoutput(cmd_line)
+
 # verify deb package install status
 if checkPackage('educloud-core') == False:
    print "--------------------------------------------------"
@@ -256,22 +265,23 @@ commands.getoutput(cmd_line)
 cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
 commands.getoutput(cmd_line)
 
-##############################################################################
-# 13. configure sshfs
-##############################################################################
-# cmd_line = 'sudo -u luhya ssh-keygen'
-# os.system(cmd_line)
-# clcip = raw_input("Enter clc IP Address: ")
-# cmd_line = 'ssh-copy-id ' + clcip
-# os.system(cmd_line)
 
 ##############################################################################
 # 14. clear download packages
 ##############################################################################
-# cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
-# commands.getoutput(cmd_line)
-# cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
-# commands.getoutput(cmd_line)
+cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
+commands.getoutput(cmd_line)
+
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+commands.getoutput(cmd_line)
 
 print '----------------------------------------------------------'
 print  'Now system will reboot to enable all services ... ... ...'
