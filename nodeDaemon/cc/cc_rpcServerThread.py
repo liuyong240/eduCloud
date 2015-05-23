@@ -24,8 +24,9 @@ class cc_rpcServerThread(run4everThread):
         self.channel.basic_qos(prefetch_count=1)
 
         self.clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
-        walrusinfo = getWalrusInfo(self.clcip)
-        self.serverIP = walrusinfo['data']['ip0']
+        # walrusinfo = getWalrusInfo(self.clcip)
+        # self.serverIP = walrusinfo['data']['ip0']
+        self.serverIP = self.clcip
 
         self.cc_rpc_handlers = {
             'image/prepare'             : self.cc_rpc_handle_imageprepare,
@@ -58,10 +59,9 @@ class cc_rpcServerThread(run4everThread):
             logger("error msg = %s with body=%s" % (str(e), body))
 
     def cc_rpc_handle_imageprepare(self, ch, method, props, tid, paras):
+        logger.error("--- --- --- cc_rpc_handle_imageprepare : %s" % tid)
         locale_string = getlocalestring()
         try:
-            logger.error("--- --- --- cc_rpc_handle_imageprepare")
-
             prompt = 'Downloading file from Walrus to CC ... ...'
             if paras == 'luhya':
                 prompt = locale_string['promptDfromWarlus2CC_image']
@@ -69,7 +69,6 @@ class cc_rpcServerThread(run4everThread):
                 destination = "/storage/images/"
             if paras == 'db':
                 prompt = locale_string['promptDfromWarlus2CC_db']
-
                 insid = tid.split(':')[2]
                 if insid.find('TMP') == 0:
                     source      = "rsync://%s/%s/%s" % (self.serverIP, 'db', tid.split(':')[0])

@@ -23,6 +23,7 @@ class prepareImageTaskThread(threading.Thread):
         logger.error('prepareImageTaskThread inited, tid=%s' % tid)
 
     def checkCLCandCCFile(self, paras):
+        logger.error("Enter checkCLCandCCFile() ... ... ")
         result = verify_clc_cc_image_info(self.ccip, self.tid)
         logger.error("clc vs cc image info = %s" % json.dumps(result))
 
@@ -45,6 +46,7 @@ class prepareImageTaskThread(threading.Thread):
         retvalue = "OK"
 
         needDownloading = self.checkCLCandCCFile(data['rsync'])
+        logger.error("needDownloading = %s" % needDownloading)
         if needDownloading == 'NO':
             response = {
                 'type'      : 'taskstatus',
@@ -62,6 +64,7 @@ class prepareImageTaskThread(threading.Thread):
         else:
             while True:
                 response = self.download_rpc.call(cmd=data['cmd'], tid=data['tid'], paras=data['rsync'])
+                logger.error("self.download_rpc.call return = %s" % response)
                 response = json.loads(response)
 
                 if response['failed'] == 1:
@@ -87,7 +90,7 @@ class prepareImageTaskThread(threading.Thread):
         simple_send(logger, self.ccip, 'cc_status_queue', response)
 
     def downloadFromCC2NC(self, data):
-        logger.error('downloadFromCC2NC start ... ...')
+        logger.error('Enter downloadFromCC2NC  ... ...')
         locale_string = getlocalestring()
         retvalue = "OK"
 

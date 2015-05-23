@@ -31,6 +31,7 @@ list of daemon and worker thread
 
 '''
 def perform_mount():
+    logger.error("Enter perform_mount() ... ...")
     # mount clc's /storage/space/{software, pub-data} to local
     if amIwalrus():
         logger.error("I am cc and walrus, no mount any more.")
@@ -43,8 +44,13 @@ def perform_mount():
         cmd1 = base_cmd % (clcip)
         logger.error(cmd1)
         os.system(cmd1)
+    else:
+        logger.error("/storage/space is already mounted ... ...")
+
 
 def registerMyselfasCC():
+    logger.error("Enter registerMyselfasCC() ... ...")
+
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
     ccname = getccnamebyconf()
 
@@ -71,9 +77,9 @@ def registerMyselfasCC():
         'mac3': netlist['mac3'],
         'ccname': ccname,
     }
+    logger.error("send request %s " % url)
     r = requests.post(url, data=payload)
     return r.status_code
-
 
 def main():
     # read /storage/config/cc.conf to register itself to cc
