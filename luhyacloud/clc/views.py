@@ -2790,7 +2790,7 @@ def ethers_allocate(ccname, _insid):
     if _insid.find('VS') == 0:
         try:
             vssobj = ecVSS.objects.get(insid = _insid)
-            e = ecDHCPEthers.objects.get(mac=vssobj.mac)
+            e = ecDHCPEthers.objects.get(mac=vssobj.mac, ccname=ccname)
             e.insid = _insid
             e.save()
             logger.error("allocate VS ether %s-%s-%s" % (e.mac, e.ip, e.ex_web_proxy_port))
@@ -2798,7 +2798,7 @@ def ethers_allocate(ccname, _insid):
         except:
             return None, None, None
     else:
-        es = ecDHCPEthers.objects.filter(insid='')
+        es = ecDHCPEthers.objects.filter(insid='', ccname=ccname)
         if es.count() > 0:
             e = ecDHCPEthers.objects.get(mac=es[0].mac)
             e.insid = _insid

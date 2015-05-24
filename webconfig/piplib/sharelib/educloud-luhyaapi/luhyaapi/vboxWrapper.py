@@ -48,8 +48,12 @@ def getVMlist():
             vm['insid'] = vms[2*x].replace('"', '')
             vm['uuid'] = vms[2*x+1].replace('{', '').replace('}', '')
 
-            if vm['insid'] == 'inaccessible':
+            if 'inaccessible' in vm['insid']:
+                vm['insid']  = vm['insid'].replace('{', '').replace('}', '')
                 logger.error("Find inaccessible vm with uuid=%s" % vm['uuid'])
+                # unregister this vm by uuid
+                # search for insid of this vm
+                # re-register this vm by insid
                 continue
 
             try:

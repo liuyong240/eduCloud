@@ -3,7 +3,7 @@ from ldap.controls import SimplePagedResultsControl
 import sys
 import ldap.modlist as modlist
 
-LDAP_SERVER = "ldaps://192.168.96.128"
+LDAP_SERVER = "ldaps://10.0.0.200"
 BIND_DN = "administrator@educloud.com"
 BIND_PASS = "11111111"
 USER_FILTER = "(&(objectClass=person)(primaryGroupID=7235))"
@@ -91,7 +91,7 @@ def CreateUser(username, password, base_dn, domain):
     # All is good
     return True
 
-#ret = CreateUser('lkf', '11111111', 'cn=Users,dc=educloud,dc=com',  'educloud.com')
+ret = CreateUser('lkf', '11111111', 'cn=Users,dc=educloud,dc=com',  'educloud.com')
 username = u'likaifeng'
 stru = str(username)
 print stru
