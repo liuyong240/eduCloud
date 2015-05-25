@@ -38,10 +38,12 @@ def perform_mount():
         return
 
     clcip = getclcipbyconf()
-    base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space /storage/space'
+    cmd_line = 'id -u luhya'
+    luhya_id = commands.getoutput(cmd_line)
+    base_cmd = 'echo luhya | sshfs -o uid=%s,gid=%s,cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space /storage/space'
 
     if not os.path.ismount('/storage/space'):
-        cmd1 = base_cmd % (clcip)
+        cmd1 = base_cmd % (luhya_id, luhya_id, clcip)
         logger.error(cmd1)
         os.system(cmd1)
     else:
