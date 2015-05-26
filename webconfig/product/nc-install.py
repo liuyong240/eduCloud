@@ -21,7 +21,7 @@ if not os.path.exists('/etc/apt/sources.list.luhya'):
     cmd_line = 'cp /etc/apt/sources.list /tmp/'
     commands.getoutput(cmd_line)
 
-    with open('/tmp/sources.list', 'a') as myfile:
+    with open('/tmp/sources.list', 'w') as myfile:
         myfile.write('\ndeb http://%s/debian/ zhejiang non-free' % DST_IP)
 
     cmd_line = 'sudo cp /tmp/sources.list /etc/apt/sources.list'
