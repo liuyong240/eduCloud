@@ -73,7 +73,11 @@ if checkPackage('mysql-server-5.5') == False:
 cmd_line = 'sudo cut -d: -f1 /etc/passwd | grep luhya'
 ret = commands.getoutput(cmd_line)
 if ret == '':
-    cmd_line = 'sudo useradd  -m -s /bin/bash -U luhya'
+    print "--------------------------------------------------"
+    print " Add a new user luhya.                            "
+    cmd_line = 'sudo useradd  -m -d /home/luhya -s /bin/bash -U luhya'
+    commands.getoutput(cmd_line)
+    cmd_line = 'sudo usermod --password $(echo luhya | openssl passwd -1 -stdin) luhya'
     commands.getoutput(cmd_line)
 
 ##############################################################################
