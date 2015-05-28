@@ -3,9 +3,9 @@ from ldap.controls import SimplePagedResultsControl
 import sys
 import ldap.modlist as modlist
 
-LDAP_SERVER = "ldaps://10.0.0.200"
+LDAP_SERVER = "ldaps://192.168.96.149"
 BIND_DN = "administrator@educloud.com"
-BIND_PASS = "11111111"
+BIND_PASS = "1qaz!qaz2wsx@wsx"
 USER_FILTER = "(&(objectClass=person)(primaryGroupID=7235))"
 USER_BASE = "cn=Users,dc=educloud,dc=com"
 PAGE_SIZE = 10

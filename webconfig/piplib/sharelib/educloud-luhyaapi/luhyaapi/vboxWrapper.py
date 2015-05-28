@@ -89,6 +89,9 @@ class vboxWrapper():
         self._sata_port = -1
         self._sata_device = 0
 
+    def getVMName(self):
+        return self._tool._vmname
+
     def cloneImageFile(self, src, dst):
         cmd_line = "VBoxManage clonehd " + src + " " + dst
         ret = commands.getoutput(cmd_line)

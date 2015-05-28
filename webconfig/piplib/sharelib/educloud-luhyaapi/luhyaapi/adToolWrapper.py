@@ -125,7 +125,7 @@ def list_my_availed_vapp(userid):
     if DAEMON_DEBUG == True:
         url = "http://127.0.0.1:8000/virtapp/api/1.0/listmyvapp"
     else:
-        url = "http://127.0.0.1/virtappc/api/1.0/listmyvapp"
+        url = "http://127.0.0.1/virtapp/api/1.0/listmyvapp"
     logger.error('list_my_availed_vapp:' + url)
     payload = {
         'uid'   : userid,
@@ -141,7 +141,7 @@ def virtapp_addAccount2AD(userid, password):
     if DAEMON_DEBUG == True:
         url = "http://127.0.0.1:8000/virtapp/api/1.0/usercreate"
     else:
-        url = "http://%127.0.0.1/clvirtappc/api/1.0/usercreate"
+        url = "http://127.0.0.1/virtapp/api/1.0/usercreate"
     logger.error('virtapp_addAccount2AD:' + url)
     payload = {
         'username'   : userid,
@@ -158,7 +158,7 @@ def virtapp_removeAccount2AD(userid):
     if DAEMON_DEBUG == True:
         url = "http://127.0.0.1:8000/virtapp/api/1.0/userdelete"
     else:
-        url = "http://%127.0.0.1/clvirtappc/api/1.0/userdelete"
+        url = "http://127.0.0.1/virtapp/api/1.0/userdelete"
     logger.error('virtapp_removeAccount2AD:' + url)
     payload = {
         'username'   : userid,
@@ -174,7 +174,7 @@ def virtapp_updateAccount2AD(userid, vapp_en):
     if DAEMON_DEBUG == True:
         url = "http://127.0.0.1:8000/virtapp/api/1.0/userupdate"
     else:
-        url = "http://%127.0.0.1/clvirtappc/api/1.0/userupdate"
+        url = "http://127.0.0.1/virtapp/api/1.0/userupdate"
     logger.error('virtapp_updateAccount2AD:' + url)
     payload = {
         'username'   : userid,
@@ -191,7 +191,7 @@ def virtapp_setPassword2AD(userid, password):
     if DAEMON_DEBUG == True:
         url = "http://127.0.0.1:8000/virtapp/api/1.0/setpass"
     else:
-        url = "http://%127.0.0.1/clvirtappc/api/1.0/setpass"
+        url = "http://127.0.0.1/virtapp/api/1.0/setpass"
     logger.error('virtapp_setPassword2AD:' + url)
     payload = {
         'username'   : userid,

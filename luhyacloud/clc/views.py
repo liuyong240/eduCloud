@@ -5008,6 +5008,7 @@ def list_myvds(request):
     response = {}
     response['Result'] = 'OK'
     response['data'] = vds
+    logger.error("user %s own virtual desktop as below: %s" %(_user, vds))
 
     para = json.loads(ua.vdpara)
     if para['vapp'] == 'yes':
@@ -5015,6 +5016,7 @@ def list_myvds(request):
         response['vapp'] = myvapps['data']
     else:
         response['vapp'] = []
+    logger.error("user %s own virtual app as below: %s" %(_user, response['vapp']))
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")

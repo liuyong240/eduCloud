@@ -43,7 +43,7 @@ if checkPackage('educloud-virtapp') == False:
 ##############################################################################
 # 10. config django
 ##############################################################################
-cmd_line= 'cd /usr/local/www/ && python manage.py syncdb'
+cmd_line= 'cd /usr/local/www/ && sudo -u luhya python manage.py syncdb'
 os.system(cmd_line)
 
 ##############################################################################
@@ -60,9 +60,9 @@ cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/l
 commands.getoutput(cmd_line)
 
 print '----------------------------------------------------------'
-print  'Now system will reboot to enable all clc  ... ... ...'
+print  'Now system will restart the web server ... ... ...'
 time.sleep(1)
 print '... ... ... ... ...'
-cmd_line = 'sudo reboot'
+cmd_line = 'sudo service apache2 restart'
 commands.getoutput(cmd_line)
 

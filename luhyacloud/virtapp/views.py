@@ -335,27 +335,41 @@ def list_my_vapps(request):
 
 def run_vapp(request):
     bFindInstance = False
-
-    vapp_obj = virtApp.objects.get(uuid=request.POST['uuid'])
     cmdline = 'rdesktop -A "c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe" -s "%s" %s -u "%s"'
+
+    user_id = request.POST['uid']
+    app_uuid = request.POST['uuid']
+
+    # get domain user
+    recs = ldapsPara.objects.filter()
+    domain = recs[0].domain
+    domain_user = "%s\%s" % (domain, user_id)
+
+    # get vapp path & running instance
+    vapp_obj = virtApp.objects.get(uuid=app_uuid)
+    logger.error("%s will try to run vapp:%s" % ( domain_user, vapp_obj.appname))
 
     # looking for instance that runs this vapp
     ecids = vapp_obj.ecids
     imgids = ecids.split(',')
     for imgid in imgids:
-        imgid = imgid.strip()
-        insts = ecVSS.objects.filter(imageid=imgid)
-        for inst in insts:
-            trec = ectaskTransaction.objects.filter(insid = inst)
-            phase = trec.phase
-            state = trec.state
-            if phase == 'editing':
-                if state == 'Running' or state == 'running':
-                    runtime_options = json.loads(trec.runtime_option)
-                    cmdline = cmdline % (vapp_obj.apppath, runtime_options['web_ip'], request.POST['uid'])
-                    bFindInstance = True
-                    break
+        if len(imgid) > 0:
+            imgid = imgid.strip()
+            insts = ecVSS.objects.filter(imageid=imgid)
+            for inst in insts:
+                trecs = ectaskTransaction.objects.filter(insid = inst)
+                if trecs.count() > 0:
+                    phase = trec.phase
+                    state = trec.state
+                    if phase == 'editing':
+                        if state == 'Running' or state == 'running':
+                            runtime_options = json.loads(trec.runtime_option)
+                            cmdline = cmdline % (vapp_obj.apppath, runtime_options['web_ip'], domain_user)
+                            bFindInstance = True
+                            logger.error("find instace %s for vapp %s " % (runtime_options['web_ip'], vapp_obj.appname))
+                            break
 
+    logger.error("cmd = %s" % cmdline)
     response = {}
     if bFindInstance:
         response['Result'] = "OK"

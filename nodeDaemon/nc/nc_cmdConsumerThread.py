@@ -584,11 +584,15 @@ class runImageTaskThread(threading.Thread):
         # register VM
         snapshot_name = "thomas"
         if not vboxmgr.isVMRegistered():
+            logger.error("--- --- --- vm %s is not registered" % vboxmgr.getVMName())
             if vboxmgr.isVMRegisteredBefore():
+                logger.error("--- --- --- vm %s is registered before" % vboxmgr.getVMName())
                 ret = vboxmgr.registerVM()
                 if vboxmgr.isSnapshotExist(snapshot_name):
+                    logger.error("--- --- --- vm %s is restore snapshot" % vboxmgr.getVMName())
                     ret = vboxmgr.restore_snapshot(snapshot_name)
             else:
+                logger.error("--- --- --- vm %s is not registered yet" % vboxmgr.getVMName())
                 try:
                     ostype_value = self.runtime_option['ostype']
                     ret = vboxmgr.createVM(ostype=ostype_value)
@@ -751,8 +755,10 @@ def nc_task_delete_handle(tid, runtime_option):
 
     if find_registered_vm == True:
         ret = vboxmgr.unregisterVM()
-        vboxmgr.deleteVMConfigFile()
         logger.error("--- vboxmgr.unregisterVM ret=%s" % (ret))
+    ret = vboxmgr.deleteVMConfigFile()
+    logger.error("--- vboxmgr.deleteVMConfigFile ret=%s" % (ret))
+
 
     hdds = get_vm_hdds()
     disks = []
