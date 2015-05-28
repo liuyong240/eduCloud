@@ -335,7 +335,7 @@ def list_my_vapps(request):
 
 def run_vapp(request):
     bFindInstance = False
-    cmdline = 'rdesktop -A "c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe" -s "%s" %s -u "%s"'
+    cmdline = 'rdesktop -A "c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe" -s "%s" -u "%s" %s'
 
     user_id = request.POST['uid']
     app_uuid = request.POST['uuid']
@@ -347,39 +347,65 @@ def run_vapp(request):
 
     # get vapp path & running instance
     vapp_obj = virtApp.objects.get(uuid=app_uuid)
-    logger.error("%s will try to run vapp:%s" % ( domain_user, vapp_obj.appname))
+    logger.error("user %s will try to run vapp:%s" % ( domain_user, vapp_obj.appname))
 
     # looking for instance that runs this vapp
     ecids = vapp_obj.ecids
     imgids = ecids.split(',')
+    l = SortedList()
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+
     for imgid in imgids:
         if len(imgid) > 0:
             imgid = imgid.strip()
-            insts = ecVSS.objects.filter(imageid=imgid)
-            for inst in insts:
-                trecs = ectaskTransaction.objects.filter(insid = inst)
-                if trecs.count() > 0:
-                    phase = trec.phase
-                    state = trec.state
-                    if phase == 'editing':
-                        if state == 'Running' or state == 'running':
-                            runtime_options = json.loads(trec.runtime_option)
-                            cmdline = cmdline % (vapp_obj.apppath, runtime_options['web_ip'], domain_user)
-                            bFindInstance = True
-                            logger.error("find instace %s for vapp %s " % (runtime_options['web_ip'], vapp_obj.appname))
-                            break
+            trecs = ectaskTransaction.objects.filter(srcimgid = imgid, dstimgid = imgid)
+            if trecs.count() > 0:
+                # collect all live instance, and sort
+                for trec in trecs:
+                    vm = {}
+                    ncobj = ecServers.objects.get(ip0 = trec.ncip, role='nc')
+                    key = str("nc#" + ncobj.mac0 + "#status")
+                    try:
+                        payload = mc.get(key)
+                        if payload == None:
+                            continue
+                        else:
+                            payload = json.loads(payload)
+                            if 'vm_data' in payload.keys():
+                                _vminfo = payload['vm_data']
+                                for _vm in _vminfo:
+                                    if _vm['insid'] == trec.insid and _vm['state'] == 'Running':
+                                        vm['1cpu'] = _vm['phy_cpu']
+                                        vm['2mem'] = _vm['phy_mem']
+                                        vm['insid'] = trec.insid
+                                        l.add(vm)
+                                    else:
+                                        continue
+                            else:
+                                continue
+                    except Exception as e:
+                        continue
 
-    logger.error("cmd = %s" % cmdline)
     response = {}
-    if bFindInstance:
+    if len(l) > 0:
+        logger.error(l)
+        rec = ectaskTransaction.objects.get(insid = l[0]['insid'])
+        runtime_options = json.loads(rec.runtime_option)
+        cmdline = cmdline % (vapp_obj.apppath, domain_user, runtime_options['web_ip'])
+        logger.error(" --- find instace %s for vapp %s " % (runtime_options['web_ip'], vapp_obj.appname))
+        logger.error(" --- cmd = %s" % cmdline)
+
         response['Result'] = "OK"
         response['cmdline'] = cmdline
     else:
         response['Result'] = "FAIL"
-        response['error'] = 'Not Find running instances'
+        response['error'] = 'Not Find running instances with app %s' % vapp_obj.appname
+
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
+
+
 
 
 

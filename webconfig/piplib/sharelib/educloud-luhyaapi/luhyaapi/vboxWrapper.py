@@ -35,6 +35,19 @@ def get_vm_hdds():
 
     return result
 
+def getVMProcessStatus(vmname):
+    cmd = 'ps -C VBoxHeadless -o %cpu,%mem,cmd | grep ' + vmname
+    out = commands.getoutput(cmd)
+    logger.error(out)
+    if len(out) > 0:
+        out = out.split()
+        cpu = float(out[0])
+        mem = float(out[1])
+        return cpu, mem
+    else:
+        return 0, 0
+
+
 def getVMlist():
     cmd = "vboxmanage list vms"
     out = commands.getoutput(cmd)
@@ -49,30 +62,39 @@ def getVMlist():
             vm['uuid'] = vms[2*x+1].replace('{', '').replace('}', '')
 
             if 'inaccessible' in vm['insid']:
-                vm['insid']  = vm['insid'].replace('{', '').replace('}', '')
                 logger.error("Find inaccessible vm with uuid=%s" % vm['uuid'])
                 # unregister this vm by uuid
                 # search for insid of this vm
                 # re-register this vm by insid
-                continue
-
-            try:
-                vm_cmd = "vboxmanage showvminfo %s" % vm['insid']
-                out = execute_cmd(vm_cmd, True)
-                out = out.split('\n')
-                vm['guest_os'] =  out[2].split(':')[1].strip()  # line 3
-                tmp            =  out[8].split(':')[1].strip()  # line 9
-                vm['mem']      =  int(tmp.split('MB')[0])/1024
-                vm['vcpu']     =  int(out[15].split(':')[1].strip()) # line 16
-                state          =  out[34].split(':')[1].strip()
-                if state.find('running') >= 0:
-                    vm['state'] = 'Running'
-                else:
-                    vm['state'] = 'Stopped'
-
+                vm['guest_os'] = ''
+                vm['mem'] = 0
+                vm['vcpu'] = 0
+                vm['state'] = 'inaccessible'
+                vm['phy_mem'] = 0
+                vm['phy_cpu'] = 0
                 result.append(vm)
-            except Exception as e:
-                logger.error('%s exception = %s' % (vm_cmd, str(e)))
+            else:
+                try:
+                    vm_cmd = "vboxmanage showvminfo %s" % vm['insid']
+                    out = execute_cmd(vm_cmd, True)
+                    out = out.split('\n')
+                    vm['guest_os'] =  out[2].split(':')[1].strip()  # line 3
+                    tmp            =  out[8].split(':')[1].strip()  # line 9
+                    vm['mem']      =  int(tmp.split('MB')[0])/1024
+                    vm['vcpu']     =  int(out[15].split(':')[1].strip()) # line 16
+                    state          =  out[34].split(':')[1].strip()
+                    if state.find('running') >= 0:
+                        logger.error(" vm %s is running, to get phy_cpu and phy_mem" % vm['insid'])
+                        vm['state'] = 'Running'
+                        vm['phy_cpu'], vm['phy_mem'] = getVMProcessStatus(vm['insid'])
+                    else:
+                        vm['state'] = 'Stopped'
+                        vm['phy_mem'] = 0
+                        vm['phy_cpu'] = 0
+
+                    result.append(vm)
+                except Exception as e:
+                    logger.error('%s exception = %s' % (vm_cmd, str(e)))
 
     logger.error("report VMs status: %s" % json.dumps(result))
     return result
