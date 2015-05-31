@@ -153,6 +153,8 @@
 <script src="{% static "clc/zTree_v3/js/jquery.ztree.excheck-3.5.js" %}"></script>
 <script src="{% static "clc/zTree_v3/js/jquery.ztree.exedit-3.5.js" %}"></script>
 
+<script src="{% static "portal/native/nativeapp.js" %}"></script>
+
 <style type="text/css">
 img {
 	display:inline-block;
@@ -637,6 +639,11 @@ function init_GUI() {
     {% endfor%}
 }
 
+function sendMessage2addon() {
+    var event = document.createEvent('CustomEvent');
+    event.initCustomEvent("addon-message", true, true, { hello: 'world' });
+    document.documentElement.dispatchEvent(event);
+}
 
 ////////////////////////////////////////////////////////
 //
@@ -654,9 +661,10 @@ function start_vapp(vapp_uuid, vapp_id) {
             items[key] = val;
         });
         if ( items['Result'] == 'OK' ) {
-            cmdline = items['cmdline']
+            vapp_info = items['data']
             // run cmdline
-            errorMsgBox(items['cmdline']);
+            // start_native_app(vapp_info);
+            sendMessage2addon();
         } else {
             errorMsgBox(items['error']);
             return ;

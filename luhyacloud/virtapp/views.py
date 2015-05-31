@@ -334,7 +334,6 @@ def list_my_vapps(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def run_vapp(request):
-    bFindInstance = False
     cmdline = 'rdesktop -A "c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe" -s "%s" -u "%s" %s'
 
     user_id = request.POST['uid']
@@ -395,8 +394,13 @@ def run_vapp(request):
         logger.error(" --- find instace %s for vapp %s " % (runtime_options['web_ip'], vapp_obj.appname))
         logger.error(" --- cmd = %s" % cmdline)
 
+        vapp_info = {}
+        vapp_info['ip']   =  runtime_options['web_ip']
+        vapp_info['user'] =  domain_user
+        vapp_info['exe']  =  vapp_obj.apppath
+
         response['Result'] = "OK"
-        response['cmdline'] = cmdline
+        response['data']  =  vapp_info
     else:
         response['Result'] = "FAIL"
         response['error'] = 'Not Find running instances with app %s' % vapp_obj.appname
