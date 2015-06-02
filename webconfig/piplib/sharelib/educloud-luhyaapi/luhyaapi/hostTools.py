@@ -185,6 +185,7 @@ def getHostNetInfo():
             addr = netifaces.ifaddresses(nic)
             if netifaces.AF_INET in addr.keys():
                 hostnetinfo[ipstr]  = addr[netifaces.AF_INET][0]['addr']
+            if netifaces.AF_LINK in addr.keys():
                 hostnetinfo[macstr] = addr[netifaces.AF_LINK][0]['addr']
             index = index + 1
 

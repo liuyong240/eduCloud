@@ -24,7 +24,17 @@
 
         <script src="{% static "portal/js/modernizr-2.6.2-respond-1.1.0.min.js" %}"></script>
     </head>
-    <body>
+    <body onload="loadFunc()">
+    	<div id="context-menu">
+	      	<ul class="dropdown-menu" role="menu">
+	      	   <li><a tabindex="-1" href="JavaScript:void(0);" onclick="refresh();">Refresh</a></li>
+		       <li class="divider" ></li>
+               <li><a tabindex="-1" href="JavaScript:void(0);" onclick="closeApp();">Close App</a></li>
+               <li class="divider"></li>
+	           <li><a tabindex="-1" href="JavaScript:void(0);" onclick="reboot();">Reboot</a></li>
+	           <li><a tabindex="-1" href="JavaScript:void(0);" onclick="shutdown();">ShutDown</a></li>
+	      	</ul>
+		</div>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
@@ -88,7 +98,47 @@
         <script src="{% static "portal/js/jquery.bxslider.js" %}"></script>
         <script src="{% static "portal/js/main-menu.js" %}"></script>
         <script src="{% static "portal/js/template.js" %}"></script>
+        <script src="{% static "clc/js/bootstrap-contextmenu.js" %}"></script>
 
+		<script>
+            function runFunc(cmd)
+			{
+				  var exec = require('child_process').exec,
+					  child;
+
+				  child = exec(cmd,
+					function (error, stdout, stderr) {
+					  console.log('stdout: ' + stdout);
+					  console.log('stderr: ' + stderr);
+					  if (error !== null) {
+						console.log('exec error: ' + error);
+					  }
+				  });
+			}
+
+            function refresh() {
+            	window.location.reload();
+            }
+            function closeApp() {
+            	var gui = require('nw.gui');
+            	gui.App.quit();
+            }
+            function reboot() {
+				runFunc("sudo reboot");
+            }
+            function shutdown() {
+            	runFunc("sudo shutdown -h now");
+            }
+
+			function loadFunc() {
+				var browser_info = navigator.userAgent;
+				if(browser_info.indexOf("thomasli") >= 0 )  {
+					// access by educloud-client, then set customized context menu
+					$('body').attr("data-toggle", "context");
+					$('body').attr("data-target", "#context-menu");
+				}
+			}
+		</script>
         {% block myjs %}
         {% endblock %}
 
