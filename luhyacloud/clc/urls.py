@@ -132,7 +132,7 @@ urlpatterns = patterns('',
     url(r'^api/1.0/rvd/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_getvmstatus,        name='rvd_getvmstatus'),
     url(r'^api/1.0/rvd/display/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',          views.rvd_display,            name='rvd_display'),
     url(r'^api/1.0/rvd/get_rdp_url/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_get_rdp_url,        name='rvd_get_rdp_url'),
-
+    url(r'^api/1.0/vm/get_rdp_para/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',      views.rvd_get_rdp_para,       name='rvd_get_rdp_para'),
 
 
     # API v1.0 for system administration

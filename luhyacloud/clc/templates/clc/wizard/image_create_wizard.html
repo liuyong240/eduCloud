@@ -366,6 +366,23 @@ function display_in_browser() {
     window.open(url, '', 'height=1280,width=1400,left=' + left + ',top=' + top);
 }
 
+function display_in_rdesktop() {
+    srcid = $("#srcid").text();
+    dstid = $("#dstid").text();
+    insid = $("#insid").text();
+
+    url="/clc/api/1.0/vm/get_rdp_para/" + srcid + "/" + dstid + "/" + insid;
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        cmd = 'rdesktop ' + items['rdp_ip'] + ':' + items['rdp_port'];
+        runFunc(cmd);
+    });
+}
+
 $(document).ready(function () {
 
     srcid = $("#srcid").text();
@@ -422,6 +439,16 @@ $(document).ready(function () {
         stopVM();
     });
 
+    $("#btn_view").click(function () {
+        if (isEduClient() == 1) {
+            //request from educlient
+            display_in_rdesktop();
+        } else {
+            //request from browser
+            display_in_browser();
+        }
+    });
+
     $("#btn_submit").click(function () {
         submitVM();
     });
@@ -466,18 +493,7 @@ $(document).ready(function () {
                 <button id="btn_run"    type="button" class="btn btn-primary">{% trans "Run" %}</button>
                 <button id="btn_stop"   type="button" class="btn btn-primary disabled">{% trans "Stop" %}</button>
                 <div class="pull-right" id="luhyaVM" style="display: none;">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
-                            {% trans "display Screen" %}
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu pull-right" role="menu">
-                            <li><a href="JavaScript:void(0);" onclick="display_in_browser();">{% trans "display in new Browser" %}</a>
-                            </li>
-                            <li><a href="#">{% trans "display by windows-tool" %}</a>
-                            </li>
-                        </ul>
-                    </div>
+                    <button id="btn_view" type="button" class="btn btn-success " >{% trans "display Screen" %}</button>
                 </div>
                 <p> </p>
                 <p> </p>
@@ -501,7 +517,6 @@ $(document).ready(function () {
             </table>
             <p> </p>
             <p> </p>
-            <div><a href="http://pan.baidu.com/s/1hqGLYio">{% trans "Download plugin for Cloud Desktop Connection" %}</a></div>
         </fieldset>
 
         {% if submit == 1 %}

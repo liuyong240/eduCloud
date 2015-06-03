@@ -36,19 +36,7 @@
                             </div>
 
                             <button type="button" id="run_{{ vd.id }}" onclick="startVD('{{ vd.ecid }}', '{{ vd.id }}');"  class="btn ">{% trans "Run" %}</button>
-
-                            <div class="btn-group ">
-                                <button type="button" id="show_{{ vd.id }}"  class="btn  dropdown-toggle" data-toggle="dropdown">{% trans "Show" %}<span class="caret"></span></button>
-                                <ul class="dropdown-menu" role="menu">
-
-                                    <li><a href="JavaScript:void(0);" onclick="show_in_browser( '{{ vd.id }}' );">{% trans "Show by Browser" %}</a>
-                                    </li>
-                                    <li><a href="JavaScript:void(0);" onclick="show_in_tools( '{{ vd.id }}' );">{% trans "Show by windows-tool" %}</a>
-                                    </li>
-                                    <li><a href="http://pan.baidu.com/s/1hqGLYio">{% trans "Download plugin for Cloud Desktop Connection" %}</a>
-                                    </li>
-                                </ul>
-                            </div>
+                            <button type="button" id="show_{{ vd.id }}"  class="btn" onclick="display_vm_window( '{{ vd.id }}' );">{% trans "Show" %}</button>
 
                             <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
 
@@ -460,7 +448,7 @@ function startVD( ecid, id ) {
     }
 }
 
-function show_in_browser( id ) {
+function show_by_browser( id ) {
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
     tmp = taskid.split(':')
     srcid = tmp[0];
@@ -493,7 +481,7 @@ function delete_form(form_name) {
     document.body.removeChild(form_name);
 }
 
-function show_in_tools( id ) {
+function show_by_rdesktop( id ) {
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
     tmp = taskid.split(':')
     srcid = tmp[0];
@@ -509,9 +497,17 @@ function show_in_tools( id ) {
         $.each(data, function (key, val) {
             items[key] = val;
         });
-        url = "luhyavm://" + $.trim(items['mgr_url'])
-        window.open(url, '', 'height=10,width=10,left=0, top=0');
+        cmd = 'rdesktop ' + items['rdp_ip'] + ':' + items['rdp_port'];
+        runFunc(cmd);
     });
+}
+
+function display_vm_window(id) {
+    if ( isEduClient() == 1 ) {
+        show_by_rdesktop(id);
+    } else {
+        show_by_browser(id);
+    }
 }
 
 function gui_update(items, do2run) {
@@ -639,37 +635,40 @@ function init_GUI() {
     {% endfor%}
 }
 
-function sendMessage2addon() {
-    var event = document.createEvent('CustomEvent');
-    event.initCustomEvent("addon-message", true, true, { hello: 'world' });
-    document.documentElement.dispatchEvent(event);
-}
 
 ////////////////////////////////////////////////////////
 //
 // Virtualized Application
 //
+// rdesktop -A 'c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe'
+//          -s 'c:\Program Files (x86)\Microsoft Office\Office12\winword.exe'
+//          -r disk:mydisk=/Users/luhya
+//          -u 'Administrator' -p '1qaz!2wsx@'
+/           192.168.56.101
+//
 ////////////////////////////////////////////////////////
 function start_vapp(vapp_uuid, vapp_id) {
-    postdata = {
-        'uuid': vapp_uuid,
-        'uid':  "{{ uid }}",
-    }
-    $.post(run_vapp_url, postdata, function (data) {
-        items = [];
-        $.each(data, function (key, val) {
-            items[key] = val;
-        });
-        if ( items['Result'] == 'OK' ) {
-            vapp_info = items['data']
-            // run cmdline
-            // start_native_app(vapp_info);
-            sendMessage2addon();
-        } else {
-            errorMsgBox(items['error']);
-            return ;
+    if ( isEduClient() == 0 ) {
+        alert("Please run from educloud-client. ");
+    } else {
+        postdata = {
+            'uuid': vapp_uuid,
+            'uid':  "{{ uid }}",
         }
-    });
+        $.post(run_vapp_url, postdata, function (data) {
+            items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+            if ( items['Result'] == 'OK' ) {
+                vapp_info = items['data']
+                cmd = 'rdesktop -A "c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe" -s "' + vapp_info['exe'] + '" -u "' + vapp_info['user'] + '" ' + vapp_info['ip'];
+                runFunc(cmd);
+            } else {
+                alert(items['error']);
+            }
+        });
+    }
 }
 
 

@@ -5206,6 +5206,22 @@ def rvd_display(request, srcid, dstid, insid):
 
     return vm_display(request, srcid, dstid, insid)
 
+def rvd_get_rdp_para(request, srcid, dstid, insid):
+    response = {}
+
+    _tid  = '%s:%s:%s' % (srcid, dstid, insid)
+
+    # if tid exist, just call view
+    # else find resource and create tid
+    trecs = ectaskTransaction.objects.filter(tid=_tid)
+    if trecs.count() > 0:
+        runtime_option = json.loads(trecs[0].runtime_option)
+        response['Result']     = 'OK'
+        response['rdp_ip']     = runtime_option['rdp_ip']
+        response['rdp_port']   = runtime_option['rdp_port']
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
 def rvd_get_rdp_url(request, srcid, dstid, insid):
     _skey = request.POST['sid']
 
@@ -5217,16 +5233,5 @@ def rvd_get_rdp_url(request, srcid, dstid, insid):
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
 
-    response = {}
+    return rvd_get_rdp_para(request, srcid, dstid, insid)
 
-    _tid  = '%s:%s:%s' % (srcid, dstid, insid)
-
-    # if tid exist, just call view
-    # else find resource and create tid
-    trecs = ectaskTransaction.objects.filter(tid=_tid)
-    if trecs.count() > 0:
-        runtime_option = json.loads(trecs[0].runtime_option)
-        response['Result']      = 'OK'
-        response['mgr_url']     = getValidMgrURL(request, runtime_option)
-        retvalue = json.dumps(response)
-        return HttpResponse(retvalue, content_type="application/json")
