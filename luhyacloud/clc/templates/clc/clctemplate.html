@@ -200,12 +200,17 @@
     <script>
     function isEduClient()
     {
-        var browser_info = navigator.userAgent;
-        if(browser_info.indexOf("thomasli") >= 0 )  {
-            return 1;
-        } else {
-            return 0;
+        var ret;
+        var fs;
+
+        try {
+            fs = require("fs");
+            ret = 1;
+        } catch (error) {
+            ret = 0;
         }
+
+        return ret;
     }
 
     function runFunc(cmd)

@@ -35,8 +35,8 @@
                                 </div>
                             </div>
 
-                            <button type="button" id="run_{{ vd.id }}" onclick="startVD('{{ vd.ecid }}', '{{ vd.id }}');"  class="btn ">{% trans "Run" %}</button>
-                            <button type="button" id="show_{{ vd.id }}"  class="btn" onclick="display_vm_window( '{{ vd.id }}' );">{% trans "Show" %}</button>
+                            <button type="button" id="run_{{ vd.id }}"   onclick="startVD('{{ vd.ecid }}', '{{ vd.id }}');"  class="btn ">{% trans "Run" %} </button>
+                            <button type="button" id="show_{{ vd.id }}"  onclick="display_vm_window( '{{ vd.id }}' );"       class="btn" >{% trans "Show" %}</button>
 
                             <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
 
@@ -140,8 +140,6 @@
 <script src="{% static "clc/zTree_v3/js/jquery.ztree.core-3.5.js" %}"></script>
 <script src="{% static "clc/zTree_v3/js/jquery.ztree.excheck-3.5.js" %}"></script>
 <script src="{% static "clc/zTree_v3/js/jquery.ztree.exedit-3.5.js" %}"></script>
-
-<script src="{% static "portal/native/nativeapp.js" %}"></script>
 
 <style type="text/css">
 img {
@@ -644,7 +642,7 @@ function init_GUI() {
 //          -s 'c:\Program Files (x86)\Microsoft Office\Office12\winword.exe'
 //          -r disk:mydisk=/Users/luhya
 //          -u 'Administrator' -p '1qaz!2wsx@'
-/           192.168.56.101
+//          192.168.56.101
 //
 ////////////////////////////////////////////////////////
 function start_vapp(vapp_uuid, vapp_id) {
