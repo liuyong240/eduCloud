@@ -39,7 +39,8 @@ class cc_rpcServerThread(run4everThread):
             'image/edit/stopped'        : self.cc_rpc_handle_image_stopped,
         }
 
-        self.tasks_status = {}
+        self.img_tasks_status = {}
+        self.db_tasks_status = {}
         self.submit_tasks = {}
 
     def run4ever(self):
@@ -67,22 +68,41 @@ class cc_rpcServerThread(run4everThread):
                 prompt = locale_string['promptDfromWarlus2CC_image']
                 source      = "rsync://%s/%s/%s" % (self.serverIP, 'luhya', tid.split(':')[0])
                 destination = "/storage/images/"
+
+                imgid = tid.split(':')[0]
+                if imgid in self.img_tasks_status.keys():
+                    if not tid in self.img_tasks_status[imgid]['tids']:
+                        self.img_tasks_status[imgid]['tids'].apppend(tid)
+                    worker = self.img_tasks_status[imgid]['worker']
+                else:
+                    self.img_tasks_status[imgid]= {}
+                    self.img_tasks_status[imgid]['tids'] = [tid]
+                    worker = rsyncWorkerThread(logger, source, destination)
+                    worker.start()
+                    self.img_tasks_status[imgid]['worker'] = worker
+
             if paras == 'db':
                 prompt = locale_string['promptDfromWarlus2CC_db']
                 insid = tid.split(':')[2]
                 if insid.find('TMP') == 0:
                     source      = "rsync://%s/%s/%s" % (self.serverIP, 'db', tid.split(':')[0])
                     destination = "/storage/space/database/images/"
+                    imgid = tid.split(':')[0]
                 else:
                     source      = "rsync://%s/%s/%s" % (self.serverIP, 'vss', tid.split(':')[2])
                     destination = "/storage/space/database/instances/"
+                    imgid = tid.split(':')[2]
 
-            if tid in self.tasks_status and self.tasks_status[tid] != None:
-                worker = self.tasks_status[tid]
-            else:
-                worker = rsyncWorkerThread(logger, source, destination)
-                worker.start()
-                self.tasks_status[tid] = worker
+                if imgid in self.db_tasks_status.keys():
+                    if not tid in self.db_tasks_status[imgid]['tids']:
+                        self.db_tasks_status[imgid]['tids'].apppend(tid)
+                    worker = self.db_tasks_status[imgid]['worker']
+                else:
+                    self.db_tasks_status[imgid]= {}
+                    self.db_tasks_status[imgid]['tids'] = [tid]
+                    worker = rsyncWorkerThread(logger, source, destination)
+                    worker.start()
+                    self.db_tasks_status[imgid]['worker'] = worker
 
             payload = {
                     'type'      : 'taskstatus',
@@ -104,7 +124,10 @@ class cc_rpcServerThread(run4everThread):
             ch.basic_ack(delivery_tag = method.delivery_tag)
 
             if worker.isFailed() or worker.isDone():
-                del self.tasks_status[tid]
+                if paras == 'luhya':
+                    del self.img_tasks_status[imgid]
+                if paras == 'db':
+                    del self.db_tasks_status[imgid]
 
         except Exception as e:
             logger.error("cc_rpc_handle_imageprepare Exception Error Message : %s" % str(e))

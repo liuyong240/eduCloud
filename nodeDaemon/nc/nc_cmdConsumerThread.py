@@ -127,11 +127,23 @@ class prepareImageTaskThread(threading.Thread):
                 return retvalue
             else:
                 payload['prompt'] = prompt
+                imgid = self.srcimgid
+                if imgid in img_tasks_status.keys():
+                    if not self.tid in img_tasks_status[imgid]['tids']:
+                        img_tasks_status[imgid]['tids'].apppend(self.tid)
+                    worker = img_tasks_status[imgid]['worker']
+                else:
+                    img_tasks_status[imgid]= {}
+                    img_tasks_status[imgid]['tids'] = [self.tid]
+                    worker = rsyncWorkerThread(logger, source, destination)
+                    worker.start()
+                    img_tasks_status[imgid]['worker'] = worker
 
         if paras == 'db':
             prompt      = locale_string['prmptDfromCC2NC_db']
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/space/database/images/"
+
             if self.cc_img_info['data']['dbsize'] == self.nc_dbsize and \
                self.nc_dbsize > 0:
                 payload['progress'] = 0
@@ -141,9 +153,18 @@ class prepareImageTaskThread(threading.Thread):
                 return retvalue
             else:
                 payload['prompt'] = prompt
+                imgid = self.srcimgid
+                if imgid in db_tasks_status.keys():
+                    if not self.tid in db_tasks_status[imgid]['tids']:
+                        db_tasks_status[imgid]['tids'].apppend(self.tid)
+                    worker = self.db_tasks_status[imgid]['worker']
+                else:
+                    db_tasks_status[imgid]= {}
+                    db_tasks_status[imgid]['tids'] = [self.tid]
+                    worker = rsyncWorkerThread(logger, source, destination)
+                    worker.start()
+                    db_tasks_status[imgid]['worker'] = worker
 
-        worker = rsyncWorkerThread(logger, source, destination)
-        worker.start()
 
         while True:
             payload['progress'] = worker.getprogress()
@@ -167,6 +188,12 @@ class prepareImageTaskThread(threading.Thread):
                 self.forwardTaskStatus2CC(json.dumps(payload))
 
             time.sleep(2)
+
+        if worker.isFailed() or worker.isDone():
+            if paras == 'luhya':
+                del self.img_tasks_status[imgid]
+            if paras == 'db':
+                del self.db_tasks_status[imgid]
 
         return retvalue
 
@@ -535,6 +562,10 @@ class SubmitImageTaskThread(threading.Thread):
             payload['errormsg'] = str(e)
             payload['state'] = 'init'
             self.forwardTaskStatus2CC(json.dumps(payload))
+
+
+img_tasks_status = {}
+db_tasks_status  = {}
 
 def nc_image_prepare_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_prepare_handle")
