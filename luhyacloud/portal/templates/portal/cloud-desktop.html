@@ -495,7 +495,13 @@ function show_by_rdesktop( id ) {
         $.each(data, function (key, val) {
             items[key] = val;
         });
-        cmd = 'rdesktop ' + items['rdp_ip'] + ':' + items['rdp_port'];
+        
+        ostype = getOSType();
+        if (ostype == "windows") {
+            cmd = ""mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
+        } else {
+            cmd = 'rdesktop ' + items['rdp_ip'] + ':' + items['rdp_port'];
+        }
         runFunc(cmd);
     });
 }
@@ -660,8 +666,13 @@ function start_vapp(vapp_uuid, vapp_id) {
             });
             if ( items['Result'] == 'OK' ) {
                 vapp_info = items['data']
-                cmd = 'rdesktop -A "c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe" -s "' + vapp_info['exe'] + '" -u "' + vapp_info['user'] + '" ' + vapp_info['ip'];
-                runFunc(cmd);
+                ostype = getOSType();
+                if (ostype == "windows") {
+                    alert("Windows Ssytem is not supported yet.");
+                } else {
+                    cmd = 'rdesktop -A "c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe" -s "' + vapp_info['exe'] + '" -u "' + vapp_info['user'] + '" ' + vapp_info['ip'];
+                    runFunc(cmd);
+                }
             } else {
                 alert(items['error']);
             }

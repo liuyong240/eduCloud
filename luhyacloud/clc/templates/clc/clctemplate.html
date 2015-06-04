@@ -213,6 +213,17 @@
         return ret;
     }
 
+    function getOSType() {
+        var browserName=navigator.userAgent.toLowerCase();
+        if (/linux/i.test(browserName)) {
+            return "linux";
+        } else if (/macintos/i.test(browserName)) {
+            return "macintos";
+        } else if (/windows/i.test(browserName)) {
+            return "windows";
+        }
+    }
+
     function runFunc(cmd)
     {
           var exec = require('child_process').exec,
