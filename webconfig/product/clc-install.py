@@ -144,7 +144,7 @@ os.system(cmd_line)
 print "------------------------------------------------------"
 print " 7. install educloud in one machine by apt-get "
 print "------------------------------------------------------"
-cmd_line = 'sudo apt-get -y install nodedaemon-clc nodedaemon-walrus educloud-portal'
+cmd_line = 'sudo apt-get -y install nodedaemon-clc nodedaemon-walrus educloud-portal educloud-virtapp'
 os.system(cmd_line)
 
 cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'

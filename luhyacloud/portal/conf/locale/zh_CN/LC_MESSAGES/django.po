@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-20 08:18+0000\n"
+"POT-Creation-Date: 2015-06-04 07:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,57 +50,49 @@ msgid "'s Cloud Desktop"
 msgstr "的云桌面"
 
 #: templates/portal/cloud-desktop.html:38
-#: templates/portal/cloud-desktop.html:92
+#: templates/portal/cloud-desktop.html:80
 msgid "Run"
 msgstr "运行"
 
-#: templates/portal/cloud-desktop.html:41
+#: templates/portal/cloud-desktop.html:39
 msgid "Show"
 msgstr "显示"
 
-#: templates/portal/cloud-desktop.html:44
-msgid "Show by Browser"
-msgstr "在浏览器中显示"
-
-#: templates/portal/cloud-desktop.html:46
-msgid "Show by windows-tool"
-msgstr "在RDP客户端中显示"
-
-#: templates/portal/cloud-desktop.html:48
-msgid "Download plugin for Cloud Desktop Connection"
-msgstr "RDP客户端浏览器插件下载"
-
-#: templates/portal/cloud-desktop.html:55
+#: templates/portal/cloud-desktop.html:43
 msgid "Stop"
 msgstr "停止"
 
-#: templates/portal/cloud-desktop.html:69
+#: templates/portal/cloud-desktop.html:57
 msgid "'s Virtualized Application"
 msgstr "的虚拟应用"
 
-#: templates/portal/cloud-desktop.html:105
+#: templates/portal/cloud-desktop.html:93
 msgid "Upload Private Data"
 msgstr "上传私人数据"
 
-#: templates/portal/cloud-desktop.html:116
+#: templates/portal/cloud-desktop.html:104
 msgid "Step 1: create and select directory"
 msgstr "步骤1：创建并选择目录"
 
-#: templates/portal/cloud-desktop.html:119
+#: templates/portal/cloud-desktop.html:107
 msgid "Private Data Directory in Server"
 msgstr "云平台上的私人数据空间"
 
-#: templates/portal/cloud-desktop.html:137
+#: templates/portal/cloud-desktop.html:125
 msgid "Step 2: select files to upload"
 msgstr "步骤2：选择一个文件上传"
 
-#: templates/portal/cloud-desktop.html:138
+#: templates/portal/cloud-desktop.html:126
 msgid "Your browser doesn't support HTML5."
 msgstr "你的浏览器不支持HTML5标准"
 
-#: templates/portal/cloud-desktop.html:597
+#: templates/portal/cloud-desktop.html:599
 msgid "booting ... ..."
 msgstr "启动中 ... ..."
+
+#: templates/portal/cloud-desktop.html:671
+msgid "Windows Ssytem is not supported yet."
+msgstr "暂不支持Windows系统。"
 
 #: templates/portal/cloud-services.html:12
 msgid "Cloud Applications"
@@ -196,43 +188,43 @@ msgstr "申请账号"
 msgid "eduCloud portal"
 msgstr "云平台门户"
 
-#: templates/portal/portal_template.html:41
+#: templates/portal/portal_template.html:51
 msgid "EduCloud Platform Portal"
 msgstr "云平台门户"
 
-#: templates/portal/portal_template.html:56
+#: templates/portal/portal_template.html:66
 msgid "Contacts"
 msgstr "联系信息"
 
-#: templates/portal/portal_template.html:58
+#: templates/portal/portal_template.html:68
 msgid "Address"
 msgstr "地址"
 
-#: templates/portal/portal_template.html:58
+#: templates/portal/portal_template.html:68
 msgid "Floor 7, XiXi Habour, Hanghzou, zhejiang"
 msgstr "浙江省杭州市文三路1号西溪数码港7楼"
 
-#: templates/portal/portal_template.html:59
+#: templates/portal/portal_template.html:69
 msgid "Phone"
 msgstr "电话"
 
-#: templates/portal/portal_template.html:60
+#: templates/portal/portal_template.html:70
 msgid "Person"
 msgstr "联系人"
 
-#: templates/portal/portal_template.html:60
+#: templates/portal/portal_template.html:70
 msgid "Mr.zhou"
 msgstr "周经理"
 
-#: templates/portal/portal_template.html:61
+#: templates/portal/portal_template.html:71
 msgid "Email"
 msgstr "电子邮件"
 
-#: templates/portal/portal_template.html:66
+#: templates/portal/portal_template.html:76
 msgid "Connected"
 msgstr "链接"
 
-#: templates/portal/portal_template.html:76
+#: templates/portal/portal_template.html:86
 msgid "EduCloud. All rights reserved"
 msgstr "云平台. 版权所有"
 
@@ -323,6 +315,15 @@ msgstr "物理服务器管理"
 #: templates/portal/videos.html:142
 msgid "virtual machine management"
 msgstr "虚拟机管理"
+
+#~ msgid "Show by Browser"
+#~ msgstr "在浏览器中显示"
+
+#~ msgid "Show by windows-tool"
+#~ msgstr "在RDP客户端中显示"
+
+#~ msgid "Download plugin for Cloud Desktop Connection"
+#~ msgstr "RDP客户端浏览器插件下载"
 
 #~ msgid "Add"
 #~ msgstr "地址"
