@@ -495,10 +495,10 @@ function show_by_rdesktop( id ) {
         $.each(data, function (key, val) {
             items[key] = val;
         });
-        
+
         ostype = getOSType();
         if (ostype == "windows") {
-            cmd = ""mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
+            cmd = "mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
         } else {
             cmd = 'rdesktop ' + items['rdp_ip'] + ':' + items['rdp_port'];
         }

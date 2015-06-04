@@ -380,7 +380,7 @@ function display_in_rdesktop() {
 
         ostype = getOSType();
         if (ostype == "windows") {
-            cmd = ""mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
+            cmd = "mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
         } else {
             cmd = 'rdesktop ' + items['rdp_ip'] + ':' + items['rdp_port'];
         }
