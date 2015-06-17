@@ -197,7 +197,7 @@ if checkPackage('nodedaemon-walrus') == False:
 cmd_line = 'wget http://%s/Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack' % DST_IP
 os.system(cmd_line)
 
-cmd_line = 'sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack'
+cmd_line = 'sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack'
 os.system(cmd_line)
 
 cmd_line = 'rm Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack'
