@@ -47,8 +47,13 @@ def getVMProcessStatus(vmname):
     else:
         return 0, 0
 
+def recoverVMFromCrash():
+    cmd = "/usr/local/bin/recoverVMfromCrash"
+    commands.getoutput(cmd)
 
 def getVMlist():
+    recoverVMFromCrash()
+
     cmd = "vboxmanage list vms"
     out = commands.getoutput(cmd)
 

@@ -613,15 +613,11 @@ class runImageTaskThread(threading.Thread):
         bridged_ifs = get_vm_ifs()
 
         # register VM
-        snapshot_name = "thomas"
         if not vboxmgr.isVMRegistered():
             logger.error("--- --- --- vm %s is not registered" % vboxmgr.getVMName())
             if vboxmgr.isVMRegisteredBefore():
                 logger.error("--- --- --- vm %s is registered before" % vboxmgr.getVMName())
                 ret = vboxmgr.registerVM()
-                if vboxmgr.isSnapshotExist(snapshot_name):
-                    logger.error("--- --- --- vm %s is restore snapshot" % vboxmgr.getVMName())
-                    ret = vboxmgr.restore_snapshot(snapshot_name)
             else:
                 logger.error("--- --- --- vm %s is not registered yet" % vboxmgr.getVMName())
                 try:
@@ -672,10 +668,7 @@ class runImageTaskThread(threading.Thread):
 
                     vboxmgr.unregisterVM()
                     vboxmgr.registerVM()
-                    if self.runtime_option['run_with_snapshot'] == 1:
-                        if not vboxmgr.isSnapshotExist(snapshot_name):
-                            ret = vboxmgr.take_snapshot(snapshot_name)
-                            logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % ret)
+
                 except Exception as e:
                     logger.error("createVM Exception error=%s" % str(e))
                     ret = vboxmgr.unregisterVM()
@@ -701,8 +694,18 @@ class runImageTaskThread(threading.Thread):
         }
 
         vboxmgr = self.vboxmgr
+
         try:
             if not vboxmgr.isVMRunning():
+                # every time before running, take a NEW snapshot
+                snapshot_name = "thomas"
+                if self.runtime_option['run_with_snapshot'] == 1:
+                    if vboxmgr.isSnapshotExist(snapshot_name):
+                        logger.error("--- --- --- vm %s is restore snapshot" % vboxmgr.getVMName())
+                        ret = vboxmgr.restore_snapshot(snapshot_name)
+                    else:
+                        ret = vboxmgr.take_snapshot(snapshot_name)
+
                 ret = vboxmgr.runVM(headless=True)
                 logger.error("--- --- --- vboxmgr.runVM, error=%s" % ret)
             else:

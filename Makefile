@@ -178,3 +178,9 @@ install:
 
 	install -d $(DAEMON_NC)/usr/local/bin/
 	cp $(CURDIR)/webconfig/scripts/nodedaemon-nc          $(DAEMON_NC)/usr/local/bin
+
+	##
+	## add tool for host crash recovery
+	##
+	cd $(CURDIR)/webconfig/serverTools/ && sudo -u luhya pyinstaller recoverVMfromCrash.py -F -s
+	cp $(CURDIR)/webconfig/serverTools/dist/recoverVMfromCrash             $(DAEMON_NC)/usr/local/bin
