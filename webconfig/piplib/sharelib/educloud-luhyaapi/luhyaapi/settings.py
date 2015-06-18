@@ -50,7 +50,7 @@ def getlocalestring():
             'promptUfromCC2Walrus_image':   u'从集群控制器上传镜像文件到存储控制器 ... ...',
 
             'promptUfromNC2CC_db'       :   u'从工作服务器上传数据库文件到集群控制器 ... ...',
-            'promptUfromCC2Walrus_bd'   :   u'从集群控制器上传数据库文件到存储控制器 ... ...',
+            'promptUfromCC2Walrus_db'   :   u'从集群控制器上传数据库文件到存储控制器 ... ...',
 
             'promptClone_image'         :   u'正在克隆镜像文件 ... ...',
             'promptClone_db'            :   u'正在克隆数据库文件 ... ...',
@@ -67,7 +67,7 @@ def getlocalestring():
             'promptUfromCC2Walrus_image':   u'Uploading image file from CC to Walrus ... ...',
 
             'promptUfromNC2CC_db'       :   u'Uploading database file from NC to CC ... ...',
-            'promptUfromCC2Walrus_bd'   :   u'Uploading database file from CC to Walrus ... ...',
+            'promptUfromCC2Walrus_db'   :   u'Uploading database file from CC to Walrus ... ...',
 
             'promptClone_image'         :   u'Cloning image file ... ...',
             'promptClone_db'            :   u'Cloning databse file ... ...',

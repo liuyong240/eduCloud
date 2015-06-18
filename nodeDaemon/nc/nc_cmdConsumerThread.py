@@ -23,6 +23,7 @@ class prepareImageTaskThread(threading.Thread):
         logger.error('prepareImageTaskThread inited, tid=%s' % tid)
 
     def checkCLCandCCFile(self, paras):
+        logger.error("Enter checkCLCandCCFile() ... ... ")
         result = verify_clc_cc_image_info(self.ccip, self.tid)
         logger.error("clc vs cc image info = %s" % json.dumps(result))
 
@@ -45,6 +46,7 @@ class prepareImageTaskThread(threading.Thread):
         retvalue = "OK"
 
         needDownloading = self.checkCLCandCCFile(data['rsync'])
+        logger.error("needDownloading = %s" % needDownloading)
         if needDownloading == 'NO':
             response = {
                 'type'      : 'taskstatus',
@@ -62,6 +64,7 @@ class prepareImageTaskThread(threading.Thread):
         else:
             while True:
                 response = self.download_rpc.call(cmd=data['cmd'], tid=data['tid'], paras=data['rsync'])
+                logger.error("self.download_rpc.call return = %s" % response)
                 response = json.loads(response)
 
                 if response['failed'] == 1:
@@ -87,7 +90,7 @@ class prepareImageTaskThread(threading.Thread):
         simple_send(logger, self.ccip, 'cc_status_queue', response)
 
     def downloadFromCC2NC(self, data):
-        logger.error('downloadFromCC2NC start ... ...')
+        logger.error('Enter downloadFromCC2NC  ... ...')
         locale_string = getlocalestring()
         retvalue = "OK"
 
@@ -124,11 +127,23 @@ class prepareImageTaskThread(threading.Thread):
                 return retvalue
             else:
                 payload['prompt'] = prompt
+                imgid = self.srcimgid
+                if imgid in img_tasks_status.keys():
+                    if not self.tid in img_tasks_status[imgid]['tids']:
+                        img_tasks_status[imgid]['tids'].apppend(self.tid)
+                    worker = img_tasks_status[imgid]['worker']
+                else:
+                    img_tasks_status[imgid]= {}
+                    img_tasks_status[imgid]['tids'] = [self.tid]
+                    worker = rsyncWorkerThread(logger, source, destination)
+                    worker.start()
+                    img_tasks_status[imgid]['worker'] = worker
 
         if paras == 'db':
             prompt      = locale_string['prmptDfromCC2NC_db']
             source      = "rsync://%s/%s/%s" % (self.ccip, data['rsync'], self.srcimgid)
             destination = "/storage/space/database/images/"
+
             if self.cc_img_info['data']['dbsize'] == self.nc_dbsize and \
                self.nc_dbsize > 0:
                 payload['progress'] = 0
@@ -138,9 +153,18 @@ class prepareImageTaskThread(threading.Thread):
                 return retvalue
             else:
                 payload['prompt'] = prompt
+                imgid = self.srcimgid
+                if imgid in db_tasks_status.keys():
+                    if not self.tid in db_tasks_status[imgid]['tids']:
+                        db_tasks_status[imgid]['tids'].apppend(self.tid)
+                    worker = self.db_tasks_status[imgid]['worker']
+                else:
+                    db_tasks_status[imgid]= {}
+                    db_tasks_status[imgid]['tids'] = [self.tid]
+                    worker = rsyncWorkerThread(logger, source, destination)
+                    worker.start()
+                    db_tasks_status[imgid]['worker'] = worker
 
-        worker = rsyncWorkerThread(logger, source, destination)
-        worker.start()
 
         while True:
             payload['progress'] = worker.getprogress()
@@ -164,6 +188,12 @@ class prepareImageTaskThread(threading.Thread):
                 self.forwardTaskStatus2CC(json.dumps(payload))
 
             time.sleep(2)
+
+        if worker.isFailed() or worker.isDone():
+            if paras == 'luhya':
+                del self.img_tasks_status[imgid]
+            if paras == 'db':
+                del self.db_tasks_status[imgid]
 
         return retvalue
 
@@ -462,7 +492,8 @@ class SubmitImageTaskThread(threading.Thread):
 
             if os.path.exists(os.path.dirname(dstfile)):
                 logger.error('rm %s' % os.path.dirname(dstfile))
-                shutil.rmtree(os.path.dirname(dstfile))
+                if os.path.exists(os.path.dirname(dstfile)):
+                    shutil.rmtree(os.path.dirname(dstfile))
 
             logger.error("--- task_finish is Done whit src <> dst")
         else:
@@ -532,6 +563,10 @@ class SubmitImageTaskThread(threading.Thread):
             payload['state'] = 'init'
             self.forwardTaskStatus2CC(json.dumps(payload))
 
+
+img_tasks_status = {}
+db_tasks_status  = {}
+
 def nc_image_prepare_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_prepare_handle")
     worker = prepareImageTaskThread(tid, runtime_option)
@@ -579,9 +614,12 @@ class runImageTaskThread(threading.Thread):
 
         # register VM
         if not vboxmgr.isVMRegistered():
+            logger.error("--- --- --- vm %s is not registered" % vboxmgr.getVMName())
             if vboxmgr.isVMRegisteredBefore():
+                logger.error("--- --- --- vm %s is registered before" % vboxmgr.getVMName())
                 ret = vboxmgr.registerVM()
             else:
+                logger.error("--- --- --- vm %s is not registered yet" % vboxmgr.getVMName())
                 try:
                     ostype_value = self.runtime_option['ostype']
                     ret = vboxmgr.createVM(ostype=ostype_value)
@@ -628,14 +666,9 @@ class runImageTaskThread(threading.Thread):
                         ret = vboxmgr.addVRDPproperty()
                         logger.error("--- --- --- vboxmgr.addVRDPproperty for video channel, error=%s" % ret)
 
-                    if self.runtime_option['run_with_snapshot'] == 1:
-                        snapshot_name = "thomas"
-                        if not vboxmgr.isSnapshotExist(snapshot_name):
-                            ret = vboxmgr.take_snapshot(snapshot_name)
-                            logger.error("--- --- --- vboxmgr.take_snapshot, error=%s" % ret)
-
                     vboxmgr.unregisterVM()
                     vboxmgr.registerVM()
+
                 except Exception as e:
                     logger.error("createVM Exception error=%s" % str(e))
                     ret = vboxmgr.unregisterVM()
@@ -661,8 +694,18 @@ class runImageTaskThread(threading.Thread):
         }
 
         vboxmgr = self.vboxmgr
+
         try:
             if not vboxmgr.isVMRunning():
+                # every time before running, take a NEW snapshot
+                snapshot_name = "thomas"
+                if self.runtime_option['run_with_snapshot'] == 1:
+                    if vboxmgr.isSnapshotExist(snapshot_name):
+                        logger.error("--- --- --- vm %s is restore snapshot" % vboxmgr.getVMName())
+                        ret = vboxmgr.restore_snapshot(snapshot_name)
+                    else:
+                        ret = vboxmgr.take_snapshot(snapshot_name)
+
                 ret = vboxmgr.runVM(headless=True)
                 logger.error("--- --- --- vboxmgr.runVM, error=%s" % ret)
             else:
@@ -726,7 +769,6 @@ def nc_task_delete_handle(tid, runtime_option):
     srcimgid = retval[0]
     dstimgid = retval[1]
     insid    = retval[2]
-    _runtime_option = json.loads(runtime_option)
 
     # process for different type instance
     rootdir = "/storage"
@@ -747,8 +789,10 @@ def nc_task_delete_handle(tid, runtime_option):
 
     if find_registered_vm == True:
         ret = vboxmgr.unregisterVM()
-        vboxmgr.deleteVMConfigFile()
         logger.error("--- vboxmgr.unregisterVM ret=%s" % (ret))
+    ret = vboxmgr.deleteVMConfigFile()
+    logger.error("--- vboxmgr.deleteVMConfigFile ret=%s" % (ret))
+
 
     hdds = get_vm_hdds()
     disks = []
@@ -770,7 +814,8 @@ def nc_task_delete_handle(tid, runtime_option):
 
         if os.path.exists(os.path.dirname(disk)):
             logger.error('rm %s' % os.path.dirname(disk))
-            shutil.rmtree(os.path.dirname(disk))
+            if os.path.exists(os.path.dirname(disk)):
+                shutil.rmtree(os.path.dirname(disk))
 
 
 def nc_image_stop_handle(tid, runtime_option):

@@ -41,6 +41,7 @@ def getImageVersionFromCC(ccip, tid):
     return json.loads(r.content)
 
 def verify_clc_cc_image_info(ccip, tid):
+    logger.error("Enter verify_clc_cc_image_info() ... ...")
     if DAEMON_DEBUG == True:
         url = "http://%s:8000/cc/api/1.0/verify/clc/cc/file/ver" % (ccip)
     else:
@@ -49,6 +50,7 @@ def verify_clc_cc_image_info(ccip, tid):
     payload = {
         'tid'   : tid,
     }
+    logger.error("send POST request :%s" % url)
     r = requests.post(url, data=payload)
     logger.error(r.content)
     return json.loads(r.content)

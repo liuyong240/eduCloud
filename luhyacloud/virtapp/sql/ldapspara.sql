@@ -1,0 +1,1 @@
+alter table virtapp_ldapspara convert to character set utf8;

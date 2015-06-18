@@ -47,6 +47,12 @@
         } else {
             sds = $('#optionsRadios2').val();
         }
+        r2 = $('#optionsRadios21').is(':checked');
+        if (r2 == true) {
+            vapp = $('#optionsRadios21').val();
+        } else {
+            vapp = $('#optionsRadios22').val();
+        }
         email = $('#email').val();
         phone = $('#phone').val();
         desc  = $('#desc').val();
@@ -60,6 +66,7 @@
                 role:           role,
                 pds:            pds,
                 sds:            sds,
+                vapp:           vapp,
                 email:          email,
                 phone:          phone,
                 desc:           desc,
@@ -156,6 +163,19 @@
                         <div class="radio">
                             <label>
                                 <input type="radio" name="optionsRadios" id="optionsRadios2" value="yes">Yes
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "Enable Virtualized Application" %}</label>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="optionsRadios" id="optionsRadios21" value="no" checked="">No
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="optionsRadios" id="optionsRadios22" value="yes">Yes
                             </label>
                         </div>
                     </div>

@@ -1,0 +1,76 @@
+{% extends "virtapp/jtable/template.html" %}
+{% load i18n %}
+
+{% block myjs %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#myjtable').jtable({
+            jqueryuiTheme: true,
+
+            title: '{% trans "Virtual APP List" %}',
+            selecting: true, //Enable selecting
+
+            sorting: true, //Enable sorting
+            defaultSorting: 'Name ASC', //Set default sorting
+
+            actions: {
+                listAction:    '/virtapp/api/1.0/vapp/list',
+                deleteAction:  '/virtapp/api/1.0/vapp/delete',
+            },
+
+            fields: {
+                id: {
+                    key: true,
+                    list: false,
+                    edit: false,
+                    create: false
+                },
+                uuid: {
+                    list: false,
+                },
+                //CHILD TABLE DEFINITION FOR "EXAMS"
+                appname: {
+                    title: '{% trans "vapp name" %}',
+                    width: '20%',
+                    edit: true,
+                    create: false,
+                },
+                apppath: {
+                    title: '{% trans "vapp path" %}',
+                    width: '60%',
+                    edit: true,
+                    create: false,
+                },
+                ecids: {
+                    title: '{% trans "vapp location" %}',
+                    width: '20%',
+                    edit: true,
+                    create: false,
+                },
+            },
+            //Register to selectionChanged event to hanlde events
+            selectionChanged: function () {
+                //Get all selected rows
+                var $selectedRows = $('#myjtable').jtable('selectedRows');
+
+                if ($selectedRows.length > 0) {
+                    $selectedRows.each(function () {
+                        //Show selected rows
+                        var record = $(this).data('record');
+                        window.parent.vappSelected(record.uuid);
+                    });
+                } else {
+                    //No rows selected
+                    window.parent.vappSelected(null);
+                }
+            },
+        });
+
+        //Load student list from server
+        $('#myjtable').jtable('load');
+    });
+
+</script>
+{% endblock %}

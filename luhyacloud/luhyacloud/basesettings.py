@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 import os
 from luhyaapi.hostTools import *
+from luhyaapi.educloudLog import *
 
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
@@ -19,15 +20,22 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
+logger = getclclogger()
+
 FILE_CHARSET = 'utf-8'
 DEFAULT_CHARSET = 'utf-8'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  #10Mb
 FILE_UPLOAD_PERMISSIONS = 0644
 
+logger.error(" --------------------------------------")
+logger.error(" base settings detail:")
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+logger.error(" - BASE_DIR = %s" % BASE_DIR)
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
+logger.error(" - TEMPLATE_DIRS = %s" % TEMPLATE_DIRS)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -43,6 +51,9 @@ else:
     DEBUG = True
     TEMPLATE_DEBUG = True
 
+logger.error(" - DEBUG = %s" % DEBUG)
+logger.error(" - TEMPLATE_DEBUG = %s" % TEMPLATE_DEBUG)
+
 ALLOWED_HOSTS = [
     '127.0.0.1'
 ]
@@ -56,6 +67,8 @@ if nics['ip2'] != '':
     ALLOWED_HOSTS.append(nics['ip2'])
 if nics['ip3'] != '':
     ALLOWED_HOSTS.append(nics['ip3'])
+
+logger.error(" - ALLOWED_HOSTS = %s" % ALLOWED_HOSTS)
 
 # Application definition
 INSTALLED_APPS = (

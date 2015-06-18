@@ -794,20 +794,143 @@ vs cluster
     public IP + private IP + port
 
 
+========================================
+IX. App virtualization
+========================================
+9.0 restore ubuntu
+    sudo apt-add-repository -y ppa:teejee2008/ppa
+    sudo aptitude update
+    sudo aptitude install timeshift
+
+9.1 Prepare
+- Windows 2008 Server + Terminal Service, Windows 7 and Windows 8 are not supported.
+- install tl-wts-tools.exe (include SeamlessRDP)
+- rdesktop 1.8.0 or later from http://www.rdesktop.org/.
+- allow execution of "seamlessrdpshell.exe" as an initial program or enable the option "Allow users to start both listed
+  and unlisted programs on initial connection". This is accomplished through the "RemoteApp Manager" tool
+  (remoteprograms.msc). Add "seamlessrdpshell.exe" as a "RemoteApp Program",
+
+9.2 Running SeamlessRDP Without ThinLinc
+  rdesktop -A 'c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe' -s 'notepad' 192.168.56.101
+  rdesktop -A 'c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe' -s 'c:\Program Files (x86)\Microsoft Office\Office12\winword.exe' 192.168.56.101
+  rdesktop -A 'c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe' -s 'c:\Program Files (x86)\Microsoft Office\Office12\winword.exe' -r disk:mydisk=/Users/luhya -u 'Administrator' -p '1qaz!2wsx@' 192.168.56.101
+
+9.3 Open Issues
+- account issue
+  * Enable domain user 'remote desktop logon' ( one ADC with multiple TSs )
+    step 1: in ADC,
+            Group Policy Management Console ->
+            Group Policy Objects ->
+            right click your default domain policy ->
+            edit -> Policies -> Windows Settings -> Security Settings ->
+            Local Policies -> User Rights Assignment -> Allow log on through remote desktop services
+            Add "Remote Desktop Users" and "Domain User" to this policy.
+    step 2: in ADC, run 'gpupdate /force'
+    step 3: in TS server, install terminal service.
+    step 4: in TS server,
+            Start -> Administrative Tools -> Remote Desktop Services ->
+            Remote Desktop Session Host Configuration - RDP-Tcp ->
+            right click - properties - security - Add - Domain Users - Grant then User Access and Guest Access - OK.
+    step 5: in TS server, restart the machine
+
+  * Automating the Domain Join: https://technet.microsoft.com/en-us/library/cc730845(WS.10).aspx
+    change computer name (sysprep.exe)
+
+  * some usefull vbox cmd line
+      VBoxManage guestproperty enumerate win2k8
+          some valuable properties
+          - /VirtualBox/GuestInfo/Net/0/V4/IP,          value: 192.168.56.101
+          - /VirtualBox/GuestInfo/Net/0/MAC,            value: 080027AE378E
+          - /VirtualBox/GuestInfo/Net/0/V4/Netmask,     value: 255.255.255.0
+          - /VirtualBox/GuestInfo/Net/0/V4/Broadcast,   value: 255.255.255.255
+          - /VirtualBox/GuestInfo/Net/0/Status,         value: Up
+          - /VirtualBox/GuestInfo/Net/Count,            value: 1
+
+          - /VirtualBox/HostGuest/SysprepExec,      value:
+          - /VirtualBox/HostGuest/SysprepArgs,      value:
+          - /VirtualBox/GuestInfo/OS/LoggedInUsersList, value: luhya,Administrator,
+
+          - /VirtualBox/GuestInfo/OS/LoggedInUsers
+
+      VBoxManage metrics list
+          get vm performance data
+
+      VBoxManage guestcontrol vmname execute "c:\Windows\System32\sysprep\sysprep.exe"
+          run syspre automatically
+          - How to Create the Sysprep.inf Answer File(https://support.microsoft.com/en-us/kb/298491)
+
+  tools: python-ad
+  - https://code.google.com/p/python-ad/
+  - https://github.com/geertj/python-ad
+  -
+
+- scale issue
+- 
+
+9.4 task & scripts
+9.4.1 change host name
+      $computerName = Get-WmiObject Win32_ComputerSystem
+      $name = "virt-app-22"
+      $computername.Rename($name)
+9.4.2 join to domain
+      $domain = "myDomain" 
+      $user = "myUserAccount"
+      $password = Read-Host -Prompt "Enter password for $user" -AsSecureString 
+      $password = "myPassword!" | ConvertTo-SecureString -asPlainText -Force
+      $username = "$domain\$user" 
+      $credential = New-Object System.Management.Automation.PSCredential($username,$password) 
+      Add-Computer -DomainName $domain -Credential $credential
+      Restart-Computer
+9.4.3 Install Power Shell 3.0
+      Guide:   https://technet.microsoft.com/en-us/library/hh847837.aspx#BKMK_InstallingOnWindowsServer2008LH
+      Package: http://pan.baidu.com/s/1jGJ1V74
+9.4.4 run power shell script on windows startup
+      - set execution policy
+        PowerShell -Command "Set-ExecutionPolicy Unrestricted"
+      - in "任务计划程序"中
+        创建一个新的任务，并制定需运行的脚本和启动条件
+        https://msdn.microsoft.com/en-us/library/azure/jj130675.aspx
+9.4.5 manage AD from Linux by adtool
+      - Managing Active Directory from Linux with adtool  (http://www.linux-magazine.com/Issues/2013/152/adtool)
+      - adtool home page (http://gp2x.org/adtool/)
+
+      Appendex
+      - http://www.cosonok.com/2014/04/enabling-ldap-over-ssl-with-windows.html
+      - https://msdn.microsoft.com/en-us/library/cc725767(v=ws.10).aspx
+      - http://social.technet.microsoft.com/wiki/contents/articles/2980.ldap-over-ssl-ldaps-certificate.aspx#SingleTierLDAPS
+      - https://support.microsoft.com/en-us/kb/321051
+      - https://technet.microsoft.com/en-us/library/dd941846(v=ws.10).aspx
+
+      Steps
+      1. install AD, AD LDS, AD CA on windows 2008 server, this make LDAPS enabled by default
+      2. change password policy :
+         Default Domain Policy -> 计算机配置 -> 策略 -> windows设置 -> 安全设置 -> 账户策略 -> 密码策略 -> 禁用“密码必须符合复杂性要求”
+      3. install adtool in Ubuntu: apt-get install ldap-util openssl adtool
+         configure as below:
+         ---------------
+         /etc/adtool.cfg
+         ---------------
+         uri ldaps://win2k8.educloud.com
+         binddn cn=administrator,cn=Users,dc=educloud,dc=com
+         bindpw 1qaz!2wsx@
+         searchbase dc=educloud,dc=com
+
+         --------------------
+         /etc/ldap/ldap.conf
+         --------------------
+         BASE    dc=educloud,dc=com
+         URI     ldaps://win2k8.educloud.com
+         TLS_REQCERT allow
+
+9.4.6 add new protocol handler for browser in Ubuntu
+- http://stackoverflow.com/questions/28713665/how-to-add-a-new-mime-protocol-handler-to-firefox-and-chrome-in-ubuntu
+- http://askubuntu.com/questions/465586/how-to-reset-external-protocol-handler-in-chrome
+- http://askubuntu.com/questions/330937/is-it-possible-to-open-an-ubuntu-app-from-html
+    
 
 
 
-Some Issues:
-- Doen: rvd need add public & provate network mode
-- Done: when vm get into running, stopped state, wizard web page need to update clc's db
-- Done:delete snapshot before submitting
-- wizard always contains 3 steps.
-- Done:when submit finished, nc send message to cc to
-  1. delete task thread in cc.tasks_status
-  2. delete task thread in cc.
 
-  cc then send rquest to clc, to
-  1. add a new image record, and set it properties
-  2. delete transaction record
+
 
 

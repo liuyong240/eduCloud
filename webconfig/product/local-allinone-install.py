@@ -6,7 +6,7 @@ DST_IP = '192.168.56.103'
 def checkPackage( pname ):
     cmd_line = 'dpkg -l | grep %s' % pname
     output = commands.getoutput(cmd_line)
-    if output.split()[0] == 'ii':
+    if len(output) > 0 and output.split()[0] == 'ii':
        return True
     else:
        return False
@@ -21,7 +21,7 @@ if not os.path.exists('/etc/apt/sources.list.luhya'):
     cmd_line = 'cp /etc/apt/sources.list /tmp/'
     commands.getoutput(cmd_line)
 
-    with open('/tmp/sources.list', 'w') as myfile:
+    with open('/tmp/sources.list', 'a') as myfile:
         myfile.write('deb http://%s/debian/ zhejiang non-free' % DST_IP)
 
     cmd_line = 'sudo cp /tmp/sources.list /etc/apt/sources.list'
@@ -80,7 +80,7 @@ if ret == '':
     #os.system(cmd_line)
 
 ##############################################################################
-# 6. create /storage directories
+# 6. create /storage directories and download data.vdi
 ##############################################################################
 if not os.path.exists('/var/log/educloud'):
     os.system('sudo mkdir -p /var/log/educloud')
@@ -107,14 +107,35 @@ if not os.path.exists('/storage/tmp/images'):
     os.system('sudo mkdir -p /storage/tmp/images')
     os.system('sudo mkdir -p /storage/tmp/VMs')
 
+cmd_line = 'cd /tmp && wget http://%s/database.vdi' % DST_IP
+os.system(cmd_line)
+cmd_line = 'sudo mv /tmp/database.vdi /storage/images/database'
+os.system(cmd_line)
+
+cmd_line = 'cd /tmp && wget http://%s/data.vdi' % DST_IP
+os.system(cmd_line)
+cmd_line = 'sudo mv /tmp/data.vdi /storage/images/data'
+os.system(cmd_line)
+
+
+
 ##############################################################################
 # 7. install educloud in one machine by apt-get
 ##############################################################################
-cmd_line = 'sudo apt-get -y install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc nodedaemon-nc'
+cmd_line = 'sudo apt-get -y install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc nodedaemon-nc educloud-virtapp'
 os.system(cmd_line)
 
 cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
 os.system(cmd_line)
+
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+commands.getoutput(cmd_line)
 
 # verify deb package install status
 if checkPackage('educloud-core') == False:
@@ -164,13 +185,13 @@ if checkPackage('nodedaemon-nc') == False:
    exit(1)
 
 # install vbox ext pack
-cmd_line = 'wget http://%s/Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack' % DST_IP
+cmd_line = 'wget http://%s/Oracle_VM_VirtualBox_Extension_Pack-4.3.26-96996.vbox-extpack' % DST_IP
 os.system(cmd_line)
 
-cmd_line = 'sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack'
+cmd_line = 'sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.26-96996.vbox-extpack'
 os.system(cmd_line)
 
-cmd_line = 'rm Oracle_VM_VirtualBox_Extension_Pack-4.3.20-96996.vbox-extpack'
+cmd_line = 'rm Oracle_VM_VirtualBox_Extension_Pack-4.3.26-96996.vbox-extpack'
 os.system(cmd_line)
 
 ##############################################################################
@@ -219,7 +240,7 @@ if ret == '0':
     os.system(cmd_line)
 
 #######################################
-# 9. configure /etc/clc.conf
+# 11. configure /etc/clc.conf
 #######################################
 cmd_line = 'echo "[server]"    > /tmp/clc.conf'
 commands.getoutput(cmd_line)
@@ -229,7 +250,7 @@ cmd_line = 'sudo cp /tmp/clc.conf  /storage/config/clc.conf'
 commands.getoutput(cmd_line)
 
 #######################################
-# 7 configure , cc.conf
+# 12 configure , cc.conf
 #######################################
 cmd_line = 'echo "[server]"    > /tmp/cc.conf'
 commands.getoutput(cmd_line)
@@ -244,22 +265,23 @@ commands.getoutput(cmd_line)
 cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
 commands.getoutput(cmd_line)
 
-##############################################################################
-# 7. configure sshfs
-##############################################################################
-# cmd_line = 'sudo -u luhya ssh-keygen'
-# os.system(cmd_line)
-# clcip = raw_input("Enter clc IP Address: ")
-# cmd_line = 'ssh-copy-id ' + clcip
-# os.system(cmd_line)
 
 ##############################################################################
-# 8. clear download packages
+# 14. clear download packages
 ##############################################################################
-# cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
-# commands.getoutput(cmd_line)
-# cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
-# commands.getoutput(cmd_line)
+cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
+commands.getoutput(cmd_line)
+
+cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+commands.getoutput(cmd_line)
+cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+commands.getoutput(cmd_line)
 
 print '----------------------------------------------------------'
 print  'Now system will reboot to enable all services ... ... ...'

@@ -1,0 +1,209 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-05-20 07:37+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: views.py:49
+msgid "LDAPS Settings"
+msgstr "目录服务设置"
+
+#: views.py:64
+msgid "VAPP Management"
+msgstr "虚拟应用管理"
+
+#: views.py:223
+msgid "Error Report"
+msgstr "错误报告"
+
+#: views.py:224
+msgid "Only eduCloud.Admin can change vapp permission!"
+msgstr "只有eduCloud.Admin才可以修改虚拟应用的访问权限！"
+
+#: views.py:225
+msgid "Please logon as eduCloud.Admin."
+msgstr "请以eduCloud.Admin身份登录"
+
+#: templates/virtapp/ldaps_settings.html:10
+msgid " Configure LDAPS Parametters"
+msgstr "配置目录服务参数"
+
+#: templates/virtapp/ldaps_settings.html:19
+msgid "URI*"
+msgstr ""
+
+#: templates/virtapp/ldaps_settings.html:23
+msgid "Bind DN*"
+msgstr ""
+
+#: templates/virtapp/ldaps_settings.html:27
+msgid "Password*"
+msgstr ""
+
+#: templates/virtapp/ldaps_settings.html:31
+msgid "Password Again*"
+msgstr ""
+
+#: templates/virtapp/ldaps_settings.html:35
+msgid "Search Base*"
+msgstr ""
+
+#: templates/virtapp/ldaps_settings.html:39
+msgid "Domain*"
+msgstr ""
+
+#: templates/virtapp/ldaps_settings.html:44
+#: templates/virtapp/form/edit_vapp.html:83
+#: templates/virtapp/form/new_vapp.html:80
+#: templates/virtapp/form/permission.html:178
+msgid "Submit Button"
+msgstr "提交"
+
+#: templates/virtapp/ldaps_settings.html:45
+#: templates/virtapp/form/new_vapp.html:81
+msgid "Reset Button"
+msgstr "清除"
+
+#: templates/virtapp/ldaps_settings.html:48
+msgid "Set LDAPS Parameters is Successfully."
+msgstr "设置目录服务参数成功。"
+
+#: templates/virtapp/ldaps_settings.html:51
+msgid "Set LDAPS Parameters Failed, try again."
+msgstr "设置目录服务参数失败，请再试一次。"
+
+#: templates/virtapp/vapp_mgr.html:10
+msgid "Edit VAPP"
+msgstr "编辑虚拟应用"
+
+#: templates/virtapp/vapp_mgr.html:12
+msgid "Edit Permission"
+msgstr "编辑权限"
+
+#: templates/virtapp/vapp_mgr.html:15
+msgid "Add VAPP"
+msgstr "添加虚拟应用"
+
+#: templates/virtapp/form/edit_vapp.html:61
+msgid "Edit VApp"
+msgstr "修改虚拟应用"
+
+#: templates/virtapp/form/edit_vapp.html:71
+#: templates/virtapp/form/new_vapp.html:68
+msgid "VApp Name*"
+msgstr "虚拟应用名称"
+
+#: templates/virtapp/form/edit_vapp.html:75
+#: templates/virtapp/form/new_vapp.html:72
+msgid "VApp Path*"
+msgstr "虚拟应用路径"
+
+#: templates/virtapp/form/edit_vapp.html:79
+#: templates/virtapp/form/new_vapp.html:76
+msgid "VApp Location*"
+msgstr "虚拟应用位置"
+
+#: templates/virtapp/form/edit_vapp.html:87
+msgid "Update VApp is Successfully."
+msgstr "更新虚拟应用成功。"
+
+#: templates/virtapp/form/edit_vapp.html:90
+msgid "Update VApp Failed, try again."
+msgstr "更新虚拟应用失败，请再试一次。"
+
+#: templates/virtapp/form/new_vapp.html:59
+msgid "Add a New VApp"
+msgstr "添加新的虚拟应用"
+
+#: templates/virtapp/form/new_vapp.html:85
+msgid "New VApp is created Successfully."
+msgstr "新的虚拟应用添加成功。"
+
+#: templates/virtapp/form/new_vapp.html:88
+msgid "Create new VApp Failed, try again."
+msgstr "新的虚拟应用添加失败，请再试一次。"
+
+#: templates/virtapp/form/permission.html:55
+#: templates/virtapp/form/permission.html:125
+msgid "Allocated Role"
+msgstr "角色分配"
+
+#: templates/virtapp/form/permission.html:64
+#: templates/virtapp/form/permission.html:138
+msgid "Access Contorl"
+msgstr "访问控制"
+
+#: templates/virtapp/form/permission.html:66
+#: templates/virtapp/form/permission.html:141
+#: templates/virtapp/form/permission.html:143
+msgid "Read"
+msgstr "只读"
+
+#: templates/virtapp/form/permission.html:69
+#: templates/virtapp/form/permission.html:148
+#: templates/virtapp/form/permission.html:150
+msgid "Write"
+msgstr "可写"
+
+#: templates/virtapp/form/permission.html:72
+#: templates/virtapp/form/permission.html:155
+#: templates/virtapp/form/permission.html:157
+msgid "Execute"
+msgstr "运行"
+
+#: templates/virtapp/form/permission.html:75
+#: templates/virtapp/form/permission.html:162
+#: templates/virtapp/form/permission.html:164
+msgid "Create"
+msgstr "创建"
+
+#: templates/virtapp/form/permission.html:78
+#: templates/virtapp/form/permission.html:169
+#: templates/virtapp/form/permission.html:171
+msgid "Delete"
+msgstr "删除"
+
+#: templates/virtapp/form/permission.html:112
+msgid "Permission Configuration"
+msgstr "权限配置"
+
+#: templates/virtapp/form/permission.html:179
+msgid "Add Permission"
+msgstr "添加权限"
+
+#: templates/virtapp/form/permission.html:183
+msgid "Update Permission Successfully."
+msgstr "更新权限成功。"
+
+#: templates/virtapp/form/permission.html:186
+msgid "Update Permission Failed, try again."
+msgstr "更新权限失败，请再试一次。"
+
+#: templates/virtapp/jtable/vapp_table.html:12
+msgid "Virtual APP List"
+msgstr "虚拟应用列表"
+
+#: templates/virtapp/jtable/vapp_table.html:35
+msgid "vapp name"
+msgstr "虚拟应用名称"
+
+#: templates/virtapp/jtable/vapp_table.html:41
+msgid "vapp path"
+msgstr "虚拟应用路径"
+
+#: templates/virtapp/jtable/vapp_table.html:47
+msgid "vapp location"
+msgstr "虚拟应用位置"

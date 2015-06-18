@@ -80,46 +80,46 @@
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
                         <li>
-                            <a href="settings"><i class="fa fa-globe fa-fw"></i>{% trans " Settings" %}</a>
+                            <a href="/clc/settings"><i class="fa fa-globe fa-fw"></i>{% trans " Settings" %}</a>
                         </li>
 
                         <li>
-                            <a href="accounts"><i class="fa fa-user fa-fw"></i>{% trans " Accounts" %}</a>
+                            <a href="/clc/accounts"><i class="fa fa-user fa-fw"></i>{% trans " Accounts" %}</a>
                             <!-- /.nav-second-level -->
                         </li>
 
                         <li>
-                            <a href="images"><i class="fa fa-hdd-o fa-fw"></i>{% trans " Images" %}</a>
+                            <a href="/clc/images"><i class="fa fa-hdd-o fa-fw"></i>{% trans " Images" %}</a>
                         </li>
 
                         <li>
                              <a href="#"><i class="fa fa-h-square fa-fw"></i>{% trans " Computers" %}<span class="fa arrow"></span></a>
                              <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="clc_mgr"><i class="fa fa-hdd-o fa-fw"></i>{% trans " Cloud Contorl" %}</a>
+                                    <a href="/clc/clc_mgr"><i class="fa fa-hdd-o fa-fw"></i>{% trans " Cloud Contorl" %}</a>
                                 </li>
 
 
                                 <li>
-                                    <a href="walrus_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Walrus" %}</a>
+                                    <a href="/clc/walrus_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Walrus" %}</a>
                                 </li>
 
                                 <li>
-                                    <a href="cc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Cluster" %}</a>
+                                    <a href="/clc/cc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Cluster" %}</a>
                                 </li>
 
                                  <li>
-                                    <a href="nc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Node" %}</a>
+                                    <a href="/clc/nc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud Node" %}</a>
                                 </li>
 
-                                 <!--
-                                 <li>
-                                    <a href="lnc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Local Node" %}</a>
+                                <li>
+                                    <a href="/clc/lnc_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Local Node" %}</a>
                                 </li>
+
                                  <li>
-                                    <a href="terminal_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud terminal" %}</a>
+                                    <a href="/clc/terminal_mgr"><i class="fa fa-globe fa-fw"></i>{% trans " Cloud terminal" %}</a>
                                 </li>
-                                -->
+
                             </ul>
                          </li>
 
@@ -127,24 +127,31 @@
                             <a href="#"><i class="fa fa-cogs fa-fw"></i>{% trans " Instance" %}<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="vss"><i class="fa fa-suitcase fa-fw"></i>{% trans " Virtual Servers" %}</a>
+                                    <a href="/clc/vss"><i class="fa fa-suitcase fa-fw"></i>{% trans " Virtual Servers" %}</a>
                                 </li>
                                 <li>
-                                    <a href="rvds"><i class="fa fa-tablet fa-fw"></i>{% trans " Remote Virtual Desktops" %}</a>
+                                    <a href="/clc/rvds"><i class="fa fa-tablet fa-fw"></i>{% trans " Remote Virtual Desktops" %}</a>
                                 </li>
-                                <!--
-                                <li>
-                                    <a href="lvds"><i class="fa fa-desktop fa-fw"></i>{% trans " Local Virtual Desktops" %}</a>
-                                </li>
-                                -->
                             </ul>
-                            <!-- /.nav-second-level -->
+                        </li>
+
+                        <li>
+                            <a href="#"><i class="fa fa-cogs fa-fw"></i>{% trans " Virtualized App" %}<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="/virtapp/ldaps_setting"><i class="fa fa-suitcase fa-fw"></i>{% trans " LDAPS Settings" %}</a>
+                                </li>
+                                <li>
+                                    <a href="/virtapp/vapp_mgr"><i class="fa fa-tablet fa-fw"></i>{% trans " App List" %}</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a href="/clc/tasks"><i class="fa fa-tasks fa-fw"></i>{% trans " Tasks" %}</a>
                         </li>
                         <li>
-                            <a href="tasks"><i class="fa fa-tasks fa-fw"></i>{% trans " Tasks" %}</a>
-                        </li>
-                        <li>
-                            <a href="tools"><i class="fa fa-gear fa-fw"></i>{% trans " Tools" %}</a>
+                            <a href="/clc/tools"><i class="fa fa-gear fa-fw"></i>{% trans " Tools" %}</a>
                         </li>
                         
                     </ul>
@@ -191,6 +198,47 @@
     <script src="{% static "clc/js/sb-admin-2.js" %}"></script>
 
     <script>
+    function isEduClient()
+    {
+        var ret;
+        var fs;
+
+        try {
+            fs = require("fs");
+            ret = 1;
+        } catch (error) {
+            ret = 0;
+        }
+
+        return ret;
+    }
+
+    function getOSType() {
+        var browserName=navigator.userAgent.toLowerCase();
+        if (/linux/i.test(browserName)) {
+            return "linux";
+        } else if (/macintos/i.test(browserName)) {
+            return "macintos";
+        } else if (/windows/i.test(browserName)) {
+            return "windows";
+        }
+    }
+
+    function runFunc(cmd)
+    {
+          var exec = require('child_process').exec,
+              child;
+
+          child = exec(cmd,
+            function (error, stdout, stderr) {
+              console.log('stdout: ' + stdout);
+              console.log('stderr: ' + stderr);
+              if (error !== null) {
+                console.log('exec error: ' + error);
+              }
+          });
+    }
+
     function editUserProfile() {
         u_name = $('#uid').text()
         url="/clc/user/edit_profile/" + u_name;

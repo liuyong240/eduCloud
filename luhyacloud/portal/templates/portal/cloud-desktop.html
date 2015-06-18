@@ -21,7 +21,6 @@
         <div class="section section-white">
 	        <div class="container">
 	        	<div class="row">
-
                     {% for vd in vds %}
 	        		<div class="col-md-3 col-sm-6">
 	        			<div class="service-wrapper">
@@ -36,20 +35,8 @@
                                 </div>
                             </div>
 
-                            <button type="button" id="run_{{ vd.id }}" onclick="startVD('{{ vd.ecid }}', '{{ vd.id }}');"  class="btn ">{% trans "Run" %}</button>
-
-                            <div class="btn-group ">
-                                <button type="button" id="show_{{ vd.id }}"  class="btn  dropdown-toggle" data-toggle="dropdown">{% trans "Show" %}<span class="caret"></span></button>
-                                <ul class="dropdown-menu" role="menu">
-
-                                    <li><a href="JavaScript:void(0);" onclick="show_in_browser( '{{ vd.id }}' );">{% trans "Show by Browser" %}</a>
-                                    </li>
-                                    <li><a href="JavaScript:void(0);" onclick="show_in_tools( '{{ vd.id }}' );">{% trans "Show by windows-tool" %}</a>
-                                    </li>
-                                    <li><a href="http://pan.baidu.com/s/1hqGLYio">{% trans "Download plugin for Cloud Desktop Connection" %}</a>
-                                    </li>
-                                </ul>
-                            </div>
+                            <button type="button" id="run_{{ vd.id }}"   onclick="startVD('{{ vd.ecid }}', '{{ vd.id }}');"  class="btn ">{% trans "Run" %} </button>
+                            <button type="button" id="show_{{ vd.id }}"  onclick="display_vm_window( '{{ vd.id }}' );"       class="btn" >{% trans "Show" %}</button>
 
                             <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
 
@@ -62,6 +49,42 @@
 	        	</div>
 	        </div>
 	    </div>
+
+		<div class="section section-breadcrumbs">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<h1>{{ uid }}{% trans "'s Virtualized Application" %}</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+
+        <div class="section section-white">
+	        <div class="container">
+	        	<div class="row">
+                    {% for vapp in vapps %}
+	        		<div class="col-md-3 col-sm-6">
+	        			<div class="service-wrapper">
+		        			<img src='/static/portal/img/vapp/vapp.jpeg'>
+		        			<h3>{{ vapp.name }}</h3>
+
+		        			<p id="error_msg_{{ vapp.id}}" style="display:none;"></p>
+
+                            <div class="progress progress-striped active" id="progress_{{ vapp.id }}" style="display:none">
+                                <div id="progressbar_{{ vapp.id }}" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0"
+                                     aria-valuemin="0" aria-valuemax="100" style="width: 0%;">0%</span>
+                                </div>
+                            </div>
+
+                            <button type="button" id="run_{{ vapp.id }}" onclick="start_vapp('{{ vapp.uuid }}', '{{ vapp.id }}');"  class="btn ">{% trans "Run" %}</button>
+	        			</div>
+	        		</div>
+                    {% endfor %}
+	        	</div>
+	        </div>
+	    </div>
+
 
 		<div class="section section-breadcrumbs">
 			<div class="container">
@@ -144,6 +167,7 @@ var stop_url        = "/clc/api/1.0/rvd/stop/" ;
 var vmstatus_url    = "/clc/api/1.0/rvd/getvmstatus/";
 var remove_task_url = "/clc/api/1.0/tasks/delete";
 var get_rdp_url     = "/clc/api/1.0/rvd/get_rdp_url/";
+var run_vapp_url    = "/virtapp/api/1.0/runvapp/";
 
 ///////////////////////////////////////////////////////
 //
@@ -410,7 +434,7 @@ function stop_tvd(id) {
 
 
 function errorMsgBox(msg) {
-    //console.log(msg);
+    alert(msg);
 }
 
 function startVD( ecid, id ) {
@@ -422,7 +446,7 @@ function startVD( ecid, id ) {
     }
 }
 
-function show_in_browser( id ) {
+function show_by_browser( id ) {
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
     tmp = taskid.split(':')
     srcid = tmp[0];
@@ -455,7 +479,7 @@ function delete_form(form_name) {
     document.body.removeChild(form_name);
 }
 
-function show_in_tools( id ) {
+function show_by_rdesktop( id ) {
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
     tmp = taskid.split(':')
     srcid = tmp[0];
@@ -471,11 +495,24 @@ function show_in_tools( id ) {
         $.each(data, function (key, val) {
             items[key] = val;
         });
-        url = "luhyavm://" + $.trim(items['mgr_url'])
-        window.open(url, '', 'height=10,width=10,left=0, top=0');
+
+        ostype = getOSType();
+        if (ostype == "windows") {
+            cmd = "mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
+        } else {
+            cmd = 'rdesktop ' + items['rdp_ip'] + ':' + items['rdp_port'];
+        }
+        runFunc(cmd);
     });
 }
 
+function display_vm_window(id) {
+    if ( isEduClient() == 1 ) {
+        show_by_rdesktop(id);
+    } else {
+        show_by_browser(id);
+    }
+}
 
 function gui_update(items, do2run) {
     //console.log("gui_update() is called.");
@@ -600,6 +637,47 @@ function init_GUI() {
             gui_update(data, 0);
         {% endif %}
     {% endfor%}
+}
+
+
+////////////////////////////////////////////////////////
+//
+// Virtualized Application
+//
+// rdesktop -A 'c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe'
+//          -s 'c:\Program Files (x86)\Microsoft Office\Office12\winword.exe'
+//          -r disk:mydisk=/Users/luhya
+//          -u 'Administrator' -p '1qaz!2wsx@'
+//          192.168.56.101
+//
+////////////////////////////////////////////////////////
+function start_vapp(vapp_uuid, vapp_id) {
+    if ( isEduClient() == 0 ) {
+        alert("Please run from educloud-client. ");
+    } else {
+        postdata = {
+            'uuid': vapp_uuid,
+            'uid':  "{{ uid }}",
+        }
+        $.post(run_vapp_url, postdata, function (data) {
+            items = [];
+            $.each(data, function (key, val) {
+                items[key] = val;
+            });
+            if ( items['Result'] == 'OK' ) {
+                vapp_info = items['data']
+                ostype = getOSType();
+                if (ostype == "windows") {
+                    alert('{% trans "Windows Ssytem is not supported yet." %}');
+                } else {
+                    cmd = 'rdesktop -A "c:\\Program Files\\ThinLinc\\WTSTools\\seamlessrdpshell.exe" -s "' + vapp_info['exe'] + '" -u "' + vapp_info['user'] + '" ' + vapp_info['ip'];
+                    runFunc(cmd);
+                }
+            } else {
+                alert(items['error']);
+            }
+        });
+    }
 }
 
 

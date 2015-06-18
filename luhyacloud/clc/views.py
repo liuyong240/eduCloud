@@ -21,6 +21,7 @@ from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 from luhyaapi.settings import *
+from luhyaapi.adToolWrapper import *
 from sortedcontainers import SortedList
 import requests, memcache
 from django.utils.translation import ugettext as _
@@ -419,7 +420,7 @@ def findVMRunningResource(request, insid):
                 final_avail_res['xccip'] = ccobj.ip0
                 l.add(final_avail_res)
         else:
-            ncobj = ecServers.objects.get(ccname=cc.ccname, ip0=nc_def)
+            ncobj = ecServers.objects.get(ccname=cc.ccname, ip0=nc_def, role='nc')
             final_avail_res = get_nc_avail_res(ncobj.mac0)
             final_avail_res['xncip'] = ncobj.ip0
             final_avail_res['xccip'] = ccobj.ip0
@@ -607,6 +608,7 @@ def account_create(request):
     _vdparar = {}
     _vdparar['pds'] = request.POST['pds']
     _vdparar['sds'] = request.POST['sds']
+    _vdparar['vapp'] = request.POST['vapp']
     rec = ecAccount(
         userid  = request.POST['userid'],
         showname = request.POST['displayname'],
@@ -617,6 +619,9 @@ def account_create(request):
     )
     rec.save()
     addUserPrvDataDir(request.POST['userid'])
+
+    if _vdparar['vapp'] == 'yes':
+        virtapp_addAccount2AD(request.POST['userid'], request.POST['password'])
 
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
@@ -653,6 +658,7 @@ def account_create_batch(request):
     _vdparar = {}
     _vdparar['pds'] = request.POST['pds']
     _vdparar['sds'] = request.POST['sds']
+    _vdparar['vapp'] = request.POST['vapp']
 
     # construct user list
     user_list = []
@@ -678,6 +684,9 @@ def account_create_batch(request):
         )
         rec.save()
         addUserPrvDataDir(u)
+
+        if _vdparar['vapp'] == 'yes':
+            virtapp_addAccount2AD(u, password)
 
     response['Result'] = 'OK'
     return HttpResponse(json.dumps(response), content_type="application/json")
@@ -711,6 +720,8 @@ def account_request(request):
     _vdpara = {}
     _vdpara['pds'] = 0
     _vdpara['sds'] = "no"
+    _vdpara['vapp'] = "no"
+
     # create ecAccount record
     rec = ecAccount(
         userid  = userid,
@@ -823,6 +834,12 @@ def account_reset_password(request):
          # set new password
         user.set_password(newpw)
         user.save()
+
+        ua = ecAccount.objects.get(userid=request.POST['userid'])
+        _vdpara = json.loads(ua.vdpara)
+        if _vdpara['vapp'] == 'yes':
+            virtapp_setPassword2AD(uid, newpw)
+
         response['Result'] = "OK"
         return HttpResponse(json.dumps(response), content_type='application/json')
     else:
@@ -1014,7 +1031,11 @@ def cc_mgr_ccname(request, ccname):
     ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
     ccobj = ecServers.objects.get(role="cc", ccname=ccname)
-    if DoesServiceExist(ccobj.ip0, 80) == "Running" :
+    if DAEMON_DEBUG == False:
+        port = 80
+    else:
+        port = 8000
+    if DoesServiceExist(ccobj.ip0, port) == "Running" :
         sip = ccobj.ip0
     else:
         sip = ccobj.eip
@@ -1644,7 +1665,10 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
     creator = tidrec.user
 
     if _runtime_option == None:
-        runtime_option = json.loads(tidrec.runtime_option)
+        if len(tidrec.runtime_option) > 0:
+            runtime_option = json.loads(tidrec.runtime_option)
+        else:
+            return
     else:
         runtime_option = _runtime_option
 
@@ -1665,7 +1689,7 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
 
         ccres_info.save()
 
-    # 2. release
+    # 2. release web_ip
     if 'web_ip' in runtime_option.keys() and \
         runtime_option['web_ip'] != ''   and \
         runtime_option['networkcards'] == 'tree' and \
@@ -1681,11 +1705,11 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
 
         ccres_info.save()
 
-    # 3. release ether if it is VS
-    if ccres_info.cc_usage == 'vs':
+    # 3. release ether if it is VS and
+    if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
         ethers_free(tidrec.insid)
 
-    # 4. release iptables
+    # 3. release iptables
     if 'iptable_rules' in runtime_option.keys() and runtime_option['iptable_rules'] != []:
         logger.error('--- notify cc %s to release iptables ... ...' % tidrec.ccip)
         if DAEMON_DEBUG == True:
@@ -1729,12 +1753,12 @@ def genVMDisks(tid, usage):
 
     if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0 :
         c['file']    = '/storage/images/%s/machine' % dst_imgid
-        c['mtype']   = 'normal'
+        c['mtype']   = 'multiattach'
         disks.append(c)
 
     if ins_id.find('VS') == 0:
         c['file']    = '/storage/images/%s/machine' % dst_imgid
-        c['mtype']   = 'normal'
+        c['mtype']   = 'multiattach'
         disks.append(c)
 
         d['file']    = '/storage/space/database/instances/%s/database' % ins_id
@@ -2762,15 +2786,27 @@ def jtable_ethers(request, cc_name):
     }
     return render(request, 'clc/jtable/ethers_table.html', context)
 
-def ethers_allocate(ccname, insid):
-    es = ecDHCPEthers.objects.filter(ccname=ccname, insid='')
-    if es.count() > 0:
-        e  = ecDHCPEthers.objects.get(mac=es[0].mac)
-        e.insid = insid
-        e.save()
-        return e.mac, e.ip, e.ex_web_proxy_port
+def ethers_allocate(ccname, _insid):
+    if _insid.find('VS') == 0:
+        try:
+            vssobj = ecVSS.objects.get(insid = _insid)
+            e = ecDHCPEthers.objects.get(mac=vssobj.mac, ccname=ccname)
+            e.insid = _insid
+            e.save()
+            logger.error("allocate VS ether %s-%s-%s" % (e.mac, e.ip, e.ex_web_proxy_port))
+            return e.mac, e.ip, e.ex_web_proxy_port
+        except:
+            return None, None, None
     else:
-        return None, None, None
+        es = ecDHCPEthers.objects.filter(insid='', ccname=ccname)
+        if es.count() > 0:
+            e = ecDHCPEthers.objects.get(mac=es[0].mac)
+            e.insid = _insid
+            e.save()
+            logger.error("allocate TMP ether %s-%s-%s" % (e.mac, e.ip, e.ex_web_proxy_port))
+            return e.mac, e.ip, e.ex_web_proxy_port
+        else:
+            return None, None, None
 
 def ethers_free(insid):
     ecs = ecDHCPEthers.objects.filter(insid=insid)
@@ -3952,15 +3988,14 @@ def delete_vss(request):
         response['Result'] = 'FAIL'
         response['errormsg'] = "Need to delete this VM's running task first"
     else:
-        # release ip/mac resources
-        if vss_rec.mac != "any":
-            ether = ecDHCPEthers.objects.get(mac = vss_rec.mac)
-            ether.insid = ''
-            ether.save()
-
         # delete vds_auth records
         ecVSS_auth.objects.filter(insid=request.POST['insid']).delete()
         vss_rec.delete()
+        # delete database file
+        dbpath = '/storage/space/database/instances/%s' %  request.POST['insid']
+        if os.path.exists(dbpath):
+            shutil.rmtree(dbpath)
+
         response['Result'] = 'OK'
 
     retvalue = json.dumps(response)
@@ -4014,13 +4049,6 @@ def create_vss(request):
             )
             new_vm_auth.save()
             logger.error("create new vm_auth record2 --- OK")
-
-        # update ecDHCPEthers table
-        if request.POST['mac'] != 'any':
-            ether = ecDHCPEthers.objects.get(mac=new_vm.mac)
-            ether.insid = new_vm.insid
-            ether.save()
-            logger.error("allocate new ether --- OK")
 
         # prepare database file
         srcdb = '/storage/space/database/images/%s/database'    % request.POST['imageid']
@@ -4106,9 +4134,13 @@ def delete_images(request):
     rec = ecImages.objects.get(id=request.POST['id'])
 
     # delete image files
-    shutil.rmtree('/storage/images/' + rec.ecid)
+    imgpath = '/storage/images/' + rec.ecid
+    if os.path.exists(imgpath):
+        shutil.rmtree(imgpath)
     if rec.img_usage == 'server':
-        shutil.rmtree('/storage/space/database/images' + rec.ecid)
+        dbpath = '/storage/space/database/images/' + rec.ecid
+        if os.path.exists(dbpath):
+           shutil.rmtree(dbpath)
 
     # delete image records
     rec.delete()
@@ -4263,6 +4295,7 @@ def delete_active_account(request):
 
     u = User.objects.get(id=request.POST['id'])
     ecu = ecAccount.objects.get(userid=u.username)
+    virtapp_removeAccount2AD(u.username)
     delUserPrvDataDir(ecu.userid)
     u.delete()
     ecu.delete()
@@ -4289,8 +4322,10 @@ def update_active_account(request):
     u.save()
     ecu.save()
 
-    response['Result'] = 'OK'
+    _vdpara = json.loads(ecu.vdpara)
+    virtapp_updateAccount2AD(u.username, _vdpara['vapp'])
 
+    response['Result'] = 'OK'
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
@@ -4879,6 +4914,16 @@ def verifySessionKey(session_key):
     else:
         return False
 
+def list_myvapps(uid):
+    vapp = []
+    userobj = ecAccount.objects.get(userid = uid)
+    para = json.loads(userobj.vdpara)
+    if para['vapp'] != 'yes':
+        return vapp
+
+    # check vapp list available for this user
+    return list_my_availed_vapp
+
 def list_myvds(request):
     '''
     :param request:
@@ -4959,9 +5004,19 @@ def list_myvds(request):
             vds.append(vd)
             index += 1
 
+
     response = {}
     response['Result'] = 'OK'
     response['data'] = vds
+    logger.error("user %s own virtual desktop as below: %s" %(_user, vds))
+
+    para = json.loads(ua.vdpara)
+    if para['vapp'] == 'yes':
+        myvapps = list_my_availed_vapp(_user)
+        response['vapp'] = myvapps['data']
+    else:
+        response['vapp'] = []
+    logger.error("user %s own virtual app as below: %s" %(_user, response['vapp']))
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
@@ -5151,6 +5206,22 @@ def rvd_display(request, srcid, dstid, insid):
 
     return vm_display(request, srcid, dstid, insid)
 
+def rvd_get_rdp_para(request, srcid, dstid, insid):
+    response = {}
+
+    _tid  = '%s:%s:%s' % (srcid, dstid, insid)
+
+    # if tid exist, just call view
+    # else find resource and create tid
+    trecs = ectaskTransaction.objects.filter(tid=_tid)
+    if trecs.count() > 0:
+        runtime_option = json.loads(trecs[0].runtime_option)
+        response['Result']     = 'OK'
+        response['rdp_ip']     = runtime_option['rdp_ip']
+        response['rdp_port']   = runtime_option['rdp_port']
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
 def rvd_get_rdp_url(request, srcid, dstid, insid):
     _skey = request.POST['sid']
 
@@ -5162,16 +5233,5 @@ def rvd_get_rdp_url(request, srcid, dstid, insid):
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
 
-    response = {}
+    return rvd_get_rdp_para(request, srcid, dstid, insid)
 
-    _tid  = '%s:%s:%s' % (srcid, dstid, insid)
-
-    # if tid exist, just call view
-    # else find resource and create tid
-    trecs = ectaskTransaction.objects.filter(tid=_tid)
-    if trecs.count() > 0:
-        runtime_option = json.loads(trecs[0].runtime_option)
-        response['Result']      = 'OK'
-        response['mgr_url']     = getValidMgrURL(request, runtime_option)
-        retvalue = json.dumps(response)
-        return HttpResponse(retvalue, content_type="application/json")

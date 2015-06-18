@@ -31,25 +31,28 @@ list of daemon and worker thread
 
 '''
 def perform_mount():
+    logger.error("Enter perform_mount() ... ...")
     # mount clc's /storage/space/{software, pub-data} to local
     if amIwalrus():
         logger.error("I am cc and walrus, no mount any more.")
         return
 
     clcip = getclcipbyconf()
-    base_cmd = 'echo luhya | sshfs -o cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space/%s /storage/space/%s'
+    cmd_line = 'id -u luhya'
+    luhya_id = commands.getoutput(cmd_line)
+    base_cmd = 'echo luhya | sshfs -o uid=%s,gid=%s,cache=yes,allow_other,password_stdin,reconnect luhya@%s:/storage/space /storage/space'
 
-    if not os.path.ismount('/storage/space/software'):
-        cmd1 = base_cmd % (clcip, 'software', 'software')
+    if not os.path.ismount('/storage/space'):
+        cmd1 = base_cmd % (luhya_id, luhya_id, clcip)
         logger.error(cmd1)
         os.system(cmd1)
+    else:
+        logger.error("/storage/space is already mounted ... ...")
 
-    if not os.path.ismount('/storage/space/pub-data'):
-        cmd2 = base_cmd % (clcip, 'pub-data', 'pub-data')
-        logger.error(cmd2)
-        os.system(cmd2)
 
 def registerMyselfasCC():
+    logger.error("Enter registerMyselfasCC() ... ...")
+
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
     ccname = getccnamebyconf()
 
@@ -76,9 +79,9 @@ def registerMyselfasCC():
         'mac3': netlist['mac3'],
         'ccname': ccname,
     }
+    logger.error("send request %s " % url)
     r = requests.post(url, data=payload)
     return r.status_code
-
 
 def main():
     # read /storage/config/cc.conf to register itself to cc

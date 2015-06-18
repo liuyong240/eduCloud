@@ -173,6 +173,7 @@ def register_host(request):
     return HttpResponse(r.content, content_type="application/json")
 
 def register_server(request):
+    logger.error('call register_server in cc ... ... ')
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
     if DAEMON_DEBUG == True:
@@ -196,7 +197,9 @@ def register_server(request):
         'mac3':     request.POST['mac3'],
         'ccname':   request.POST['ccname'],
     }
+    logger.error('call register_server in clc ... ... ')
     r = requests.post(url, data=payload)
+
     return HttpResponse(r.content, content_type="application/json")
 
 def get_images_version(request):
@@ -239,7 +242,6 @@ def delete_tasks(request):
     logger.error("--- --- --- cc delete_tasks %s" % tid)
 
     ncip = request.POST['ncip']
-    runtime_option = json.loads(request.POST['runtime_option'])
 
     message = {}
     message['type']             = "cmd"
