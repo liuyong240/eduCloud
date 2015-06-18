@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-04 07:54+0000\n"
+"POT-Creation-Date: 2015-06-18 03:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -188,43 +188,63 @@ msgstr "申请账号"
 msgid "eduCloud portal"
 msgstr "云平台门户"
 
-#: templates/portal/portal_template.html:51
+#: templates/portal/portal_template.html:30
+msgid "Back"
+msgstr "上一页"
+
+#: templates/portal/portal_template.html:32
+msgid "Refresh"
+msgstr "刷新页面"
+
+#: templates/portal/portal_template.html:34
+msgid "Close App"
+msgstr "退出应用"
+
+#: templates/portal/portal_template.html:36
+msgid "Reboot"
+msgstr "重启机器"
+
+#: templates/portal/portal_template.html:37
+msgid "ShutDown"
+msgstr "关闭机器"
+
+#: templates/portal/portal_template.html:53
 msgid "EduCloud Platform Portal"
 msgstr "云平台门户"
 
-#: templates/portal/portal_template.html:66
+#: templates/portal/portal_template.html:68
 msgid "Contacts"
 msgstr "联系信息"
 
-#: templates/portal/portal_template.html:68
+#: templates/portal/portal_template.html:70
 msgid "Address"
 msgstr "地址"
 
-#: templates/portal/portal_template.html:68
+#: templates/portal/portal_template.html:70
 msgid "Floor 7, XiXi Habour, Hanghzou, zhejiang"
 msgstr "浙江省杭州市文三路1号西溪数码港7楼"
 
-#: templates/portal/portal_template.html:69
+#: templates/portal/portal_template.html:71
 msgid "Phone"
 msgstr "电话"
 
-#: templates/portal/portal_template.html:70
+#: templates/portal/portal_template.html:72
 msgid "Person"
 msgstr "联系人"
 
-#: templates/portal/portal_template.html:70
+#: templates/portal/portal_template.html:72
 msgid "Mr.zhou"
 msgstr "周经理"
 
-#: templates/portal/portal_template.html:71
+#: templates/portal/portal_template.html:73
 msgid "Email"
 msgstr "电子邮件"
 
-#: templates/portal/portal_template.html:76
+#: templates/portal/portal_template.html:78
 msgid "Connected"
 msgstr "链接"
 
-#: templates/portal/portal_template.html:86
+#: templates/portal/portal_template.html:88
 msgid "EduCloud. All rights reserved"
 msgstr "云平台. 版权所有"
 

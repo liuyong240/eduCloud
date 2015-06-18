@@ -27,12 +27,14 @@
     <body onload="loadFunc()">
     	<div id="context-menu">
 	      	<ul class="dropdown-menu" role="menu">
-	      	   <li><a tabindex="-1" href="JavaScript:void(0);" onclick="refresh();">Refresh</a></li>
+	      	   <li><a tabindex="-1" href="JavaScript:void(0);" onclick="back();">{% trans "Back" %}</a></li>
 		       <li class="divider" ></li>
-               <li><a tabindex="-1" href="JavaScript:void(0);" onclick="closeApp();">Close App</a></li>
+	      	   <li><a tabindex="-1" href="JavaScript:void(0);" onclick="refresh();">{% trans "Refresh" %}</a></li>
+		       <li class="divider" ></li>
+               <li><a tabindex="-1" href="JavaScript:void(0);" onclick="closeApp();">{% trans "Close App" %}</a></li>
                <li class="divider"></li>
-	           <li><a tabindex="-1" href="JavaScript:void(0);" onclick="reboot();">Reboot</a></li>
-	           <li><a tabindex="-1" href="JavaScript:void(0);" onclick="shutdown();">ShutDown</a></li>
+	           <li><a tabindex="-1" href="JavaScript:void(0);" onclick="reboot();">{% trans "Reboot" %}</a></li>
+	           <li><a tabindex="-1" href="JavaScript:void(0);" onclick="shutdown();">{% trans "ShutDown" %}</a></li>
 	      	</ul>
 		</div>
         <!--[if lt IE 7]>
@@ -141,7 +143,9 @@
 					  }
 				  });
 			}
-
+			function back() {
+            	history.back();
+            }
             function refresh() {
             	window.location.reload();
             }
@@ -150,10 +154,20 @@
             	gui.App.quit();
             }
             function reboot() {
-				runFunc("sudo reboot");
+            	ostype = getOSType();
+        		if (ostype == "windows") {
+        			runFunc("shutdown -t 0 -r -f");
+        		} else {
+					runFunc("sudo reboot");
+				}
             }
             function shutdown() {
-            	runFunc("sudo shutdown -h now");
+            	ostype = getOSType();
+        		if (ostype == "windows") {
+        			runFunc("shutdown -t 0 -s -f");
+        		} else {
+					runFunc("sudo shutdown -h now");
+				}
             }
 
 			function loadFunc() {
