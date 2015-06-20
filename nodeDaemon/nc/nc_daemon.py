@@ -60,33 +60,57 @@ def perform_mount():
         cmd = base_cmd % (ccip)
         os.system(cmd)
 
+def getRuntimeOpiton():
+    return ''
+
 def registerMyselfasNC():
     ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
     ccname = getccnamebyconf()
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/register/server' % ccip
+
+    if isLNC():
+        if DAEMON_DEBUG == True:
+            url = 'http://%s:8000/cc/api/1.0/register/lnc' % ccip
+        else:
+            url = 'http://%s/cc/api/1.0/register/lnc' % ccip
+            payload = {
+                'ip': netlist['ip0'],
+                'mac': netlist['mac0'],
+
+                'name': hostname,
+                'ccname': ccname,
+                'location': '',
+
+                'cores': hostcpus,
+                'memory': hostmem,
+                'disk': hostdisk,
+                'runtime_option': getRuntimeOpiton()
+            }
     else:
-        url = 'http://%s/cc/api/1.0/register/server' % ccip
-    payload = {
-        'role': 'nc',
-        'name': hostname,
-        'cores': hostcpus,
-        'memory': hostmem,
-        'disk': hostdisk,
-        'exip': netlist['exip'],
-        'ip0': netlist['ip0'],
-        'ip1': netlist['ip1'],
-        'ip2': netlist['ip2'],
-        'ip3': netlist['ip3'],
-        'mac0': netlist['mac0'],
-        'mac1': netlist['mac1'],
-        'mac2': netlist['mac2'],
-        'mac3': netlist['mac3'],
-        'ccname': ccname,
-    }
+        if DAEMON_DEBUG == True:
+            url = 'http://%s:8000/cc/api/1.0/register/server' % ccip
+        else:
+            url = 'http://%s/cc/api/1.0/register/server' % ccip
+            payload = {
+                'role': 'nc',
+                'name': hostname,
+                'cores': hostcpus,
+                'memory': hostmem,
+                'disk': hostdisk,
+                'exip': netlist['exip'],
+                'ip0': netlist['ip0'],
+                'ip1': netlist['ip1'],
+                'ip2': netlist['ip2'],
+                'ip3': netlist['ip3'],
+                'mac0': netlist['mac0'],
+                'mac1': netlist['mac1'],
+                'mac2': netlist['mac2'],
+                'mac3': netlist['mac3'],
+                'ccname': ccname,
+            }
+
     r = requests.post(url, data=payload)
     msg = json.loads(r.content)
     if msg['Result'] == "OK":
@@ -94,12 +118,12 @@ def registerMyselfasNC():
     else:
         logger.error("register NC %s failed !" % netlist['ip0'])
 
-
 def main():
     # read /storage/config/cc.conf to register itself to cc
     registerMyselfasNC()
 
-    perform_mount()
+    if not isLNC():
+        perform_mount()
 
     # start main loop to start & monitor thread
     thread_array = ['nc_cmdConsumerThread', 'nc_statusPublisherThread']

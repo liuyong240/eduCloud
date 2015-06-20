@@ -1,0 +1,6 @@
+#!/bin/bash -e
+
+if [ "$1" = "configure" ]; then
+    chown -R $USER:$USER /usr/local/nodedaemon || true
+    chmod -R 777 /usr/local/nodedaemon || true
+fi

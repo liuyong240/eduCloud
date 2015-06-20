@@ -4408,9 +4408,11 @@ def register_lnc(request):
             # update existing record
             rec = ecLNC.objects.get(mac=request.POST['mac'])
             rec.ip          = request.POST['ip']
+
             rec.name        = request.POST['name']
             rec.ccname      = request.POST['ccname']
             rec.location    = request.POST['location']
+
             rec.cores       = request.POST['cores']
             rec.memory      = request.POST['memory']
             rec.disk        = request.POST['disk']
@@ -4423,9 +4425,11 @@ def register_lnc(request):
         rec = ecLNC(
             mac         = request.POST['mac'],
             ip          = request.POST['ip'],
+
             name        = request.POST['name'],
             ccname      = request.POST['ccname'],
             location    = request.POST['location'],
+
             cores       = request.POST['cores'],
             memory      = request.POST['memory'],
             disk        = request.POST['disk'],
@@ -4456,24 +4460,29 @@ def register_terminal(request):
         rec = ecTerminal.objects.get(mac=request.POST['mac'])
         rec.ip          = request.POST['ip']
         rec.mac         = request.POST['mac']
+
         rec.name        = request.POST['name']
+        rec.osname      = request.POST['osname']
         rec.location    = request.POST['location']
+
         rec.cores       = request.POST['cores']
         rec.memory      = request.POST['memory']
         rec.disk        = request.POST['disk']
-        rec.osname      = request.POST['osname']
 
         rec.save()
     else:
         rec = ecLNC(
             mac         = request.POST['mac'],
             ip          = request.POST['ip'],
+
             name        = request.POST['name'],
+            osname      = request.POST['osname'],
             location    = request.POST['location'],
+
             cores       = request.POST['cores'],
             memory      = request.POST['memory'],
             disk        = request.POST['disk'],
-            osname      = request.POST['osname'],
+
         )
         rec.save()
 

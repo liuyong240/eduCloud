@@ -1,0 +1,4 @@
+#! /bin/bash
+
+c
+sr/local/nodedaemon/tnc && ./tnc_daemon

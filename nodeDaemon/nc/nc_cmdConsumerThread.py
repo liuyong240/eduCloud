@@ -706,7 +706,11 @@ class runImageTaskThread(threading.Thread):
                     else:
                         ret = vboxmgr.take_snapshot(snapshot_name)
 
-                ret = vboxmgr.runVM(headless=True)
+                if isLNC():
+                    headless = False
+                else:
+                    headless = True
+                ret = vboxmgr.runVM(headless)
                 logger.error("--- --- --- vboxmgr.runVM, error=%s" % ret)
             else:
                 logger.error("--- --- --- vboxmgr.SendCAD b")

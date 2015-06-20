@@ -17,6 +17,7 @@ DAEMON_CLC      =debian/nodedaemon-clc
 DAEMON_WALRUS   =debian/nodedaemon-walrus
 DAEMON_CC       =debian/nodedaemon-cc
 DAEMON_NC       =debian/nodedaemon-nc
+DAEMON_TNC		=debian/nodedaemon-tnc
 
 build:
 	echo "now is building educloud debian packages ... ... "
@@ -184,3 +185,14 @@ install:
 	##
 	cd $(CURDIR)/webconfig/serverTools/ && sudo -u luhya pyinstaller recoverVMfromCrash.py -F -s
 	cp $(CURDIR)/webconfig/serverTools/dist/recoverVMfromCrash             $(DAEMON_NC)/usr/local/bin
+
+	####################
+	#     DAEMON_TNC    #
+	####################
+	install -d $(DAEMON_TNC)/usr/local/nodedaemon/tnc
+
+	cd $(CURDIR)/nodeDaemon/tnc && sudo -u luhya pyinstaller tnc_daemon.py -F -s
+	cp $(CURDIR)/nodeDaemon/tnc/dist/tnc_daemon            $(DAEMON_TNC)/usr/local/nodedaemon/tnc
+
+	install -d $(DAEMON_TNC)/usr/local/bin/
+	cp $(CURDIR)/webconfig/scripts/nodedaemon-tnc          $(DAEMON_TNC)/usr/local/bin

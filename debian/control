@@ -61,5 +61,9 @@ Architecture: all
 Depends:  educloud-core, virtualbox-4.3
 Description: educloud nc daemon package
 
+Package: nodedaemon-tnc
+Architecture: all
+Depends:
+Description: educloud tnc daemon package
 
 

@@ -384,3 +384,14 @@ def getHostHardware():
     result['disk_usage'] = psutil.disk_usage("/").percent
     return result
 
+def isLNC():
+    flag = False
+
+    cmd = "dpkg -l  | grep educloud-native-client"
+    out = commands.getoutput(cmd)
+    if len(out) > 0:
+        lnc = out.split()[1]
+        if lnc.find("educloud-native-client"):
+            flag = True
+
+    return flag

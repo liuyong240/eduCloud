@@ -171,12 +171,33 @@ class vboxWrapper():
         ret = commands.getoutput(cmd_line)
         return ret
 
+    def showMiniToolBar(self, flag):
+        vm_name = self._tool._vmname
+        if flag:
+            cmd_line = "VBoxManage setextradata  " + vm_name + " GUI/ShowMiniToolBar on"
+        else:
+            cmd_line = "VBoxManage setextradata  " + vm_name + " GUI/ShowMiniToolBar no"
+        ret = commands.getoutput(cmd_line)
+        return ret
 
-    def runVM(self, headless=False):
+    def showFullScreen(self, flag):
+        vm_name = self._tool._vmname
+        if flag:
+            cmd_line = "VBoxManage setextradata  " + vm_name + " GUI/Fullscreen on"
+        else:
+            cmd_line = "VBoxManage setextradata  " + vm_name + " GUI/Fullscreen no"
+        ret = commands.getoutput(cmd_line)
+        return ret
+
+    def runVM(self, headless):
         vm_name = self._tool._vmname
         cmd_line = "VBoxManage startvm " + vm_name
         if headless:
             cmd_line += " --type headless"
+        else:
+            self.showMiniToolBar(False)
+            self.showFullScreen(True)
+
         ret = commands.getoutput(cmd_line)
         return ret
 

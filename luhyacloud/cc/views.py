@@ -190,12 +190,10 @@ def register_terminal(request):
         url = 'http://%s/clc/api/1.0/register/tnc' % clcip
     payload = {
         'ip':       request.POST['ip'],
-        "wip":      request.POST['wip'],
         'mac':     request.POST['mac'],
-        'wmac':     request.POST['wmac'],
 
         'name':     request.POST['name'],
-        'ccname':   request.POST['ccname'],
+        'osname':   request.POST['osname'],
         'location': request.POST['location'],
 
         'cores':    request.POST['cores'],
