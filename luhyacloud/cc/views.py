@@ -160,14 +160,47 @@ def image_create_task_submit(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 
-def register_host(request):
+def register_lnc(request):
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
     if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/clc/api/1.0/register/host' % clcip
+        url = 'http://%s:8000/clc/api/1.0/register/lnc' % clcip
     else:
-        url = 'http://%s/clc/api/1.0/register/host' % clcip
+        url = 'http://%s/clc/api/1.0/register/lnc' % clcip
     payload = {
+        'ip':       request.POST['ip'],
+        'mac':     request.POST['mac'],
 
+        'name':     request.POST['name'],
+        'ccname':   request.POST['ccname'],
+        'location': request.POST['location'],
+
+        'cores':    request.POST['cores'],
+        'memory':   request.POST['memory'],
+        'disk':     request.POST['disk'],
+        'runtime_option': request.POST['runtime_option']
+    }
+    r = requests.post(url, data=payload)
+    return HttpResponse(r.content, content_type="application/json")
+
+def register_terminal(request):
+    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/clc/api/1.0/register/tnc' % clcip
+    else:
+        url = 'http://%s/clc/api/1.0/register/tnc' % clcip
+    payload = {
+        'ip':       request.POST['ip'],
+        "wip":      request.POST['wip'],
+        'mac':     request.POST['mac'],
+        'wmac':     request.POST['wmac'],
+
+        'name':     request.POST['name'],
+        'ccname':   request.POST['ccname'],
+        'location': request.POST['location'],
+
+        'cores':    request.POST['cores'],
+        'memory':   request.POST['memory'],
+        'disk':     request.POST['disk'],
     }
     r = requests.post(url, data=payload)
     return HttpResponse(r.content, content_type="application/json")

@@ -1,0 +1,79 @@
+{% extends "clc/clctemplate.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block myjs %}
+<script src="{% static "clc/myjs/my_server_mgr.js" %}"></script>
+<script type="text/javascript" language="javascript">
+    $('#myiframe').css('height', $(window).height()/2+'px');
+</script>
+
+<script type="text/javascript" language="javascript">
+function clear_data() {
+    $(".col-lg-6").remove();
+}
+
+function add_data(ccname, mac0) {
+    var newdata;
+    url = "/clc/nc_mgr/" + ccname + "/" + mac0;
+    $.getJSON(url,function (data) {
+        var items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+        newdata = items['data'];
+        //console.log(newdata);
+        $("#mark").before(newdata);
+    });
+}
+
+function bind_click_event() {
+
+    $('body').on("click", "#exip_edit", function(){
+        mac0 = $("#mac0").text();
+        exip_edit('nc', mac0);
+    });
+
+    $('body').on("click", "#permission", function(){
+        mac0 = $("#mac0").text();
+        edit_server_permission('cc', mac0);
+    });
+}
+
+function tncSelected(ccname, mac0){
+    if (mac0 == null) {
+        $('#mac0').html(null);
+        $('#ccname').html(null);
+        clear_data();
+    } else {
+        $('#mac0').html(mac0);
+        $('#ccname').html(ccname);
+        clear_data();
+        add_data(ccname, mac0);
+        bind_click_event();
+    }
+}
+
+$(document).ready(function()
+{
+
+});
+</script>
+
+{% endblock%}
+
+{% block content %}
+<div class="col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            {% trans "OverView" %}
+        </div>
+        <div class="panel-body">
+            <div id="ccname" style="display: none;"></div>
+            <div id="mac0" style="display: none;"></div>
+            <iframe class="servers_table" id="myiframe" src="jt/servers/tnc" frameborder="0" width="100%"></iframe>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

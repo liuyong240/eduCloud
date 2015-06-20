@@ -1203,7 +1203,7 @@ def terminal_mgr_view(request):
         'showname': ua.showname,
         'dashboard' : _("Cloud Terminal Management"),
     }
-    return render(request, 'clc/terminal_mgr.html', context)
+    return render(request, 'clc/tnc_mgr.html', context)
 
 @login_required(login_url='/portal/admlogin')
 def hosts_view(request):
@@ -2772,6 +2772,10 @@ def jtable_servers_lnc(request):
     return render(request, 'clc/jtable/servers_lnc_table.html', {})
 
 @login_required(login_url='/portal/admlogin')
+def jtable_terminal(request):
+    return render(request, 'clc/jtable/servers_tnc_table.html', {})
+
+@login_required(login_url='/portal/admlogin')
 def jtable_active_accounts(request):
     return render(request, 'clc/jtable/active_account_table.html', {})
 
@@ -3812,6 +3816,70 @@ def delete_tasks(request):
 
     return HttpResponse(r.content, content_type="application/json")
 
+def isLNCActive(mac):
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    key = "lnc#%s#status" % mac
+    try:
+        payload = mc.get(key)
+        return 'Online'
+    except Exception as e:
+        return 'Offlne'
+
+#################################
+def list_lnc(request):
+    response = {}
+    data = []
+    f_ccname = request.POST['ccname']
+    f_ip = request.POST['ip']
+
+    if len(f_ccname) == 0 and len(f_ip) == 0:
+        recs = ecLNC.objects.all()
+    elif len(f_ccname) > 0 and len(f_ip) > 0:
+        recs = ecLNC.objects.filter(ccname_contains=f_ccname, ip_contains=f_ip)
+    elif len(f_ccname) > 0:
+        recs = ecLNC.objects.filter(ccname_contains=f_ccname)
+    else:
+        recs = ecLNC.objects.filter(ip_contains=f_ip)
+
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['status'] = isLNCActive(rec.mac)
+        jrec['ip']  = rec.ip
+        jrec['mac'] = rec.mac
+        jrec['cores'] = rec.cpus
+        jrec['memory'] = rec.memory
+        jrec['disk'] = rec.disk
+        jrec['name'] = rec.name
+        jrec['location'] = rec.location
+        jrec['ccname'] = rec.ccname
+        jrec['location'] = rec.location
+        jrec['runtime_option'] = rec.runtime_option
+
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def update_lnc(request):
+    response = {}
+
+    rec = ecLNC.objects.get(id=request.POST['id']);
+    rec.name            = request.POST['name']
+    rec.location        = request.POST['location']
+    rec.runtime_option  = request.POST['runtime_option']
+    rec.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+#################################
+
 # core tables for images
 # ------------------------------------
 def list_vds(request):
@@ -4333,7 +4401,93 @@ def update_active_account(request):
 #################################################################################
 # API Version 1.0 for image build & modify
 #################################################################################
-def register_host(request):
+def register_lnc(request):
+    recs = ecLNC.objects.filter(mac=request.POST['mac'])
+    if recs.count() > 0:
+        if recs[0].ccname == request.POST['ccname']:
+            # update existing record
+            rec = ecLNC.objects.get(mac=request.POST['mac'])
+            rec.ip          = request.POST['ip']
+            rec.name        = request.POST['name']
+            rec.ccname      = request.POST['ccname']
+            rec.location    = request.POST['location']
+            rec.cores       = request.POST['cores']
+            rec.memory      = request.POST['memory']
+            rec.disk        = request.POST['disk']
+            rec.runtime_option = request.POST['runtime_option']
+            rec.save()
+        else:
+            # duplicate register
+            logger.error(" duplicated lnc registration from %s." % request.POST['ip'])
+    else:
+        rec = ecLNC(
+            mac         = request.POST['mac'],
+            ip          = request.POST['ip'],
+            name        = request.POST['name'],
+            ccname      = request.POST['ccname'],
+            location    = request.POST['location'],
+            cores       = request.POST['cores'],
+            memory      = request.POST['memory'],
+            disk        = request.POST['disk'],
+            runtime_option = request.POST['runtime_opiton'],
+        )
+        rec.save()
+
+        auth_rec = ecLNC_auth(
+            mac0        =   request.POST['mac'],
+            role_value  =   'eduCloud.admin',
+            read        =   True,
+            write       =   True,
+            execute     =   True,
+            create      =   True,
+            delete      =   True,
+        )
+        auth_rec.save()
+
+    response = {}
+    response['Result'] = 'OK'
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def register_terminal(request):
+    recs = ecTerminal.objects.filter(mac=request.POST['mac'])
+    if recs.count() > 0:
+        # update existing record
+        rec = ecTerminal.objects.get(mac=request.POST['mac'])
+        rec.ip          = request.POST['ip']
+        rec.mac         = request.POST['mac']
+        rec.name        = request.POST['name']
+        rec.location    = request.POST['location']
+        rec.cores       = request.POST['cores']
+        rec.memory      = request.POST['memory']
+        rec.disk        = request.POST['disk']
+        rec.osname      = request.POST['osname']
+
+        rec.save()
+    else:
+        rec = ecLNC(
+            mac         = request.POST['mac'],
+            ip          = request.POST['ip'],
+            name        = request.POST['name'],
+            location    = request.POST['location'],
+            cores       = request.POST['cores'],
+            memory      = request.POST['memory'],
+            disk        = request.POST['disk'],
+            osname      = request.POST['osname'],
+        )
+        rec.save()
+
+        auth_rec = ecTerminal_auth(
+            mac0        =   request.POST['mac'],
+            role_value  =   'eduCloud.admin',
+            read        =   True,
+            write       =   True,
+            execute     =   True,
+            create      =   True,
+            delete      =   True,
+        )
+        auth_rec.save()
+
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
@@ -4369,6 +4523,50 @@ def update_server_record(request, rec):
     rec.mac3   = request.POST['mac3']
     rec.ccname = request.POST['ccname']
     rec.save()
+
+def isTNCActive(mac):
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    key = "tnc#%s#status" % mac
+    try:
+        payload = mc.get(key)
+        return 'Online'
+    except Exception as e:
+        return 'Offlne'
+
+def list_tnc(request):
+    response = {}
+    data = []
+    f_ip = request.POST['ip']
+
+    if len(f_ip) > 0:
+        recs = ecTerminal.objects.filter(ip_contains=f_ip)
+    else:
+        recs = ecTerminal.objects.all()
+
+    for rec in recs:
+        jrec = {}
+        jrec['status'] = isTNCActive(rec.mac)
+        jrec['id'] = rec.id
+        jrec['ip']  = rec.ip
+        jrec['mac'] = rec.mac
+        jrec['cores'] = rec.cpus
+        jrec['memory'] = rec.memory
+        jrec['disk'] = rec.disk
+        jrec['osname'] = rec.osname
+        jrec['name'] = rec.name
+        jrec['location'] = rec.location
+
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def update_tnc(request):
+    pass
+
 
 def add_new_server(request):
     rec = ecServers(

@@ -5,7 +5,6 @@
 <div class="filtering">
     <form>
         <p>
-           {% trans "Cluster Name:" %}<input type="text"  id="ccname" />
            {% trans "IP:" %}<input type="text" id="ip" />
            <button type="submit" id="LoadRecordsButton">{% trans "Filter Nodes" %}</button>
         </p>
@@ -31,8 +30,8 @@
             defaultSorting: 'Name ASC', //Set default sorting
 
             actions: {
-                listAction:       '/clc/api/1.0/lnc/list',
-                //updateAction:     '/clc/api/1.0/lnc/update',
+                listAction:       '/clc/api/1.0/tnc/list',
+                //updateAction:     '/clc/api/1.0/tnc/update',
             },
             fields: {
                 id: {
@@ -75,21 +74,15 @@
                     title: '{% trans "Name" %}',
                     width: '10%'
                 },
-                ccname:{
-                    title: '{% trans "Cluster Name" %}',
+                osname:{
+                    title: '{% trans "OS Name" %}',
                     width: '10%',
                     edit: false,
                 },
                 location: {
                     title: '{% trans "Location" %}',
                     width: '15%',
-                },
-                runtime_option: {
-                    title: '{% trans "runtime option" %}',
-                    width: '25%',
-                    list: false,
                 }
-
             },
             //Register to selectionChanged event to handle events
             selectionChanged: function () {
@@ -100,11 +93,11 @@
                     $selectedRows.each(function () {
                         //Show selected rows
                         var record = $(this).data('record');
-                        window.parent.lncSelected(record.ccname, record.mac0);
+                        window.parent.tncSelected(record.ccname, record.mac0);
                     });
                 } else {
                     //No rows selected
-                    window.parent.lncSelected(null, null);
+                    window.parent.tncSelected(null, null);
                 }
             },
         });
@@ -114,7 +107,6 @@
             e.preventDefault();
 
             $('#myjtable').jtable('load', {
-                ccname: $("#ccname").val(),
                 ip: $("#ip").val(),
             });
         });

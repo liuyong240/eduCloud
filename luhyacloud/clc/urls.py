@@ -49,7 +49,6 @@ urlpatterns = patterns('',
     url(r'^list_directory/software$',    views.tools_list_dir_software,             name='tools_list_dir_software'),
     url(r'^list_directory/prv-data/(?P<uid>\w+)$',    views.tools_list_dir_prv_data,             name='tools_list_dir_prv_data'),
 
-
     url(r'^adm_add_new_account',                    views.adm_add_new_account,              name='adm_add_new_account'),
     url(r'^admin_batch_add_new_accounts',           views.admin_batch_add_new_accounts,     name='admin_batch_add_new_accounts'),
     url(r'^request_new_account',                    views.request_new_account,              name='request_new_account'),
@@ -109,6 +108,8 @@ urlpatterns = patterns('',
     url(r'^jt/servers/cc$',             views.jtable_servers_cc,                 name='jtable_servers_cc_view'),
     url(r'^jt/servers/nc$',             views.jtable_servers_nc,                 name='jtable_servers_nc_view'),
     url(r'^jt/servers/lnc$',            views.jtable_servers_lnc,                name='jtable_servers_lnc_view'),
+    url(r'^jt/servers/tnc$',            views.jtable_terminal,                   name='jtable_terminal_view'),
+
 
     url(r'^jt/account/actived$',            views.jtable_active_accounts,                name='jtable_active_accounts'),
     url(r'^jt/account/inactive$',           views.jtable_inactive_accounts,              name='jtable_inactive_accounts'),
@@ -183,11 +184,13 @@ urlpatterns = patterns('',
     url(r'^api/1.0/tasks/delete$',        views.delete_tasks,               name='delete_tasks_view'),
     url(r'^api/1.0/tasks/update$',        views.update_tasks,               name='update_tasks_view'),
 
-    # url(r'^api/1.0/hosts/list$',          views.list_hosts,                 name='list_hosts_view'),
-    # url(r'^api/1.0/hosts/delete$',        views.delete_hosts,               name='delete_hosts_view'),
-    # url(r'^api/1.0/hosts/update$',        views.update_hosts,               name='update_hosts_view'),
-    # url(r'^api/1.0/hosts/create$',        views.create_hosts,               name='create_hosts_view'),
-    #
+    url(r'^api/1.0/lnc/list$',          views.list_lnc,                 name='list_lnc_view'),
+    url(r'^api/1.0/lnc/update$',        views.update_lnc,               name='update_lnc_view'),
+
+    url(r'^api/1.0/tnc/list$',          views.list_tnc,                 name='list_tnc_view'),
+    url(r'^api/1.0/tcnc/update$',        views.update_tnc,               name='update_tnc_view'),
+
+
     url(r'^api/1.0/servers/list$',                      views.list_servers,             name='list_servers_view'),
     url(r'^api/1.0/servers/list/(?P<roletype>\w+)$',    views.list_servers_by_role,     name='list_servers_by_role'),
     url(r'^api/1.0/servers/delete$',        views.delete_servers,               name='delete_servers_view'),
@@ -229,8 +232,9 @@ urlpatterns = patterns('',
 
 
     # this is a POST requtst, all data in POST section
-    url(r'^api/1.0/register/host$',        views.register_host,               name='register_host'),
-    url(r'^api/1.0/register/server$',      views.register_server,             name='register_server'),
+    url(r'^api/1.0/register/lnc$',        views.register_lnc,               name='register_lnc'),
+    url(r'^api/1.0/register/tnc$',        views.register_terminal,          name='register_terminal'),
+    url(r'^api/1.0/register/server$',      views.register_server,           name='register_server'),
     # url(r'^api/1.0/list/ncs$',             views.list_ncs,                    name='list_ncs'),
 
     # common api interface

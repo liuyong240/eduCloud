@@ -179,13 +179,9 @@ class ecDHCPEthers(models.Model):
     ex_web_proxy_port     = models.IntegerField(default=0)
     insid                 = models.CharField(max_length=20)
 
-# for all NCs that support LVD
-class ecTerminal(models.Model):
+class ecLNC(models.Model):
     ip  = models.CharField(max_length=20)
-    wip = models.CharField(max_length=20)
-
-    # used for remote LAN-awake, or WAN-awake.
-    mac = models.CharField(max_length=20);
+    mac = models.CharField(max_length=20)
 
     name = models.CharField(max_length=100)
     ccname = models.CharField(max_length=100)
@@ -201,6 +197,30 @@ class ecTerminal(models.Model):
     # is_pad=0
     # auto_guest_attr_update=0
     runtime_option = models.TextField()
+
+class ecLNC_auth(models.Model):
+    mac0        = models.CharField(max_length=20)
+    role_value  = models.CharField(max_length=100)
+    read        = models.BooleanField(default=False)
+    write       = models.BooleanField(default=False)
+    execute     = models.BooleanField(default=False)
+    create      = models.BooleanField(default=False)
+    delete      = models.BooleanField(default=False)
+
+# for all NCs that support LVD
+class ecTerminal(models.Model):
+    ip  = models.CharField(max_length=20)
+    # used for remote LAN-awake, or WAN-awake.
+    mac = models.CharField(max_length=20)
+
+    name = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)
+
+    osname = models.IntegerField(default=0)
+
+    cpus = models.IntegerField(default=0)
+    memory = models.IntegerField(default=0)
+    disk = models.IntegerField(default=0)
 
 class ecTerminal_auth(models.Model):
     mac0        = models.CharField(max_length=20)
