@@ -18,7 +18,7 @@ urlpatterns = patterns('',
 
     url(r'^api/1.0/register/server$',     views.register_server,           name='register_server'),
     url(r'^api/1.0/register/lnc$',        views.register_lnc,               name='register_lnc'),
-    url(r'^api/1.0/register/tnc$',        views.register_terminal,          name='register_terminal'),
+    #url(r'^api/1.0/register/tnc$',        views.register_terminal,          name='register_terminal'),
 
     url(r'^api/1.0/getimageversion$',        views.get_images_version,                 name='get_images_version'),
     url(r'^api/1.0/verify/clc/cc/file/ver$', views.verify_clc_cc_file_ver,             name='verify_clc_cc_file_ver'),

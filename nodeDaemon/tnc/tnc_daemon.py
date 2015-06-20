@@ -16,18 +16,19 @@ def getOSDetail():
     return os_detail[0] + os_detail[1]
 
 def registerMyselfasTNC():
-    ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
-    ccname = getccnamebyconf()
+    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
     hostname, hostcpus, hostmem, hostdisk = getHostAttr()
     netlist = getHostNetInfo()
+
     if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/register/tnc' % ccip
+        url = 'http://%s:8000/clc/api/1.0/register/tnc' % clcip
     else:
-        url = 'http://%s/cc/api/1.0/register/tnc' % ccip
+        url = 'http://%s/clc/api/1.0/register/tnc' % clcip
+
     payload = {
         'ip':       netlist['ip0'],
-        'mac':      netlist['mac'],
+        'mac':      netlist['mac0'],
 
         'name':     hostname,
         'osname':   getOSDetail(),

@@ -182,26 +182,26 @@ def register_lnc(request):
     r = requests.post(url, data=payload)
     return HttpResponse(r.content, content_type="application/json")
 
-def register_terminal(request):
-    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/clc/api/1.0/register/tnc' % clcip
-    else:
-        url = 'http://%s/clc/api/1.0/register/tnc' % clcip
-    payload = {
-        'ip':       request.POST['ip'],
-        'mac':     request.POST['mac'],
-
-        'name':     request.POST['name'],
-        'osname':   request.POST['osname'],
-        'location': request.POST['location'],
-
-        'cores':    request.POST['cores'],
-        'memory':   request.POST['memory'],
-        'disk':     request.POST['disk'],
-    }
-    r = requests.post(url, data=payload)
-    return HttpResponse(r.content, content_type="application/json")
+# def register_terminal(request):
+#     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+#     if DAEMON_DEBUG == True:
+#         url = 'http://%s:8000/clc/api/1.0/register/tnc' % clcip
+#     else:
+#         url = 'http://%s/clc/api/1.0/register/tnc' % clcip
+#     payload = {
+#         'ip':       request.POST['ip'],
+#         'mac':     request.POST['mac'],
+#
+#         'name':     request.POST['name'],
+#         'osname':   request.POST['osname'],
+#         'location': request.POST['location'],
+#
+#         'cores':    request.POST['cores'],
+#         'memory':   request.POST['memory'],
+#         'disk':     request.POST['disk'],
+#     }
+#     r = requests.post(url, data=payload)
+#     return HttpResponse(r.content, content_type="application/json")
 
 def register_server(request):
     logger.error('call register_server in cc ... ... ')
