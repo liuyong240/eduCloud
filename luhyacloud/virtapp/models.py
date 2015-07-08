@@ -9,10 +9,11 @@ class ldapsPara(models.Model):
     domain              = models.CharField(max_length=100)
 
 class virtApp(models.Model):
-    uuid    = models.CharField(max_length=100)
-    appname = models.CharField(max_length=100)
-    apppath = models.CharField(max_length=500)
-    ecids   = models.CharField(max_length=500)
+    uuid             = models.CharField(max_length=100)
+    app_display_name = models.CharField(max_length=100)
+    app_remote_name  = models.CharField(max_length=100)
+    app_exe_path     = models.CharField(max_length=500)
+    ecids            = models.CharField(max_length=500)
 
 class vapp_auth(models.Model):
     uuid        = models.CharField(max_length=20)

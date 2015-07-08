@@ -12,5 +12,5 @@ script
   if [ -e /etc/default/nodedaemon-tnc ]; then
     . /etc/default/nodedaemon-tnc
   fi
-  exec start-stop-daemon --start --chuid luhya --exec /usr/local/bin/nodedaemon-tnc
+  exec start-stop-daemon --start --chuid $USER --exec /usr/local/bin/nodedaemon-tnc
 end script

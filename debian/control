@@ -63,7 +63,7 @@ Description: educloud nc daemon package
 
 Package: nodedaemon-tnc
 Architecture: all
-Depends: educloud-core
+Depends: python-pip
 Description: educloud tnc daemon package
 
 

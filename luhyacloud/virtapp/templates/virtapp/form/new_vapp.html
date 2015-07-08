@@ -9,16 +9,18 @@
     var errormsg;
 
     function submit_vapp() {
-        vapp_name = $('#vappname').val();
-        vapp_path = $('#vapppath').val();
-        vapp_ecids  = $('#vappecids').val();
+        vapp_display_name = $('#vapp_display_name').val();
+        vapp_remote_name  = $('#vapp_remote_name').val();
+        vapp_exe_path     = $('#vapp_exe_path').val();
+        vapp_ecids        = $('#vapp_ecids').val();
 
 
         url = "/virtapp/api/1.0/vapp/create";
         postdata = {
-            vapp_name:    vapp_name,
-            vapp_path:    vapp_path,
-            vapp_ecids:   vapp_ecids,
+            vapp_display_name:   vapp_display_name,
+            vapp_remote_name:    vapp_remote_name,
+            vapp_exe_path:       vapp_exe_path,
+            vapp_ecids:          vapp_ecids,
         }
 
         $.post(url, postdata, function(data) {
@@ -65,16 +67,20 @@
             <div class="col-lg-6">
                 <div role="form">
                     <div class="form-group">
-                        <label>{% trans "VApp Name*" %}</label>
-                        <input id="vappname" class="form-control" type="text"  autofocus="">
+                        <label>{% trans "vapp display name*" %}</label>
+                        <input id="vapp_display_name" class="form-control" type="text"  autofocus="">
                     </div>
                     <div class="form-group">
-                        <label>{% trans "VApp Path*" %}</label>
-                        <input id="vapppath" class="form-control" type="text" >
+                        <label>{% trans "vapp remote name*" %}</label>
+                        <input id="vapp_remote_name" class="form-control" type="text"  autofocus="">
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "vapp exe path*" %}</label>
+                        <input id="vapp_exe_path" class="form-control" type="text" >
                     </div>
                     <div class="form-group">
                         <label>{% trans "VApp Location*" %}</label>
-                        <input id="vappecids" class="form-control" type="text" >
+                        <input id="vapp_ecids" class="form-control" type="text" >
                     </div>
 
                     <button id="mysubmit" type="submit" class="btn btn-primary">{% trans "Submit Button" %}</button>

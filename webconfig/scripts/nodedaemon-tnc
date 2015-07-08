@@ -1,4 +1,3 @@
 #! /bin/bash
 
-c
-sr/local/nodedaemon/tnc && ./tnc_daemon
+cd /usr/local/nodedaemon/tnc && python tnc_daemon.py

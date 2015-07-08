@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-20 07:37+0000\n"
+"POT-Creation-Date: 2015-07-08 02:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,15 +24,15 @@ msgstr "目录服务设置"
 msgid "VAPP Management"
 msgstr "虚拟应用管理"
 
-#: views.py:223
+#: views.py:224
 msgid "Error Report"
 msgstr "错误报告"
 
-#: views.py:224
+#: views.py:225
 msgid "Only eduCloud.Admin can change vapp permission!"
 msgstr "只有eduCloud.Admin才可以修改虚拟应用的访问权限！"
 
-#: views.py:225
+#: views.py:226
 msgid "Please logon as eduCloud.Admin."
 msgstr "请以eduCloud.Admin身份登录"
 
@@ -66,14 +65,14 @@ msgid "Domain*"
 msgstr ""
 
 #: templates/virtapp/ldaps_settings.html:44
-#: templates/virtapp/form/edit_vapp.html:83
-#: templates/virtapp/form/new_vapp.html:80
+#: templates/virtapp/form/edit_vapp.html:89
+#: templates/virtapp/form/new_vapp.html:86
 #: templates/virtapp/form/permission.html:178
 msgid "Submit Button"
 msgstr "提交"
 
 #: templates/virtapp/ldaps_settings.html:45
-#: templates/virtapp/form/new_vapp.html:81
+#: templates/virtapp/form/new_vapp.html:87
 msgid "Reset Button"
 msgstr "清除"
 
@@ -97,42 +96,47 @@ msgstr "编辑权限"
 msgid "Add VAPP"
 msgstr "添加虚拟应用"
 
-#: templates/virtapp/form/edit_vapp.html:61
+#: templates/virtapp/form/edit_vapp.html:63
 msgid "Edit VApp"
 msgstr "修改虚拟应用"
 
-#: templates/virtapp/form/edit_vapp.html:71
-#: templates/virtapp/form/new_vapp.html:68
-msgid "VApp Name*"
-msgstr "虚拟应用名称"
+#: templates/virtapp/form/edit_vapp.html:73
+#: templates/virtapp/form/new_vapp.html:70
+msgid "vapp display name*"
+msgstr "虚拟应用显示名称"
 
-#: templates/virtapp/form/edit_vapp.html:75
-#: templates/virtapp/form/new_vapp.html:72
-msgid "VApp Path*"
-msgstr "虚拟应用路径"
+#: templates/virtapp/form/edit_vapp.html:77
+#: templates/virtapp/form/new_vapp.html:74
+msgid "vapp remote name*"
+msgstr "虚拟应用真实名称"
 
-#: templates/virtapp/form/edit_vapp.html:79
-#: templates/virtapp/form/new_vapp.html:76
+#: templates/virtapp/form/edit_vapp.html:81
+#: templates/virtapp/form/new_vapp.html:78
+msgid "vapp exe path*"
+msgstr "虚拟应用执行路径"
+
+#: templates/virtapp/form/edit_vapp.html:85
+#: templates/virtapp/form/new_vapp.html:82
 msgid "VApp Location*"
-msgstr "虚拟应用位置"
+msgstr "虚拟应用所属镜像文件"
 
-#: templates/virtapp/form/edit_vapp.html:87
+#: templates/virtapp/form/edit_vapp.html:93
 msgid "Update VApp is Successfully."
 msgstr "更新虚拟应用成功。"
 
-#: templates/virtapp/form/edit_vapp.html:90
+#: templates/virtapp/form/edit_vapp.html:96
 msgid "Update VApp Failed, try again."
 msgstr "更新虚拟应用失败，请再试一次。"
 
-#: templates/virtapp/form/new_vapp.html:59
+#: templates/virtapp/form/new_vapp.html:61
 msgid "Add a New VApp"
 msgstr "添加新的虚拟应用"
 
-#: templates/virtapp/form/new_vapp.html:85
+#: templates/virtapp/form/new_vapp.html:91
 msgid "New VApp is created Successfully."
 msgstr "新的虚拟应用添加成功。"
 
-#: templates/virtapp/form/new_vapp.html:88
+#: templates/virtapp/form/new_vapp.html:94
 msgid "Create new VApp Failed, try again."
 msgstr "新的虚拟应用添加失败，请再试一次。"
 
@@ -197,13 +201,17 @@ msgid "Virtual APP List"
 msgstr "虚拟应用列表"
 
 #: templates/virtapp/jtable/vapp_table.html:35
-msgid "vapp name"
-msgstr "虚拟应用名称"
+msgid "vapp display name"
+msgstr "虚拟应用显示名称"
 
 #: templates/virtapp/jtable/vapp_table.html:41
-msgid "vapp path"
-msgstr "虚拟应用路径"
+msgid "vapp remote name"
+msgstr "虚拟应用真实名称"
 
 #: templates/virtapp/jtable/vapp_table.html:47
-msgid "vapp location"
-msgstr "虚拟应用位置"
+msgid "vapp exe path"
+msgstr "虚拟应用执行路径"
+
+#: templates/virtapp/jtable/vapp_table.html:53
+msgid "VApp Location"
+msgstr "虚拟应用所属镜像文件"

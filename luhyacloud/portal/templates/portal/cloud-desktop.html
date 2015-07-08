@@ -670,7 +670,8 @@ function start_vapp(vapp_uuid, vapp_id) {
                 if (ostype == "windows") {
                     alert('{% trans "Windows Ssytem is not supported yet." %}');
                 } else {
-                    cmd = 'rdesktop -A "c:\\Program Files\\ThinLinc\\WTSTools\\seamlessrdpshell.exe" -s "' + vapp_info['exe'] + '" -u "' + vapp_info['user'] + '" ' + vapp_info['ip'];
+                    domain_user = vapp_info['domain'] + "\\" + vapp_info['user']
+                    cmd = 'rdesktop -A "c:\\Program Files\\ThinLinc\\WTSTools\\seamlessrdpshell.exe" -s "' + vapp_info['exepath'] + '" -u "' + domain_user + '" ' + vapp_info['ip'];
                     runFunc(cmd);
                 }
             } else {

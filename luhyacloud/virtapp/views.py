@@ -151,11 +151,12 @@ def list_vapp(request):
     recs = virtApp.objects.all()
     for rec in recs:
         jrec = {}
-        jrec['id']      = rec.id
-        jrec['uuid']    = rec.uuid
-        jrec['appname'] = rec.appname
-        jrec['apppath'] = rec.apppath
-        jrec['ecids']   = rec.ecids
+        jrec['id']              = rec.id
+        jrec['uuid']            = rec.uuid
+        jrec['app_display_name']= rec.app_display_name
+        jrec['app_remote_name'] = rec.app_remote_name
+        jrec['app_exe_path']    = rec.app_exe_path
+        jrec['ecids']           = rec.ecids
         data.append(jrec)
 
     response['Records'] = data
@@ -182,9 +183,10 @@ def vapp_add(request):
 def create_vapp(request):
     rec = virtApp(
         uuid=       genHexRandom(),
-        appname=    request.POST['vapp_name'],
-        apppath=    request.POST['vapp_path'],
-        ecids=      request.POST['vapp_ecids'],
+        app_display_name=    request.POST['vapp_display_name'],
+        app_remote_name =    request.POST['vapp_remote_name'],
+        app_exe_path=        request.POST['vapp_exe_path'],
+        ecids=               request.POST['vapp_ecids'],
     )
     rec.save()
 
@@ -202,9 +204,10 @@ def vapp_edit(request, appid):
 
 def edit_vapp(request):
     rec = virtApp.objects.get(uuid=request.POST['vapp_uuid'])
-    rec.appname = request.POST['vapp_name']
-    rec.apppath = request.POST['vapp_path']
-    rec.ecids   = request.POST['vapp_ecids']
+    rec.app_display_name    = request.POST['vapp_display_name']
+    rec.app_remote_name     = request.POST['vapp_remote_name']
+    rec.app_exe_path        = request.POST['vapp_exe_path']
+    rec.ecids               = request.POST['vapp_ecids']
     rec.save()
 
     response = {}
@@ -251,7 +254,7 @@ def vapp_perm_edit(request, appid):
     rows = len(perms)
 
     context = {
-        'res'   : rec.appname,
+        'res'   :  rec.app_display_name,
         'id'    :  rec.uuid,
         'roles' :  roles,
          'lists':  range(0,rows),
@@ -321,8 +324,7 @@ def list_my_vapps(request):
         vo = virtApp.objects.get(uuid=vo_auth.uuid)
         vap = {}
         vap['uuid']     = vo.uuid
-        vap['name']     = vo.appname
-        vap['path']     = vo.apppath
+        vap['name']     = vo.app_display_name
         vap['id']       = 'myapp' + str(index)
         available_vapps.append(vap)
         index = index + 1
@@ -334,19 +336,20 @@ def list_my_vapps(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def run_vapp(request):
-    cmdline = 'rdesktop -A "c:\Program Files\ThinLinc\WTSTools\seamlessrdpshell.exe" -s "%s" -u "%s" %s'
-
+    logger.error(" 1111111 ")
     user_id = request.POST['uid']
     app_uuid = request.POST['uuid']
 
+    logger.error(" 22222222 ")
     # get domain user
     recs = ldapsPara.objects.filter()
     domain = recs[0].domain
     domain_user = "%s\%s" % (domain, user_id)
 
+    logger.error(" 33333333 ")
     # get vapp path & running instance
     vapp_obj = virtApp.objects.get(uuid=app_uuid)
-    logger.error("user %s will try to run vapp:%s" % ( domain_user, vapp_obj.appname))
+    logger.error("user %s will try to run vapp:%s" % ( domain_user, vapp_obj.app_remote_name))
 
     # looking for instance that runs this vapp
     ecids = vapp_obj.ecids
@@ -354,6 +357,7 @@ def run_vapp(request):
     l = SortedList()
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
+    logger.error(" 44444444 ")
     for imgid in imgids:
         if len(imgid) > 0:
             imgid = imgid.strip()
@@ -390,20 +394,21 @@ def run_vapp(request):
         logger.error(l)
         rec = ectaskTransaction.objects.get(insid = l[0]['insid'])
         runtime_options = json.loads(rec.runtime_option)
-        cmdline = cmdline % (vapp_obj.apppath, domain_user, runtime_options['web_ip'])
-        logger.error(" --- find instace %s for vapp %s " % (runtime_options['web_ip'], vapp_obj.appname))
-        logger.error(" --- cmd = %s" % cmdline)
+        logger.error(" --- find instace %s for vapp %s " % (runtime_options['web_ip'], vapp_obj.app_remote_name))
 
         vapp_info = {}
-        vapp_info['ip']   =  runtime_options['web_ip']
-        vapp_info['user'] =  domain_user
-        vapp_info['exe']  =  vapp_obj.apppath
+        vapp_info['ip']         =  runtime_options['web_ip']
+        vapp_info['user']       =  user_id
+        vapp_info['domain']     =  domain
+        vapp_info['displayname']=  vapp_obj.app_display_name
+        vapp_info['remoteapp']  =  vapp_obj.app_remote_name
+        vapp_info['exepath']    =  vapp_obj.app_exe_path
 
         response['Result'] = "OK"
         response['data']  =  vapp_info
     else:
         response['Result'] = "FAIL"
-        response['error'] = 'Not Find running instances with app %s' % vapp_obj.appname
+        response['error'] = 'Not Find running instances with app %s' % vapp_obj.app_remote_name
 
 
     retvalue = json.dumps(response)

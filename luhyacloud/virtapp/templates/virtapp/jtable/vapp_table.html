@@ -31,21 +31,27 @@
                     list: false,
                 },
                 //CHILD TABLE DEFINITION FOR "EXAMS"
-                appname: {
-                    title: '{% trans "vapp name" %}',
+                app_display_name: {
+                    title: '{% trans "vapp display name" %}',
                     width: '20%',
                     edit: true,
                     create: false,
                 },
-                apppath: {
-                    title: '{% trans "vapp path" %}',
-                    width: '60%',
+                app_remote_name: {
+                    title: '{% trans "vapp remote name" %}',
+                    width: '20%',
+                    edit: true,
+                    create: false,
+                },
+                app_exe_path: {
+                    title: '{% trans "vapp exe path" %}',
+                    width: '30%',
                     edit: true,
                     create: false,
                 },
                 ecids: {
-                    title: '{% trans "vapp location" %}',
-                    width: '20%',
+                    title: '{% trans "VApp Location" %}',
+                    width: '30%',
                     edit: true,
                     create: false,
                 },
