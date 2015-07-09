@@ -18,7 +18,7 @@ class tnc_statusPublisherThread(run4everThread):
             try:
                 node_status = self.collect_node_status()
                 self.send_node_status_to_cc(node_status)
-                time.sleep(10*60)
+                time.sleep(30*60)
             except Exception as e:
                 logger.error('tnc_statusPublisherThread exception = %s' % str(e))
 

@@ -187,7 +187,7 @@ install:
 	cp $(CURDIR)/webconfig/serverTools/dist/recoverVMfromCrash             $(DAEMON_NC)/usr/local/bin
 
 	####################
-	#     DAEMON_TNC    #
+	#     DAEMON_TNC   #
 	####################
 	install -d $(DAEMON_TNC)/etc/educloud/modules
 	touch $(DAEMON_TNC)/etc/educloud/modules/core

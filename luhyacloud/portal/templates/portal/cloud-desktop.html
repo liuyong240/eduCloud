@@ -479,7 +479,8 @@ function delete_form(form_name) {
     document.body.removeChild(form_name);
 }
 
-function show_by_rdesktop( id ) {
+
+function show_by_xfreerdp( id ) {
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
     tmp = taskid.split(':')
     srcid = tmp[0];
@@ -500,7 +501,7 @@ function show_by_rdesktop( id ) {
         if (ostype == "windows") {
             cmd = "mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
         } else {
-            cmd = 'rdesktop ' + items['rdp_ip'] + ':' + items['rdp_port'];
+            cmd = '/opt/freerdp-nightly/bin/xfreerdp /f /v:' + items['rdp_ip'] + ':' + items['rdp_port'];
         }
         runFunc(cmd);
     });
@@ -508,7 +509,7 @@ function show_by_rdesktop( id ) {
 
 function display_vm_window(id) {
     if ( isEduClient() == 1 ) {
-        show_by_rdesktop(id);
+        show_by_xfreerdp(id);
     } else {
         show_by_browser(id);
     }
