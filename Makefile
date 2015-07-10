@@ -194,7 +194,8 @@ install:
 
 	install -d $(DAEMON_TNC)/usr/local/nodedaemon/
 
-	cp -rL $(CURDIR)/nodeDaemon/tnc            $(DAEMON_TNC)/usr/local/nodedaemon/
+	cd $(CURDIR)/nodeDaemon/tnc && sudo -u luhya pyinstaller tnc_daemon.py -F -s
+	cp $(CURDIR)/nodeDaemon/tnc/dist/tnc_daemon            $(DAEMON_TNC)/usr/local/nodedaemon/tnc
 
 	install -d $(DAEMON_TNC)/usr/local/bin/
 	cp $(CURDIR)/webconfig/scripts/nodedaemon-tnc          $(DAEMON_TNC)/usr/local/bin
