@@ -87,7 +87,29 @@ $(document).ready(function () {
                     items[key] = val
                 });
                 if (items['status'] == 'SUCCESS') {
-                    window.location.replace(items['url']);
+                    // login success, now do sth for native client
+                    if (isEduClient() == 1) {
+                        // it is web app
+                        var fs = require('fs');
+                        fs.exists('/etc/educloud/modules/educloud-native-client', function (exists) {
+                           if (exists) {  // it is native client
+                                var psswdbymd5 = calcuMD5(secrete);
+
+                                // store user & password
+                                var jsonfile = require('jsonfile');
+                                var obj = jsonfile.readFileSync('db/password.json');
+                                obj[vemail] = psswdbymd5;
+                                jsonfile.writeFileSync('db/password.json', obj);
+
+                                window.location.replace(items['url']);
+                           } else {   // it is vdi client
+                                window.location.replace(items['url']);
+                           }
+                        });
+                    } else {
+                        // redirect to new page
+                        window.location.replace(items['url']);
+                    }
                 } else {
                     $("#erro_msg").text(items['reason']);
                 }

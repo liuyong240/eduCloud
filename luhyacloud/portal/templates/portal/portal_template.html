@@ -103,6 +103,11 @@
         <script src="{% static "clc/js/bootstrap-contextmenu.js" %}"></script>
 
 		<script>
+			function calcuMD5( msg ) {
+            	var md5 = require('MD5');
+            	return md5(msg);
+            }
+
 			function isEduClient()
 			{
 			    var ret;
@@ -117,6 +122,7 @@
 
 				return ret;
 			}
+
 
 			function getOSType() {
 				var browserName=navigator.userAgent.toLowerCase();
@@ -143,16 +149,20 @@
 					  }
 				  });
 			}
+
 			function back() {
             	history.back();
             }
+
             function refresh() {
             	window.location.reload();
             }
+
             function closeApp() {
             	var gui = require('nw.gui');
             	gui.App.quit();
             }
+
             function reboot() {
             	ostype = getOSType();
         		if (ostype == "windows") {
@@ -161,6 +171,7 @@
 					runFunc("sudo reboot");
 				}
             }
+
             function shutdown() {
             	ostype = getOSType();
         		if (ostype == "windows") {
