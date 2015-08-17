@@ -1,3 +1,4 @@
+
 {% extends "portal/portal_template.html" %}
 {% load i18n %}
 {% load staticfiles %}
@@ -21,11 +22,12 @@
         <div class="section section-white">
 	        <div class="container">
 	        	<div class="row">
+
                     {% for vd in vds %}
 	        		<div class="col-md-3 col-sm-6">
 	        			<div class="service-wrapper">
-		        			<img src='/static/portal/img/desktop/{{ vd.ostype }}.png'>
-		        			<h3>{{ vd.name }}</h3>
+		        			<img id="vdostype_{{ vd.id }}" src='/static/portal/img/desktop/{{ vd.ostype }}.png'>
+		        			<h3 id="vdname_{{ vd.id }}">{{ vd.name }}</h3>
 
 		        			<p id="error_msg_{{ vd.id}}" style="display:none;"></p>
 
@@ -177,28 +179,108 @@ var run_vapp_url    = "/virtapp/api/1.0/runvapp/";
 //
 ///////////////////////////////////////////////////////
 
-function create_tvd(id, srcid) {
+function create_tvd(id, srcid)
+{
     //console.log("create_tvd() is called.");
 
     url = create_url + srcid;
-    postdata = {
-        'sid': $('#sid').text(),
-    }
-    $.post(url, postdata, function (data) {
-        items = [];
-        $.each(data, function (key, val) {
-            items[key] = val;
-        });
+    if ( isEduClient() == 1 )
+    {
+        var fs = require('fs');
+        fs.exists('/etc/educloud/modules/educloud-native-client', function (exists)
+        {
+            if (exists)
+            {
+                var jsonfile = require('jsonfile');
+                var cc_json = jsonfile.readFileSync('/storage/config/cc.json');
+                var net = require('net');
+                function getNetworkIP(callback) {
+                      var socket = net.createConnection(80, '192.168.96.147');
+                      socket.on('connect', function() {
+                        callback(undefined, socket.address().address);
+                        socket.end();
+                      });
 
-        if ( items['Result'] != 'OK' ) {
-            errorMsgBox(items['error']);
-            return ;
+                      socket.on('error', function(e) {
+                        callback(e, 'error');
+                      });
+                }
+
+                getNetworkIP(function (error, ip)
+                {
+                    nc_ip = ip;
+                    postdata = {
+                        'sid'   : $('#sid').text(),
+                        'ccip'  : cc_json['ip'],
+                        'ncip'  : ip,
+                    }
+
+                    $.post(url, postdata, function (data)
+                    {
+                        items = [];
+                        $.each(data, function (key, val) {
+                            items[key] = val;
+                        });
+
+                        if ( items['Result'] != 'OK' ) {
+                            errorMsgBox(items['error']);
+                            return ;
+                        }
+
+                        taskid = items['tid'];
+                        setTimeout( prepare_tvd, timer_interval, id,  taskid);
+                    });
+                });
+            }
+            else
+            {
+                postdata = {
+                    'sid': $('#sid').text(),
+                }
+
+                $.post(url, postdata, function (data)
+                {
+                    items = [];
+                    $.each(data, function (key, val) {
+                        items[key] = val;
+                    });
+
+                    if ( items['Result'] != 'OK' ) {
+                        errorMsgBox(items['error']);
+                        return ;
+                    }
+
+                    taskid = items['tid'];
+                    setTimeout( prepare_tvd, timer_interval, id,  taskid);
+                });
+            }
+        });
+    }
+    else
+    {
+        postdata =
+        {
+            'sid': $('#sid').text(),
         }
 
-        taskid = items['tid'];
-        setTimeout( prepare_tvd, timer_interval, id,  taskid);
-    });
+        $.post(url, postdata, function (data)
+        {
+            items = [];
+            $.each(data, function (key, val)
+            {
+                items[key] = val;
+            });
 
+            if ( items['Result'] != 'OK' )
+            {
+                errorMsgBox(items['error']);
+                return ;
+            }
+
+            taskid = items['tid'];
+            setTimeout( prepare_tvd, timer_interval, id,  taskid);
+        });
+    }
 }
 
 ///////////////////////////////////////////////////////
@@ -570,6 +652,51 @@ function gui_update(items, do2run) {
 
             if (do2run == 1) {
                 setTimeout( run_tvd, timer_interval, id, taskid);
+            }
+
+            // get current image info
+            var img_id  = taskid.split(':')[0];
+            var vm_name = $('#vdname_' + id).text();
+            var vm_pic  = $('#vdostype' + id).attr('src').split('/')[5];
+
+            // here add a record for images.json file
+            if ( isEduClient() == 1 )
+            {
+                var fs = require('fs');
+                fs.exists('/etc/educloud/modules/educloud-native-client', function (exists)
+                {
+                    if (exists)
+                    {
+                        var jsonfile = require('jsonfile');
+
+                        // save current image info
+                        var vm_obj = jsonfile.readFileSync('db/images.json');
+                        var vm_attr = {
+                            'name'  : vm_name,
+                            'ostype': vm_pic,
+                        }
+                        vm_obj[img_id] = vm_attr;
+                        jsonfile.writeFileSync('db/images.json', vm_obj);
+
+                        // get and save current task runtime option
+                        var runtime_opt_url = "/clc/api/1.0/tasks/get";
+                        postdata = {
+                            'tid': taskid,
+                        }
+
+                        $.post(url, postdata, function (data) {
+                            var items = [];
+                            $.each(data, function (key, val) {
+                                items[key] = val
+                            });
+                            if (items['Result'] == 'OK') {
+                                vm_obj = jsonfile.readFileSync('db/myvds.json');
+                                vm_obj["{{ uid }}"][img_id] = items['data'];
+                                jsonfile.writeFileSync('db/myvds.json', vm_obj);
+                            }
+                        });
+                    }
+                });
             }
         }
     }

@@ -183,6 +183,9 @@ urlpatterns = patterns('',
     url(r'^api/1.0/tasks/list$',          views.list_tasks,                 name='list_tasks_view'),
     url(r'^api/1.0/tasks/delete$',        views.delete_tasks,               name='delete_tasks_view'),
     url(r'^api/1.0/tasks/update$',        views.update_tasks,               name='update_tasks_view'),
+    url(r'^api/1.0/tasks/get$',           views.get_task_info,              name='get_task_info_view'),
+
+
 
     url(r'^api/1.0/lnc/list$',          views.list_lnc,                 name='list_lnc_view'),
     url(r'^api/1.0/lnc/update$',        views.update_lnc,               name='update_lnc_view'),

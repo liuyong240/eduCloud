@@ -43,7 +43,10 @@ class nc_statusPublisherThread(run4everThread):
         except Exception as e:
             logger.error('getVMlist exception = %s' % str(e))
 
-        payload['nid']              = "nc#" + payload['net_data']['mac0'] + "#status"
+        if isLNC():
+            payload['nid']              = "lnc#" + payload['net_data']['mac0'] + "#status"
+        else:
+            payload['nid']              = "nc#" + payload['net_data']['mac0'] + "#status"
         return payload
 
     def send_node_status_to_cc(self, node_status):

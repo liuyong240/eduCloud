@@ -6,3 +6,5 @@ delete from clc_ecservers_auth;
 delete from clc_ecccresources;
 delete from clc_ectasktransaction;
 delete from clc_ectasktransaction_auth;
+delete from clc_eclnc;
+delete from clc_eclnc_auth;
