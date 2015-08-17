@@ -1815,7 +1815,13 @@ def genRuntimeOptionForImageBuild(transid):
 
     ccobj       = ecServers.objects.get(ip0=ccip, role='cc')
     ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
-    ncobj       = ecServers.objects.get(ip0=ncip, role='nc')
+
+    try:
+        ncobj       = ecServers.objects.get(ip0=ncip, role='nc')
+        is_lnc = False
+    except Exception as e:
+        ncobj       = ecLNC.objects.get(ip=ncip)
+        is_lnc = True
 
     runtime_option = {}
 
@@ -1852,19 +1858,22 @@ def genRuntimeOptionForImageBuild(transid):
     networkMode = ccres_info.network_mode
 
     # 3.1 allocate rpd port
-    available_rdp_port = json.loads(ccres_info.rdp_port_pool_list)
-    used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
+    if not is_lnc:
+        available_rdp_port = json.loads(ccres_info.rdp_port_pool_list)
+        used_rdp_ports     = json.loads(ccres_info.used_rdp_ports)
 
-    available_rdp_port, used_rdp_ports, newport = allocate_rdp_port(available_rdp_port, used_rdp_ports)
-    if newport == None:
-        runtime_option['rdp_port']  = ''
-        return None, _('Need more rdp port resources!.')
+        available_rdp_port, used_rdp_ports, newport = allocate_rdp_port(available_rdp_port, used_rdp_ports)
+        if newport == None:
+            runtime_option['rdp_port']  = ''
+            return None, _('Need more rdp port resources!.')
+        else:
+            runtime_option['rdp_port']                  = newport
+            logger.error('allocate rdp port %s for %s' % (newport, transid))
+
+        ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
+        ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
     else:
-        runtime_option['rdp_port']                  = newport
-        logger.error('allocate rdp port %s for %s' % (newport, transid))
-
-    ccres_info.rdp_port_pool_list   = json.dumps(available_rdp_port)
-    ccres_info.used_rdp_ports       = json.dumps(used_rdp_ports)
+        runtime_option['rdp_port'] = 3389
 
     # 3.2 set netcard in vm
     networkcards = []
@@ -1893,6 +1902,7 @@ def genRuntimeOptionForImageBuild(transid):
     # 3.4 set public ip and private ip and iptable
     iptables = []
 
+
     if networkMode == 'flat':
         runtime_option['ex_ip']   = ncobj.eip
         runtime_option['rdp_ip']  = ncip
@@ -1901,38 +1911,40 @@ def genRuntimeOptionForImageBuild(transid):
         runtime_option['ex_ip']   = ccobj.eip
         runtime_option['rdp_ip']  = ccip
 
-        # set iptable rule for rdp access
-        ipt = {
-            'src_ip': ccip,
-            'dst_ip': ncip,
-            'src_port': newport,
-            'dst_port': newport,
-            'ins_id'  : ins_id,
-        }
-        iptables.append(ipt)
+    if not is_lnc:
+        if networkMode == 'tree':
+            # set iptable rule for rdp access
+            ipt = {
+                'src_ip': ccip,
+                'dst_ip': ncip,
+                'src_port': newport,
+                'dst_port': newport,
+                'ins_id'  : ins_id,
+            }
+            iptables.append(ipt)
 
-        # set iptable rule for web service
-        if ccres_info.cc_usage == 'vs':
-            # allocate web ip
-            availabe_web_ips = json.loads(ccres_info.pub_ip_pool_list)
-            used_web_ips     = json.loads(ccres_info.used_pub_ip)
+            # set iptable rule for web service
+            if ccres_info.cc_usage == 'vs':
+                # allocate web ip
+                availabe_web_ips = json.loads(ccres_info.pub_ip_pool_list)
+                used_web_ips     = json.loads(ccres_info.used_pub_ip)
 
-            availabe_web_ips, userd_web_ips, new_web_ip = allocate_web_ip(availabe_web_ips, used_web_ips)
-            if new_web_ip == None:
-                runtime_option['web_ip'] = ''
-                releaseRuntimeOptionForImageBuild(transid, runtime_option)
-                return None, _('Need more Proxy Web IP resources for Cluster.')
-            else:
-                runtime_option['web_ip'] = new_web_ip
+                availabe_web_ips, userd_web_ips, new_web_ip = allocate_web_ip(availabe_web_ips, used_web_ips)
+                if new_web_ip == None:
+                    runtime_option['web_ip'] = ''
+                    releaseRuntimeOptionForImageBuild(transid, runtime_option)
+                    return None, _('Need more Proxy Web IP resources for Cluster.')
+                else:
+                    runtime_option['web_ip'] = new_web_ip
 
-                ccres_info.pub_ip_pool_list = json.dumps(availabe_web_ips)
-                ccres_info.used_pub_ip      = json.dumps(used_web_ips)
+                    ccres_info.pub_ip_pool_list = json.dumps(availabe_web_ips)
+                    ccres_info.used_pub_ip      = json.dumps(used_web_ips)
 
-                ipt['src_ip'] = runtime_option['web_ip']
-                ipt['dst_ip'] = netcard['nic_ip']
-                ipt['src_port'] = 0  # port 0 means all port
-                ipt['dst_port'] = 0
-                iptables.append(ipt)
+                    ipt['src_ip'] = runtime_option['web_ip']
+                    ipt['dst_ip'] = netcard['nic_ip']
+                    ipt['src_port'] = 0  # port 0 means all port
+                    ipt['dst_port'] = 0
+                    iptables.append(ipt)
 
     runtime_option['iptable_rules'] = iptables
 
@@ -1942,6 +1954,7 @@ def genRuntimeOptionForImageBuild(transid):
     if ccres_info.cc_usage == 'rvd' or runtime_option['usage'] == 'desktop':
         runtime_option['mgr_accessURL']     = "%s:%s" % (runtime_option['rdp_ip'], runtime_option['rdp_port'])
         runtime_option['ex_mgr_accessURL']  = "%s:%s" % (runtime_option['ex_ip'],  runtime_option['rdp_port'])
+
     if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
         runtime_option['web_accessURL']     = 'http://%s' % runtime_option['web_ip']
         runtime_option['ex_web_accessURL']  = 'http://%s:%s' % (runtime_option['ex_ip'], runtime_option['web_port'])
@@ -3731,6 +3744,23 @@ def create_ethers(request, cc_name):
 # ------------------------------------
 # core tables for tasks
 # ------------------------------------
+def get_task_info(request):
+    response = {}
+    data = []
+
+    rec = ectaskTransaction.objects.get(tid = request.POST['tid'])
+    jrec = {}
+
+    jrec['tid'] = request.POST['tid']
+    jrec['runtime_option']  = json.loads(rec.runtime_option)
+
+    response['data']   = jrec
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+
 def list_tasks(request):
     response = {}
     data = []
@@ -4408,12 +4438,13 @@ def register_lnc(request):
             # update existing record
             rec = ecLNC.objects.get(mac=request.POST['mac'])
             rec.ip          = request.POST['ip']
+            rec.eip         = request.POST['eip']
 
             rec.name        = request.POST['name']
             rec.ccname      = request.POST['ccname']
             rec.location    = request.POST['location']
 
-            rec.cores       = request.POST['cores']
+            rec.cpus        = request.POST['cores']
             rec.memory      = request.POST['memory']
             rec.disk        = request.POST['disk']
             rec.runtime_option = request.POST['runtime_option']
@@ -4425,15 +4456,16 @@ def register_lnc(request):
         rec = ecLNC(
             mac         = request.POST['mac'],
             ip          = request.POST['ip'],
+            eip         = request.POST['eip'],
 
             name        = request.POST['name'],
             ccname      = request.POST['ccname'],
             location    = request.POST['location'],
 
-            cores       = request.POST['cores'],
+            cpus        = request.POST['cores'],
             memory      = request.POST['memory'],
             disk        = request.POST['disk'],
-            runtime_option = request.POST['runtime_opiton'],
+            runtime_option = request.POST['runtime_option'],
         )
         rec.save()
 
@@ -5311,7 +5343,13 @@ def rvd_create(request, srcid):
 
     logger.error("--- --- --- rvd_create %s" % _tid)
 
-    _ccip, _ncip, _msg = findBuildResource(srcid)
+    if 'ccip' in request.POST.keys() and 'ncip' in request.POST.keys() :
+        # this request comes from native client
+        _ccip = request.POST['ccip']
+        _ncip = request.POST['ncip']
+    else:
+        _ccip, _ncip, _msg = findBuildResource(srcid)
+
     if _ncip == None:
         # not find proper cc,nc for build image
         response['Result'] = 'FAIL'

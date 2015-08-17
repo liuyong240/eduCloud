@@ -168,7 +168,8 @@ def register_lnc(request):
         url = 'http://%s/clc/api/1.0/register/lnc' % clcip
     payload = {
         'ip':       request.POST['ip'],
-        'mac':     request.POST['mac'],
+        'mac':      request.POST['mac'],
+        'eip':      request.POST['eip'],
 
         'name':     request.POST['name'],
         'ccname':   request.POST['ccname'],

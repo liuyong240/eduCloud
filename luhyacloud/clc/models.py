@@ -182,6 +182,7 @@ class ecDHCPEthers(models.Model):
 class ecLNC(models.Model):
     ip  = models.CharField(max_length=20)
     mac = models.CharField(max_length=20)
+    eip = models.CharField(max_length=20)
 
     name = models.CharField(max_length=100)
     ccname = models.CharField(max_length=100)

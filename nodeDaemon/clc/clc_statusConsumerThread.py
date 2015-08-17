@@ -16,6 +16,7 @@ class clc_statusConsumerThread(run4everThread):
         try:
             # logger.error("start to save to memcache")
             self.mc.set(key, msg, 5*60)
+            logger.error("save key=%s, msg=% into memcache" % (key, msg))
         except Exception as e:
             logger.errro(str(e))
 
