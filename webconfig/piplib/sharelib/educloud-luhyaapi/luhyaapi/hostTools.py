@@ -387,6 +387,10 @@ def getHostHardware():
 def isLNC():
     flag = False
 
+    if os.path.exists('/etc/redhat-release'):
+        # redhat or fedora won't be lNC never.
+        return flag
+
     cmd = "dpkg -l  | grep educloud-native-client"
     out = commands.getoutput(cmd)
     if len(out) > 0:

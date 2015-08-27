@@ -75,7 +75,7 @@ def registerMyselfasNC():
             url = 'http://%s:8000/cc/api/1.0/register/lnc' % ccip
         else:
             url = 'http://%s/cc/api/1.0/register/lnc' % ccip
-            payload = {
+        payload = {
                 'ip': netlist['ip0'],
                 'mac': netlist['mac0'],
 
@@ -87,13 +87,13 @@ def registerMyselfasNC():
                 'memory': hostmem,
                 'disk': hostdisk,
                 'runtime_option': getRuntimeOpiton()
-            }
+        }
     else:
         if DAEMON_DEBUG == True:
             url = 'http://%s:8000/cc/api/1.0/register/server' % ccip
         else:
             url = 'http://%s/cc/api/1.0/register/server' % ccip
-            payload = {
+        payload = {
                 'role': 'nc',
                 'name': hostname,
                 'cores': hostcpus,
@@ -109,7 +109,7 @@ def registerMyselfasNC():
                 'mac2': netlist['mac2'],
                 'mac3': netlist['mac3'],
                 'ccname': ccname,
-            }
+        }
 
     r = requests.post(url, data=payload)
     msg = json.loads(r.content)
