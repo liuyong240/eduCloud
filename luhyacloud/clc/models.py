@@ -98,6 +98,9 @@ class ecNetworkMode(models.Model):
     networkmode = models.CharField(max_length=100) # flat, tree
     description = models.TextField()
 
+class ecHypervisor(models.Model):
+    hypervisor = models.CharField(max_length=20)
+
 #==============================================
 # Core table definition
 #==============================================
@@ -117,6 +120,8 @@ class ecServers(models.Model):
     mac1 = models.CharField(max_length=20)
     mac2 = models.CharField(max_length=20)
     mac3 = models.CharField(max_length=20)
+
+    hypervisor = models.CharField(max_length=20)
 
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
@@ -186,10 +191,12 @@ class ecLNC(models.Model):
     name = models.CharField(max_length=100)
     ccname = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
+    hypervisor = models.CharField(max_length=20)
 
     cpus = models.IntegerField(default=0)
     memory = models.IntegerField(default=0)
     disk = models.IntegerField(default=0)
+
 
     # auto_sync = 1,
     # auto_poweroff=1
@@ -242,6 +249,7 @@ class ecImages(models.Model):
 
     # possible value are : desktop, server
     img_usage = models.CharField(max_length=20)
+    hypervisor = models.CharField(max_length=20)
 
     description = models.TextField()
     version = models.CharField(max_length=10)

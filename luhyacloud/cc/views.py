@@ -227,6 +227,7 @@ def register_server(request):
         'mac2':     request.POST['mac2'],
         'mac3':     request.POST['mac3'],
         'ccname':   request.POST['ccname'],
+        'hypervisor': request.POST['hypervisor'],
     }
     logger.error('call register_server in clc ... ... ')
     r = requests.post(url, data=payload)

@@ -78,6 +78,7 @@ def registerMyselfasCC():
         'mac2': netlist['mac2'],
         'mac3': netlist['mac3'],
         'ccname': ccname,
+        'hypervisor': getHypervisor(),
     }
     logger.error("send request %s " % url)
     r = requests.post(url, data=payload)

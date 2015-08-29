@@ -104,6 +104,8 @@ urlpatterns = patterns('',
     url(r'^jt/settings/vmusage$',   views.jtable_settings_for_vmusage,   name='jtable_settings_vmusage_view'),
     url(r'^jt/settings/serverrole', views.jtable_settings_for_serverrole,name='jtable_settings_serverrole_view'),
     url(r'^jt/settings/vmtypes',    views.jtable_settings_for_vmtypes,   name='jtable_settings_vmtypes_view'),
+    url(r'^jt/settings/hypervisor', views.jtable_settings_for_hypervisor,name='jtable_settings_hypervisor_view'),
+
 
     url(r'^jt/servers/cc$',             views.jtable_servers_cc,                 name='jtable_servers_cc_view'),
     url(r'^jt/servers/nc$',             views.jtable_servers_nc,                 name='jtable_servers_nc_view'),
@@ -173,6 +175,12 @@ urlpatterns = patterns('',
     url(r'^api/1.0/settings/updatevmusage$',     views.update_vmusage,             name='update_vmusage_view'),
     url(r'^api/1.0/settings/createvmusage$',     views.create_vmusage,             name='create_vmusage_view'),
     url(r'^api/1.0/settings/vmusage/option/list$',     views.vmusage_optionlist,     name='vmusage_optionlist_view'),
+
+    url(r'^api/1.0/settings/listhypervisor',       views.list_hypervisor,               name='list_hypervisor_view'),
+    url(r'^api/1.0/settings/deletehypervisor',     views.delete_hypervisor,             name='delete_hypervisor_view'),
+    url(r'^api/1.0/settings/updatehypervisor',     views.update_hypervisor,             name='update_hypervisor_view'),
+    url(r'^api/1.0/settings/createhypervisor',     views.create_hypervisor,             name='create_hypervisor_view'),
+    url(r'^api/1.0/settings/hypervisor/option/list$',     views.hypervisor_optionlist,  name='hypervisor_optionlist_view'),
 
     # system core table ops by POST
     url(r'^api/1.0/images/list$',          views.list_images,                 name='list_images_view'),

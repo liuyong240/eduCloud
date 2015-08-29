@@ -82,6 +82,7 @@ def registerMyselfasNC():
             'name': hostname,
             'ccname': ccname,
             'location': '',
+            'hypervisor': getHypervisor(),
 
             'cores': hostcpus,
             'memory': hostmem,
@@ -108,6 +109,7 @@ def registerMyselfasNC():
             'mac1': netlist['mac1'],
             'mac2': netlist['mac2'],
             'mac3': netlist['mac3'],
+            'hypervisor': getHypervisor(),
             'ccname': ccname,
         }
 

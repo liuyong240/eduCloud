@@ -399,3 +399,11 @@ def isLNC():
             flag = True
 
     return flag
+
+def getHypervisor():
+    if os.path.exists('/usr/bin/vboxmanage'):
+        return 'vbox'
+    elif os.path.exists('/usr/bin/kvm'):
+        return 'kvm'
+    else:
+        return ''

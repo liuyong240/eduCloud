@@ -2759,6 +2759,16 @@ def jtable_settings_for_vmtypes(request):
     return render(request, 'clc/jtable/vmtypes_table.html', context)
 
 @login_required(login_url='/portal/admlogin')
+def jtable_settings_for_hypervisor(request):
+    ua = ecAccount.objects.get(userid=request.user)
+    ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
+
+    context = {
+        'role':  ua_role_value.ec_authpath_value,
+    }
+    return render(request, 'clc/jtable/hypervisor_table.html', context)
+
+@login_required(login_url='/portal/admlogin')
 def jtable_servers_cc(request):
 
     return render(request, 'clc/jtable/servers_cc_table.html', {})
@@ -3248,6 +3258,84 @@ def create_vmtypes(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+# settings tables ecHypervisor
+# -----------------------------------
+def hypervisor_optionlist(request):
+    response = {}
+    data = []
+
+    recs = ecHypervisor.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['DisplayText'] = rec.hypervisor
+        jrec['Value'] = rec.hypervisor
+        data.append(jrec)
+
+    response['Options'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def list_hypervisor(request):
+    response = {}
+    data = []
+
+    recs = ecHypervisor.objects.all()
+    for rec in recs:
+        jrec = {}
+        jrec['id'] = rec.id
+        jrec['hypervisor'] = rec.hypervisor
+        data.append(jrec)
+
+    response['Records'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def delete_hypervisor(request):
+    response = {}
+
+    rec = ecHypervisor.objects.get(id=request.POST['id'])
+    rec.delete()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def update_hypervisor(request):
+    response = {}
+
+    rec = ecHypervisor.objects.get(id=request.POST['id'])
+    rec.ec_usage = request.POST['hypervisor']
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
+def create_hypervisor(request):
+    response = {}
+    data = []
+
+    rec = ecHypervisor(
+        hypervisor = request.POST['hypervisor'],
+    )
+    rec.save()
+
+    jrec = {}
+    jrec['id'] = rec.id
+    jrec['hypervisor'] = rec.hypervisor
+    data.append(jrec)
+
+    response['Record'] = data
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
 # settings tables ecVMUsage
 # -----------------------------------
 def list_vmusage(request):
@@ -3564,6 +3652,7 @@ def list_nc_servers(request):
             jrec['disk'] = rec.disk
             jrec['ccname'] = rec.ccname
             jrec['location'] = rec.location
+            jrec['hypervisor'] = rec.hypervisor
 
             data.append(jrec)
 
@@ -3854,6 +3943,7 @@ def list_lnc(request):
         jrec['location'] = rec.location
         jrec['ccname'] = rec.ccname
         jrec['location'] = rec.location
+        jrec['hypervisor'] = rec.hypervisor
         jrec['runtime_option'] = rec.runtime_option
 
         data.append(jrec)
@@ -4186,6 +4276,7 @@ def list_images(request):
             jrec['name'] = rec.name
             jrec['ostype']=rec.ostype
             jrec['usage'] = rec.img_usage
+            jrec['hypervisor'] = rec.hypervisor
             jrec['description'] = rec.description
             jrec['version'] = ReadImageVersionFile(rec.ecid)
             jrec['size'] = rec.size
@@ -4225,6 +4316,7 @@ def update_images(request):
     rec.name = request.POST['name']
     rec.ostype = request.POST['ostype']
     rec.img_usage = request.POST['usage']
+    rec.hypervisor = request.POST['hypervisor']
     rec.description = request.POST['description']
     rec.save()
 
@@ -4250,9 +4342,10 @@ def create_images(request):
         name = request.POST['name'],
         ostype = request.POST['ostype'],
         img_usage = request.POST['usage'],
+        hypervisor = request.POST['hypervisor'],
         description = request.POST['description'],
         version = request.POST['version'],
-        size = request.POST['size'],
+        size = request.POST['size']
     )
     rec.save()
 
@@ -4262,6 +4355,7 @@ def create_images(request):
     jrec['name'] = rec.name
     jrec['ostype']=rec.ostype
     jrec['usage'] = rec.img_usage
+    jrec['hypervisor'] = rec.hypervisor
     jrec['description'] = rec.description
     jrec['version'] = rec.version
     jrec['size'] = rec.size
@@ -4531,6 +4625,7 @@ def update_server_record(request, rec):
     rec.mac2   = request.POST['mac2']
     rec.mac3   = request.POST['mac3']
     rec.ccname = request.POST['ccname']
+    rec.hypervisor = request.POST['hypervisor']
     rec.save()
 
 def isTNCActive(mac):
@@ -4576,7 +4671,6 @@ def list_tnc(request):
 def update_tnc(request):
     pass
 
-
 def add_new_server(request):
     rec = ecServers(
             role   = request.POST['role'],
@@ -4594,6 +4688,7 @@ def add_new_server(request):
             mac2   = request.POST['mac2'],
             mac3   = request.POST['mac3'],
             ccname = request.POST['ccname'],
+            hypervisor = request.POST['hypervisor'],
     )
     rec.save()
 

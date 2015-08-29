@@ -44,6 +44,7 @@ def registerMyselfasWALRUS():
         'mac2':   netlist['mac2'],
         'mac3':   netlist['mac3'],
         'ccname': '',
+        'hypervisor': getHypervisor(),
     }
     r = requests.post(url, data=payload)
     return r.status_code

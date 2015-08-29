@@ -46,6 +46,7 @@ def registerMyselfasCLC():
         'mac1': netlist['mac1'],
         'mac2': netlist['mac2'],
         'mac3': netlist['mac3'],
+        'hypervisor': getHypervisor(),
         'ccname':'',
     }
     r = requests.post(url, data=payload)
