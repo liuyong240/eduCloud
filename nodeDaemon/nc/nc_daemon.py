@@ -76,17 +76,17 @@ def registerMyselfasNC():
         else:
             url = 'http://%s/cc/api/1.0/register/lnc' % ccip
         payload = {
-                'ip': netlist['ip0'],
-                'mac': netlist['mac0'],
+            'ip': netlist['ip0'],
+            'mac': netlist['mac0'],
 
-                'name': hostname,
-                'ccname': ccname,
-                'location': '',
+            'name': hostname,
+            'ccname': ccname,
+            'location': '',
 
-                'cores': hostcpus,
-                'memory': hostmem,
-                'disk': hostdisk,
-                'runtime_option': getRuntimeOpiton()
+            'cores': hostcpus,
+            'memory': hostmem,
+            'disk': hostdisk,
+            'runtime_option': getRuntimeOpiton()
         }
     else:
         if DAEMON_DEBUG == True:
@@ -94,21 +94,21 @@ def registerMyselfasNC():
         else:
             url = 'http://%s/cc/api/1.0/register/server' % ccip
         payload = {
-                'role': 'nc',
-                'name': hostname,
-                'cores': hostcpus,
-                'memory': hostmem,
-                'disk': hostdisk,
-                'exip': netlist['exip'],
-                'ip0': netlist['ip0'],
-                'ip1': netlist['ip1'],
-                'ip2': netlist['ip2'],
-                'ip3': netlist['ip3'],
-                'mac0': netlist['mac0'],
-                'mac1': netlist['mac1'],
-                'mac2': netlist['mac2'],
-                'mac3': netlist['mac3'],
-                'ccname': ccname,
+            'role': 'nc',
+            'name': hostname,
+            'cores': hostcpus,
+            'memory': hostmem,
+            'disk': hostdisk,
+            'exip': netlist['exip'],
+            'ip0': netlist['ip0'],
+            'ip1': netlist['ip1'],
+            'ip2': netlist['ip2'],
+            'ip3': netlist['ip3'],
+            'mac0': netlist['mac0'],
+            'mac1': netlist['mac1'],
+            'mac2': netlist['mac2'],
+            'mac3': netlist['mac3'],
+            'ccname': ccname,
         }
 
     r = requests.post(url, data=payload)
