@@ -415,10 +415,11 @@ def findVMRunningResource(request, insid):
         if nc_def == 'any':
             ncs = ecServers.objects.filter(ccname=cc.ccname, role='nc')
             for nc in ncs:
-                final_avail_res = get_nc_avail_res(nc.mac0)
-                final_avail_res['xncip'] = nc.ip0
-                final_avail_res['xccip'] = ccobj.ip0
-                l.add(final_avail_res)
+                if nc.hypervisor == vmrec.hypervisor:
+                    final_avail_res = get_nc_avail_res(nc.mac0)
+                    final_avail_res['xncip'] = nc.ip0
+                    final_avail_res['xccip'] = ccobj.ip0
+                    l.add(final_avail_res)
         else:
             ncobj = ecServers.objects.get(ccname=cc.ccname, ip0=nc_def, role='nc')
             final_avail_res = get_nc_avail_res(ncobj.mac0)
@@ -481,10 +482,11 @@ def findBuildResource(srcid):
         ccobj = ecServers.objects.get(ccname=cc.ccname, role='cc')
         ncs   = ecServers.objects.filter(ccname=cc.ccname , role='nc')
         for nc in ncs:
-            final_avail_res = get_nc_avail_res(nc.mac0)
-            final_avail_res['xncip'] = nc.ip0
-            final_avail_res['xccip'] = ccobj.ip0
-            l.add(final_avail_res)
+            if nc.hypervisor == rec.hypervisor:
+                final_avail_res = get_nc_avail_res(nc.mac0)
+                final_avail_res['xncip'] = nc.ip0
+                final_avail_res['xccip'] = ccobj.ip0
+                l.add(final_avail_res)
 
     end = len(l)
     for index in range(0, end):
@@ -4048,6 +4050,7 @@ def create_vds(request):
             nc_def      = request.POST['nc_def'],
             cpus        = request.POST['cpus'],
             memory      = request.POST['mems'],
+            hypervisor  = request.POST['hypervisor'],
         )
         new_vm.save()
         logger.error("create new vds record --- OK")
@@ -4177,6 +4180,7 @@ def create_vss(request):
             cpus        = request.POST['cpus'],
             memory        = request.POST['mems'],
             mac         = request.POST['mac'],
+            hypervisor  = request.POST['hypervisor'],
         )
         new_vm.save()
         logger.error("create new vss record --- OK")

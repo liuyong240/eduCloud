@@ -279,7 +279,6 @@ class ecVAPP_auth(models.Model):
     create      = models.BooleanField(default=False)
     delete      = models.BooleanField(default=False)
 
-
 class ecVSS(models.Model):
     insid       = models.CharField(max_length=20, unique=True)
     imageid     = models.CharField(max_length=20)
@@ -294,6 +293,7 @@ class ecVSS(models.Model):
     cpus    = models.IntegerField(default=1)
     memory  = models.IntegerField(default=2)
     mac     = models.CharField(max_length=20)
+    hypervisor = models.CharField(max_length=20)
 
 
 class ecVSS_auth(models.Model):
@@ -318,6 +318,7 @@ class ecVDS(models.Model):
 
     cpus    = models.IntegerField(default=1)
     memory  = models.IntegerField(default=2)
+    hypervisor = models.CharField(max_length=20)
 
 class ecVDS_auth(models.Model):
     insid       = models.CharField(max_length=20)
@@ -339,6 +340,7 @@ class ecLVDS(models.Model):
 
     cpus    = models.IntegerField(default=1)
     memory  = models.IntegerField(default=2)
+    hypervisor = models.CharField(max_length=20)
 
 class ecLVDS_auth(models.Model):
     insid       = models.CharField(max_length=20)

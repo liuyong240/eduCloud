@@ -54,6 +54,7 @@ $(document).ready(function () {
             'cpus'           :    vm_cpus,
             'mems'           :    vm_mems,
             'mac'            :    vm_macip,
+            'hypervisor'     :    '{{ imgobj.hypervisor }}',
         }
 
         $.post(url, postdata, function(data) {
@@ -114,8 +115,10 @@ $(document).ready(function () {
                 $("#vm_nc").empty();
                 $("#vm_nc").append('<option selected value="any">Any</option>');
                 for (var index = 0; index < len; index++) {
-                    ip = ncs[index]['ip0'];
-                    $("#vm_nc").append('<option value="' + ip + '">' + ip +'</option>');
+                    if ( ncs[index]['hypervisor'] == '{{ imgobj.hypervisor }}' ) {
+                        ip = ncs[index]['ip0'];
+                        $("#vm_nc").append('<option value="' + ip + '">' + ip +'</option>');
+                    }
                 }
             }
         });
