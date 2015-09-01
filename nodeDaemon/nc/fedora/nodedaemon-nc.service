@@ -1,0 +1,12 @@
+[Unit]
+Description=nodedaemon-nc perform real virtual machine management, like start/stop/restart
+After=syslog.target network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/nodedaemon/nc/nc_daemon
+
+[Install]
+WantedBy=multi-user.target
+
+
