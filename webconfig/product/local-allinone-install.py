@@ -1,8 +1,6 @@
 import os, commands, sys
 import time
 
-DST_IP = '192.168.56.103'
-
 def checkPackage( pname ):
     cmd_line = 'dpkg -l | grep %s' % pname
     output = commands.getoutput(cmd_line)
@@ -10,6 +8,15 @@ def checkPackage( pname ):
        return True
     else:
        return False
+
+
+##############################################################################
+# 0. get the repository server IP
+##############################################################################
+if len(sys.argv) > 1:
+    DST_IP = sys.argv[1]
+else:
+    DST_IP = '121.41.80.147'
 
 ##############################################################################
 # 1. update /etc/apt/sources.list
