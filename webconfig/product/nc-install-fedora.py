@@ -63,33 +63,33 @@ commands.getoutput(cmd_line)
 ##############################################################################
 # the content of fedora nc installation include
 # 8   - copy nc_daemon binary file to /usr/local/nodedaemon/nc/
-cmd_line = 'wget http://%s/fedora/nodedaemon-nc' % DST_IP
+cmd_line = 'wget http://%s/fedora/nc_daemon' % DST_IP
 os.system(cmd_line)
-cmd_line = 'mv nodedaemon-nc /usr/local/nodedaemon/nc/'
+cmd_line = 'mv nc_daemon /usr/local/nodedaemon/nc/'
 os.system(cmd_line)
 
 # 9   - install modified rsync.rpm
-cmd_line = 'wget http://%s/kvm/rsync-3.1.1-6.fc22.x86_64.rpm' % DST_IP
+cmd_line = 'wget http://%s/fedora/rsync-3.1.1-6.fc22.x86_64.rpm' % DST_IP
 os.system(cmd_line)
 cmd_line = 'sudo rpm -i --reinstall rsync-3.1.1-6.fc22.x86_64.rpm'
 os.system(cmd_line)
 
 # 10   - install necessary python package
-cmd_line = 'wget http://%s/pip.tar' % DST_IP
-os.system(cmd_line)
-cmd_line = 'tar vxf pip.tar -C /tmp/'
-commands.getoutput(cmd_line)
-cmd_line = 'sudo pip install /tmp/netifaces-*.tar.gz /tmp/psutil-*.tar.gz /tmp/linux-metrics-*.tar.gz /tmp/sorted*.tar.gz /tmp/pkia-*.tar.gz /tmp/pexpect-*.tar.gz'
-os.system(cmd_line)
-cmd_line = 'rm pip.tar'
-commands.getoutput(cmd_line)
+# cmd_line = 'wget http://%s/pip.tar' % DST_IP
+# os.system(cmd_line)
+# cmd_line = 'tar vxf pip.tar -C /tmp/'
+# commands.getoutput(cmd_line)
+# cmd_line = 'sudo pip install /tmp/netifaces-*.tar.gz /tmp/psutil-*.tar.gz /tmp/linux-metrics-*.tar.gz /tmp/sorted*.tar.gz /tmp/pkia-*.tar.gz /tmp/pexpect-*.tar.gz'
+# os.system(cmd_line)
+# cmd_line = 'rm pip.tar'
+# commands.getoutput(cmd_line)
 
 # 11   - install necessary rpm package
-cmd_line = 'sudo dnf install gcc python-devel sshfs'
+cmd_line = 'sudo dnf -y install sshfs'
 os.system(cmd_line)
 # Pre-requisites
 # grep ' vmx svm ' /proc/cpuinfo
-cmd_line = 'sudo dnf groupinsrall "Virtualization" '
+cmd_line = 'sudo dnf -y groupinstall "Virtualization" '
 os.system(cmd_line)
 
 
