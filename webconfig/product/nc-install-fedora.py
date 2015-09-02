@@ -50,6 +50,8 @@ if not os.path.exists('/storage/tmp/images'):
     os.system('sudo mkdir -p /storage/tmp/VMs')
 if not os.path.exists('/usr/local/nodedaemon'):
     os.system('sudo mkdir -p /usr/local/nodedaemon/nc/')
+if not os.path.exists('/etc/educloud/modules'):
+    os.system('sudo mkdir -p /etc/educloud/modules')
 
 cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
 commands.getoutput(cmd_line)
@@ -66,6 +68,8 @@ commands.getoutput(cmd_line)
 cmd_line = 'wget http://%s/fedora/nc_daemon' % DST_IP
 os.system(cmd_line)
 cmd_line = 'mv nc_daemon /usr/local/nodedaemon/nc/'
+os.system(cmd_line)
+cmd_line = 'sudo touch /etc/educloud/modules/core && sudo touch /etc/educloud/modules/nc'
 os.system(cmd_line)
 
 # 9   - install modified rsync.rpm
