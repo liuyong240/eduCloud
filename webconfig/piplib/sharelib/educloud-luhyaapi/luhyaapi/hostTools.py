@@ -403,7 +403,7 @@ def isLNC():
 def getHypervisor():
     if os.path.exists('/usr/bin/vboxmanage'):
         return 'vbox'
-    elif os.path.exists('/usr/bin/kvm'):
+    elif os.path.exists('/usr/bin/qemu-kvm'):
         return 'kvm'
     else:
         return ''
