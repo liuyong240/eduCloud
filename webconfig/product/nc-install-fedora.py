@@ -1,6 +1,15 @@
 import os, commands, sys
 import time
 
+##############################################################################
+# Check hardware Information
+# - cat /proc/cpuinfo
+# - grep ' vmx svm ' /proc/cpuinfo
+# - virt-host-validate
+# - virsh capabilities
+##############################################################################
+
+
 def checkPackage( pname ):
     cmd_line = 'rpm -qa | grep %s' % pname
     output = commands.getoutput(cmd_line)
@@ -79,20 +88,14 @@ cmd_line = 'sudo rpm -i --reinstall rsync-3.1.1-6.fc22.x86_64.rpm'
 os.system(cmd_line)
 
 # 10   - install necessary python package
-# cmd_line = 'wget http://%s/pip.tar' % DST_IP
-# os.system(cmd_line)
-# cmd_line = 'tar vxf pip.tar -C /tmp/'
-# commands.getoutput(cmd_line)
-# cmd_line = 'sudo pip install /tmp/netifaces-*.tar.gz /tmp/psutil-*.tar.gz /tmp/linux-metrics-*.tar.gz /tmp/sorted*.tar.gz /tmp/pkia-*.tar.gz /tmp/pexpect-*.tar.gz'
-# os.system(cmd_line)
-# cmd_line = 'rm pip.tar'
-# commands.getoutput(cmd_line)
+cmd_line = 'wget http://%s/fedora/sudoers' % DST_IP
+os.system(cmd_line)
+cmd_line = 'sudo mv sudoers /etc/sudoers'
+commands.getoutput(cmd_line)
 
 # 11   - install necessary rpm package
 cmd_line = 'sudo dnf -y install sshfs'
 os.system(cmd_line)
-# Pre-requisites
-# grep ' vmx svm ' /proc/cpuinfo
 cmd_line = 'sudo dnf -y groupinstall "Virtualization" '
 os.system(cmd_line)
 

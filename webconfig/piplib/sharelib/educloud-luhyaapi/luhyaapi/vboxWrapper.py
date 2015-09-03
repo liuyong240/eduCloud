@@ -3,6 +3,7 @@
 import os
 from luhyaTools import *
 from educloudLog import *
+from hostTools import *
 import json
 
 logger = getncdaemonlogger()
@@ -51,7 +52,7 @@ def recoverVMFromCrash():
     cmd = "/usr/local/bin/recoverVMfromCrash"
     commands.getoutput(cmd)
 
-def getVMlist():
+def getVMlistbyVBOX():
     recoverVMFromCrash()
 
     cmd = "vboxmanage list vms"
@@ -103,6 +104,21 @@ def getVMlist():
 
     logger.error("report VMs status: %s" % json.dumps(result))
     return result
+
+def getVMlistbyKVM():
+    pass
+
+def getVMlist():
+    hypervisor_str = getHypervisor()
+    if hypervisor_str == 'vbox':
+        return getVMlistbyVBOX()
+    elif hypervisor_str == 'kvm':
+        return getVMlistbyKVM()
+    else:
+        return []
+
+class kvmWrapper():
+    pass
 
 class vboxWrapper():
     def __init__(self, imageID, name, rootdir):
