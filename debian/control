@@ -59,7 +59,12 @@ Description: educloud cc daemon package
 Package: nodedaemon-nc
 Architecture: all
 Depends:  educloud-core, virtualbox-4.3
-Description: educloud nc daemon package
+Description: educloud nc daemon package for vbox hypervisor
+
+Package: nodedaemon-nc-kvm
+Architecture: all
+Depends:  educloud-core, qemu-kvm, libvirt-bin, bridge-utils, virtinst, virt-manager, libspice-server1, virt-viewer, spice-vdagent
+Description: educloud nc daemon package for kvm hypervisor
 
 Package: nodedaemon-tnc
 Architecture: all

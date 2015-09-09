@@ -1,0 +1,18 @@
+#!/bin/bash -e
+
+if [ "$1" = "configure" ]; then
+    chown -R luhya:luhya /usr/local/nodedaemon || true
+    chmod -R 777 /usr/local/nodedaemon || true
+
+    # kvm part
+    modprobe vhost_net
+    echo vhost_net >> /etc/modules
+
+    #disable apparmor
+    service apparmor stop
+    update-rc.d -f apparmor remove
+
+    # enable kvm default network
+    virsh net-destroy default
+    virsh net-start default
+fi
