@@ -85,6 +85,11 @@ if not os.path.exists('/storage/tmp/images'):
     os.system('sudo mkdir -p /storage/tmp/images')
     os.system('sudo mkdir -p /storage/tmp/VMs')
 
+cmd_line = 'cd /tmp && wget http://%s/data' % DST_IP
+os.system(cmd_line)
+cmd_line = 'sudo mv /tmp/data /storage/images/data'
+os.system(cmd_line)
+
 ##############################################################################
 # 7. install educloud in one machine by apt-get
 ##############################################################################

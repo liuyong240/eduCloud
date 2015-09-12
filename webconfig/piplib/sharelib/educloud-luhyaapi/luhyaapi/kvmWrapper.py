@@ -52,7 +52,7 @@ def recoverVMFromCrash():
     cmd = "/usr/local/bin/recoverVMfromCrash"
     commands.getoutput(cmd)
 
-def getVMlistbyVBOX():
+def getVMlistbyKVM():
     recoverVMFromCrash()
 
     cmd = "vboxmanage list vms"
@@ -106,9 +106,9 @@ def getVMlistbyVBOX():
     return result
 
 def getVMlist():
-    return getVMlistbyVBOX()
+    return getVMlistbyKVM()
 
-class vboxWrapper():
+class kvmWrapper():
     def __init__(self, imageID, name, rootdir):
         self._rootdir = rootdir
         self._baseVMfolder = os.path.join(rootdir, "VMs")
@@ -442,3 +442,4 @@ class vboxWrapper():
         cmd_line = cmd_line + authstr
         ret = commands.getoutput(cmd_line)
         return ret
+
