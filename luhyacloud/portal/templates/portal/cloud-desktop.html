@@ -501,8 +501,16 @@ function show_by_xfreerdp( id ) {
         if (ostype == "windows") {
             cmd = "mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
         } else {
+            protocol = items['protocol'];
             cmd = '/opt/freerdp-nightly/bin/xfreerdp /f /v:' + items['rdp_ip'] + ':' + items['rdp_port'];
+            if (protocol == "NDP") {
+                cmd = '/usr/bin/ndpclient -h ' + items['rdp_ip'] + ' -p ' + items['rdp_port'];
+            }
+            if (protocol == "SPICE") {
+                cmd = '/usr/bin/spicec -h ' + items['rdp_ip'] + ' -p ' + items['rdp_port'];
+            }
         }
+
         runFunc(cmd);
     });
 }

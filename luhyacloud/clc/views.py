@@ -180,6 +180,12 @@ NC_DETAIL_TEMPLATE = \
             _("SSH Service") + \
             '<span class="pull-right text-muted"><em>{{service_data.ssh}}</em></span>' + \
         '</p>' + \
+
+        '<p class="list-group-item">' + \
+            _("NDP Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.ndp}}</em></span>' + \
+        '</p>' + \
+
         '<h3>' +_("Hardware Parameters") + '</h3>' + \
         '<p class="list-group-item">' + \
             _("HostName") + \
@@ -1154,6 +1160,7 @@ def nc_mgr_mac(request, ccname, mac):
 
     htmlstr = htmlstr.replace('{{service_data.daemon}}',  service_data['daemon'])
     htmlstr = htmlstr.replace('{{service_data.ssh}}',     service_data['ssh'])
+    htmlstr = htmlstr.replace('{{service_data.ndp}}',     service_data['ndp'])
 
     htmlstr = htmlstr.replace('{{host_ips.name}}',        host_ips['name'])
     htmlstr = htmlstr.replace('{{host_ips.location}}',    host_ips['location'])
@@ -1615,6 +1622,7 @@ def cc_modify_resources(request, cc_name):
 #     'audio_para'        :
 #
 #     # 3. network
+#     3.0 'access_protocol' = { 'RDP'(default), 'NDP', 'SPICE' }
 #     3.1 'rdp_port'          :
 #     3.2 'netwowrkcards'     :  VM's network card property, ip/mac from table ecDHCPEthers
 #     [
@@ -1803,6 +1811,32 @@ def genVMFolders(tid, usage):
 
     return folders
 
+# TMP : RDP
+# TVD : NDP/SPICE
+# VD  : NDP/SPICE
+# VS  : RDP
+# vbox+NDP enabled instance use NDP protocol
+# kvm+spice enabled instance use SPICE protocol
+def getAccessProtocol(tid):
+    logger.error("--- --- --- getAccessProtocol")
+    access_protocol = 'RDP'
+    tid_info = tid.split(':')
+    src_imgid = tid_info[0]
+    dst_imgid = tid_info[1]
+    ins_id    = tid_info[2]
+
+    if ins_id.find('TMP') or ins_id.find('VS'):
+        pass
+    else:
+        imgobj = ecImages.objects.get(ecid = src_imgid)
+        if imgobj.hypervisor == 'vbox':
+            access_protocol = 'NDP'
+        if imgobj.hypervisor == 'kvm':
+            access_protocol = 'SPICE'
+
+    logger.error("--- --- --- access_protocol is %s" % access_protocol)
+    return access_protocol
+
 def genRuntimeOptionForImageBuild(transid):
     logger.error("--- --- --- genRuntimeOptionForImageBuild")
     tid_info = transid.split(':')
@@ -1820,6 +1854,9 @@ def genRuntimeOptionForImageBuild(transid):
     ncobj       = ecServers.objects.get(ip0=ncip, role='nc')
 
     runtime_option = {}
+
+    # 0. get vm access protocol
+    runtime_option['protocol'] =  getAccessProtocol(transid)
 
     # 1. general option
     img_info                        = ecImages.objects.get(ecid = src_imgid)
@@ -5525,6 +5562,7 @@ def rvd_get_rdp_para(request, srcid, dstid, insid):
         response['Result']     = 'OK'
         response['rdp_ip']     = runtime_option['rdp_ip']
         response['rdp_port']   = runtime_option['rdp_port']
+        response['protocol']   = runtime_option['protocol']
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
 

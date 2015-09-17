@@ -589,16 +589,13 @@ class runImageTaskThread(threading.Thread):
         self.rpcClient = RpcClient(logger, self.ccip)
 
         if self.srcimgid != self.dstimgid:
-            rootdir = "/storage/tmp"
+            self.rootdir = "/storage/tmp"
         else:
-            rootdir = "/storage"
+            self.rootdir = "/storage"
 
-        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, rootdir)
+    def vbox_createVM(self):
+        self.vboxmgr = vboxWrapper(self.dstimgid, self.insid, self.rootdir)
 
-    # need to consider vd & vs creation
-    # c: d: e: f:
-
-    def createvm(self):
         flag = True
         payload = {
             'type'      : 'taskstatus',
@@ -682,7 +679,21 @@ class runImageTaskThread(threading.Thread):
         logger.error('createvm result: %s' % json.dumps(payload))
         return flag
 
-    def runvm(self):
+
+    def kvm_createVM(self):
+        pass
+
+
+    # need to consider vd & vs creation
+    # c: d: e: f:
+    def createvm(self):
+        hyper = getHypervisor()
+        if hyper == 'vbox':
+            self.vbox_createVM()
+        if hyper == 'kvm':
+            self.kvm_createVM()
+
+    def vbox_runVM(self):
         flag = True
         payload = {
             'type'      : 'taskstatus',
@@ -710,7 +721,12 @@ class runImageTaskThread(threading.Thread):
                     headless = False
                 else:
                     headless = True
-                ret = vboxmgr.runVM(headless)
+
+                if self.runtime_option['protocol'] == 'NDP':
+                    ret = vboxmgr.ndp_runVM(self.runtime_option['rdp_ip'], self.runtime_option['rdp_port'])
+                else:
+                    ret = vboxmgr.runVM(headless)
+
                 logger.error("--- --- --- vboxmgr.runVM, error=%s" % ret)
             else:
                 logger.error("--- --- --- vboxmgr.SendCAD b")
@@ -725,6 +741,16 @@ class runImageTaskThread(threading.Thread):
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
         logger.error('runvm result: %s' % json.dumps(payload))
         return flag
+
+    def kvm_runVM(self):
+        pass
+
+    def runvm(self):
+        hyper = getHypervisor()
+        if hyper == 'vbox':
+            self.vbox_runVM()
+        if hyper == 'kvm':
+            self.kvm_runVM()
 
     def run(self):
         try:

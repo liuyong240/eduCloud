@@ -193,6 +193,15 @@ class vboxWrapper():
         ret = commands.getoutput(cmd_line)
         return ret
 
+    def ndp_runVM(self, hostIP, hostPort):
+        vm_name = self._tool._vmname
+        cmd_line = "ndpcmd add " + vm_name + " -h " + hostIP + " -p " + hostPort
+        ret = commands.getoutput(cmd_line)
+        cmd_line = "ndpcmd poweron " + vm_name
+        ret = commands.getoutput(cmd_line)
+
+        return ret
+
     def runVM(self, headless):
         vm_name = self._tool._vmname
         cmd_line = "VBoxManage startvm " + vm_name

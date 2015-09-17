@@ -304,6 +304,17 @@ daemon_list = {
     "sc":       "nodedaemon-sc",
 }
 
+def get_ndp_status():
+    if not isNDPed():
+        return "Closed"
+    else:
+        cmd = "sudo service ndp-server status "
+        output = commands.getoutput(cmd)
+        if "running" in output:
+            return "Running"
+        else:
+            return "Closed"
+
 def get_daemon_status(dtype):
     if DAEMON_DEBUG == True:
         return "Running"
@@ -407,3 +418,12 @@ def getHypervisor():
         return 'kvm'
     else:
         return ''
+
+def isNDPed():
+    if os.path.exists('/usr/bin/ndpserver'):
+        return True
+    else:
+        return False
+
+def isSpiced():
+    return True
