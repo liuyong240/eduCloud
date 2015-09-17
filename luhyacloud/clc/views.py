@@ -180,12 +180,10 @@ NC_DETAIL_TEMPLATE = \
             _("SSH Service") + \
             '<span class="pull-right text-muted"><em>{{service_data.ssh}}</em></span>' + \
         '</p>' + \
-
         '<p class="list-group-item">' + \
             _("NDP Service") + \
             '<span class="pull-right text-muted"><em>{{service_data.ndp}}</em></span>' + \
         '</p>' + \
-
         '<h3>' +_("Hardware Parameters") + '</h3>' + \
         '<p class="list-group-item">' + \
             _("HostName") + \
