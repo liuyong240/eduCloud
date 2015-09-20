@@ -655,13 +655,14 @@ class runImageTaskThread(threading.Thread):
                     logger.error("--- --- --- vboxmgr.modifyVM, error=%s" % ret)
 
                     # in server side, configure headless property
-                    portNum = self.runtime_option['rdp_port']
-                    ret = vboxmgr.addHeadlessProperty(port=portNum)
-                    logger.error("--- --- --- vboxmgr.addHeadlessProperty, error=%s" % ret)
+                    if self.runtime_option['protocol'] == 'RDP':
+                        portNum = self.runtime_option['rdp_port']
+                        ret = vboxmgr.addHeadlessProperty(port=portNum)
+                        logger.error("--- --- --- vboxmgr.addHeadlessProperty, error=%s" % ret)
 
-                    if self.runtime_option['usage'] == 'desktop':
-                        ret = vboxmgr.addVRDPproperty()
-                        logger.error("--- --- --- vboxmgr.addVRDPproperty for video channel, error=%s" % ret)
+                        if self.runtime_option['usage'] == 'desktop':
+                            ret = vboxmgr.addVRDPproperty()
+                            logger.error("--- --- --- vboxmgr.addVRDPproperty for video channel, error=%s" % ret)
 
                     vboxmgr.unregisterVM()
                     vboxmgr.registerVM()
@@ -689,11 +690,12 @@ class runImageTaskThread(threading.Thread):
     def createvm(self):
         hyper = getHypervisor()
         if hyper == 'vbox':
-            self.vbox_createVM()
+            return self.vbox_createVM()
         if hyper == 'kvm':
-            self.kvm_createVM()
+            return self.kvm_createVM()
 
     def vbox_runVM(self):
+        logger.error("--- --- --- enter vbox_runVM")
         flag = True
         payload = {
             'type'      : 'taskstatus',
@@ -723,6 +725,7 @@ class runImageTaskThread(threading.Thread):
                     headless = True
 
                 if self.runtime_option['protocol'] == 'NDP':
+                    logger.error("--- --- --- vboxmgr.ndp_runVM %s %s " % (self.runtime_option['rdp_ip'], self.runtime_option['rdp_port']))
                     ret = vboxmgr.ndp_runVM(self.runtime_option['rdp_ip'], self.runtime_option['rdp_port'])
                 else:
                     ret = vboxmgr.runVM(headless)
@@ -740,6 +743,7 @@ class runImageTaskThread(threading.Thread):
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
         logger.error('runvm result: %s' % json.dumps(payload))
+        logger.error("--- --- --- exit vbox_runVM")
         return flag
 
     def kvm_runVM(self):
@@ -748,9 +752,9 @@ class runImageTaskThread(threading.Thread):
     def runvm(self):
         hyper = getHypervisor()
         if hyper == 'vbox':
-            self.vbox_runVM()
+            return self.vbox_runVM()
         if hyper == 'kvm':
-            self.kvm_runVM()
+            return self.kvm_runVM()
 
     def run(self):
         try:

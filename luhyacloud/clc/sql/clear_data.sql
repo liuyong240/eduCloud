@@ -1,4 +1,6 @@
 alter table clc_ecccresources convert to character set utf8;
+delete from clc_ecvss;
+delete from clc_ecvds;
 delete from clc_ecimages;
 delete from clc_ecimages_auth;
 delete from clc_ecservers;

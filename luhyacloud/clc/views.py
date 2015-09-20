@@ -1823,7 +1823,7 @@ def getAccessProtocol(tid):
     dst_imgid = tid_info[1]
     ins_id    = tid_info[2]
 
-    if ins_id.find('TMP') or ins_id.find('VS'):
+    if ins_id.find('TMP') == 0 or ins_id.find('VS') == 0:
         pass
     else:
         imgobj = ecImages.objects.get(ecid = src_imgid)

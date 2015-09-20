@@ -217,9 +217,9 @@ class vboxWrapper():
 
     def ndp_runVM(self, hostIP, hostPort):
         vm_name = self._tool._vmname
-        cmd_line = "ndpcmd add " + vm_name + " -h " + hostIP + " -p " + hostPort
+        cmd_line = "/usr/bin/ndpcmd add " + vm_name + " -h " + hostIP + " -p " + str(hostPort)
         ret = commands.getoutput(cmd_line)
-        cmd_line = "ndpcmd poweron " + vm_name
+        cmd_line = "/usr/bin/ndpcmd poweron " + vm_name
         ret = commands.getoutput(cmd_line)
 
         return ret
