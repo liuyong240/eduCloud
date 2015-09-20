@@ -1,5 +1,15 @@
 import os, commands
 
+def isNDPed():
+    if os.path.exists('/usr/bin/ndpserver'):
+        return True
+    else:
+        return False
+
+VBOX_MGR_CMD = "VBoxManage "
+if isNDPed():
+    VBOX_MGR_CMD = "sudo VBoxManage "
+
 def get_immediate_subdirectories(a_dir):
     return [name for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]
@@ -17,19 +27,19 @@ def registerVDI(root_dir):
                 size0 = os.path.getsize(snap_dir + snap_vdis[0])
                 size1 = os.path.getsize(snap_dir + snap_vdis[1])
                 if size0 > size1:
-                    cmd = "vboxmanage showhdinfo %s" % (snap_dir + snap_vdis[1])
+                    cmd = VBOX_MGR_CMD + " showhdinfo %s" % (snap_dir + snap_vdis[1])
                     commands.getoutput(cmd)
-                    cmd = "vboxmanage showhdinfo %s" % (snap_dir + snap_vdis[0])
+                    cmd = VBOX_MGR_CMD + " showhdinfo %s" % (snap_dir + snap_vdis[0])
                     commands.getoutput(cmd)
                 else:
-                    cmd = "vboxmanage showhdinfo %s" % (snap_dir + snap_vdis[0])
+                    cmd = VBOX_MGR_CMD + " showhdinfo %s" % (snap_dir + snap_vdis[0])
                     commands.getoutput(cmd)
-                    cmd = "vboxmanage showhdinfo %s" % (snap_dir + snap_vdis[1])
+                    cmd = VBOX_MGR_CMD + " showhdinfo %s" % (snap_dir + snap_vdis[1])
                     commands.getoutput(cmd)
 
                 # now re-register this vm
                 vbox_file = "%s/%s/%s.vbox" % (root_dir, vm, vm)
-                cmd = "vboxmanage registervm %s" % vbox_file
+                cmd = VBOX_MGR_CMD + " registervm %s" % vbox_file
                 out = commands.getoutput(cmd)
                 print "cmd=%s" % cmd
                 print "out=%s" % out
@@ -43,7 +53,7 @@ def registerVDI(root_dir):
 # unregister all inaccessible vms
 is_inaccessible = False
 
-cmd = "vboxmanage list vms"
+cmd = VBOX_MGR_CMD + " list vms"
 out = commands.getoutput(cmd)
 list_vms = [];
 if len(out) > 0:
@@ -56,7 +66,7 @@ if len(out) > 0:
 
         if 'inaccessible' in vm['insid']:
             is_inaccessible = True
-            cmd = "vboxmanage unregistervm %s" % vm['uuid']
+            cmd = VBOX_MGR_CMD + " unregistervm %s" % vm['uuid']
             out = commands.getoutput(cmd)
         else:
             list_vms.append(vm['insid'])
@@ -68,7 +78,7 @@ if is_inaccessible:
     for img in avail_images:
         mfile = '/storage/images/%s/machine' % img
         if os.path.exists(mfile):
-            cmd = "vboxmanage showhdinfo %s" % mfile
+            cmd = VBOX_MGR_CMD + " showhdinfo %s" % mfile
             commands.getoutput(cmd)
 
     registerVDI("/storage/VMs")

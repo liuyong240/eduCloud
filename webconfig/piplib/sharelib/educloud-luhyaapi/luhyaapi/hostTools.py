@@ -1,6 +1,5 @@
 import socket, netifaces, psutil, shutil
 from luhyaTools import configuration
-from vboxWrapper import *
 from settings import *
 import random, os, commands
 from linux_metrics import cpu_stat
@@ -20,13 +19,11 @@ def addUserPrvDataDir(uid):
     path = '/storage/space/prv-data/%s' % uid
     if not os.path.exists(path):
         os.makedirs(path)
-        logger.error("create user %s prv-data directory" % uid)
 
 def delUserPrvDataDir(uid):
     path = '/storage/space/prv-data/%s' % uid
     if os.path.exists(path):
         shutil.rmtree(path)
-        logger.error("remove user %s prv-data directory" % uid)
 
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):
@@ -377,6 +374,7 @@ def getServiceStatus(dtype):
     result['amqp'] = get_amqp_status()
     result['rsync'] = get_rsync_status()
     result['daemon'] = get_daemon_status(dtype)
+    result['ndp'] = get_ndp_status()
 
     return result
 

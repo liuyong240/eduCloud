@@ -249,7 +249,7 @@ class prepareImageTaskThread(threading.Thread):
                     need_clone = True
 
         if need_delete == True:
-            cmd = 'vboxmanage closemedium disk %s --delete' % dstfile
+            cmd = VBOX_MGR_CMD + " closemedium disk %s --delete" % dstfile
             logger.error("cmd line = %s", cmd)
             commands.getoutput(cmd)
 
@@ -258,7 +258,7 @@ class prepareImageTaskThread(threading.Thread):
 
         if need_clone == True:
             src_size = os.path.getsize(srcfile)
-            cmd = "vboxmanage clonehd" + " " + srcfile + " " + dstfile
+            cmd = VBOX_MGR_CMD + " clonehd " + " " + srcfile + " " + dstfile
             logger.error("cmd line = %s", cmd)
             procid = pexpect.spawn(cmd)
 
@@ -486,7 +486,7 @@ class SubmitImageTaskThread(threading.Thread):
             hdds = get_vm_hdds()
             dstfile = '/storage/tmp/images/%s/machine' % self.dstimgid
             if dstfile in hdds:
-                cmd = 'vboxmanage closemedium disk %s --delete' % dstfile
+                cmd = VBOX_MGR_CMD + " closemedium disk %s --delete" % dstfile
                 logger.error("cmd line = %s", cmd)
                 commands.getoutput(cmd)
 
@@ -838,7 +838,7 @@ def nc_task_delete_handle(tid, runtime_option):
 
     for disk in disks:
         if disk in hdds:
-            cmd = 'vboxmanage closemedium disk %s --delete' % disk
+            cmd = VBOX_MGR_CMD + " closemedium disk %s --delete" % disk
             logger.error("cmd line = %s", cmd)
             commands.getoutput(cmd)
 
@@ -856,7 +856,7 @@ def nc_image_stop_handle(tid, runtime_option):
     dstimgid = retval[1]
     insid    = retval[2]
 
-    cmd = "vboxmanage controlvm %s poweroff" % insid
+    cmd = VBOX_MGR_CMD + " controlvm %s poweroff " % insid
     out = commands.getoutput(cmd)
 
     payload = {

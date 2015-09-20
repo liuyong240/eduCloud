@@ -162,14 +162,11 @@ def main(argv):
         cmd_line = 'sudo apt-get -y install nodedaemon-nc-kvm'
         os.system(cmd_line)
 
-    cmd_line = 'sudo rm /var/cache/apt/archives/*.deb'
-    os.system(cmd_line)
-
     cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
     commands.getoutput(cmd_line)
     cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
     commands.getoutput(cmd_line)
-    cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+    cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/nodedaemon'
     commands.getoutput(cmd_line)
     cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
     commands.getoutput(cmd_line)
@@ -256,19 +253,27 @@ def main(argv):
     ##############################################################################
     # 10. config django
     ##############################################################################
-    cmd_line= 'cd /usr/local/www/ && python manage.py syncdb --noinput'
+    print '#### sync db ####'
+    # raw_input("Press any key to continue ... ...")
+    cmd_line= 'cd /usr/local/www/ && sudo -H -u luhya bash -c "python manage.py syncdb --noinput" '
     os.system(cmd_line)
+    print '#### init db ####'
+    # raw_input("Press any key to continue ... ...")
     cmd_line = 'cd /usr/local/www/clc/sql && ./init_data.sh'
     os.system(cmd_line)
+    print '#### create default admin account step 1 ####'
+    # raw_input("Press any key to continue ... ...")
     cmd_line = 'mysql -uroot -proot mysql -e "select count(*) from auth_user where username=\'luhya\';" | tr -dc \'[0-9]\''
     ret = commands.getoutput(cmd_line)
     if ret == '0':
-        cmd_line = 'cd /usr/local/www/ && python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com --noinput'
+        print '#### create default admin account step 2 ####'
+        # raw_input("Press any key to continue ... ...")
+        cmd_line = 'cd /usr/local/www/ && sudo -H -u luhya bash -c "python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com --noinput" '
         commands.getoutput(cmd_line)
         print '##########################################################'
         print "Please input password for default administrator(luhya)    "
         print '----------------------------------------------------------'
-        cmd_line = 'python /usr/local/www/manage.py changepassword luhya'
+        cmd_line = 'sudo -H -u luhya bash -c "python /usr/local/www/manage.py changepassword luhya"'
         os.system(cmd_line)
 
     #######################################
@@ -310,7 +315,7 @@ def main(argv):
     commands.getoutput(cmd_line)
     cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
     commands.getoutput(cmd_line)
-    cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/wnodedaemonww'
+    cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/nodedaemon'
     commands.getoutput(cmd_line)
     cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
     commands.getoutput(cmd_line)
