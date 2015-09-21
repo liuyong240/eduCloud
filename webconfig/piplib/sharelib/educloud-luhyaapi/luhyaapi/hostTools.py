@@ -1,7 +1,7 @@
 import socket, netifaces, psutil, shutil
 from luhyaTools import configuration
 from settings import *
-import random, os, commands
+import random, os, commands, time
 from linux_metrics import cpu_stat
 from sortedcontainers import SortedList
 from IPy import IP
@@ -264,11 +264,12 @@ def DoesServiceExist(host, port, protocol='tcp'):
         if protocol == 'udp':
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(1)
-        s.connect((host, port))
+        ret = s.connect((host, port))
         s.close()
         return "Running"
     except Exception as e:
         return str(e)
+
 
 def get_ssh_status():
     return DoesServiceExist('127.0.0.1', 22)
@@ -303,16 +304,30 @@ daemon_list = {
     "sc":       "nodedaemon-sc",
 }
 
-def get_ndp_status():
+def get_ndp_status(retry_num=3):
     if not isNDPed():
         return "Closed"
     else:
-        cmd = "sudo service ndp-server status "
-        output = commands.getoutput(cmd)
-        if "running" in output:
+        cmd = 'netstat -a | grep 19001'
+        out = commands.getoutput(cmd)
+        ret = out.find('localhost:19001')
+        if ret >= 0:
+            # ndpserver is running
             return "Running"
         else:
-            return "Closed"
+            # ndpserver is NOT running
+            if retry_num > 0:
+                cmd_line = "sudo service ndp-server stop"
+                out = os.system(cmd_line)
+                cmd_line = "sudo killall -9 ndpserver"
+                out = os.system(cmd_line)
+                cmd_line = "sudo service ndp-server start"
+                out = os.system(cmd_line)
+                time.sleep(1)
+                return get_ndp_status(retry_num-1)
+            else:
+                return "Closed"
+
 
 def get_daemon_status(dtype):
     if DAEMON_DEBUG == True:
