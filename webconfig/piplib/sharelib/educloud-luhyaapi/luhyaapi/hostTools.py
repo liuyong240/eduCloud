@@ -257,16 +257,18 @@ def getSysMemUtil():
 ### Service tools
 import socket, commands
 
-def DoesServiceExist(host, port):
+def DoesServiceExist(host, port, protocol='tcp'):
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if protocol == 'tcp':
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if protocol == 'udp':
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(1)
         s.connect((host, port))
         s.close()
+        return "Running"
     except Exception as e:
         return str(e)
-
-    return "Running"
 
 def get_ssh_status():
     return DoesServiceExist('127.0.0.1', 22)
