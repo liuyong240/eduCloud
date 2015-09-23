@@ -12,5 +12,5 @@ script
   if [ -e /etc/default/nodedaemon-nc ]; then
     . /etc/default/nodedaemon-nc
   fi
-  exec start-stop-daemon --start --chuid luhya --exec /usr/local/bin/nodedaemon-nc
+  exec start-stop-daemon --start --exec /usr/local/bin/nodedaemon-nc
 end script

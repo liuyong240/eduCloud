@@ -9,8 +9,9 @@ import json
 logger = getncdaemonlogger()
 
 VBOX_MGR_CMD = "VBoxManage "
-if isNDPed():
-    VBOX_MGR_CMD = "sudo VBoxManage "
+
+# if isNDPed():
+#     VBOX_MGR_CMD = "sudo VBoxManage "
 
 def get_vm_ifs():
     cmd = VBOX_MGR_CMD + " list bridgedifs | grep Name:"
@@ -217,10 +218,18 @@ class vboxWrapper():
 
     def ndp_runVM(self, hostIP, hostPort):
         vm_name = self._tool._vmname
-        cmd_line = "/usr/bin/ndpcmd add " + vm_name + " -h " + hostIP + " -p " + str(hostPort)
+        cmd_line = "ndpcmd add %s %s %s" % (vm_name, hostIP, str(hostPort))
         ret = commands.getoutput(cmd_line)
-        cmd_line = "/usr/bin/ndpcmd poweron " + vm_name
+        logger.error("cmd = %s" % cmd_line)
+        logger.error("result = %s" % ret)
+
+        logger.error("delay 3 seconds to power on ndp vm")
+        time.sleep(3)
+
+        cmd_line = "ndpcmd poweron %s" % vm_name
         ret = commands.getoutput(cmd_line)
+        logger.error("cmd = %s" % cmd_line)
+        logger.error("result = %s" % ret)
 
         return ret
 
