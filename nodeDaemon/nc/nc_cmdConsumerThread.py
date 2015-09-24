@@ -650,7 +650,7 @@ class runImageTaskThread(threading.Thread):
                         _network_para = " --nic1 nat  --nictype1 %s " % self.runtime_option['networkcards'][0]['nic_type']
                     else:
                         _network_para = " --nic1 bridged --bridgeadapter1 %s --nictype1 %s --macaddress1 %s" % (bridged_ifs[0], self.runtime_option['networkcards'][0]['nic_type'], self.runtime_option['networkcards'][0]['nic_mac'])
-                    if self.runtime_option['protocol'] == 'RDP':
+                    if self.runtime_option['protocol'] != 'RDP':
                         ostypepara_value = _network_para + " --audio none "
                     else:
                         ostypepara_value = _network_para +  self.runtime_option['audio_para']

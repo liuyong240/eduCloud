@@ -413,6 +413,7 @@ function delete_task(taskid) {
 function stop_tvd(id) {
     //console.log("stop_tvd() is called.");
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
+
     tmp = taskid.split(':')
     srcid = tmp[0];
     dstid = tmp[1];
@@ -430,6 +431,7 @@ function stop_tvd(id) {
 
         delete_task(taskid);
     });
+
 }
 
 
@@ -453,25 +455,43 @@ function show_by_browser( id ) {
     dstid = tmp[1];
     insid = tmp[2];
 
-    url="/clc/api/1.0/rvd/display/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    url = get_rdp_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        flag = 1;
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
 
-    var mapForm = document.createElement("form");
-    mapForm.target = "_blank";
-    mapForm.method = "POST";
-    mapForm.action = url;
+        protocol = items['protocol'];
+        if (protocol != "RDP" ) {
+            alert("请在瘦终端上链接并显示云桌面！")
+        } else {
+            url="/clc/api/1.0/rvd/display/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
 
-    var mapInput = document.createElement("input");
-    mapInput.type = "text";
-    mapInput.name = 'sid';
-    mapInput.value = $("#sid").text();
+            var mapForm = document.createElement("form");
+            mapForm.target = "_blank";
+            mapForm.method = "POST";
+            mapForm.action = url;
 
-    mapForm.appendChild(mapInput);
+            var mapInput = document.createElement("input");
+            mapInput.type = "text";
+            mapInput.name = 'sid';
+            mapInput.value = $("#sid").text();
 
-    document.body.appendChild(mapForm);
+            mapForm.appendChild(mapInput);
 
-    mapForm.submit();
+            document.body.appendChild(mapForm);
 
-    setTimeout( delete_form, timer_interval, mapForm);
+            mapForm.submit();
+
+            setTimeout( delete_form, timer_interval, mapForm);
+        }
+
+    });
 }
 
 function delete_form(form_name) {
@@ -503,25 +523,13 @@ function show_by_xfreerdp( id ) {
 
         if (ostype == "windows") {
             cmd = "mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
-            if (protocol != "RDP") {
-                alert("请在瘦终端上链接并显示云桌面！");
-                flag = 0;
-            }
         } else {
             cmd = '/opt/freerdp-nightly/bin/xfreerdp /f /v:' + items['rdp_ip'] + ':' + items['rdp_port'];
             if (protocol == "NDP") {
                 cmd = '/usr/bin/ndpclient -h ' + items['rdp_ip'] + ' -p ' + items['rdp_port'];
-                if ( isEduClient() != 1 ) {
-                    alert("请在瘦终端上链接并显示云桌面！");
-                    flag = 0;
-                }
             }
             if (protocol == "SPICE") {
                 cmd = '/usr/bin/spicec -h ' + items['rdp_ip'] + ' -p ' + items['rdp_port'];
-                if ( isEduClient() != 1 ) {
-                    alert("请在瘦终端上链接并显示云桌面！");
-                    flag = 0;
-                }
             }
         }
 

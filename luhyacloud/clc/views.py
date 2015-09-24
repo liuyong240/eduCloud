@@ -1802,7 +1802,7 @@ def genVMFolders(tid, usage):
         }
         folders.append(f1)
         folders.append(f2)
-        logger.error("genVMFolders: prvdata=/storage/space/prv-data/%s" % trec.user )
+        logger.error("genVMFolders: prvdata=/storage/space/prv-data/%s for %s" % (trec.user, tid))
 
     if ins_id.find('VS') == 0:
         # folders.append('/storage/space/software')
@@ -2313,7 +2313,9 @@ def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-
+# for a instance ,
+# first check taskstatus, if not run,
+# then check nodestatus,
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
     # logger.error("--- --- --- image_create_task_getvmstatus")
 
@@ -2329,24 +2331,32 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
     }
 
     try:
-        tidrec = ectaskTransaction.objects.get(tid=_tid)
-        ncobj = ecServers.objects.get(ip0=tidrec.ncip, role='nc')
-        key = str("nc#" + ncobj.mac0 + "#status")
-        nc_info = mc.get(key)
-        nc_info = json.loads(nc_info)
-
-        if 'vm_data' in nc_info.keys():
-            vminfo = nc_info['vm_data']
-            for vm in vminfo:
-                if vm['insid'] == insid:
-                    payload['state'] = vm['state']
-                    break
+        key = _tid;
+        taskstatus = mc.get(key)
+        taskstatus = json.loads(taskstatus)
+        payload['state'] = taskstatus['state']
+        logger.error("image_create_task_getvmstatus get value from taskstatus : %s %s" % (_tid, payload['state']))
     except Exception as e:
-        logger.error("image_create_task_getvmstatus Exception : %s" % str(e))
-        payload['state'] = 'stopped'
+        try:
+            tidrec = ectaskTransaction.objects.get(tid=_tid)
+            ncobj = ecServers.objects.get(ip0=tidrec.ncip, role='nc')
+            key = str("nc#" + ncobj.mac0 + "#status")
+            nc_info = mc.get(key)
+            nc_info = json.loads(nc_info)
+
+            if 'vm_data' in nc_info.keys():
+                vminfo = nc_info['vm_data']
+                for vm in vminfo:
+                    if vm['insid'] == insid:
+                        payload['state'] = vm['state']
+                        logger.error("image_create_task_getvmstatus get value from nodestatus : %s %s" % (_tid, payload['state']))
+                        break
+        except Exception as e:
+            logger.error("image_create_task_getvmstatus Exception : %s" % str(e))
+            payload['state'] = 'stopped'
 
     response = json.dumps(payload)
-    logger.error('image_create_task_getvmstatus = %s : %s' % (_tid, response))
+    logger.error('image_create_task_getvmstatus = %s : %s' % (_tid, payload['state']))
     return HttpResponse(response, content_type="application/json")
 
 def image_create_task_getprogress(request, srcid, dstid, insid):
