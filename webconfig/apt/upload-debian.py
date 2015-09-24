@@ -14,4 +14,8 @@ os.system(cmd_line)
 cmd_line = 'scp -p /mnt/src/pip.tar root@%s:/var/packages/' % DST_IP
 os.system(cmd_line)
 
+cmd_line = 'scp -p /mnt/src/eduCloud/webconfig/apt/* root@%s:/root/apt/' % DST_IP
+os.system(cmd_line)
+
+
 

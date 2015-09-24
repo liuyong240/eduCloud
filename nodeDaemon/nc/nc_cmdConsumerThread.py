@@ -651,7 +651,7 @@ class runImageTaskThread(threading.Thread):
                     else:
                         _network_para = " --nic1 bridged --bridgeadapter1 %s --nictype1 %s --macaddress1 %s" % (bridged_ifs[0], self.runtime_option['networkcards'][0]['nic_type'], self.runtime_option['networkcards'][0]['nic_mac'])
                     if self.runtime_option['protocol'] == 'RDP':
-                        ostypepara_value = _network_para
+                        ostypepara_value = _network_para + " --audio none "
                     else:
                         ostypepara_value = _network_para +  self.runtime_option['audio_para']
                     ret = vboxmgr.modifyVM(osTypeparam=ostypepara_value, cpus = _cpus, mem=_memory, )
@@ -791,6 +791,7 @@ def update_nc_running_status():
 
     ccip = getccipbyconf()
     simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
+    logger.error("update_nc_running_status = %s" % json.dumps(payload))
 
 def nc_image_run_handle(tid, runtime_option):
     logger.error("--- --- --- nc_image_run_handle")
@@ -825,11 +826,10 @@ def nc_task_delete_handle(tid, runtime_option):
             break
 
     if find_registered_vm == True:
-        ret = vboxmgr.unregisterVM()
+        ret = vboxmgr.unregisterVM(delete=True)
         logger.error("--- vboxmgr.unregisterVM ret=%s" % (ret))
     ret = vboxmgr.deleteVMConfigFile()
     logger.error("--- vboxmgr.deleteVMConfigFile ret=%s" % (ret))
-
 
     hdds = get_vm_hdds()
     disks = []
@@ -846,13 +846,13 @@ def nc_task_delete_handle(tid, runtime_option):
     for disk in disks:
         if disk in hdds:
             cmd = VBOX_MGR_CMD + " closemedium disk %s --delete" % disk
-            logger.error("cmd line = %s", cmd)
-            commands.getoutput(cmd)
+            out = commands.getoutput(cmd)
+            logger.error("cmd = %s, rsult=%s", (cmd, out))
 
         if os.path.exists(os.path.dirname(disk)):
-            logger.error('rm %s' % os.path.dirname(disk))
+            shutil.rmtree(os.path.dirname(disk))
             if os.path.exists(os.path.dirname(disk)):
-                shutil.rmtree(os.path.dirname(disk))
+                logger.error("%s is not really deleted." % disk)
 
 
 def nc_image_stop_handle(tid, runtime_option):
@@ -865,6 +865,7 @@ def nc_image_stop_handle(tid, runtime_option):
 
     cmd = VBOX_MGR_CMD + " controlvm %s poweroff " % insid
     out = commands.getoutput(cmd)
+    logger.error("cmd=%s; result=%s" % (cmd, out))
 
     payload = {
             'type'      : 'taskstatus',
@@ -881,7 +882,6 @@ def nc_image_stop_handle(tid, runtime_option):
 
     # need to update nc's status at once
     update_nc_running_status()
-    logger.error('update_nc_running_status')
 
     # process for different type instance
     if srcimgid != dstimgid:

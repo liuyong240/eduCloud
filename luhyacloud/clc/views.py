@@ -1802,6 +1802,7 @@ def genVMFolders(tid, usage):
         }
         folders.append(f1)
         folders.append(f2)
+        logger.error("genVMFolders: prvdata=/storage/space/prv-data/%s" % trec.user )
 
     if ins_id.find('VS') == 0:
         # folders.append('/storage/space/software')

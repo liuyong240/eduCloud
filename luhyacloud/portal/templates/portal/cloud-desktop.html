@@ -493,25 +493,41 @@ function show_by_xfreerdp( id ) {
     }
     $.post(url, postdata, function (data) {
         items = [];
+        flag = 1;
         $.each(data, function (key, val) {
             items[key] = val;
         });
 
+        protocol = items['protocol'];
         ostype = getOSType();
+
         if (ostype == "windows") {
             cmd = "mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
+            if (protocol != "RDP") {
+                alert("请在瘦终端上链接并显示云桌面！");
+                flag = 0;
+            }
         } else {
-            protocol = items['protocol'];
             cmd = '/opt/freerdp-nightly/bin/xfreerdp /f /v:' + items['rdp_ip'] + ':' + items['rdp_port'];
             if (protocol == "NDP") {
                 cmd = '/usr/bin/ndpclient -h ' + items['rdp_ip'] + ' -p ' + items['rdp_port'];
+                if ( isEduClient() != 1 ) {
+                    alert("请在瘦终端上链接并显示云桌面！");
+                    flag = 0;
+                }
             }
             if (protocol == "SPICE") {
                 cmd = '/usr/bin/spicec -h ' + items['rdp_ip'] + ' -p ' + items['rdp_port'];
+                if ( isEduClient() != 1 ) {
+                    alert("请在瘦终端上链接并显示云桌面！");
+                    flag = 0;
+                }
             }
         }
 
-        runFunc(cmd);
+        if (flag == 1) {
+            runFunc(cmd);
+        }
     });
 }
 

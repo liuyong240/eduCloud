@@ -450,7 +450,8 @@ class vboxWrapper():
             logger.error("xmlfile = %s" % xmlfile)
             if os.path.exists(os.path.dirname(xmlfile)):
                 shutil.rmtree(os.path.dirname(xmlfile))
-                logger.error('rm %s' % os.path.dirname(xmlfile))
+                if os.path.exists(os.path.dirname(xmlfile)):
+                    logger.error("------ deleteVMConfigFile %s not really delete dir." % xmlfile)
         except Exception as e:
             logger.error("deleteVMConfigFile with Exception = %s" % str(e))
 

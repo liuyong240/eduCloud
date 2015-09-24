@@ -130,10 +130,12 @@ def main(argv):
         os.system('sudo mkdir -p /storage/tmp/images')
         os.system('sudo mkdir -p /storage/tmp/VMs')
 
-    cmd_line = 'cd /tmp && wget http://%s/database' % DST_IP
-    os.system(cmd_line)
-    cmd_line = 'cd /tmp && wget http://%s/data' % DST_IP
-    os.system(cmd_line)
+    if not os.path.exists("/storage/images/database"):
+        cmd_line = 'cd /tmp && wget http://%s/database' % DST_IP
+        os.system(cmd_line)
+    if not os.path.exists("/storage/images/datab"):
+        cmd_line = 'cd /tmp && wget http://%s/data' % DST_IP
+        os.system(cmd_line)
 
     cmd_line = 'sudo mv /tmp/database /storage/images/database'
     os.system(cmd_line)
@@ -151,12 +153,13 @@ def main(argv):
         os.system(cmd_line)
 
         # install vbox ext pack
-        cmd_line = 'wget http://%s/Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack' % DST_IP
-        os.system(cmd_line)
-        cmd_line = 'sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack'
-        os.system(cmd_line)
-        cmd_line = 'rm Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack'
-        os.system(cmd_line)
+        if not os.path.exists("./Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack"):
+            cmd_line = 'wget http://%s/Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack' % DST_IP
+            os.system(cmd_line)
+            cmd_line = 'sudo vboxmanage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack'
+            os.system(cmd_line)
+            cmd_line = 'rm Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack'
+            os.system(cmd_line)
 
     if HYPERVISOR == 'kvm':
         cmd_line = 'sudo apt-get -y install nodedaemon-nc-kvm'
