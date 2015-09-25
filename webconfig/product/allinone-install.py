@@ -10,23 +10,26 @@ def checkPackage( pname ):
        return False
 
 def usage():
-    print "Usage : allinone-install [-h hostip -v [vbox|kvm]]"
+    print "Usage : allinone-install [-h hostip -v [vbox|ndp|kvm] -m [a|w] ]"
 
 def main(argv):
     DST_IP = '121.41.80.147'
-    HYPERVISOR = 'vbox'
+    HYPERVISOR = 'ndp'
+    MODE = "a"
 
     try:
-      opts, args = getopt.getopt(argv,"h:v:",["host=","virt="])
+      opts, args = getopt.getopt(argv,"h:v:m:",["host=","virt=","mode="])
       for opt, arg in opts:
           if opt in ( "-h", "--host"):
              DST_IP =  arg
-          elif opt in ("-v", "--virt"):
+          if opt in ("-v", "--virt"):
              HYPERVISOR = arg
+          if opt in ("-m", "--mode"):
+             MODE = arg
     except getopt.GetoptError:
       pass
 
-    if not HYPERVISOR in ["kvm", "vbox"]:
+    if not HYPERVISOR in ["kvm", "vbox", "ndp"]:
        print "--------------------------------------------------"
        print "HYPERVISOR is wrong, the correct value should be  "
        print "either vbox or kvm "
@@ -44,7 +47,7 @@ def main(argv):
         cmd_line = 'cp /etc/apt/sources.list /tmp/'
         commands.getoutput(cmd_line)
 
-        with open('/tmp/sources.list', 'w') as myfile:
+        with open('/tmp/sources.list', MODE) as myfile:
             myfile.write('deb http://%s/debian/ zhejiang non-free' % DST_IP)
 
         cmd_line = 'sudo cp /tmp/sources.list /etc/apt/sources.list'
@@ -148,8 +151,13 @@ def main(argv):
     cmd_line = 'sudo apt-get -y install educloud-portal nodedaemon-clc nodedaemon-walrus nodedaemon-cc educloud-virtapp'
     os.system(cmd_line)
 
+    if HYPERVISOR == "ndp":
+        cmd_line = 'sudo apt-get install ndp-server'
+        os.sytem(cmd_line)
+        HYPERVISOR = "vbox"
+
     if HYPERVISOR == 'vbox':
-        cmd_line = 'sudo apt-get -y install nodedaemon-nc ndp-server'
+        cmd_line = 'sudo apt-get -y install nodedaemon-nc'
         os.system(cmd_line)
 
         # install vbox ext pack

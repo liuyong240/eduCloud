@@ -9,12 +9,6 @@ import json
 logger = getncdaemonlogger()
 
 VBOX_MGR_CMD = "VBoxManage "
-if isNDPed():
-    VBOX_MGR_CMD = "sudo VBoxManage "
-    logger.error(" VBOX_MGR_CMD = %s " % VBOX_MGR_CMD)
-
-# if isNDPed():
-#     VBOX_MGR_CMD = "sudo VBoxManage "
 
 def get_vm_ifs():
     cmd = VBOX_MGR_CMD + " list bridgedifs | grep Name:"

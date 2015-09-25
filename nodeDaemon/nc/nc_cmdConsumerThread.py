@@ -335,9 +335,9 @@ class prepareImageTaskThread(threading.Thread):
             logger.error('send cmd image/prepare/failure ')
             self.download_rpc.call(cmd="image/prepare/failure", tid=data['tid'], paras=data['rsync'])
 
-            payload['failed'] = 1
+            payload['failed']   = 1
             payload['errormsg'] = str(e)
-            payload['state'] = 'init'
+            payload['state']    = 'init'
             self.forwardTaskStatus2CC(json.dumps(payload))
 
 class SubmitImageTaskThread(threading.Thread):

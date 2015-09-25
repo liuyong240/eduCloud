@@ -14,25 +14,27 @@ class clc_statusConsumerThread(run4everThread):
 
     def save2Mem(self, key, msg):
         try:
-            # logger.error("start to save to memcache")
             self.mc.set(key, msg, 5*60)
         except Exception as e:
             logger.errro(str(e))
 
     def forwardMessage2Memcache(self, message):
+        flag = 0
         json_msg = json.loads(message)
         if json_msg['type'] == 'taskstatus':
             key = str(json_msg['tid'])
-            logger.error("add to memcaceh: %s" % message)
+            flag = 1
         elif json_msg['type'] == 'nodestatus':
             key = str(json_msg['nid'])
-            logger.error("key = %s" % key)
         elif json_msg['type'] == 'ccstatus':
             key = str(json_msg['ccid'])
-            logger.error("key = %s" % key)
 
         self.save2Mem(key, message)
 
+        # test save is ok
+        if flag == 1:
+            payload = self.mc.get(key)
+            logger.error("thomas#load %s=%s" % (key, payload))
 
     def statusMessageHandle(self, ch, method, properties, body):
         self.forwardMessage2Memcache(body)

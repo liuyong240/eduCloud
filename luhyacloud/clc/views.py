@@ -1670,7 +1670,6 @@ def cc_modify_resources(request, cc_name):
 def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
     logger.error(' --- releaseRuntimeOptionForImageBuild ... ...')
     tidrec = ectaskTransaction.objects.get(tid=_tid)
-    creator = tidrec.user
 
     if _runtime_option == None:
         if len(tidrec.runtime_option) > 0:
@@ -1810,6 +1809,24 @@ def genVMFolders(tid, usage):
 
     return folders
 
+def isNCNDPed(tid):
+    # read nodestatus to check ndp service status
+    tid_rec = ectaskTransaction.objects.get(tid=tid)
+    ncip = tid_rec.ncip
+    ncobj= ecServers.objects.get(ip0=ncip, role='nc')
+
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    key = str("nc#" + ncobj.mac0 + "#status")
+    nc_info = mc.get(key)
+    nc_info = json.loads(nc_info)
+    service_data = nc_info['service_data']
+    ndp_status   = service_data['ndp']
+    if ndp_status == "Closed":
+        return False
+    else:
+        return True
+
+
 # TMP : RDP
 # TVD : NDP/SPICE
 # VD  : NDP/SPICE
@@ -1829,7 +1846,8 @@ def getAccessProtocol(tid):
     else:
         imgobj = ecImages.objects.get(ecid = src_imgid)
         if imgobj.hypervisor == 'vbox':
-            access_protocol = 'NDP'
+            if isNCNDPed(tid):
+                access_protocol = 'NDP'
         if imgobj.hypervisor == 'kvm':
             access_protocol = 'SPICE'
 
@@ -2069,7 +2087,7 @@ def vm_run(request, insid):
                  srcimgid    = vmrec.imageid,
                  dstimgid    = vmrec.imageid,
                  insid       = insid,
-                 user        = request.user.username,
+                 user        = vmrec.user,
                  phase       = 'preparing',
                  state       = "init",
                  progress    = 0,
@@ -2331,7 +2349,7 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
     }
 
     try:
-        key = _tid;
+        key = str(_tid);
         taskstatus = mc.get(key)
         taskstatus = json.loads(taskstatus)
         payload['state'] = taskstatus['state']
@@ -2373,15 +2391,17 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
                 'tid': tid,
                 'prompt': '',
                 'errormsg': '',
-                'failed' : 0
+                'failed' : 0,
+                'done'   : 0,
             }
             response = json.dumps(payload)
         else:
             response = payload
             payload = json.loads(payload)
-            # logger.error("lkf: get progress = %s", payload['progress'])
             if payload['failed'] == 1:
+                logger.error("thomas# delete taskstatus= %s" % json.dumps(payload))
                 mc.delete(str(tid))
+
     except Exception as e:
         payload = {
             'type': 'taskstatus',
@@ -2391,7 +2411,8 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
             'tid': tid,
             'prompt': '',
             'errormsg': '',
-            'failed' : 0
+            'failed' : 0,
+            'done'   : 0,
         }
         response = json.dumps(payload)
 
@@ -4040,6 +4061,7 @@ def list_vds(request):
         jrec['name']=rec.name
         jrec['description'] = rec.description
         jrec['creator'] = rec.creator
+        jrec['user'] = rec.user
         jrec['cc'] = rec.cc_def
         jrec['nc'] = rec.nc_def
         jrec['cpus'] = rec.cpus
@@ -4080,7 +4102,17 @@ def delete_vds(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def update_vds(request):
-    pass
+    response = {}
+
+    rec = ecVDS.objects.get(id=request.POST['id']);
+    rec.name            = request.POST['name']
+    rec.user            = request.POST['user']
+    rec.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_vds(request):
     response = {}
@@ -4092,6 +4124,7 @@ def create_vds(request):
             name        = request.POST['name'],
             description = request.POST['description'],
             creator     = request.user,
+            user        = request.user,
             cc_def      = request.POST['cc_def'],
             nc_def      = request.POST['nc_def'],
             cpus        = request.POST['cpus'],

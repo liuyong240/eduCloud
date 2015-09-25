@@ -18,6 +18,7 @@
 
             actions: {
                 listAction:    '/clc/api/1.0/vds/list',
+                updateAction:  '/clc/api/1.0/vds/update',
             },
 
             fields: {
@@ -85,6 +86,11 @@
                     width: '10%',
                     create: false,
                 },
+                user: {
+                    title: '{% trans "Owner" %}',
+                    width: '10%',
+                    create: false,
+                },
                 state: {
                     title: '{% trans "VM State" %}',
                     width: '10%',
@@ -99,21 +105,25 @@
                 cc: {
                     title: '{% trans "Cluster" %}',
                     width: '10%',
+                    edit: false,
                     create: false,
                 },
                 nc: {
                     title: '{% trans "Node" %}',
                     width: '10%',
+                    edit: false,
                     create: false,
                 },
                 cpus: {
                     title: '{% trans "CPUs" %}',
                     width: '5%',
+                    edit: false,
                     create: false,
                 },
                 memory: {
                     title: '{% trans "Memory" %}',
                     width: '5%',
+                    edit: false,
                     create: false,
                 },
             },

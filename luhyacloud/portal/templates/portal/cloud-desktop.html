@@ -429,7 +429,11 @@ function stop_tvd(id) {
             items[key] = val;
         });
 
-        delete_task(taskid);
+        var index = insid.search("TVD");
+        if (index == 0) {
+            // find 'TMP' at the header
+            delete_task(taskid);
+        }
     });
 
 }

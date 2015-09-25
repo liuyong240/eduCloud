@@ -7,8 +7,6 @@ def isNDPed():
         return False
 
 VBOX_MGR_CMD = "VBoxManage "
-if isNDPed():
-    VBOX_MGR_CMD = "sudo VBoxManage "
 
 def get_immediate_subdirectories(a_dir):
     return [name for name in os.listdir(a_dir)
