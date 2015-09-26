@@ -136,7 +136,7 @@ def main(argv):
     if not os.path.exists("/storage/images/database"):
         cmd_line = 'cd /tmp && wget http://%s/database' % DST_IP
         os.system(cmd_line)
-    if not os.path.exists("/storage/images/datab"):
+    if not os.path.exists("/storage/images/data"):
         cmd_line = 'cd /tmp && wget http://%s/data' % DST_IP
         os.system(cmd_line)
 
@@ -153,7 +153,7 @@ def main(argv):
 
     if HYPERVISOR == "ndp":
         cmd_line = 'sudo apt-get install ndp-server'
-        os.sytem(cmd_line)
+        os.system(cmd_line)
         HYPERVISOR = "vbox"
 
     if HYPERVISOR == 'vbox':
