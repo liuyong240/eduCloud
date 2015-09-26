@@ -433,6 +433,8 @@ function stop_tvd(id) {
         if (index == 0) {
             // find 'TMP' at the header
             delete_task(taskid);
+        } else {
+            location.reload();
         }
     });
 
@@ -578,7 +580,7 @@ function gui_update(items, do2run) {
             }
         }
 
-        if (state == 'downloading' || state == "cloning") {
+        else if (state == 'downloading' || state == "cloning") {
             $('#run_'  + id).addClass('disabled');
             $('#show_' + id).addClass('disabled');
             $('#stop_' + id).addClass('disabled');
@@ -595,7 +597,7 @@ function gui_update(items, do2run) {
             setTimeout( get_progress, timer_interval, id, taskid, do2run);
         }
 
-        if (state == 'done') {
+        else if (state == 'done') {
             $('#run_'  + id).removeClass('disabled');
             $('#show_' + id).addClass('disabled');
             $('#stop_' + id).addClass('disabled');
@@ -607,6 +609,10 @@ function gui_update(items, do2run) {
             if (do2run == 1) {
                 setTimeout( run_tvd, timer_interval, id, taskid);
             }
+        }
+
+        else {
+            setTimeout( get_progress, timer_interval, id, taskid, do2run);
         }
     }
 
@@ -626,7 +632,7 @@ function gui_update(items, do2run) {
             }
         }
 
-        if (state == 'booting') {
+        else if (state == 'booting') {
             $('#run_'  + id).addClass('disabled');
             $('#show_' + id).addClass('disabled');
             $('#stop_' + id).addClass('disabled');
@@ -641,7 +647,7 @@ function gui_update(items, do2run) {
             setTimeout( get_vmstatus, timer_interval, id, taskid);
         }
 
-        if (state == 'running' || state == 'Running') {
+        else if (state == 'running' || state == 'Running') {
             $('#run_'  + id).addClass('disabled');
             $('#show_' + id).removeClass('disabled');
             $('#stop_' + id).removeClass('disabled');
@@ -650,6 +656,10 @@ function gui_update(items, do2run) {
             $('#error_msg_' + id).css('display', 'none');
 
             $('#taskid_for_show_in_browser_' + id).text(taskid);
+        }
+
+        else {
+            setTimeout( get_vmstatus, timer_interval, id, taskid);
         }
     }
 }
