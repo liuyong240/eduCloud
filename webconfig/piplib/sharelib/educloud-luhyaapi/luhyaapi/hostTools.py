@@ -6,6 +6,9 @@ from linux_metrics import cpu_stat
 from sortedcontainers import SortedList
 from IPy import IP
 
+from luhyaapi.educloudLog import *
+logger = getclclogger()
+
 # PUBLIC or PRIVATE
 def getIPType(ipaddr):
     ip = IP(ipaddr)
@@ -258,6 +261,7 @@ def getSysMemUtil():
 import socket, commands
 
 def DoesServiceExist(host, port, protocol='tcp'):
+    logger.error("DoesServiceExist at port=%s --- --- ", port)
     try:
         if protocol == 'tcp':
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -266,8 +270,10 @@ def DoesServiceExist(host, port, protocol='tcp'):
         s.settimeout(1)
         ret = s.connect((host, port))
         s.close()
+        logger.error("Running")
         return "Running"
     except Exception as e:
+        logger.error(str(e))
         return str(e)
 
 
@@ -308,7 +314,7 @@ def get_ndp_status(retry_num=3):
     if not isNDPed():
         return "Closed"
     else:
-        cmd = 'netstat -a | grep 19001'
+        cmd = 'netstat -an | grep 19001'
         out = commands.getoutput(cmd)
         ret = out.find('localhost:19001')
         if ret >= 0:
@@ -330,14 +336,18 @@ def get_ndp_status(retry_num=3):
 
 
 def get_daemon_status(dtype):
+    logger.error("get_daemon_status start --- --- ")
     if DAEMON_DEBUG == True:
         return "Running"
     else:
         cmd = "sudo service " + daemon_list[dtype] + " status "
+        logger.error(cmd)
         output = commands.getoutput(cmd)
         if "running" in output:
+            logger.error("Running")
             return "Running"
         else:
+            logger.error("Closed")
             return "Closed"
 
 def restart_daemon(dtype):
