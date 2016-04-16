@@ -316,7 +316,7 @@ def get_ndp_status(retry_num=3):
     else:
         cmd = 'netstat -an | grep 19001'
         out = commands.getoutput(cmd)
-        ret = out.find('localhost:19001')
+        ret = out.find('19001')
         if ret >= 0:
             # ndpserver is running
             return "Running"

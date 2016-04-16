@@ -220,14 +220,6 @@ class vboxWrapper():
         logger.error("cmd = %s" % cmd_line)
         logger.error("result = %s" % ret)
 
-        logger.error("delay 3 seconds to power on ndp vm")
-        time.sleep(3)
-
-        cmd_line = "ndpcmd poweron %s" % vm_name
-        ret = commands.getoutput(cmd_line)
-        logger.error("cmd = %s" % cmd_line)
-        logger.error("result = %s" % ret)
-
         return ret
 
     def runVM(self, headless):
