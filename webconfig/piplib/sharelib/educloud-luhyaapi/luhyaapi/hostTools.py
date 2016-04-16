@@ -314,25 +314,7 @@ def get_ndp_status(retry_num=3):
     if not isNDPed():
         return "Closed"
     else:
-        cmd = 'netstat -an | grep 19001'
-        out = commands.getoutput(cmd)
-        ret = out.find('19001')
-        if ret >= 0:
-            # ndpserver is running
-            return "Running"
-        else:
-            # ndpserver is NOT running
-            if retry_num > 0:
-                cmd_line = "sudo service ndp-server stop"
-                out = os.system(cmd_line)
-                cmd_line = "sudo killall -9 ndpserver"
-                out = os.system(cmd_line)
-                cmd_line = "sudo service ndp-server start"
-                out = os.system(cmd_line)
-                time.sleep(1)
-                return get_ndp_status(retry_num-1)
-            else:
-                return "Closed"
+        return "Running"
 
 
 def get_daemon_status(dtype):
@@ -349,6 +331,20 @@ def get_daemon_status(dtype):
         else:
             logger.error("Closed")
             return "Closed"
+
+def restart_ndp_server():
+    cmd = 'netstat -an | grep 19001'
+    out = commands.getoutput(cmd)
+    ret = out.find('19001')
+    if ret < 0:
+        # ndpserver is NOT running
+        cmd_line = "sudo service ndp-server stop"
+        out = os.system(cmd_line)
+        cmd_line = "sudo killall -9 ndpserver"
+        out = os.system(cmd_line)
+        cmd_line = "sudo service ndp-server start"
+        out = os.system(cmd_line)
+
 
 def restart_daemon(dtype):
     cmd = "sudo service " + daemon_list[dtype] + " restart "
