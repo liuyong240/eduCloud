@@ -4,12 +4,12 @@ from luhyaapi.hostTools import *
 from luhyaapi.educloudLog import *
 import time, json
 import memcache
+import requests
 
 logger = getclcdaemonlogger()
 
-class clc_statusConsumerThread(run4everThread):
-    def __init__(self, bucket):
-        run4everThread.__init__(self, bucket)
+class clc_statusConsumer():
+    def __init__(self):
         self.mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
     def save2Mem(self, key, msg):
@@ -39,7 +39,7 @@ class clc_statusConsumerThread(run4everThread):
     def statusMessageHandle(self, ch, method, properties, body):
         self.forwardMessage2Memcache(body)
 
-    def run4ever(self):
+    def run(self):
         connection = getConnection("localhost")
         channel = connection.channel()
         channel.queue_declare(queue='clc_status_queue')
@@ -47,3 +47,44 @@ class clc_statusConsumerThread(run4everThread):
                               queue='clc_status_queue',
                               no_ack=True)
         channel.start_consuming()
+
+
+def registerMyselfasCLC():
+    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
+
+    hostname, hostcpus, hostmem, hostdisk = getHostAttr()
+    netlist = getHostNetInfo()
+    if DAEMON_DEBUG == True:
+        url = 'http://%s:8000/clc/api/1.0/register/server' % clcip
+    else:
+        url = 'http://%s/clc/api/1.0/register/server' % clcip
+    payload = {
+        'role': 'clc',
+        'name': hostname,
+        'cores': hostcpus,
+        'memory': hostmem,
+        'disk': hostdisk,
+        'exip': netlist['exip'],
+        'ip0': netlist['ip0'],
+        'ip1': netlist['ip1'],
+        'ip2': netlist['ip2'],
+        'ip3': netlist['ip3'],
+        'mac0': netlist['mac0'],
+        'mac1': netlist['mac1'],
+        'mac2': netlist['mac2'],
+        'mac3': netlist['mac3'],
+        'hypervisor': getHypervisor(),
+        'ccname':'',
+    }
+    r = requests.post(url, data=payload)
+    return r.status_code
+
+def main():
+    # read /storage/config/clc.conf to register itself to cc
+    registerMyselfasCLC()
+    consumer = clc_statusConsumer()
+    consumer.run()
+
+
+if __name__ == '__main__':
+    main()

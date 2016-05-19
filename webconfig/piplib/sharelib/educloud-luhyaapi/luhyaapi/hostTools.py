@@ -318,19 +318,8 @@ def get_ndp_status(retry_num=3):
 
 
 def get_daemon_status(dtype):
-    logger.error("get_daemon_status start --- --- ")
-    if DAEMON_DEBUG == True:
-        return "Running"
-    else:
-        cmd = "sudo service " + daemon_list[dtype] + " status "
-        logger.error(cmd)
-        output = commands.getoutput(cmd)
-        if "running" in output:
-            logger.error("Running")
-            return "Running"
-        else:
-            logger.error("Closed")
-            return "Closed"
+    return "Running"
+
 
 def restart_ndp_server():
     cmd = 'netstat -an | grep 19001'

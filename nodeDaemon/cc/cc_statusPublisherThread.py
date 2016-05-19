@@ -22,7 +22,7 @@ class cc_statusPublisherThread(run4everThread):
     def collect_cc_status(self):
         payload = { }
         payload['type']             = 'ccstatus'
-        payload['service_data']     = getServiceStatus('nc')
+        payload['service_data']     = getServiceStatus('cc')
         payload['hardware_data']    = getHostHardware()
         payload['net_data']         = getHostNetInfo()
 

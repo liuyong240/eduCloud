@@ -1,7 +1,7 @@
-educloud (3.1.1) lucid; urgency=low
+educloud (3.2) lucid; urgency=low
 
   [ Thomas Li ]
-  * use py file.
+  * use supervisor to re-construct node daemon arch.
 
  -- Signing Key (Thomas Li) <package@educloud.com>  Tue, 1 Mar 2015 02:04:53 -0400
 

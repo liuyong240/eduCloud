@@ -137,12 +137,11 @@ install:
 	#     DAEMON_CLC    #
 	#####################
 	install -d $(DAEMON_CLC)/usr/local/nodedaemon/clc
+	cd $(CURDIR)/nodeDaemon/clc && sudo -u luhya pyinstaller clc_status_consumer.py -F -s
+	cp $(CURDIR)/nodeDaemon/clc/dist/clc_status_consumer         $(DAEMON_CLC)/usr/local/nodedaemon/clc
 
-	cd $(CURDIR)/nodeDaemon/clc && sudo -u luhya pyinstaller clc_daemon.py -F -s
-	cp $(CURDIR)/nodeDaemon/clc/dist/clc_daemon            $(DAEMON_CLC)/usr/local/nodedaemon/clc
-
-	install -d $(DAEMON_CLC)/usr/local/bin/
-	cp $(CURDIR)/webconfig/scripts/nodedaemon-clc          $(DAEMON_CLC)/usr/local/bin
+	install -d $(DAEMON_CLC)/etc/supervisor/conf.d
+	cp $(CURDIR)/nodeDaemon/clc/supervisor/nodedaemon-clc.conf   $(DAEMON_CLC)/etc/supervisor/conf.d
 
 	########################
 	#     DAEMON_WALRUS    #
