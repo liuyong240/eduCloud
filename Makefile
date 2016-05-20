@@ -148,11 +148,11 @@ install:
 	########################
 	install -d $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
 
-	cd $(CURDIR)/nodeDaemon/walrus && sudo -u luhya pyinstaller walrus_daemon.py -F -s
-	cp $(CURDIR)/nodeDaemon/walrus/dist/walrus_daemon            $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
+	cd $(CURDIR)/nodeDaemon/walrus && sudo -u luhya pyinstaller walrus_status_publisher.py -F -s
+	cp $(CURDIR)/nodeDaemon/walrus/dist/walrus_status_publisher            $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
 
-	install -d $(DAEMON_WALRUS)/usr/local/bin/
-	cp $(CURDIR)/webconfig/scripts/nodedaemon-walrus          $(DAEMON_WALRUS)/usr/local/bin
+	install -d $(DAEMON_WALRUS)/etc/supervisor/conf.d
+	cp $(CURDIR)/nodeDaemon/walrus/supervisor/nodedaemon-walrus.conf   $(DAEMON_WALRUS)/etc/supervisor/conf.d
 
 	####################
 	#     DAEMON_CC    #

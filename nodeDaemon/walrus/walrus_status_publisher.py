@@ -1,24 +1,29 @@
-#!/usr/bin/python -u
-
-__version__ = '1.0.0'
-
-import Queue, requests
-from walrus_statusPublisherThread import *
-from luhyaapi.educloudLog import *
-from luhyaapi.luhyaTools import configuration
+from luhyaapi.run4everProcess import *
+from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.hostTools import *
+from luhyaapi.educloudLog import *
+import time, json
+import requests
 
 logger = getwalrusdaemonlogger()
 
-'''
+class walrus_statusPublisher():
+    def __init__(self):
+        pass
 
-start a few worker thread
-if there worker thread dies, restart them
-list of daemon and worker thread
+    def statusMessageHandle(self, ch, method, properties, body):
+        pass
 
-1. a status report daemon, periodically report walrus status to CLC's status_queue
+    def run(self):
+        connection = getConnection("localhost")
+        channel = connection.channel()
+        channel.queue_declare(queue='walrus_status_queue')
+        channel.basic_consume(self.statusMessageHandle,
+                              queue='walrus_status_queue',
+                              no_ack=True)
+        channel.start_consuming()
 
-'''
+
 def registerMyselfasWALRUS():
     clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
 
@@ -49,30 +54,12 @@ def registerMyselfasWALRUS():
     r = requests.post(url, data=payload)
     return r.status_code
 
-def main ():
+def main():
     # read /storage/config/clc.conf to register itself to cc
     registerMyselfasWALRUS()
+    publisher = walrus_statusPublisher()
+    publisher.run()
 
-    # start main loop to start & monitor thread
-    thread_array = ['walrus_statusPublisherThread']
-    bucket = Queue.Queue()
-
-    for daemon in thread_array:
-        bucket.put(daemon)
-
-    while True:
-        try:
-            daemon_name = bucket.get(block=True)
-            bucket.task_done()
-
-            logger.error("restart %s ... ..." % (daemon_name))
-
-            obj = globals()[daemon_name](bucket)
-            obj.daemon = True
-            obj.start()
-
-        except Exception as e:
-            logger.error(str(e))
 
 if __name__ == '__main__':
-  main ()
+    main()
