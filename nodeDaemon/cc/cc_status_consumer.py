@@ -1,35 +1,30 @@
-#!/usr/bin/python -u
-
-__version__ = '1.0.0'
-
-import Queue,requests
-
-from cc_cmdConsumerThread import *
-from cc_statusPublisherThread import *
-from cc_statusConsumerThread import *
-from cc_rpcServerThread import *
-
-from luhyaapi.educloudLog import *
-from luhyaapi.luhyaTools import configuration
+from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.hostTools import *
+from luhyaapi.educloudLog import *
+import time, requests
 
 logger = getccdaemonlogger()
 
-'''
+class cc_statusConsumer():
+    def __init__(self, ):
+        logger.error("cc_status_consumer start running")
+        self.clcip = getclcipbyconf()
 
-start a few worker thread
-if there worker thread dies, restart them
-list of daemon and worker thread
+    def forwardTaskStatus2CLC(self, message):
+        simple_send(logger, self.clcip, 'clc_status_queue', message)
 
-1. a status_queue consumer deamon, after process based on message type, forwarding to CLC's status_queue
+    def statusMessageHandle(self, ch, method, properties, body):
+        self.forwardTaskStatus2CLC(body)
 
-2. a status report daemon, periodically report CC status to CLC's status_queue
+    def run(self):
+        connection = getConnection("localhost")
+        channel = connection.channel()
+        channel.queue_declare(queue='cc_status_queue')
+        channel.basic_consume(self.statusMessageHandle,
+                              queue='cc_status_queue',
+                              no_ack=True)
+        channel.start_consuming()
 
-3. a cmd_queue comsumer daemon for handler RPC like
-3.1  download image from walrus
-3.2  upload image to walrus
-
-'''
 def perform_mount():
     logger.error("Enter perform_mount() ... ...")
     # mount clc's /storage/space/{software, pub-data} to local
@@ -87,31 +82,10 @@ def registerMyselfasCC():
 def main():
     # read /storage/config/cc.conf to register itself to cc
     registerMyselfasCC()
-
     perform_mount()
 
-    # start main loop to start & monitor thread
-    # thread_array = ['cc_statusPublisherThread', 'cc_statusConsumerThread', 'cc_rpcServerThread']
-    thread_array = ['cc_rpcServerThread', 'cc_statusConsumerThread', 'cc_statusPublisherThread']
-    bucket = Queue.Queue()
-
-    for daemon in thread_array:
-        bucket.put(daemon)
-
-    while True:
-        try:
-            daemon_name = bucket.get(block=True)
-            bucket.task_done()
-
-            logger.error("restart %s ... ..." % (daemon_name))
-
-            obj = globals()[daemon_name](bucket)
-            obj.daemon = True
-            obj.start()
-
-        except Exception as e:
-            logger.error(str(e))
-
+    consumer = cc_statusConsumer()
+    consumer.run()
 
 if __name__ == '__main__':
     main()

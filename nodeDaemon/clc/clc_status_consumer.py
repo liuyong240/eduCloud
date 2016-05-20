@@ -10,6 +10,7 @@ logger = getclcdaemonlogger()
 
 class clc_statusConsumer():
     def __init__(self):
+        logger.error("clc_status_consumer start running")
         self.mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
     def save2Mem(self, key, msg):

@@ -159,11 +159,14 @@ install:
 	####################
 	install -d $(DAEMON_CC)/usr/local/nodedaemon/cc
 
-	cd $(CURDIR)/nodeDaemon/cc && sudo -u luhya pyinstaller cc_daemon.py -F -s
-	cp $(CURDIR)/nodeDaemon/cc/dist/cc_daemon            $(DAEMON_CC)/usr/local/nodedaemon/cc
+	cd $(CURDIR)/nodeDaemon/cc && sudo -u luhya pyinstaller cc_cmd_consumer.py -F -s
+	cd $(CURDIR)/nodeDaemon/cc && sudo -u luhya pyinstaller cc_rpc_server.py -F -s
+	cd $(CURDIR)/nodeDaemon/cc && sudo -u luhya pyinstaller cc_status_consumer.py -F -s
+	cd $(CURDIR)/nodeDaemon/cc && sudo -u luhya pyinstaller cc_status_publisher.py -F -s
+	cp $(CURDIR)/nodeDaemon/cc/dist/cc_*            $(DAEMON_CC)/usr/local/nodedaemon/cc
 
-	install -d $(DAEMON_CC)/usr/local/bin/
-	cp $(CURDIR)/webconfig/scripts/nodedaemon-cc          $(DAEMON_CC)/usr/local/bin
+	install -d $(DAEMON_CC)/etc/supervisor/conf.d
+	cp $(CURDIR)/nodeDaemon/cc/supervisor/nodedaemon-cc.conf   $(DAEMON_CC)/etc/supervisor/conf.d
 
 	####################
 	#     DAEMON_NC    #

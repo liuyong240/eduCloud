@@ -1,4 +1,3 @@
-from luhyaapi.run4everProcess import *
 from luhyaapi.educloudLog import *
 from luhyaapi.hostTools import *
 from luhyaapi.rabbitmqWrapper import *
@@ -7,13 +6,13 @@ import time, psutil
 
 logger = getccdaemonlogger()
 
-class cc_statusPublisherThread(run4everThread):
-    def __init__(self, bucket):
-        run4everThread.__init__(self, bucket)
+class cc_statusPublisherThread():
+    def __init__(self, ):
+        logger.error("cc_status_publisher start running")
         self._clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
         logger.error("clc ip = %s" % self._clcip)
 
-    def run4ever(self):
+    def run(self):
         while True:
             cc_status = self.collect_cc_status()
             self.send_node_status_to_clc(cc_status)
@@ -32,3 +31,10 @@ class cc_statusPublisherThread(run4everThread):
 
     def send_node_status_to_clc(self, node_status):
         simple_send(logger, self._clcip, 'clc_status_queue', json.dumps(node_status))
+
+def main():
+    publisher = cc_statusPublisherThread()
+    publisher.run()
+
+if __name__ == '__main__':
+    main()

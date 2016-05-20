@@ -9,7 +9,7 @@ logger = getwalrusdaemonlogger()
 
 class walrus_statusPublisher():
     def __init__(self):
-        pass
+        logger.error("walrus_status_publisher start running")
 
     def statusMessageHandle(self, ch, method, properties, body):
         pass

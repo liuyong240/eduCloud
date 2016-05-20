@@ -1,5 +1,4 @@
 # coding=UTF-8
-from luhyaapi.run4everProcess import *
 from luhyaapi.educloudLog import *
 from luhyaapi.clcAPIWrapper import *
 from luhyaapi.hostTools import *
@@ -7,17 +6,13 @@ from luhyaapi.rsyncWrapper import *
 from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.settings import *
 
-
 import time, pika, json, os
 
 logger = getccdaemonlogger()
 
-
-
-class cc_rpcServerThread(run4everThread):
-    def __init__(self, bucket):
-        run4everThread.__init__(self, bucket)
-
+class cc_rpcServer():
+    def __init__(self,):
+        logger.error("cc_rpc_server start running")
         self.connection = getConnection("localhost")
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue='rpc_queue')
@@ -43,7 +38,7 @@ class cc_rpcServerThread(run4everThread):
         self.db_tasks_status = {}
         self.submit_tasks = {}
 
-    def run4ever(self):
+    def run(self):
         self.channel.basic_consume(self.on_request, queue='rpc_queue')
         self.channel.start_consuming()
 
@@ -335,3 +330,10 @@ class cc_rpcServerThread(run4everThread):
         except Exception as e:
             logger.error("cc_rpc_handle_image_stopped Exception Error Message : %s" % str(e))
 
+
+def main():
+    rpcserver = cc_rpcServer()
+    rpcserver.run()
+
+if __name__ == '__main__':
+    main()
