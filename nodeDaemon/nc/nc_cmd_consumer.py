@@ -1,4 +1,3 @@
-from luhyaapi.run4everProcess import *
 from luhyaapi.hostTools import *
 from luhyaapi.educloudLog import *
 from luhyaapi.rabbitmqWrapper import *
@@ -925,9 +924,9 @@ nc_cmd_handlers = {
     'task/delete'       : nc_task_delete_handle,
 }
 
-class nc_cmdConsumerThread(run4everThread):
-    def __init__(self, bucket):
-        run4everThread.__init__(self, bucket)
+class nc_cmdConsumer():
+    def __init__(self,):
+        logger.error("nc_cmd_consumer start running")
         self.ccip = getccipbyconf()
 
     def cmdHandle(self, ch, method, properties, body):
@@ -938,7 +937,7 @@ class nc_cmdConsumerThread(run4everThread):
         else:
             logger.error("unknow cmd : %s", message['op'])
 
-    def run4ever(self):
+    def run(self):
         connection = getConnection(self.ccip)
         channel = connection.channel()
 
@@ -959,3 +958,12 @@ class nc_cmdConsumerThread(run4everThread):
                               no_ack=True)
 
         channel.start_consuming()
+
+
+def main():
+    consumer = nc_cmdConsumer()
+    consumer.run()
+
+
+if __name__ == '__main__':
+    main()

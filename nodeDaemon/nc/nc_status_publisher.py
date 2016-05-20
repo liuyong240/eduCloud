@@ -1,51 +1,53 @@
-#!/usr/bin/python -u
-
-__version__ = '1.0.0'
-
-import Queue, requests
-from nc_cmdConsumerThread import *
-from nc_statusPublisherThread import *
 from luhyaapi.educloudLog import *
-from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
+from luhyaapi.rabbitmqWrapper import *
+from luhyaapi.vboxWrapper import *
+
+import time, psutil, requests
 
 logger = getncdaemonlogger()
 
-'''
-start a few worker thread
-if there worker thread dies, restart them
-list of daemon and worker thread
+class nc_statusPublisher():
+    def __init__(self, ):
+        logger.error("nc_status_publisher start running")
+        self._ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
+        logger.error("cc ip = %s" % self._ccip)
 
-1. a cmd_queue consumer/dispatch deamon, get cmd from CC's cmd queue, and start cmd work thread
+    def run(self):
+        while True:
+            try:
+                node_status = self.collect_node_status()
+                self.send_node_status_to_cc(node_status)
+                time.sleep(5*60)
+            except Exception as e:
+                logger.error('nc_statusPublisherThread exception = %s' % str(e))
 
-2. a status report daemon, periodically report NC/VMs status to CC's status_queue
+    def collect_node_status(self):
+        payload = { }
+        payload['type']             = 'nodestatus'
+        try:
+            payload['service_data']     = getServiceStatus('nc')
+        except Exception as e:
+            logger.error('getServiceStatus exception = %s' % str(e))
+        try:
+            payload['hardware_data']    = getHostHardware()
+        except Exception as e:
+            logger.error('getHostHardware exception = %s' % str(e))
+        try:
+            payload['net_data']         = getHostNetInfo()
+        except Exception as e:
+            logger.error('getHostNetInfo exception = %s' % str(e))
+        try:
+            payload['vm_data']          = getVMlist()
+        except Exception as e:
+            logger.error('getVMlist exception = %s' % str(e))
 
-3. legeal cmds are
-3.1  image build,
-       - RPC call to CC to download image from walrus
-       - download image from CC cache
-       - clone a new images
-       - create & run vm, report access URL
-3.2  image modify
-       - RPC call to CC to download image from walrus
-       - download image from CC cache
-       - create & run vm, report access URL
-3.3  image submit
-       - upload ready-image to CC
-       - RPC call CC to upload image to walrus
-3.4  run lvd
-       - RPC call to CC to download image from walrus
-       - download image from CC cache
-       - create & run vm
-3.5  run rvd
-       - RPC call to CC to download image from walrus
-       - download image from CC cache
-       - create & run vm
-3.6  run vs
-       - RPC call to CC to download image from walrus
-       - download image from CC cache
-       - create & run vm
-'''
+        payload['nid']              = "nc#" + payload['net_data']['mac0'] + "#status"
+        return payload
+
+    def send_node_status_to_cc(self, node_status):
+        simple_send(logger, self._ccip, 'cc_status_queue', json.dumps(node_status))
+
 
 def perform_mount():
     # mount cc's /storage/space/ to local
@@ -127,27 +129,10 @@ def main():
     if not isLNC():
         perform_mount()
 
-    # start main loop to start & monitor thread
-    thread_array = ['nc_cmdConsumerThread', 'nc_statusPublisherThread']
-    bucket = Queue.Queue()
+    publisher = nc_statusPublisher()
+    publisher.run()
 
-    for daemon in thread_array:
-        bucket.put(daemon)
-
-    while True:
-        try:
-            daemon_name = bucket.get(block=True)
-            bucket.task_done()
-
-            logger.error("restart %s ... ..." % (daemon_name))
-
-            obj = globals()[daemon_name](bucket)
-            obj.daemon = True
-            obj.start()
-
-        except Exception as e:
-            logger.error(str(e))
-            time.sleep(3)
 
 if __name__ == '__main__':
     main()
+

@@ -176,17 +176,19 @@ install:
 
 	install -d $(DAEMON_NC)/usr/local/nodedaemon/nc
 
-	cd $(CURDIR)/nodeDaemon/nc && sudo -u luhya pyinstaller nc_daemon.py -F -s
-	cp $(CURDIR)/nodeDaemon/nc/dist/nc_daemon            $(DAEMON_NC)/usr/local/nodedaemon/nc
+	cd $(CURDIR)/nodeDaemon/nc && sudo -u luhya pyinstaller nc_cmd_consumer.py -F -s
+	cd $(CURDIR)/nodeDaemon/nc && sudo -u luhya pyinstaller nc_status_publisher.py -F -s
+	cp $(CURDIR)/nodeDaemon/nc/dist/nc_*            $(DAEMON_NC)/usr/local/nodedaemon/nc/
 
-	install -d $(DAEMON_NC)/usr/local/bin/
-	cp $(CURDIR)/webconfig/scripts/nodedaemon-nc          $(DAEMON_NC)/usr/local/bin
+	install -d $(DAEMON_NC)/etc/supervisor/conf.d
+	cp $(CURDIR)/nodeDaemon/nc/supervisor/nodedaemon-nc.conf   $(DAEMON_NC)/etc/supervisor/conf.d/
 
 	##
 	## add tool for host crash recovery
 	##
+	install -d $(DAEMON_NC)/usr/local/bin
 	cd $(CURDIR)/webconfig/serverTools/ && sudo -u luhya pyinstaller recoverVMfromCrash.py -F -s
-	cp $(CURDIR)/webconfig/serverTools/dist/recoverVMfromCrash             $(DAEMON_NC)/usr/local/bin
+	cp $(CURDIR)/webconfig/serverTools/dist/recoverVMfromCrash             $(DAEMON_NC)/usr/local/bin/
 
 	####################
 	#     DAEMON_TNC   #
