@@ -10,12 +10,12 @@ def checkPackage( pname ):
        return False
 
 def usage():
-    print "Usage : allinone-install [-h hostip -v [vbox|ndp|kvm] -m [a|w] ]"
+    print "Usage : allinone-install [-h hostip -v [vbox|ndp|kvm]]"
 
 def main(argv):
     DST_IP = '121.41.80.147'
     HYPERVISOR = 'ndp'
-    MODE = "a"
+    MODE = "w"
 
     try:
       opts, args = getopt.getopt(argv,"h:v:m:",["host=","virt=","mode="])
