@@ -862,7 +862,8 @@ def nc_image_stop_handle(tid, runtime_option):
     dstimgid = retval[1]
     insid    = retval[2]
 
-    cmd = VBOX_MGR_CMD + " controlvm %s poweroff " % insid
+    # cmd = VBOX_MGR_CMD + " controlvm %s poweroff " % insid
+    cmd = "ndpcmd poweroff %s " % insid
     out = commands.getoutput(cmd)
     logger.error("cmd=%s; result=%s" % (cmd, out))
 
