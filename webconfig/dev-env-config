@@ -9,5 +9,5 @@ alias publish='scp /mnt/src/*.deb root@121.41.80.147:/root/Downloads/ && scp /mn
 alias publish2client='scp /mnt/src/educloud-client/*.deb 192.168.56.102:/home/luhya/Downloads/client/ && scp /mnt/src/educloud-client/src/scripts/*.py 192.168.56.102:/var/packages/scripts/client/'
 alias publish_client='scp /mnt/src/educloud-client/*.deb root@121.41.80.147:/root/Downloads/client/ && scp /mnt/src/educloud-client/src/scripts/*.py root@121.41.80.147:/var/packages/scripts/client/'
 
-sudo apt-get install git git-core openssh-server dpkg dpkg-dev python-pip
+sudo apt-get install git git-core openssh-server dpkg dpkg-dev python-pip quilt
 pip install PyInstaller
