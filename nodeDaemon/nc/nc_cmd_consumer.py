@@ -963,7 +963,7 @@ nc_cmd_handlers = {
 }
 
 class nc_cmdConsumer():
-    def __init__(self, port=9999):
+    def __init__(self, port=NC_CMD_QUEUE_PORT):
         logger.error("zmq: nc_cmd_consumer start running")
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)

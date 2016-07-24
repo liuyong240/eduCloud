@@ -9,6 +9,16 @@ from IPy import IP
 from luhyaapi.educloudLog import *
 logger = getclclogger()
 
+NC_CMD_QUEUE_PORT = 9999
+
+import zmq
+def zmq_send(ip, msg, port):
+    context = zmq.Context()
+    socket = context.socket(zmq.PAIR)
+    socket.connect("tcp://%s:%s" % (ip,port))
+
+    socket.send(msg)
+
 # PUBLIC or PRIVATE
 def getIPType(ipaddr):
     ip = IP(ipaddr)

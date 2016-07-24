@@ -54,14 +54,6 @@ def removeIPtables_image_create_task(request):
 #####################################
 ## Image build functions
 #####################################
-import zmq
-def zmq_send(ip, msg, port=9999):
-    context = zmq.Context()
-    socket = context.socket(zmq.PAIR)
-    socket.connect("tcp://%s:%s" % (ip,port))
-
-    socket.send(msg)
-
 def image_create_task_prepare(request):
     logger.error("--- --- --- prepare_image_create_task")
     ncip = request.POST['ncip']
@@ -73,7 +65,7 @@ def image_create_task_prepare(request):
     message['runtime_option']   = request.POST['runtime_option']
     message = json.dumps(message)
 
-    zmq_send(ncip, message)
+    zmq_send(ncip, message, NC_CMD_QUEUE_PORT)
     logger.error("--- --- ---zmq: send prepare cmd to nc sucessfully")
 
     # return http response
@@ -96,7 +88,7 @@ def image_create_task_run(request):
     message['runtime_option']   = request.POST['runtime_option']
 
     _message = json.dumps(message)
-    zmq_send(ncip, _message)
+    zmq_send(ncip, _message, NC_CMD_QUEUE_PORT)
     logger.error("--- --- ---zmq: send run cmd to nc sucessfully")
 
     # check for runtime_option for cc's side work
@@ -126,7 +118,7 @@ def image_create_task_stop(request):
     message['runtime_option']   = request.POST['runtime_option']
 
     _message = json.dumps(message)
-    zmq_send(ncip, _message)
+    zmq_send(ncip, _message, NC_CMD_QUEUE_PORT)
     logger.error("--- --- ---zmq: send stop cmd to nc sucessfully")
 
     # check for runtime_option for cc's side work
@@ -155,7 +147,7 @@ def image_create_task_submit(request):
     message['runtime_option']   = request.POST['runtime_option']
     message = json.dumps(message)
 
-    zmq_send(ncip, message)
+    zmq_send(ncip, message, NC_CMD_QUEUE_PORT)
     logger.error("--- --- ---zmq: send submit cmd to nc sucessfully")
 
     # return http response
@@ -289,7 +281,7 @@ def delete_tasks(request):
     message['runtime_option']   = request.POST['runtime_option']
     message = json.dumps(message)
 
-    zmq_send(ncip, message)
+    zmq_send(ncip, message, NC_CMD_QUEUE_PORT)
     logger.error("--- --- ---zmq: send task delete cmd to nc sucessfully")
 
     # return http response
