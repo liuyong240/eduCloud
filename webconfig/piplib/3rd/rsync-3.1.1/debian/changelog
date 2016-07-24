@@ -1,3 +1,7 @@
+rsync (16.0.4-3ubuntu1) xenial; urgency=medium
+
+  * change the outpt of rsync by add luhya keyword 
+
 rsync (3.1.1-3ubuntu1) xenial; urgency=medium
 
   * SECURITY UPDATE: incomplete fix for rsync path spoofing attack

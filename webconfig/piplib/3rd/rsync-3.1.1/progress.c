@@ -125,7 +125,7 @@ static void rprint_progress(OFF_T ofs, OFF_T size, struct timeval *now,
 
 	output_needs_newline = 0;
 	pct = ofs == size ? 100 : (int) (100.0 * ofs / size);
-	rprintf(FCLIENT, "\r%15s %3d%% %7.2f%s %s%s",
+	rprintf(FCLIENT, "luhya: %15s %3d%% %7.2f%s %s%s\n",
 		human_num(ofs), pct, rate, units, rembuf, eol);
 	if (!is_last) {
 		output_needs_newline = 1;
