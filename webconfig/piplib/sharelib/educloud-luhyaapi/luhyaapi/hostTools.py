@@ -261,7 +261,7 @@ def getSysMemUtil():
 import socket, commands
 
 def DoesServiceExist(host, port, protocol='tcp'):
-    logger.error("DoesServiceExist at port=%s --- --- ", port)
+    # logger.error("DoesServiceExist at port=%s --- --- ", port)
     try:
         if protocol == 'tcp':
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -270,7 +270,7 @@ def DoesServiceExist(host, port, protocol='tcp'):
         s.settimeout(1)
         ret = s.connect((host, port))
         s.close()
-        logger.error("Running")
+        #logger.error("Running")
         return "Running"
     except Exception as e:
         logger.error(str(e))
@@ -430,7 +430,7 @@ def getHypervisor():
         return ''
 
 def isNDPed():
-    if os.path.exists('/usr/bin/ndpserver'):
+    if os.path.exists('/usr/ndp/server/NDPServer'):
         return True
     else:
         return False

@@ -4,13 +4,19 @@ from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.rsyncWrapper import *
 from luhyaapi.vboxWrapper import *
 from luhyaapi.clcAPIWrapper import *
-import pika, json, time, shutil, os, commands
+import pika, json, time, shutil, os, commands, zmq
+import multiprocessing
 
 logger = getncdaemonlogger()
+img_tasks_status = {}
+db_tasks_status  = {}
 
-class prepareImageTaskThread(threading.Thread):
+#################################################
+#  worker thread
+
+class prepareImageTaskThread(multiprocessing.Process):
     def __init__(self, tid, runtime_option):
-        threading.Thread.__init__(self)
+        multiprocessing.Process.__init__(self)
         retval                  = tid.split(':')
         self.tid                = tid
         self.srcimgid           = retval[0]
@@ -339,9 +345,11 @@ class prepareImageTaskThread(threading.Thread):
             payload['state']    = 'init'
             self.forwardTaskStatus2CC(json.dumps(payload))
 
-class SubmitImageTaskThread(threading.Thread):
+        self.terminate()
+
+class SubmitImageTaskThread(multiprocessing.Process):
     def __init__(self, tid, runtime_option):
-        threading.Thread.__init__(self)
+        multiprocessing.Process.__init__(self)
         retval = tid.split(':')
         self.tid      = tid
         self.srcimgid = retval[0]
@@ -562,19 +570,11 @@ class SubmitImageTaskThread(threading.Thread):
             payload['state'] = 'init'
             self.forwardTaskStatus2CC(json.dumps(payload))
 
+        self.terminate()
 
-img_tasks_status = {}
-db_tasks_status  = {}
-
-def nc_image_prepare_handle(tid, runtime_option):
-    logger.error("--- --- --- nc_image_prepare_handle")
-    worker = prepareImageTaskThread(tid, runtime_option)
-    worker.start()
-    return worker
-
-class runImageTaskThread(threading.Thread):
+class runImageTaskThread(multiprocessing.Process):
     def __init__(self, tid, runtime_option):
-        threading.Thread.__init__(self)
+        multiprocessing.Process.__init__(self)
 
         self.ccip     = getccipbyconf()
 
@@ -712,6 +712,7 @@ class runImageTaskThread(threading.Thread):
 
         try:
             if not vboxmgr.isVMRunning():
+                logger.error("--- --- --- vboxmgr is not running")
                 # every time before running, take a NEW snapshot
                 snapshot_name = "thomas"
                 if self.runtime_option['run_with_snapshot'] == 1:
@@ -721,6 +722,7 @@ class runImageTaskThread(threading.Thread):
                     else:
                         ret = vboxmgr.take_snapshot(snapshot_name)
 
+                logger.error("--- --- --- check whether it is LNC")
                 if isLNC():
                     headless = False
                 else:
@@ -742,6 +744,7 @@ class runImageTaskThread(threading.Thread):
             payload['failed'] = 1
             payload['state'] = 'stopped'
             payload['errormsg'] = str(e)
+            process_delete_cmd(self.tid)
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
         logger.error('runvm result: %s' % json.dumps(payload))
@@ -778,6 +781,28 @@ class runImageTaskThread(threading.Thread):
         except Exception as e:
             logger.error("runImageTask Exception Error Message : %s" % str(e))
 
+        self.terminate()
+
+class StopImageTaskThread(multiprocessing.Process):
+    def __init__(self, tid, runtime_option):
+        multiprocessing.Process.__init__(self)
+        self.tid = tid
+
+    def run(self):
+        process_stop_cmd(self.tid)
+        self.terminate()
+
+class DeleteImageTaskThread(multiprocessing.Process):
+    def __init__(self, tid, runtime_option):
+        multiprocessing.Process.__init__(self)
+        self.tid = tid
+
+    def run(self):
+        process_delete_cmd(self.tid)
+        # need to update nc's status at once
+        update_nc_running_status()
+        self.terminate()
+
 def update_nc_running_status():
     payload = { }
     payload['type']             = 'nodestatus'
@@ -790,17 +815,69 @@ def update_nc_running_status():
 
     ccip = getccipbyconf()
     simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
-    logger.error("update_nc_running_status = %s" % json.dumps(payload))
+    # logger.error("update_nc_running_status = %s" % json.dumps(payload))
 
-def nc_image_run_handle(tid, runtime_option):
-    logger.error("--- --- --- nc_image_run_handle")
+def process_stop_cmd(tid):
+    retval   = tid.split(':')
+    srcimgid = retval[0]
+    dstimgid = retval[1]
+    insid    = retval[2]
 
-    worker = runImageTaskThread(tid, runtime_option)
-    worker.start()
-    pass
+    cmd = VBOX_MGR_CMD + " controlvm %s poweroff " % insid
+    out = commands.getoutput(cmd)
 
-def nc_task_delete_handle(tid, runtime_option):
-    logger.error("--- --- --- nc_image_delete_handle")
+    cmd = "ndpcmd poweroff %s " % insid
+    out = commands.getoutput(cmd)
+
+    cmd = "pkill -f %s" % insid
+    out = commands.getoutput(cmd)
+
+    logger.error("Step 1 of 2: cmd=%s; result=%s" % (cmd, out))
+
+    payload = {
+            'type'      : 'taskstatus',
+            'phase'     : "editing",
+            'state'     : 'stopped',
+            'progress'  : 0,
+            'tid'       : tid,
+            'errormsg'  : '',
+            'failed'    : 0
+    }
+
+    ccip = getccipbyconf()
+    simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
+
+    # process for different type instance
+    if srcimgid != dstimgid:
+        rootdir = "/storage/tmp"
+    else:
+        rootdir = "/storage"
+
+    vboxmgr = vboxWrapper(dstimgid, insid, rootdir)
+
+    # build/modify insid is TMPxxxxx, when stopped, do nothing else
+    if insid.find('TMP') == 0:
+        pass
+
+    # running vd   insid is VDxxxx,   when stopped, delete all except image file
+    if insid.find('VD') == 0 or insid.find('TVD') == 0:
+        # restore snapshot
+        if vboxmgr.isSnapshotExist('thomas'):
+            vboxmgr.restore_snapshot('thomas')
+            logger.error('zmq:restore snapshot thomas for %s' % insid)
+
+    # running vs   insid is VSxxxx,   when stopped, delete all except image file
+    if insid.find('VS') == 0:
+        # restore snapshot
+        if vboxmgr.isSnapshotExist('thomas'):
+            vboxmgr.restore_snapshot('thomas')
+            logger.error('zmq:restore snapshot thomas for %s' % insid)
+
+    logger.error("Step 2 of 2: restore snapshot")
+
+def process_delete_cmd(tid):
+    logger.error("Step 1: stop the VM when delete task ")
+    process_stop_cmd(tid)
 
     retval   = tid.split(':')
     srcimgid = retval[0]
@@ -814,19 +891,11 @@ def nc_task_delete_handle(tid, runtime_option):
 
     vboxmgr = vboxWrapper(dstimgid, insid, rootdir)
 
-    if vboxmgr.isVMRunning():
-        nc_image_stop_handle(tid, runtime_option)
+    logger.error("Step 2: unregisterVM")
+    ret = vboxmgr.unregisterVM(delete=True)
+    logger.error("--- vboxmgr.unregisterVM ret=%s" % (ret))
 
-    find_registered_vm = False
-    vminfo = getVMlist()
-    for vm in vminfo:
-        if vm['insid'] == insid:
-            find_registered_vm = True
-            break
-
-    if find_registered_vm == True:
-        ret = vboxmgr.unregisterVM(delete=True)
-        logger.error("--- vboxmgr.unregisterVM ret=%s" % (ret))
+    logger.error("Step 3: deleteVMConfigFile")
     ret = vboxmgr.deleteVMConfigFile()
     logger.error("--- vboxmgr.deleteVMConfigFile ret=%s" % (ret))
 
@@ -853,69 +922,37 @@ def nc_task_delete_handle(tid, runtime_option):
             if os.path.exists(os.path.dirname(disk)):
                 logger.error("%s is not really deleted." % disk)
 
+#################################################
+#  cmd handle function
 
-def nc_image_stop_handle(tid, runtime_option):
-    logger.error("--- --- --- nc_image_stop_handle")
+def nc_image_prepare_handle(tid, runtime_option):
+    logger.error("--- --- ---zmq: nc_image_prepare_handle")
+    worker = prepareImageTaskThread(tid, runtime_option)
+    worker.start()
+    return worker
 
-    retval   = tid.split(':')
-    srcimgid = retval[0]
-    dstimgid = retval[1]
-    insid    = retval[2]
-
-    # cmd = VBOX_MGR_CMD + " controlvm %s poweroff " % insid
-    cmd = "ndpcmd poweroff %s " % insid
-    out = commands.getoutput(cmd)
-    logger.error("cmd=%s; result=%s" % (cmd, out))
-
-    payload = {
-            'type'      : 'taskstatus',
-            'phase'     : "editing",
-            'state'     : 'stopped',
-            'progress'  : 0,
-            'tid'       : tid,
-            'errormsg'  : '',
-            'failed'    : 0
-    }
-
-    ccip = getccipbyconf()
-    simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
-
-    # need to update nc's status at once
-    update_nc_running_status()
-
-    # process for different type instance
-    if srcimgid != dstimgid:
-        rootdir = "/storage/tmp"
-    else:
-        rootdir = "/storage"
-
-    vboxmgr = vboxWrapper(dstimgid, insid, rootdir)
-
-    # build/modify insid is TMPxxxxx, when stopped, do nothing else
-    if insid.find('TMP') == 0:
-        pass
-
-    # running vd   insid is VDxxxx,   when stopped, delete all except image file
-    if insid.find('VD') == 0 or insid.find('TVD') == 0:
-        # restore snapshot
-        if vboxmgr.isSnapshotExist('thomas'):
-            vboxmgr.restore_snapshot('thomas')
-            logger.error('restore snapshot thomas for %s' % insid)
-
-    # running vs   insid is VSxxxx,   when stopped, delete all except image file
-    if insid.find('VS') == 0:
-        # restore snapshot
-        if vboxmgr.isSnapshotExist('thomas'):
-            vboxmgr.restore_snapshot('thomas')
-            logger.error('restore snapshot thomas for %s' % insid)
+def nc_image_run_handle(tid, runtime_option):
+    logger.error("--- --- ---zmq: nc_image_run_handle")
+    worker = runImageTaskThread(tid, runtime_option)
+    worker.start()
 
 def nc_image_submit_handle(tid, runtime_option):
-    logger.error("--- --- --- nc_image_submit_handle")
-
+    logger.error("--- --- ---zmq: nc_image_submit_handle")
     worker = SubmitImageTaskThread(tid, runtime_option)
     worker.start()
     return worker
 
+def nc_image_stop_handle(tid, runtime_option):
+    logger.error("--- --- ---zmq: nc_image_stop_handle")
+    worker = StopImageTaskThread(tid, runtime_option)
+    worker.start()
+    return worker
+
+def nc_task_delete_handle(tid, runtime_option):
+    logger.error("--- --- ---zmq: nc_image_delete_handle")
+    worker = DeleteImageTaskThread(tid, runtime_option)
+    worker.start()
+    return worker
 
 nc_cmd_handlers = {
     'image/prepare'     : nc_image_prepare_handle,
@@ -926,39 +963,24 @@ nc_cmd_handlers = {
 }
 
 class nc_cmdConsumer():
-    def __init__(self,):
-        logger.error("nc_cmd_consumer start running")
-        self.ccip = getccipbyconf()
+    def __init__(self, port=9999):
+        logger.error("zmq: nc_cmd_consumer start running")
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.PAIR)
+        self.socket.bind("tcp://*:%s" % port)
 
-    def cmdHandle(self, ch, method, properties, body):
-        logger.error(" get command = %s" %  body)
+    def cmdHandle(self, body):
         message = json.loads(body)
-        if  message['op'] in  nc_cmd_handlers and nc_cmd_handlers[message['op']] != None:
+        if message.has_key('op') and message['op'] in  nc_cmd_handlers and nc_cmd_handlers[message['op']] != None:
+            logger.error("zmq: nc get cmd = %s" %  body)
             nc_cmd_handlers[message['op']](message['tid'], message['runtime_option'])
         else:
-            logger.error("unknow cmd : %s", message['op'])
+            logger.error("zmq: nc get unknown cmd : %s", body)
 
     def run(self):
-        connection = getConnection(self.ccip)
-        channel = connection.channel()
-
-        channel.exchange_declare(exchange='nc_cmd',
-                                 type='direct')
-
-        result = channel.queue_declare(exclusive=True)
-        queue_name = result.method.queue
-
-        ip0 = getHostNetInfo()['ip0']
-
-        channel.queue_bind(exchange='nc_cmd',
-                           queue=queue_name,
-                           routing_key=ip0)
-
-        channel.basic_consume(self.cmdHandle,
-                              queue=queue_name,
-                              no_ack=True)
-
-        channel.start_consuming()
+        while True:
+            msg = self.socket.recv()
+            self.cmdHandle(msg)
 
 
 def main():
