@@ -15,4 +15,7 @@ if [ "$1" = "configure" ]; then
     # enable kvm default network
     virsh net-destroy default
     virsh net-start default
+
+    systemctl enable supervisor
+    systemctl start supervisor
 fi

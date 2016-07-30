@@ -87,9 +87,9 @@ def main(argv):
     cmd_line = 'sudo apt-get -y install mysql-server'
     os.system(cmd_line)
 
-    if checkPackage('mysql-server-5.5') == False:
+    if checkPackage('mysql-server-5.7') == False:
        print "--------------------------------------------------"
-       print "Install mysql-server-5.5 Failed, please try again."
+       print "Install mysql-server-5.7 Failed, please try again."
        print "--------------------------------------------------"
        exit(1)
 
@@ -239,12 +239,19 @@ def main(argv):
     ##############################################################################
     cmd_line = 'wget http://%s/pip.tar' % DST_IP
     os.system(cmd_line)
+
     cmd_line = 'tar vxf pip.tar -C /tmp/'
     commands.getoutput(cmd_line)
-    cmd_line = 'sudo pip install /tmp/*.tar.gz'
+
+    cmd_line = 'rm /tmp/rsync_16.0.4.orig.tar.gz'
+    commands.getoutput(cmd_line)
+
+    cmd_line = 'export LC_ALL=C && sudo pip install /tmp/*.tar.gz'
     os.system(cmd_line)
+
     cmd_line = 'sudo dpkg -i /tmp/*.deb'
     os.system(cmd_line)
+
     cmd_line = 'rm pip.tar'
     commands.getoutput(cmd_line)
 
@@ -275,12 +282,12 @@ def main(argv):
     print '#### create default admin account step 1 ####'
     # raw_input("Press any key to continue ... ...")
     cmd_line = 'mysql -uroot -proot mysql -e "select count(*) from auth_user where username=\'luhya\';" | tr -dc \'[0-9]\''
-    ret = commands.getoutput(cmd_line)
-    if ret == '0':
+    ret = os.system(cmd_line)
+    if ret == 0:
         print '#### create default admin account step 2 ####'
         # raw_input("Press any key to continue ... ...")
         cmd_line = 'cd /usr/local/www/ && sudo -H -u luhya bash -c "python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com --noinput" '
-        commands.getoutput(cmd_line)
+        os.system(cmd_line)
         print '##########################################################'
         print "Please input password for default administrator(luhya)    "
         print '----------------------------------------------------------'
