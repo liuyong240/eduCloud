@@ -252,6 +252,9 @@ def main(argv):
     cmd_line = 'sudo dpkg -i /tmp/*.deb'
     os.system(cmd_line)
 
+    cmd_line = 'sudo systemctl enable rsync && sudo systemctl start rsync'
+    os.system(cmd_line)
+
     cmd_line = 'rm pip.tar'
     commands.getoutput(cmd_line)
 
