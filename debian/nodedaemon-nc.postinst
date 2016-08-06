@@ -7,6 +7,6 @@ if [ "$1" = "configure" ]; then
     ln -s /usr/local/nodedaemon/nc/nc_cmd_consumer     /usr/bin/nc_cmd_consumer || true
     ln -s /usr/local/nodedaemon/nc/nc_status_publisher /usr/bin/nc_status_publisher || true
 
-    systemctl enable supervisor
-    systemctl start supervisor
+    systemctl enable supervisor || true
+    systemctl start supervisor  || true
 fi

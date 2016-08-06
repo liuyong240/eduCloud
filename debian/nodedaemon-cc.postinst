@@ -9,7 +9,7 @@ if [ "$1" = "configure" ]; then
     ln -s /usr/local/nodedaemon/cc/cc_status_consumer  /usr/bin/cc_status_consumer  || true
     ln -s /usr/local/nodedaemon/cc/cc_status_publisher /usr/bin/cc_status_publisher || true
 
-    systemctl enable supervisor
-    systemctl start supervisor
+    systemctl enable supervisor || true
+    systemctl start supervisor  || true
 
 fi

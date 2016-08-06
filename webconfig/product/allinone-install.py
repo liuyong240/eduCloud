@@ -87,9 +87,9 @@ def main(argv):
     cmd_line = 'sudo apt-get -y install mysql-server'
     os.system(cmd_line)
 
-    if checkPackage('mysql-server-5.7') == False:
+    if checkPackage('mysql-server-5.5') == False:
        print "--------------------------------------------------"
-       print "Install mysql-server-5.7 Failed, please try again."
+       print "Install mysql-server-5.5 Failed, please try again."
        print "--------------------------------------------------"
        exit(1)
 
@@ -252,8 +252,8 @@ def main(argv):
     cmd_line = 'sudo dpkg -i /tmp/*.deb'
     os.system(cmd_line)
 
-    cmd_line = 'sudo systemctl enable rsync && sudo systemctl start rsync'
-    os.system(cmd_line)
+    #cmd_line = 'sudo systemctl enable rsync && sudo systemctl start rsync'
+    #os.system(cmd_line)
 
     cmd_line = 'rm pip.tar'
     commands.getoutput(cmd_line)
