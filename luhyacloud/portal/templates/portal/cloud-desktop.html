@@ -413,31 +413,7 @@ function delete_task(taskid) {
 function stop_tvd(id) {
     //console.log("stop_tvd() is called.");
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
-
-    tmp = taskid.split(':')
-    srcid = tmp[0];
-    dstid = tmp[1];
-    insid = tmp[2];
-
-    url = stop_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-    postdata = {
-        'sid': $('#sid').text(),
-    }
-    $.post(url, postdata, function (data) {
-        items = [];
-        $.each(data, function (key, val) {
-            items[key] = val;
-        });
-
-        var index = insid.search("TVD");
-        if (index == 0) {
-            // find 'TMP' at the header
-            delete_task(taskid);
-        } else {
-            location.reload();
-        }
-    });
-
+    delete_task(taskid);
 }
 
 

@@ -10,12 +10,12 @@ def checkPackage( pname ):
        return False
 
 def usage():
-    print "Usage : allinone-install [-h hostip -v [vbox|ndp|kvm] -m [a|w] ]"
+    print "Usage : allinone-install [-h hostip -v [vbox|ndp|kvm]]"
 
 def main(argv):
     DST_IP = '121.41.80.147'
     HYPERVISOR = 'ndp'
-    MODE = "a"
+    MODE = "w"
 
     try:
       opts, args = getopt.getopt(argv,"h:v:m:",["host=","virt=","mode="])
@@ -239,12 +239,22 @@ def main(argv):
     ##############################################################################
     cmd_line = 'wget http://%s/pip.tar' % DST_IP
     os.system(cmd_line)
+
     cmd_line = 'tar vxf pip.tar -C /tmp/'
     commands.getoutput(cmd_line)
-    cmd_line = 'sudo pip install /tmp/*.tar.gz'
+
+    cmd_line = 'rm /tmp/rsync_16.0.4.orig.tar.gz'
+    commands.getoutput(cmd_line)
+
+    cmd_line = 'export LC_ALL=C && sudo pip install /tmp/*.tar.gz'
     os.system(cmd_line)
+
     cmd_line = 'sudo dpkg -i /tmp/*.deb'
     os.system(cmd_line)
+
+    #cmd_line = 'sudo systemctl enable rsync && sudo systemctl start rsync'
+    #os.system(cmd_line)
+
     cmd_line = 'rm pip.tar'
     commands.getoutput(cmd_line)
 
@@ -275,12 +285,12 @@ def main(argv):
     print '#### create default admin account step 1 ####'
     # raw_input("Press any key to continue ... ...")
     cmd_line = 'mysql -uroot -proot mysql -e "select count(*) from auth_user where username=\'luhya\';" | tr -dc \'[0-9]\''
-    ret = commands.getoutput(cmd_line)
-    if ret == '0':
+    ret = os.system(cmd_line)
+    if ret == 0:
         print '#### create default admin account step 2 ####'
         # raw_input("Press any key to continue ... ...")
         cmd_line = 'cd /usr/local/www/ && sudo -H -u luhya bash -c "python manage.py createsuperuser --username=luhya --noinput --email luhya@hoe.com --noinput" '
-        commands.getoutput(cmd_line)
+        os.system(cmd_line)
         print '##########################################################'
         print "Please input password for default administrator(luhya)    "
         print '----------------------------------------------------------'

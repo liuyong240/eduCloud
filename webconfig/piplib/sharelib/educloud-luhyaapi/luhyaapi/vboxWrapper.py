@@ -5,6 +5,7 @@ from luhyaTools import *
 from educloudLog import *
 from hostTools import *
 import json
+import subprocess
 
 logger = getncdaemonlogger()
 
@@ -47,8 +48,17 @@ def getVMProcessStatus(vmname):
         cpu = float(out[0])
         mem = float(out[1])
         return cpu, mem
-    else:
-        return 0, 0
+
+    cmd = 'ps -C NDPServer -o %cpu,%mem,cmd | grep ' + vmname
+    out = commands.getoutput(cmd)
+    logger.error(out)
+    if len(out) > 0:
+        out = out.split()
+        cpu = float(out[0])
+        mem = float(out[1])
+        return cpu, mem
+
+    return 0, 0
 
 def recoverVMFromCrash():
     cmd = "/usr/local/bin/recoverVMfromCrash"
@@ -92,19 +102,23 @@ def getVMlistbyVBOX():
                     vm['vcpu']     =  int(out[15].split(':')[1].strip()) # line 16
                     state          =  out[34].split(':')[1].strip()
                     if state.find('running') >= 0:
-                        logger.error(" vm %s is running, to get phy_cpu and phy_mem" % vm['insid'])
                         vm['state'] = 'Running'
                         vm['phy_cpu'], vm['phy_mem'] = getVMProcessStatus(vm['insid'])
                     else:
-                        vm['state'] = 'Stopped'
-                        vm['phy_mem'] = 0
-                        vm['phy_cpu'] = 0
-
+                        cmd = 'ps -ef | grep ndp | grep %s | grep -v grep' % vm['insid']
+                        try:
+                            ret = subprocess.check_output(cmd, shell=True)
+                            vm['state'] = 'Running'
+                            vm['phy_cpu'], vm['phy_mem'] = getVMProcessStatus(vm['insid'])
+                        except Exception as e:
+                            vm['state'] = 'Stopped'
+                            vm['phy_mem'] = 0
+                            vm['phy_cpu'] = 0
                     result.append(vm)
                 except Exception as e:
                     logger.error('%s exception = %s' % (vm_cmd, str(e)))
 
-    logger.error("report VMs status: %s" % json.dumps(result))
+    #logger.error("report VMs status: %s" % json.dumps(result))
     return result
 
 def getVMlist():
@@ -151,7 +165,6 @@ class vboxWrapper():
     def createImageFile(self, filename):
         pass
 
-
     def createVM(self, ostype="WindowsXP"):
         vm_name = self._tool._vmname
         self._ostype = ostype
@@ -165,7 +178,6 @@ class vboxWrapper():
         cmd_line = VBOX_MGR_CMD + " registervm " + xmlfile
         ret = commands.getoutput(cmd_line)
         return ret
-
 
     def unregisterVM(self, delete=False):
         vm_name = self._tool._vmname
@@ -234,14 +246,27 @@ class vboxWrapper():
         ret = commands.getoutput(cmd_line)
         return ret
 
+    def isVMNDPRunning(self):
+        vm_name = self._tool._vmname
+        cmd = 'ps -ef | grep ndp | grep %s | grep -v grep' % vm_name
+        try:
+            ret = subprocess.check_output(cmd, shell=True)
+            logger.error("isVMNDPRunning: %s is running" % vm_name)
+            return 1
+        except Exception as e:
+            logger.error("isVMNDPRunning: %s is NOT running" % vm_name)
+            return 0
+
     def isVMRunning(self):
         vm_name = self._tool._vmname
         cmd_line = VBOX_MGR_CMD + " list runningvms"
         ret = commands.getoutput(cmd_line)
 
         if not vm_name in ret:
-            return 0
+            logger.error("isVMRunning: %s is NOT running" % vm_name)
+            return self.isVMNDPRunning()
         else:
+            logger.error("isVMRunning: %s is running" % vm_name)
             return 1
 
     #turn on/off mini toolbar

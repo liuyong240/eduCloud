@@ -54,10 +54,9 @@ def removeIPtables_image_create_task(request):
 #####################################
 ## Image build functions
 #####################################
-
-
 def image_create_task_prepare(request):
     logger.error("--- --- --- prepare_image_create_task")
+    ncip = request.POST['ncip']
 
     message = {}
     message['type']             = "cmd"
@@ -66,8 +65,8 @@ def image_create_task_prepare(request):
     message['runtime_option']   = request.POST['runtime_option']
     message = json.dumps(message)
 
-    routing_send(logger, 'localhost', 'nc_cmd', message, request.POST['ncip'])
-    logger.error("--- --- --- send prepare cmd to nc sucessfully")
+    zmq_send(ncip, message, NC_CMD_QUEUE_PORT)
+    logger.error("--- --- ---zmq: send prepare cmd to nc sucessfully")
 
     # return http response
     response = {}
@@ -89,8 +88,8 @@ def image_create_task_run(request):
     message['runtime_option']   = request.POST['runtime_option']
 
     _message = json.dumps(message)
-    routing_send(logger, 'localhost', 'nc_cmd', _message, ncip)
-    logger.error("--- --- --- send run cmd to nc sucessfully")
+    zmq_send(ncip, _message, NC_CMD_QUEUE_PORT)
+    logger.error("--- --- ---zmq: send run cmd to nc sucessfully")
 
     # check for runtime_option for cc's side work
     runtime_option = json.loads(message['runtime_option'])
@@ -119,8 +118,8 @@ def image_create_task_stop(request):
     message['runtime_option']   = request.POST['runtime_option']
 
     _message = json.dumps(message)
-    routing_send(logger, 'localhost', 'nc_cmd', _message, ncip)
-    logger.error("--- --- --- send stop cmd to nc sucessfully")
+    zmq_send(ncip, _message, NC_CMD_QUEUE_PORT)
+    logger.error("--- --- ---zmq: send stop cmd to nc sucessfully")
 
     # check for runtime_option for cc's side work
     runtime_option = json.loads(message['runtime_option'])
@@ -148,8 +147,8 @@ def image_create_task_submit(request):
     message['runtime_option']   = request.POST['runtime_option']
     message = json.dumps(message)
 
-    routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
-    logger.error("--- --- --- send submit cmd to nc sucessfully")
+    zmq_send(ncip, message, NC_CMD_QUEUE_PORT)
+    logger.error("--- --- ---zmq: send submit cmd to nc sucessfully")
 
     # return http response
     response = {}
@@ -282,8 +281,8 @@ def delete_tasks(request):
     message['runtime_option']   = request.POST['runtime_option']
     message = json.dumps(message)
 
-    routing_send(logger, 'localhost', 'nc_cmd', message, ncip)
-    logger.error("--- --- --- send task delete cmd to nc sucessfully")
+    zmq_send(ncip, message, NC_CMD_QUEUE_PORT)
+    logger.error("--- --- ---zmq: send task delete cmd to nc sucessfully")
 
     # return http response
     response = {}

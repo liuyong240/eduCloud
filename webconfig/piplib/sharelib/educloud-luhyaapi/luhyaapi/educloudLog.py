@@ -30,6 +30,9 @@ def init_log(logfile, loggername='luhya'):
 DEBUG_LOG_FILE = '/var/log/educloud/luhya-debug.log'
 luhya_debug_logger = init_log(DEBUG_LOG_FILE)
 
+NC_DEBUG_LOG_FILE = '/var/log/educloud/nc.log'
+nc_debug_logger = init_log(NC_DEBUG_LOG_FILE)
+
 def getclcdaemonlogger():
     return luhya_debug_logger
 
@@ -40,7 +43,7 @@ def getccdaemonlogger():
     return luhya_debug_logger
 
 def getncdaemonlogger():
-    return luhya_debug_logger
+    return nc_debug_logger
 
 def getclclogger():
     return luhya_debug_logger

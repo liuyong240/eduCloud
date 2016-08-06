@@ -9,6 +9,16 @@ from IPy import IP
 from luhyaapi.educloudLog import *
 logger = getclclogger()
 
+NC_CMD_QUEUE_PORT = 9999
+
+import zmq
+def zmq_send(ip, msg, port):
+    context = zmq.Context()
+    socket = context.socket(zmq.PAIR)
+    socket.connect("tcp://%s:%s" % (ip,port))
+
+    socket.send(msg)
+
 # PUBLIC or PRIVATE
 def getIPType(ipaddr):
     ip = IP(ipaddr)
@@ -261,7 +271,7 @@ def getSysMemUtil():
 import socket, commands
 
 def DoesServiceExist(host, port, protocol='tcp'):
-    logger.error("DoesServiceExist at port=%s --- --- ", port)
+    # logger.error("DoesServiceExist at port=%s --- --- ", port)
     try:
         if protocol == 'tcp':
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -270,7 +280,7 @@ def DoesServiceExist(host, port, protocol='tcp'):
         s.settimeout(1)
         ret = s.connect((host, port))
         s.close()
-        logger.error("Running")
+        #logger.error("Running")
         return "Running"
     except Exception as e:
         logger.error(str(e))
@@ -318,19 +328,8 @@ def get_ndp_status(retry_num=3):
 
 
 def get_daemon_status(dtype):
-    logger.error("get_daemon_status start --- --- ")
-    if DAEMON_DEBUG == True:
-        return "Running"
-    else:
-        cmd = "sudo service " + daemon_list[dtype] + " status "
-        logger.error(cmd)
-        output = commands.getoutput(cmd)
-        if "running" in output:
-            logger.error("Running")
-            return "Running"
-        else:
-            logger.error("Closed")
-            return "Closed"
+    return "Running"
+
 
 def restart_ndp_server():
     cmd = 'netstat -an | grep 19001'
@@ -441,7 +440,7 @@ def getHypervisor():
         return ''
 
 def isNDPed():
-    if os.path.exists('/usr/bin/ndpserver'):
+    if os.path.exists('/usr/ndp/server/NDPServer'):
         return True
     else:
         return False
