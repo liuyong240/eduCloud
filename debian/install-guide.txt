@@ -488,5 +488,41 @@ incoming coding work
 11. ing  - support iptable & dhcp automatically for new instance
 
 
-
-
+############################
+# 13. message & memcache
+############################
+13.1 Image Prepare
+nc#
+            response = {
+                'type'      : 'taskstatus',
+                'phase'     : "preparing",
+                'state'     : 'downloading',
+                'progress'  : 0,
+                'tid'       : self.tid,
+                'prompt'    : '',
+                'errormsg'  : '',
+                'failed'    : 0,
+                'done'      : 1,
+            }
+cc#
+            payload = {
+                    'type'      : 'taskstatus',
+                    'phase'     : "preparing",
+                    'state'     : 'downloading',
+                    'progress'  : worker.getprogress(),
+                    'tid'       : tid,
+                    'prompt'    : prompt,
+                    'errormsg'  : worker.getErrorMsg(),
+                    'failed'    : worker.isFailed(),
+                    'done'      : worker.isDone(),
+            }
+        payload = {
+            'type'      : 'taskstatus',
+            'phase'     : "preparing",
+            'state'     : 'done',
+            'progress'  :  0,
+            'tid'       : self.tid,
+            'prompt'    : '',
+            'errormsg'  : '',
+            'failed'    : 0,
+        }

@@ -10,7 +10,6 @@ if [ "$1" = "configure" ]; then
    # configure fuse
    ##############################
    cp /usr/local/webconfig/fuse.conf   /etc/
-   adduser luhya fuse
 
    ##############################
    # configure rsync

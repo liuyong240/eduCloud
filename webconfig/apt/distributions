@@ -1,0 +1,19 @@
+Origin: educloud, Inc.
+Label: educloud, Inc.
+Codename: zhejiang
+Architectures: i386 amd64
+Components: non-free
+Description: educloud APT Repository
+SignWith: yes
+DebOverride: override.zhejiang
+DscOverride: override.zhejiang
+
+Origin: educloud, Inc.
+Label: educloud-client, Inc.
+Codename: client
+Architectures: i386 amd64
+Components: non-free
+Description: educloud clientAPT Repository
+SignWith: yes
+DebOverride: override.client
+DscOverride: override.client

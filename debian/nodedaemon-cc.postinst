@@ -3,4 +3,13 @@
 if [ "$1" = "configure" ]; then
     chown -R luhya:luhya /usr/local/nodedaemon || true
     chmod -R 777 /usr/local/nodedaemon || true
+
+    ln -s /usr/local/nodedaemon/cc/cc_cmd_consumer     /usr/bin/cc_cmd_consumer     || true
+    ln -s /usr/local/nodedaemon/cc/cc_rpc_server       /usr/bin/cc_rpc_server       || true
+    ln -s /usr/local/nodedaemon/cc/cc_status_consumer  /usr/bin/cc_status_consumer  || true
+    ln -s /usr/local/nodedaemon/cc/cc_status_publisher /usr/bin/cc_status_publisher || true
+
+    systemctl enable supervisor || true
+    systemctl start supervisor  || true
+
 fi

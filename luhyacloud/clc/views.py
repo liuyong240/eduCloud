@@ -180,6 +180,10 @@ NC_DETAIL_TEMPLATE = \
             _("SSH Service") + \
             '<span class="pull-right text-muted"><em>{{service_data.ssh}}</em></span>' + \
         '</p>' + \
+        '<p class="list-group-item">' + \
+            _("NDP Service") + \
+            '<span class="pull-right text-muted"><em>{{service_data.ndp}}</em></span>' + \
+        '</p>' + \
         '<h3>' +_("Hardware Parameters") + '</h3>' + \
         '<p class="list-group-item">' + \
             _("HostName") + \
@@ -1154,6 +1158,7 @@ def nc_mgr_mac(request, ccname, mac):
 
     htmlstr = htmlstr.replace('{{service_data.daemon}}',  service_data['daemon'])
     htmlstr = htmlstr.replace('{{service_data.ssh}}',     service_data['ssh'])
+    htmlstr = htmlstr.replace('{{service_data.ndp}}',     service_data['ndp'])
 
     htmlstr = htmlstr.replace('{{host_ips.name}}',        host_ips['name'])
     htmlstr = htmlstr.replace('{{host_ips.location}}',    host_ips['location'])
@@ -1615,6 +1620,7 @@ def cc_modify_resources(request, cc_name):
 #     'audio_para'        :
 #
 #     # 3. network
+#     3.0 'access_protocol' = { 'RDP'(default), 'NDP', 'SPICE' }
 #     3.1 'rdp_port'          :
 #     3.2 'netwowrkcards'     :  VM's network card property, ip/mac from table ecDHCPEthers
 #     [
@@ -1664,7 +1670,6 @@ def cc_modify_resources(request, cc_name):
 def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
     logger.error(' --- releaseRuntimeOptionForImageBuild ... ...')
     tidrec = ectaskTransaction.objects.get(tid=_tid)
-    creator = tidrec.user
 
     if _runtime_option == None:
         if len(tidrec.runtime_option) > 0:
@@ -1796,12 +1801,58 @@ def genVMFolders(tid, usage):
         }
         folders.append(f1)
         folders.append(f2)
+        logger.error("genVMFolders: prvdata=/storage/space/prv-data/%s for %s" % (trec.user, tid))
 
     if ins_id.find('VS') == 0:
         # folders.append('/storage/space/software')
         pass
 
     return folders
+
+def isNCNDPed(tid):
+    # read nodestatus to check ndp service status
+    tid_rec = ectaskTransaction.objects.get(tid=tid)
+    ncip = tid_rec.ncip
+    ncobj= ecServers.objects.get(ip0=ncip, role='nc')
+
+    mc = memcache.Client(['127.0.0.1:11211'], debug=0)
+    key = str("nc#" + ncobj.mac0 + "#status")
+    nc_info = mc.get(key)
+    nc_info = json.loads(nc_info)
+    service_data = nc_info['service_data']
+    ndp_status   = service_data['ndp']
+    if ndp_status == "Closed":
+        return False
+    else:
+        return True
+
+
+# TMP : RDP
+# TVD : NDP/SPICE
+# VD  : NDP/SPICE
+# VS  : RDP
+# vbox+NDP enabled instance use NDP protocol
+# kvm+spice enabled instance use SPICE protocol
+def getAccessProtocol(tid):
+    logger.error("--- --- --- getAccessProtocol")
+    access_protocol = 'RDP'
+    tid_info = tid.split(':')
+    src_imgid = tid_info[0]
+    dst_imgid = tid_info[1]
+    ins_id    = tid_info[2]
+
+    if ins_id.find('TMP') == 0 or ins_id.find('VS') == 0:
+        pass
+    else:
+        imgobj = ecImages.objects.get(ecid = src_imgid)
+        if imgobj.hypervisor == 'vbox':
+            if isNCNDPed(tid):
+                access_protocol = 'NDP'
+        if imgobj.hypervisor == 'kvm':
+            access_protocol = 'SPICE'
+
+    logger.error("--- --- --- access_protocol is %s" % access_protocol)
+    return access_protocol
 
 def genRuntimeOptionForImageBuild(transid):
     logger.error("--- --- --- genRuntimeOptionForImageBuild")
@@ -1820,6 +1871,9 @@ def genRuntimeOptionForImageBuild(transid):
     ncobj       = ecServers.objects.get(ip0=ncip, role='nc')
 
     runtime_option = {}
+
+    # 0. get vm access protocol
+    runtime_option['protocol'] =  getAccessProtocol(transid)
 
     # 1. general option
     img_info                        = ecImages.objects.get(ecid = src_imgid)
@@ -2033,7 +2087,7 @@ def vm_run(request, insid):
                  srcimgid    = vmrec.imageid,
                  dstimgid    = vmrec.imageid,
                  insid       = insid,
-                 user        = request.user.username,
+                 user        = vmrec.user,
                  phase       = 'preparing',
                  state       = "init",
                  progress    = 0,
@@ -2277,7 +2331,9 @@ def image_create_task_updatevmstatus(request, srcid, dstid, insid, vmstatus):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-
+# for a instance ,
+# first check taskstatus, if not run,
+# then check nodestatus,
 def image_create_task_getvmstatus(request, srcid, dstid, insid):
     # logger.error("--- --- --- image_create_task_getvmstatus")
 
@@ -2293,24 +2349,32 @@ def image_create_task_getvmstatus(request, srcid, dstid, insid):
     }
 
     try:
-        tidrec = ectaskTransaction.objects.get(tid=_tid)
-        ncobj = ecServers.objects.get(ip0=tidrec.ncip, role='nc')
-        key = str("nc#" + ncobj.mac0 + "#status")
-        nc_info = mc.get(key)
-        nc_info = json.loads(nc_info)
-
-        if 'vm_data' in nc_info.keys():
-            vminfo = nc_info['vm_data']
-            for vm in vminfo:
-                if vm['insid'] == insid:
-                    payload['state'] = vm['state']
-                    break
+        key = str(_tid);
+        taskstatus = mc.get(key)
+        taskstatus = json.loads(taskstatus)
+        payload['state'] = taskstatus['state']
+        logger.error("image_create_task_getvmstatus get value from taskstatus : %s %s" % (_tid, payload['state']))
     except Exception as e:
-        logger.error("image_create_task_getvmstatus Exception : %s" % str(e))
-        payload['state'] = 'stopped'
+        try:
+            tidrec = ectaskTransaction.objects.get(tid=_tid)
+            ncobj = ecServers.objects.get(ip0=tidrec.ncip, role='nc')
+            key = str("nc#" + ncobj.mac0 + "#status")
+            nc_info = mc.get(key)
+            nc_info = json.loads(nc_info)
+
+            if 'vm_data' in nc_info.keys():
+                vminfo = nc_info['vm_data']
+                for vm in vminfo:
+                    if vm['insid'] == insid:
+                        payload['state'] = vm['state']
+                        logger.error("image_create_task_getvmstatus get value from nodestatus : %s %s" % (_tid, payload['state']))
+                        break
+        except Exception as e:
+            logger.error("image_create_task_getvmstatus Exception : %s" % str(e))
+            payload['state'] = 'stopped'
 
     response = json.dumps(payload)
-    logger.error('image_create_task_getvmstatus = %s : %s' % (_tid, response))
+    logger.error('image_create_task_getvmstatus = %s : %s' % (_tid, payload['state']))
     return HttpResponse(response, content_type="application/json")
 
 def image_create_task_getprogress(request, srcid, dstid, insid):
@@ -2327,15 +2391,17 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
                 'tid': tid,
                 'prompt': '',
                 'errormsg': '',
-                'failed' : 0
+                'failed' : 0,
+                'done'   : 0,
             }
             response = json.dumps(payload)
         else:
             response = payload
             payload = json.loads(payload)
-            # logger.error("lkf: get progress = %s", payload['progress'])
             if payload['failed'] == 1:
+                logger.error("thomas# delete taskstatus= %s" % json.dumps(payload))
                 mc.delete(str(tid))
+
     except Exception as e:
         payload = {
             'type': 'taskstatus',
@@ -2345,7 +2411,8 @@ def image_create_task_getprogress(request, srcid, dstid, insid):
             'tid': tid,
             'prompt': '',
             'errormsg': '',
-            'failed' : 0
+            'failed' : 0,
+            'done'   : 0,
         }
         response = json.dumps(payload)
 
@@ -3994,6 +4061,7 @@ def list_vds(request):
         jrec['name']=rec.name
         jrec['description'] = rec.description
         jrec['creator'] = rec.creator
+        jrec['user'] = rec.user
         jrec['cc'] = rec.cc_def
         jrec['nc'] = rec.nc_def
         jrec['cpus'] = rec.cpus
@@ -4034,7 +4102,17 @@ def delete_vds(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def update_vds(request):
-    pass
+    response = {}
+
+    rec = ecVDS.objects.get(id=request.POST['id']);
+    rec.name            = request.POST['name']
+    rec.user            = request.POST['user']
+    rec.save()
+
+    response['Result'] = 'OK'
+
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
 
 def create_vds(request):
     response = {}
@@ -4046,6 +4124,7 @@ def create_vds(request):
             name        = request.POST['name'],
             description = request.POST['description'],
             creator     = request.user,
+            user        = request.user,
             cc_def      = request.POST['cc_def'],
             nc_def      = request.POST['nc_def'],
             cpus        = request.POST['cpus'],
@@ -5525,6 +5604,7 @@ def rvd_get_rdp_para(request, srcid, dstid, insid):
         response['Result']     = 'OK'
         response['rdp_ip']     = runtime_option['rdp_ip']
         response['rdp_port']   = runtime_option['rdp_port']
+        response['protocol']   = runtime_option['protocol']
         retvalue = json.dumps(response)
         return HttpResponse(retvalue, content_type="application/json")
 

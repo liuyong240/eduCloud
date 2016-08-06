@@ -1,0 +1,13 @@
+~/.bashrc
+
+export JAVA_HOME=/usr/local/jre1.6.0_24
+export DEB_BUILD_OPTIONS="nostrip noopt"
+alias educlient_clean='cd /mnt/src/educloud-client && rm *.deb *.zip *.changes *.dsc *.tar.gz && cd /mnt/src/educloud-client/src/debian && rm -fr educloud-vdi-client/ educloud-client-for-win/ educloud-client/ educloud-native-client/ unplug-daemon/ && rm *.log *.substvar* *.debhelper* stamp* compat files'
+alias educlean='cd /mnt/src/ && rm *.deb *.dsc *.tar *.tar.gz *.changes && cd /mnt/src/eduCloud/debian && rm -fr educloud-core/ educloud-webbase/ educloud-cc/ educloud-walrus/ educloud-clc/ educloud-portal/ educloud-virtapp/ nodedaemon-cc/ nodedaemon-clc/ nodedaemon-nc/ nodedaemon-tnc/ nodedaemon-walrus/ && rm *.log *.substvars *.debhelper stamp* compat files && cd /mnt/src/eduCloud/nodeDaemon && rm cc/cc_daemon.spec clc/clc_daemon.spec nc/nc_daemon.spec walrus/walrus_daemon.spec tnc/tnc_daemon.spec ../webconfig/piplib/3rd/luhyaapi-1.1.tar.gz ../webconfig/piplib/3rd/rsync-3.1.0/config.guess.cdbs-orig ../webconfig/piplib/3rd/rsync-3.1.0/config.sub.cdbs-orig && cd /mnt/src/eduCloud && cd /mnt/src/eduCloud/nodeDaemon && rm -fr clc/build clc/dist walrus/build walrus/dist cc/build cc/dist nc/build nc/dist tnc/dist tnc/build'
+alias publish2debian='scp /mnt/src/*.deb root@192.168.56.102:/root/Downloads/ && scp /mnt/src/eduCloud/webconfig/product/*.py root@192.168.56.102:/var/packages/scripts/ && scp /mnt/src/pip.tar root@192.168.56.102:/var/packages/'
+alias publish='scp /mnt/src/*.deb root@121.41.80.147:/root/Downloads/ && scp /mnt/src/eduCloud/webconfig/product/*.py root@121.41.80.147:/var/packages/scripts/ && scp /mnt/src/pip.tar root@121.41.80.147:/var/packages/'
+alias publish2client='scp /mnt/src/educloud-client/*.deb 192.168.56.102:/home/luhya/Downloads/client/ && scp /mnt/src/educloud-client/src/scripts/*.py 192.168.56.102:/var/packages/scripts/client/'
+alias publish_client='scp /mnt/src/educloud-client/*.deb root@121.41.80.147:/root/Downloads/client/ && scp /mnt/src/educloud-client/src/scripts/*.py root@121.41.80.147:/var/packages/scripts/client/'
+
+sudo apt-get install git git-core openssh-server dpkg dpkg-dev python-pip quilt
+pip install PyInstaller

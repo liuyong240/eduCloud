@@ -94,7 +94,8 @@ function prepareUIUpdate(items) {
             $("#desclabel").css('display', 'block');
         }
     }
-    if (state == 'downloading' || state == "cloning") {
+
+    else if (state == 'downloading' || state == "cloning") {
         //$(".jw-button-next").attr("disabled", true);
         $("#btn_prepare").addClass("disabled");
 
@@ -105,8 +106,12 @@ function prepareUIUpdate(items) {
         setTimeout(getPrepareProgress, timer_interval);
     }
 
-    if (state == 'done') {
+    else if (state == 'done') {
         prepareDone();
+    }
+
+    else {
+        setTimeout(getPrepareProgress, timer_interval);
     }
 
     $("#runningstatus").text('stopped');
@@ -185,7 +190,7 @@ function editPageUIupdate(items) {
             $("#editdesc").css('display', 'block');
         }
     }
-    if (state == 'booting') {
+    else if (state == 'booting') {
         //$(".jw-button-next").attr("disabled", true);
 
         $('#btn_run').addClass('disabled');
@@ -197,7 +202,7 @@ function editPageUIupdate(items) {
         $("#runningstatus").text('booting');
         setTimeout(getVMStatus, timer_interval);
     }
-    if (state == 'running' || state == 'Running') {
+    else if (state == 'running' || state == 'Running') {
         //$(".jw-button-next").attr("disabled", true);
 
         $('#btn_run').removeClass('disabled');
@@ -207,6 +212,9 @@ function editPageUIupdate(items) {
         updateLuhyaVMURL(url);
 
         $("#runningstatus").text('running');
+    }
+    else {
+        setTimeout(getVMStatus, timer_interval);
     }
 }
 

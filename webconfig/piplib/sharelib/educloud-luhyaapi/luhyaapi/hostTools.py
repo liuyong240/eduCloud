@@ -1,11 +1,23 @@
 import socket, netifaces, psutil, shutil
 from luhyaTools import configuration
-from vboxWrapper import *
 from settings import *
-import random, os, commands
+import random, os, commands, time
 from linux_metrics import cpu_stat
 from sortedcontainers import SortedList
 from IPy import IP
+
+from luhyaapi.educloudLog import *
+logger = getclclogger()
+
+NC_CMD_QUEUE_PORT = 9999
+
+import zmq
+def zmq_send(ip, msg, port):
+    context = zmq.Context()
+    socket = context.socket(zmq.PAIR)
+    socket.connect("tcp://%s:%s" % (ip,port))
+
+    socket.send(msg)
 
 # PUBLIC or PRIVATE
 def getIPType(ipaddr):
@@ -20,13 +32,11 @@ def addUserPrvDataDir(uid):
     path = '/storage/space/prv-data/%s' % uid
     if not os.path.exists(path):
         os.makedirs(path)
-        logger.error("create user %s prv-data directory" % uid)
 
 def delUserPrvDataDir(uid):
     path = '/storage/space/prv-data/%s' % uid
     if os.path.exists(path):
         shutil.rmtree(path)
-        logger.error("remove user %s prv-data directory" % uid)
 
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):
@@ -260,16 +270,22 @@ def getSysMemUtil():
 ### Service tools
 import socket, commands
 
-def DoesServiceExist(host, port):
+def DoesServiceExist(host, port, protocol='tcp'):
+    # logger.error("DoesServiceExist at port=%s --- --- ", port)
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if protocol == 'tcp':
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if protocol == 'udp':
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(1)
-        s.connect((host, port))
+        ret = s.connect((host, port))
         s.close()
+        #logger.error("Running")
+        return "Running"
     except Exception as e:
+        logger.error(str(e))
         return str(e)
 
-    return "Running"
 
 def get_ssh_status():
     return DoesServiceExist('127.0.0.1', 22)
@@ -304,16 +320,30 @@ daemon_list = {
     "sc":       "nodedaemon-sc",
 }
 
-def get_daemon_status(dtype):
-    if DAEMON_DEBUG == True:
-        return "Running"
+def get_ndp_status(retry_num=3):
+    if not isNDPed():
+        return "Closed"
     else:
-        cmd = "sudo service " + daemon_list[dtype] + " status "
-        output = commands.getoutput(cmd)
-        if "running" in output:
-            return "Running"
-        else:
-            return "Closed"
+        return "Running"
+
+
+def get_daemon_status(dtype):
+    return "Running"
+
+
+def restart_ndp_server():
+    cmd = 'netstat -an | grep 19001'
+    out = commands.getoutput(cmd)
+    ret = out.find('19001')
+    if ret < 0:
+        # ndpserver is NOT running
+        cmd_line = "sudo service ndp-server stop"
+        out = os.system(cmd_line)
+        cmd_line = "sudo killall -9 ndpserver"
+        out = os.system(cmd_line)
+        cmd_line = "sudo service ndp-server start"
+        out = os.system(cmd_line)
+
 
 def restart_daemon(dtype):
     cmd = "sudo service " + daemon_list[dtype] + " restart "
@@ -366,6 +396,7 @@ def getServiceStatus(dtype):
     result['amqp'] = get_amqp_status()
     result['rsync'] = get_rsync_status()
     result['daemon'] = get_daemon_status(dtype)
+    result['ndp'] = get_ndp_status()
 
     return result
 
@@ -407,3 +438,12 @@ def getHypervisor():
         return 'kvm'
     else:
         return ''
+
+def isNDPed():
+    if os.path.exists('/usr/ndp/server/NDPServer'):
+        return True
+    else:
+        return False
+
+def isSpiced():
+    return True

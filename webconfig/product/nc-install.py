@@ -93,7 +93,7 @@ os.system(cmd_line)
 ##############################################################################
 # 7. install educloud in one machine by apt-get
 ##############################################################################
-cmd_line = 'sudo apt-get -y install nodedaemon-nc'
+cmd_line = 'sudo apt-get -y install nodedaemon-nc ndp-server'
 os.system(cmd_line)
 
 cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'

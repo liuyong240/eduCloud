@@ -413,23 +413,7 @@ function delete_task(taskid) {
 function stop_tvd(id) {
     //console.log("stop_tvd() is called.");
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
-    tmp = taskid.split(':')
-    srcid = tmp[0];
-    dstid = tmp[1];
-    insid = tmp[2];
-
-    url = stop_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
-    postdata = {
-        'sid': $('#sid').text(),
-    }
-    $.post(url, postdata, function (data) {
-        items = [];
-        $.each(data, function (key, val) {
-            items[key] = val;
-        });
-
-        delete_task(taskid);
-    });
+    delete_task(taskid);
 }
 
 
@@ -453,25 +437,43 @@ function show_by_browser( id ) {
     dstid = tmp[1];
     insid = tmp[2];
 
-    url="/clc/api/1.0/rvd/display/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    url = get_rdp_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        flag = 1;
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
 
-    var mapForm = document.createElement("form");
-    mapForm.target = "_blank";
-    mapForm.method = "POST";
-    mapForm.action = url;
+        protocol = items['protocol'];
+        if (protocol != "RDP" ) {
+            alert("请在瘦终端上链接并显示云桌面！")
+        } else {
+            url="/clc/api/1.0/rvd/display/" + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
 
-    var mapInput = document.createElement("input");
-    mapInput.type = "text";
-    mapInput.name = 'sid';
-    mapInput.value = $("#sid").text();
+            var mapForm = document.createElement("form");
+            mapForm.target = "_blank";
+            mapForm.method = "POST";
+            mapForm.action = url;
 
-    mapForm.appendChild(mapInput);
+            var mapInput = document.createElement("input");
+            mapInput.type = "text";
+            mapInput.name = 'sid';
+            mapInput.value = $("#sid").text();
 
-    document.body.appendChild(mapForm);
+            mapForm.appendChild(mapInput);
 
-    mapForm.submit();
+            document.body.appendChild(mapForm);
 
-    setTimeout( delete_form, timer_interval, mapForm);
+            mapForm.submit();
+
+            setTimeout( delete_form, timer_interval, mapForm);
+        }
+
+    });
 }
 
 function delete_form(form_name) {
@@ -493,17 +495,29 @@ function show_by_xfreerdp( id ) {
     }
     $.post(url, postdata, function (data) {
         items = [];
+        flag = 1;
         $.each(data, function (key, val) {
             items[key] = val;
         });
 
+        protocol = items['protocol'];
         ostype = getOSType();
+
         if (ostype == "windows") {
             cmd = "mstsc /f /v:" + items['rdp_ip'] + ':' + items['rdp_port']
         } else {
             cmd = '/opt/freerdp-nightly/bin/xfreerdp /f /v:' + items['rdp_ip'] + ':' + items['rdp_port'];
+            if (protocol == "NDP") {
+                cmd = '/usr/bin/ndpclient -h ' + items['rdp_ip'] + ' -p ' + items['rdp_port'];
+            }
+            if (protocol == "SPICE") {
+                cmd = '/usr/bin/spicec -h ' + items['rdp_ip'] + ' -p ' + items['rdp_port'];
+            }
         }
-        runFunc(cmd);
+
+        if (flag == 1) {
+            runFunc(cmd);
+        }
     });
 }
 
@@ -542,7 +556,7 @@ function gui_update(items, do2run) {
             }
         }
 
-        if (state == 'downloading' || state == "cloning") {
+        else if (state == 'downloading' || state == "cloning") {
             $('#run_'  + id).addClass('disabled');
             $('#show_' + id).addClass('disabled');
             $('#stop_' + id).addClass('disabled');
@@ -559,7 +573,7 @@ function gui_update(items, do2run) {
             setTimeout( get_progress, timer_interval, id, taskid, do2run);
         }
 
-        if (state == 'done') {
+        else if (state == 'done') {
             $('#run_'  + id).removeClass('disabled');
             $('#show_' + id).addClass('disabled');
             $('#stop_' + id).addClass('disabled');
@@ -571,6 +585,10 @@ function gui_update(items, do2run) {
             if (do2run == 1) {
                 setTimeout( run_tvd, timer_interval, id, taskid);
             }
+        }
+
+        else {
+            setTimeout( get_progress, timer_interval, id, taskid, do2run);
         }
     }
 
@@ -590,7 +608,7 @@ function gui_update(items, do2run) {
             }
         }
 
-        if (state == 'booting') {
+        else if (state == 'booting') {
             $('#run_'  + id).addClass('disabled');
             $('#show_' + id).addClass('disabled');
             $('#stop_' + id).addClass('disabled');
@@ -605,7 +623,7 @@ function gui_update(items, do2run) {
             setTimeout( get_vmstatus, timer_interval, id, taskid);
         }
 
-        if (state == 'running' || state == 'Running') {
+        else if (state == 'running' || state == 'Running') {
             $('#run_'  + id).addClass('disabled');
             $('#show_' + id).removeClass('disabled');
             $('#stop_' + id).removeClass('disabled');
@@ -614,6 +632,10 @@ function gui_update(items, do2run) {
             $('#error_msg_' + id).css('display', 'none');
 
             $('#taskid_for_show_in_browser_' + id).text(taskid);
+        }
+
+        else {
+            setTimeout( get_vmstatus, timer_interval, id, taskid);
         }
     }
 }

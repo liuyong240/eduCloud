@@ -137,34 +137,36 @@ install:
 	#     DAEMON_CLC    #
 	#####################
 	install -d $(DAEMON_CLC)/usr/local/nodedaemon/clc
+	cd $(CURDIR)/nodeDaemon/clc && sudo -u luhya pyinstaller clc_status_consumer.py -F -s
+	cp $(CURDIR)/nodeDaemon/clc/dist/clc_status_consumer         $(DAEMON_CLC)/usr/local/nodedaemon/clc
 
-	cd $(CURDIR)/nodeDaemon/clc && sudo -u luhya pyinstaller clc_daemon.py -F -s
-	cp $(CURDIR)/nodeDaemon/clc/dist/clc_daemon            $(DAEMON_CLC)/usr/local/nodedaemon/clc
-
-	install -d $(DAEMON_CLC)/usr/local/bin/
-	cp $(CURDIR)/webconfig/scripts/nodedaemon-clc          $(DAEMON_CLC)/usr/local/bin
+	install -d $(DAEMON_CLC)/etc/supervisor/conf.d
+	cp $(CURDIR)/nodeDaemon/clc/supervisor/nodedaemon-clc.conf   $(DAEMON_CLC)/etc/supervisor/conf.d
 
 	########################
 	#     DAEMON_WALRUS    #
 	########################
 	install -d $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
 
-	cd $(CURDIR)/nodeDaemon/walrus && sudo -u luhya pyinstaller walrus_daemon.py -F -s
-	cp $(CURDIR)/nodeDaemon/walrus/dist/walrus_daemon            $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
+	cd $(CURDIR)/nodeDaemon/walrus && sudo -u luhya pyinstaller walrus_status_publisher.py -F -s
+	cp $(CURDIR)/nodeDaemon/walrus/dist/walrus_status_publisher            $(DAEMON_WALRUS)/usr/local/nodedaemon/walrus
 
-	install -d $(DAEMON_WALRUS)/usr/local/bin/
-	cp $(CURDIR)/webconfig/scripts/nodedaemon-walrus          $(DAEMON_WALRUS)/usr/local/bin
+	install -d $(DAEMON_WALRUS)/etc/supervisor/conf.d
+	cp $(CURDIR)/nodeDaemon/walrus/supervisor/nodedaemon-walrus.conf   $(DAEMON_WALRUS)/etc/supervisor/conf.d
 
 	####################
 	#     DAEMON_CC    #
 	####################
 	install -d $(DAEMON_CC)/usr/local/nodedaemon/cc
 
-	cd $(CURDIR)/nodeDaemon/cc && sudo -u luhya pyinstaller cc_daemon.py -F -s
-	cp $(CURDIR)/nodeDaemon/cc/dist/cc_daemon            $(DAEMON_CC)/usr/local/nodedaemon/cc
+	cd $(CURDIR)/nodeDaemon/cc && sudo -u luhya pyinstaller cc_cmd_consumer.py -F -s
+	cd $(CURDIR)/nodeDaemon/cc && sudo -u luhya pyinstaller cc_rpc_server.py -F -s
+	cd $(CURDIR)/nodeDaemon/cc && sudo -u luhya pyinstaller cc_status_consumer.py -F -s
+	cd $(CURDIR)/nodeDaemon/cc && sudo -u luhya pyinstaller cc_status_publisher.py -F -s
+	cp $(CURDIR)/nodeDaemon/cc/dist/cc_*            $(DAEMON_CC)/usr/local/nodedaemon/cc
 
-	install -d $(DAEMON_CC)/usr/local/bin/
-	cp $(CURDIR)/webconfig/scripts/nodedaemon-cc          $(DAEMON_CC)/usr/local/bin
+	install -d $(DAEMON_CC)/etc/supervisor/conf.d
+	cp $(CURDIR)/nodeDaemon/cc/supervisor/nodedaemon-cc.conf   $(DAEMON_CC)/etc/supervisor/conf.d
 
 	####################
 	#     DAEMON_NC    #
@@ -174,17 +176,19 @@ install:
 
 	install -d $(DAEMON_NC)/usr/local/nodedaemon/nc
 
-	cd $(CURDIR)/nodeDaemon/nc && sudo -u luhya pyinstaller nc_daemon.py -F -s
-	cp $(CURDIR)/nodeDaemon/nc/dist/nc_daemon            $(DAEMON_NC)/usr/local/nodedaemon/nc
+	cd $(CURDIR)/nodeDaemon/nc && sudo -u luhya pyinstaller nc_cmd_consumer.py -F -s
+	cd $(CURDIR)/nodeDaemon/nc && sudo -u luhya pyinstaller nc_status_publisher.py -F -s
+	cp $(CURDIR)/nodeDaemon/nc/dist/nc_*            $(DAEMON_NC)/usr/local/nodedaemon/nc/
 
-	install -d $(DAEMON_NC)/usr/local/bin/
-	cp $(CURDIR)/webconfig/scripts/nodedaemon-nc          $(DAEMON_NC)/usr/local/bin
+	install -d $(DAEMON_NC)/etc/supervisor/conf.d
+	cp $(CURDIR)/nodeDaemon/nc/supervisor/nodedaemon-nc.conf   $(DAEMON_NC)/etc/supervisor/conf.d/
 
 	##
 	## add tool for host crash recovery
 	##
+	install -d $(DAEMON_NC)/usr/local/bin
 	cd $(CURDIR)/webconfig/serverTools/ && sudo -u luhya pyinstaller recoverVMfromCrash.py -F -s
-	cp $(CURDIR)/webconfig/serverTools/dist/recoverVMfromCrash             $(DAEMON_NC)/usr/local/bin
+	cp $(CURDIR)/webconfig/serverTools/dist/recoverVMfromCrash             $(DAEMON_NC)/usr/local/bin/
 
 	####################
 	#     DAEMON_TNC   #

@@ -7,13 +7,16 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
+
+
 import json
 import commands
 from datetime import datetime
 
 from luhyaapi.hostTools import *
+from luhyaapi.educloudLog import *
 
-
+logger = getclclogger()
 
 # Create your views here.
 #################################################################################
@@ -56,6 +59,7 @@ def machine_disk_util(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def get_service_status(request):
+    logger.error("get_service_status start --- --- ")
     role = request.POST['role']
     result = getServiceStatus(role )
     retvalue = json.dumps(result)
