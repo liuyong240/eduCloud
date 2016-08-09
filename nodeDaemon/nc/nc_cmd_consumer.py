@@ -345,8 +345,6 @@ class prepareImageTaskThread(multiprocessing.Process):
             payload['state']    = 'init'
             self.forwardTaskStatus2CC(json.dumps(payload))
 
-        self.terminate()
-
 class SubmitImageTaskThread(multiprocessing.Process):
     def __init__(self, tid, runtime_option):
         multiprocessing.Process.__init__(self)
@@ -570,7 +568,6 @@ class SubmitImageTaskThread(multiprocessing.Process):
             payload['state'] = 'init'
             self.forwardTaskStatus2CC(json.dumps(payload))
 
-        self.terminate()
 
 class runImageTaskThread(multiprocessing.Process):
     def __init__(self, tid, runtime_option):
@@ -744,7 +741,7 @@ class runImageTaskThread(multiprocessing.Process):
             payload['failed'] = 1
             payload['state'] = 'stopped'
             payload['errormsg'] = str(e)
-            process_delete_cmd(self.tid)
+            process_delete_cmd(self.tid, self.runtime_option)
 
         simple_send(logger, self.ccip, 'cc_status_queue', json.dumps(payload))
         logger.error('runvm result: %s' % json.dumps(payload))
@@ -781,27 +778,27 @@ class runImageTaskThread(multiprocessing.Process):
         except Exception as e:
             logger.error("runImageTask Exception Error Message : %s" % str(e))
 
-        self.terminate()
 
 class StopImageTaskThread(multiprocessing.Process):
     def __init__(self, tid, runtime_option):
         multiprocessing.Process.__init__(self)
         self.tid = tid
+        self.runtime_option = json.loads(runtime_option)
 
     def run(self):
-        process_stop_cmd(self.tid)
-        self.terminate()
+        process_stop_cmd(self.tid, self.runtime_option)
+
 
 class DeleteImageTaskThread(multiprocessing.Process):
     def __init__(self, tid, runtime_option):
         multiprocessing.Process.__init__(self)
         self.tid = tid
+        self.runtime_option = json.loads(runtime_option)
 
     def run(self):
-        process_delete_cmd(self.tid)
+        process_delete_cmd(self.tid, self.runtime_option)
         # need to update nc's status at once
         update_nc_running_status()
-        self.terminate()
 
 def update_nc_running_status():
     payload = { }
@@ -817,21 +814,18 @@ def update_nc_running_status():
     simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
     # logger.error("update_nc_running_status = %s" % json.dumps(payload))
 
-def process_stop_cmd(tid):
+def process_stop_cmd(tid, runtime_option):
     retval   = tid.split(':')
     srcimgid = retval[0]
     dstimgid = retval[1]
     insid    = retval[2]
 
-    cmd = VBOX_MGR_CMD + " controlvm %s poweroff " % insid
-    out = commands.getoutput(cmd)
+    if runtime_option['protocol'] == 'NDP':
+        cmd = "pkill -f %s" % insid
+    else:
+        cmd = VBOX_MGR_CMD + " controlvm %s poweroff " % insid
 
-    cmd = "ndpcmd poweroff %s " % insid
     out = commands.getoutput(cmd)
-
-    cmd = "pkill -f %s" % insid
-    out = commands.getoutput(cmd)
-
     logger.error("Step 1 of 2: cmd=%s; result=%s" % (cmd, out))
 
     payload = {
@@ -875,9 +869,9 @@ def process_stop_cmd(tid):
 
     logger.error("Step 2 of 2: restore snapshot")
 
-def process_delete_cmd(tid):
+def process_delete_cmd(tid, runtime_option):
     logger.error("Step 1: stop the VM when delete task ")
-    process_stop_cmd(tid)
+    process_stop_cmd(tid, runtime_option)
 
     retval   = tid.split(':')
     srcimgid = retval[0]

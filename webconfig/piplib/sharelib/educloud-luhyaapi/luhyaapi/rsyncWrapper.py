@@ -1,6 +1,7 @@
 # coding=UTF-8
 
-import pexpect, threading
+import pexpect
+import multiprocessing
 
 # client: /opt/luhya/images/imageID/machine, attributes.conf
 # server: /var/www/images/imageID/machine, attributes.conf
@@ -47,9 +48,9 @@ class rsyncWrapper():
         except:
             return self.returnZeroProgress()
 
-class rsyncWorkerThread(threading.Thread):
+class rsyncWorkerThread(multiprocessing.Process):
     def __init__(self, logger, src, dst):
-        threading.Thread.__init__(self)
+        multiprocessing.Process.__init__(self)
 
         self.src        = src
         self.dst        = dst
