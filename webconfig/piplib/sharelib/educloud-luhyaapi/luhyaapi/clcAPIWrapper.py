@@ -130,3 +130,33 @@ def updateVMStatus(clcip, tid, status):
     logger.error(r.content)
     return json.loads(r.content)
 
+
+def stopVMWrapper(clcip, tid):
+    retval = tid.split(':')
+    srcid = retval[0]
+    dstid = retval[1]
+    insid = retval[2]
+
+    if DAEMON_DEBUG == True:
+        url = "http://%s:8000/clc/image/create/task/stop/%s/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    else:
+        url = "http://%s/clc/image/create/task/stop/%s/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    logger.error('stopVM:' + url)
+    r = requests.get(url)
+    logger.error(r.content)
+    return json.loads(r.content)
+
+def getVMStatus(clcip, tid):
+    retval = tid.split(':')
+    srcid = retval[0]
+    dstid = retval[1]
+    insid = retval[2]
+
+    if DAEMON_DEBUG == True:
+        url = "http://%s:8000/clc/image/create/task/getvmstatus/%s/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    else:
+        url = "http://%s/clc/image/create/task/getvmstatus/%s/%s/%s/%s" % (clcip, srcid, dstid, insid)
+    logger.error('getVMStatus:' + url)
+    r = requests.get(url)
+    logger.error(r.content)
+    return json.loads(r.content)

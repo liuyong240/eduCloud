@@ -313,13 +313,21 @@ def getPhyServerStatusFromMC(stype, mac):
     payload = None
     mc = memcache.Client(['127.0.0.1:11211'], debug=0)
     key = str('%s#%s#status' % (stype, mac))
-    try:
-        payload = mc.get(key)
-        if payload != None:
-            payload = json.loads(payload)
-            payload = payload['hardware_data']
-    except Exception as e:
-        logger.error("--- getPhyServerStatusFromMC error = %s" % str(e))
+    try_times = 5
+    while (try_times > 0):
+        try:
+            payload = mc.get(key)
+            if payload == None:
+                logger.error('--- getPhyServerStatusFromMC: paylod == None')
+            else:
+                payload = json.loads(payload)
+                payload = payload['hardware_data']
+                break
+        except Exception as e:
+            logger.error("--- getPhyServerStatusFromMC error = %s" % str(e))
+
+        time.sleep(1)
+        try_times -= 1
 
     return payload
 
@@ -344,7 +352,7 @@ def get_nc_avail_res(nc_mac):
     data = getPhyServerStatusFromMC('nc', nc_mac)
 
     if data == None:
-        pass
+        logger.error('get_nc_avail_res() failed.')
     else:
         total_res['cpu']                = data['cpus']
         total_res['mem']                = data['mem']
@@ -2250,6 +2258,16 @@ def image_create_task_prepare_failure(request, srcid, dstid, insid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def set_vm_boot_timer(tid):
+    message = {}
+    message['type']             = "cmd"
+    message['op']               = 'image/run'
+    message['tid']              = tid
+
+    _message = json.dumps(message)
+    zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
+    logger.error("--- --- ---zmq: send run cmd to clc sucessfully")
+
 def image_create_task_run(request, srcid, dstid, insid):
     logger.error("--- --- --- run_image_create_task")
 
@@ -2275,12 +2293,14 @@ def image_create_task_run(request, srcid, dstid, insid):
         r = requests.post(url, data=payload)
         logger.error("--- --- --- " + url + ":" + r.content)
 
+        set_vm_boot_timer(_tid)
     except Exception as e:
         logger.error('--- image_create_task_stop error = %s ' % str(e))
 
     response = {}
     response['Result'] = 'OK'
     retvalue = json.dumps(response)
+
     return HttpResponse(retvalue, content_type="application/json")
 
 def image_create_task_stop(request, srcid, dstid, insid):

@@ -34,6 +34,9 @@ def get_desktop_res():
     res['max_pboot_vms']   = int(conf_obj.getvalue('desktop', 'max_pboot_vms'))
     res['max_pboot_delay'] = int(conf_obj.getvalue('desktop', 'max_pboot_delay'))
 
+    res['boot_timer']        =  int(conf_obj.getvalue('desktop', 'boot_timer'))
+    res['enable_boot_timer'] = int(conf_obj.getvalue('desktop', 'enable_boot_timer'))
+
     return res
 
 # NODE_DAEMON_LANG = 'en-us'

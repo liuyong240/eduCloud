@@ -9,7 +9,10 @@ from IPy import IP
 from luhyaapi.educloudLog import *
 logger = getclclogger()
 
-NC_CMD_QUEUE_PORT = 9999
+CLC_CMD_QUEUE_PORT = 9997
+CC_CMD_QUEUE_PORT  = 9998
+NC_CMD_QUEUE_PORT  = 9999
+
 
 import zmq
 def zmq_send(ip, msg, port):
