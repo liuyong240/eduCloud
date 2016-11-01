@@ -10,6 +10,8 @@ import multiprocessing
 logger = getncdaemonlogger()
 img_tasks_status = {}
 db_tasks_status  = {}
+my_semaphores = multiprocessing.Semaphore(get_desktop_res()['max_pboot_vms'])
+my_pboot_delay = get_desktop_res()['max_pboot_delay']
 
 #################################################
 #  worker thread
@@ -759,24 +761,29 @@ class runImageTaskThread(multiprocessing.Process):
             return self.kvm_runVM()
 
     def run(self):
-        try:
-            done_1 = False
-            done_2 = False
+        with my_semaphores:
+            logger.error("Start proces %s" % self.tid)
+            try:
+                done_1 = False
+                done_2 = False
 
-            if self.createvm() == True:
-                done_1 = True
-                if self.runvm() == True:
-                    done_2 = True
+                if self.createvm() == True:
+                    done_1 = True
+                    if self.runvm() == True:
+                        done_2 = True
 
-            if done_1 == False or done_2 == False:
-                self.rpcClient.call(cmd="image/edit/stopped", tid=self.tid, paras='')
-            else:
-                self.rpcClient.call(cmd="image/edit/running", tid=self.tid, paras='')
+                if done_1 == False or done_2 == False:
+                    self.rpcClient.call(cmd="image/edit/stopped", tid=self.tid, paras='')
+                else:
+                    self.rpcClient.call(cmd="image/edit/running", tid=self.tid, paras='')
 
-            # need to update nc's status at once
-            update_nc_running_status()
-        except Exception as e:
-            logger.error("runImageTask Exception Error Message : %s" % str(e))
+                # need to update nc's status at once
+                update_nc_running_status()
+            except Exception as e:
+                logger.error("runImageTask Exception Error Message : %s" % str(e))
+
+            time.sleep(my_pboot_delay)
+            logger.error("Stop proces %s" % self.tid)
 
 
 class StopImageTaskThread(multiprocessing.Process):

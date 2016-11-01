@@ -173,6 +173,7 @@ install:
 	####################
 	install -d $(DAEMON_NC)/etc/educloud/modules
 	touch $(DAEMON_NC)/etc/educloud/modules/nc
+	cp $(CURDIR)/debian/educloud.conf                    $(DAEMON_NC)/etc/educloud/modules/
 
 	install -d $(DAEMON_NC)/usr/local/nodedaemon/nc
 
