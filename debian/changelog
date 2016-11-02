@@ -1,3 +1,9 @@
+educloud (4.0) lucid; urgency=low
+  [ Thomas Li ]
+  * lastest version on ubuntu 14.04, update at Shenzheng
+
+ -- Signing Key (Thomas Li) <package@educloud.com>  Tue, 1 Nov  2016 21:58:53 -0400
+
 educloud (3.5) lucid; urgency=low
 
   [ Thomas Li ]

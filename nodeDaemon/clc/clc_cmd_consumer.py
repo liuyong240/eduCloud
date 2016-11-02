@@ -14,33 +14,29 @@ class runVMTimer(multiprocessing.Process):
         #read timer seconds
         res = get_desktop_res()
         self.timer_seconds = res['boot_timer']
-        self.enable_boot_timer = res['enable_boot_timer']
 
     def run(self):
         flag = False
-        if self.enable_boot_timer != 1:
-            pass
-        else:
-            time.sleep(self.timer_seconds)
-            retry_times = 5
+        time.sleep(self.timer_seconds)
+        retry_times = 5
 
-            while (retry_times > 0):
-                payload = getVMStatus("127.0.0.1", self.tid)
-                if payload['state']  == "Running" or payload['state'] == "running":
-                    retry_times = 0
-                    flag = True
-                else:
-                    logger.error("after %d seconds VM %s not in running status, decide to stop it" % (self.timer_seconds, self.tid))
+        while (retry_times > 0):
+            payload = getVMStatus("127.0.0.1", self.tid)
+            if payload['state']  == "Running" or payload['state'] == "running":
+                retry_times = 0
+                flag = True
+            else:
+                logger.error("after %d seconds VM %s NOT in running status, decide to stop it" % (self.timer_seconds, self.tid))
 
-                retry_times -= 1
-                time.sleep(1)
+            retry_times -= 1
+            time.sleep(1)
 
-            if flag == False:
-                stopVMWrapper("127.0.0.1",self.tid)
+        if flag == False:
+            stopVMWrapper("127.0.0.1",self.tid)
 
 
 def clc_image_run_handle(message):
-    logger.error("--- --- ---zmq: nc_image_run_handle")
+    logger.error("--- --- ---zmq: clc_image_run_handle")
     worker = runVMTimer(message)
     worker.start()
 

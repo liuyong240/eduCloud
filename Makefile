@@ -140,6 +140,9 @@ install:
 	cd $(CURDIR)/nodeDaemon/clc && sudo -u luhya pyinstaller clc_status_consumer.py -F -s
 	cp $(CURDIR)/nodeDaemon/clc/dist/clc_status_consumer         $(DAEMON_CLC)/usr/local/nodedaemon/clc
 
+	cd $(CURDIR)/nodeDaemon/clc && sudo -u luhya pyinstaller clc_cmd_consumer.py -F -s
+	cp $(CURDIR)/nodeDaemon/clc/dist/clc_cmd_consumer         $(DAEMON_CLC)/usr/local/nodedaemon/clc
+
 	install -d $(DAEMON_CLC)/etc/supervisor/conf.d
 	cp $(CURDIR)/nodeDaemon/clc/supervisor/nodedaemon-clc.conf   $(DAEMON_CLC)/etc/supervisor/conf.d
 
