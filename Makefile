@@ -37,6 +37,7 @@ install:
 	####################
 	install -d $(EDU_CORE)/etc/educloud/modules
 	touch $(EDU_CORE)/etc/educloud/modules/core
+	cp $(CURDIR)/debian/educloud.conf                    $(EDU_CORE)/etc/educloud/modules/
 
 	install -d $(EDU_CORE)/usr/local/webconfig
 	cp    $(CURDIR)/debian/fuse.conf                       $(EDU_CORE)/usr/local/webconfig/
@@ -77,7 +78,6 @@ install:
 	##################
 	install -d $(WEB_CLC)/etc/educloud/modules
 	touch $(WEB_CLC)/etc/educloud/modules/clc
-	cp $(CURDIR)/debian/educloud.conf                    $(WEB_CLC)/etc/educloud/modules/
 
 	install -d $(WEB_CLC)/usr/local/www/clc
 	python -m compileall $(CURDIR)/luhyacloud/clc/
@@ -176,7 +176,6 @@ install:
 	####################
 	install -d $(DAEMON_NC)/etc/educloud/modules
 	touch $(DAEMON_NC)/etc/educloud/modules/nc
-	cp $(CURDIR)/debian/educloud.conf                    $(DAEMON_NC)/etc/educloud/modules/
 
 	install -d $(DAEMON_NC)/usr/local/nodedaemon/nc
 

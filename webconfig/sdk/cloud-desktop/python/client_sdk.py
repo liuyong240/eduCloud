@@ -247,7 +247,7 @@ class cloudDesktopWrapper():
     def delet_vm(self, vmdata):
         tid = vmdata['tid']
 
-        url = 'http://%s:%s/%s/%s/%s/%s' % (self.host_ip,  self.host_port, self.del_vm_url)
+        url = 'http://%s:%s/%s' % (self.host_ip,  self.host_port, self.del_vm_url)
         payload = {
             'tid': tid,
         }

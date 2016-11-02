@@ -9,8 +9,8 @@ else:
 
 
 vmw = cloudDesktopWrapper()
-vmw.setHost('192.168.96.124', 8000)
-vmw.setUser('wangfeng', '11111111')
+vmw.setHost('192.168.56.104', 80)
+vmw.setUser('test', 'test')
 
 if not vmw.logon():
     print 'logon failed, try correct user name & password'

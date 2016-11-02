@@ -3967,26 +3967,34 @@ def update_tasks(request):
     return HttpResponse(retvalue, content_type="application/json")
 
 def delet_task_by_id(tid):
-    trec = ectaskTransaction.objects.get(tid=tid)
+    try:
+        trec = ectaskTransaction.objects.get(tid=tid)
 
-    # # send request to CC to work
-    if DAEMON_DEBUG == True:
-        url = 'http://%s:8000/cc/api/1.0/task/delete' % trec.ccip
-    else:
-        url = 'http://%s/cc/api/1.0/task/delete' % trec.ccip
+        # # send request to CC to work
+        if DAEMON_DEBUG == True:
+            url = 'http://%s:8000/cc/api/1.0/task/delete' % trec.ccip
+        else:
+            url = 'http://%s/cc/api/1.0/task/delete' % trec.ccip
 
-    payload = {
-        'tid'  :            tid,
-        'ncip' :            trec.ncip,
-        'runtime_option' :  trec.runtime_option,
-    }
-    r = requests.post(url, data=payload)
-    logger.error("--- --- --- " + url + ":" + r.content)
+        payload = {
+            'tid'  :            tid,
+            'ncip' :            trec.ncip,
+            'runtime_option' :  trec.runtime_option,
+        }
+        r = requests.post(url, data=payload)
+        logger.error("--- --- --- " + url + ":" + r.content)
 
-    releaseRuntimeOptionForImageBuild(tid)
-    trec.delete()
+        releaseRuntimeOptionForImageBuild(tid)
+        trec.delete()
+        return r
+    except Exception as e:
+        response = {}
+        response['Result'] = 'OK'
 
-    return r
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
+
+
 
 def delete_tasks(request):
     tid = request.POST['tid']

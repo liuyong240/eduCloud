@@ -5,6 +5,7 @@ if [ "$1" = "configure" ]; then
     chmod -R 777 /usr/local/nodedaemon || true
 
     ln -s /usr/local/nodedaemon/clc/clc_status_consumer /usr/bin/clc_status_consumer || true
+    ln -s /usr/local/nodedaemon/clc/clc_cmd_consumer    /usr/bin/clc_cmd_consumer    || true
 
     systemctl enable supervisor || true
     systemctl start supervisor  || true

@@ -25,6 +25,7 @@ class runVMTimer(multiprocessing.Process):
             if payload['state']  == "Running" or payload['state'] == "running":
                 retry_times = 0
                 flag = True
+                logger.error("after %d seconds VM %s ALREADY running, cancel the timer." % (self.timer_seconds, self.tid))
             else:
                 logger.error("after %d seconds VM %s NOT in running status, decide to stop it" % (self.timer_seconds, self.tid))
 
