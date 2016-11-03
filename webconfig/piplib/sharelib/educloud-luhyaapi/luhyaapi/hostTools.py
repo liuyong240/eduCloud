@@ -17,7 +17,7 @@ NC_CMD_QUEUE_PORT  = 9999
 import zmq
 def zmq_send(ip, msg, port):
     context = zmq.Context()
-    socket = context.socket(zmq.PAIR)
+    socket = context.socket(zmq.REQ)
     socket.connect("tcp://%s:%s" % (ip,port))
 
     socket.send(msg)

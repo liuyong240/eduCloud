@@ -14,8 +14,8 @@ from tkMessageBox import *
 fields = 'Account', 'Password', 'Server'
 
 def ndp_connect(ip, port):
-    cmd = '/usr/bin/ndpclient -h ' + ip + ' -p ' + port
-    #commands.getoutput(cmd)
+    cmd = '/usr/bin/ndpclient -h ' + ip + ' -p ' + str(port)
+    commands.getoutput(cmd)
 
 def start_first_vm(res):
     user_id = res['Account']

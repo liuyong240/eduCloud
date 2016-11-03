@@ -23,9 +23,7 @@ from client_sdk import *
 #       AutoTest -h 192.168.0.199 -a auto -n 9 -p auto
 # means that there are 9 existing account named from auto0 to auto8, and same passwrod
 # "auto" for all of these account.
-def RandomSleep(start, end):
-    seconds =  random.randint(start, end)
-    time.sleep(seconds)
+
 
 def getlogdatetime():
     return time.strftime("%d/%m/%Y") + " " + time.strftime("%H:%M:%S")
@@ -40,6 +38,11 @@ class autoWorkerProcess(multiprocessing.Process):
 
         self.retry_times = retry_times
         self.vmw = vmWorker
+
+    def RandomSleep(self, start, end):
+        seconds = random.randint(start, end)
+        print "Now will sleep %d seconds" % seconds
+        time.sleep(seconds)
 
     def run(self):
         for i in range(self.retry_times):
@@ -56,7 +59,7 @@ class autoWorkerProcess(multiprocessing.Process):
 
             # randomly start vm after xx seconds
             print "%s %s Wait %d-%d secods to begin loop" % (getlogdatetime(), self.vmw.user_id, 1, 10)
-            RandomSleep(1, 10)
+            self.RandomSleep(1, 10)
             ################################################
             ### step 1: create database record for this vm
             print "%s %s StartVM Start" % (getlogdatetime(), self.vmw.user_id)
@@ -91,7 +94,7 @@ class autoWorkerProcess(multiprocessing.Process):
                 times -= 1
 
             if not flag or times <= 0:
-                print "%s %s PrepareVM too long, restart it: %s" % (getlogdatetime(), self.vmw.user_id, ret['error'])
+                print "%s %s PrepareVM too long, restart it" % (getlogdatetime(), self.vmw.user_id)
                 self.vmw.errorHandle(self.vmobj)
                 continue
 
@@ -131,7 +134,7 @@ class autoWorkerProcess(multiprocessing.Process):
 
             # randomly run vm for xxx seconds
             print "%s %s RunVM for %d-%d seconds" % (getlogdatetime(), self.vmw.user_id, 60, 60*3)
-            RandomSleep(60, 60*3)
+            self.RandomSleep(60, 60*3)
 
             # stop vm at once
             print "%s %s DeleteVM " % (getlogdatetime(), self.vmw.user_id)

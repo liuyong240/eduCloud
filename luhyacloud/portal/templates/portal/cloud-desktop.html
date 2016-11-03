@@ -542,9 +542,9 @@ function gui_update(items, do2run) {
 
     if (phase == 'preparing') {
         if ( state == 'init') {
-            $('#run_'  + id).removeClass('disabled');
+            $('#run_'  + id).addClass('disabled');
             $('#show_' + id).addClass('disabled');
-            $('#stop_' + id).addClass('disabled');
+            $('#stop_' + id).removeClass('disabled');
 
             $('#progress_' + id).css('display', 'none');
             $('#error_msg_' + id).css('display', 'none');
@@ -559,7 +559,7 @@ function gui_update(items, do2run) {
         else if (state == 'downloading' || state == "cloning") {
             $('#run_'  + id).addClass('disabled');
             $('#show_' + id).addClass('disabled');
-            $('#stop_' + id).addClass('disabled');
+            $('#stop_' + id).removeClass('disabled');
 
             $('#progress_'    + id).css('display', 'block');
             $('#progressbar_' + id).css('width', progress + '%');
@@ -574,9 +574,9 @@ function gui_update(items, do2run) {
         }
 
         else if (state == 'done') {
-            $('#run_'  + id).removeClass('disabled');
+            $('#run_'  + id).addClass('disabled');
             $('#show_' + id).addClass('disabled');
-            $('#stop_' + id).addClass('disabled');
+            $('#stop_' + id).removeClass('disabled');
 
             $('#progress_' + id).css('display', 'none');
             $('#error_msg_' + id).css('display', 'none');
@@ -611,7 +611,7 @@ function gui_update(items, do2run) {
         else if (state == 'booting') {
             $('#run_'  + id).addClass('disabled');
             $('#show_' + id).addClass('disabled');
-            $('#stop_' + id).addClass('disabled');
+            $('#stop_' + id).removeClass('disabled');
 
             $('#progress_' + id).css('display', 'none');
 
@@ -644,7 +644,7 @@ function init_GUI() {
     var data = {};
     {% for vd in vds %}
         {% if vd.tid == '' %}
-            $('#show_{{ vd.id }}').removeClass('disabled');
+            $('#run_{{ vd.id }}').removeClass('disabled');
             $('#show_{{ vd.id }}').addClass('disabled');
             $('#stop_{{ vd.id }}').addClass('disabled');
         {% else %}

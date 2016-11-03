@@ -665,8 +665,10 @@ class runImageTaskThread(multiprocessing.Process):
                             ret = vboxmgr.addVRDPproperty()
                             logger.error("--- --- --- vboxmgr.addVRDPproperty for video channel, error=%s" % ret)
 
-                    vboxmgr.unregisterVM()
-                    vboxmgr.registerVM()
+                    ret = vboxmgr.unregisterVM()
+                    logger.error("--- --- --- vboxmgr.unregisterVM, error=%s" % ret)
+                    ret = vboxmgr.registerVM()
+                    logger.error("--- --- --- vboxmgr.registerVM, error=%s" % ret)
 
                 except Exception as e:
                     logger.error("createVM Exception error=%s" % str(e))
@@ -874,10 +876,10 @@ def process_stop_cmd(tid, runtime_option):
             vboxmgr.restore_snapshot('thomas')
             logger.error('zmq:restore snapshot thomas for %s' % insid)
 
-    logger.error("Step 2 of 2: restore snapshot")
+    logger.error("Step 2 of 2: restore snapshot of %s " % insid)
 
 def process_delete_cmd(tid, runtime_option):
-    logger.error("Step 1: stop the VM when delete task ")
+    logger.error("Step 1: stop the VM when delete task of %s" % tid)
     process_stop_cmd(tid, runtime_option)
 
     retval   = tid.split(':')
@@ -892,11 +894,11 @@ def process_delete_cmd(tid, runtime_option):
 
     vboxmgr = vboxWrapper(dstimgid, insid, rootdir)
 
-    logger.error("Step 2: unregisterVM")
+    logger.error("Step 2: unregisterVM of %s" % tid)
     ret = vboxmgr.unregisterVM(delete=True)
     logger.error("--- vboxmgr.unregisterVM ret=%s" % (ret))
 
-    logger.error("Step 3: deleteVMConfigFile")
+    logger.error("Step 3: deleteVMConfigFile of %s" % tid)
     ret = vboxmgr.deleteVMConfigFile()
     logger.error("--- vboxmgr.deleteVMConfigFile ret=%s" % (ret))
 
@@ -927,33 +929,36 @@ def process_delete_cmd(tid, runtime_option):
 #  cmd handle function
 
 def nc_image_prepare_handle(tid, runtime_option):
-    logger.error("--- --- ---zmq: nc_image_prepare_handle")
+    logger.error("--- --- ---zmq: nc_image_prepare_handle for %s" % tid)
     worker = prepareImageTaskThread(tid, runtime_option)
     worker.start()
     return worker
 
 def nc_image_run_handle(tid, runtime_option):
-    logger.error("--- --- ---zmq: nc_image_run_handle")
+    logger.error("--- --- ---zmq: nc_image_run_handle %s " % tid)
     worker = runImageTaskThread(tid, runtime_option)
     worker.start()
 
 def nc_image_submit_handle(tid, runtime_option):
-    logger.error("--- --- ---zmq: nc_image_submit_handle")
+    logger.error("--- --- ---zmq: nc_image_submit_handle %s " % tid)
     worker = SubmitImageTaskThread(tid, runtime_option)
     worker.start()
     return worker
 
 def nc_image_stop_handle(tid, runtime_option):
-    logger.error("--- --- ---zmq: nc_image_stop_handle")
+    logger.error("--- --- ---zmq: nc_image_stop_handle %s " % tid)
     worker = StopImageTaskThread(tid, runtime_option)
     worker.start()
     return worker
 
 def nc_task_delete_handle(tid, runtime_option):
-    logger.error("--- --- ---zmq: nc_image_delete_handle")
+    logger.error("--- --- ---zmq: nc_image_delete_handle %s " % tid)
     worker = DeleteImageTaskThread(tid, runtime_option)
     worker.start()
     return worker
+
+def nc_ndp_stop_handle(tid):
+    pass
 
 nc_cmd_handlers = {
     'image/prepare'     : nc_image_prepare_handle,
@@ -961,13 +966,14 @@ nc_cmd_handlers = {
     'image/stop'        : nc_image_stop_handle,
     'image/submit'      : nc_image_submit_handle,
     'task/delete'       : nc_task_delete_handle,
+    'ndp/stop'          : nc_ndp_stop_handle,
 }
 
 class nc_cmdConsumer():
     def __init__(self, port=NC_CMD_QUEUE_PORT):
         logger.error("zmq: nc_cmd_consumer start running")
         self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.PAIR)
+        self.socket = self.context.socket(zmq.REP)
         self.socket.bind("tcp://*:%s" % port)
 
     def cmdHandle(self, body):

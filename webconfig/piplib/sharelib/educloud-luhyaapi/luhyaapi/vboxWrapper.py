@@ -176,6 +176,7 @@ class vboxWrapper():
         vm_name = self._tool._vmname
         xmlfile = os.path.join(self._baseVMfolder, vm_name, vm_name + ".vbox")
         cmd_line = VBOX_MGR_CMD + " registervm " + xmlfile
+        logger.error("cmd = %s" % cmd_line)
         ret = commands.getoutput(cmd_line)
         return ret
 
