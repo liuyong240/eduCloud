@@ -246,9 +246,25 @@ function image_onMouseDown_handle(event, treeId, treeNode) {
 var imag_zNodes =[];
 
 function add_image_leaf(parent_node_name) {
-    var zTree = $.fn.zTree.getZTreeObj("image_tree")
-    var pnode = zTree.getNodeByParam("name", parent_node_name, null);
-    zTree.addNodes(pnode, { name:'machine', isParent:false } );
+
+    url =  "/clc/tools/post_image_upload";
+    postdata = {
+        'imgid': parent_node_name ,
+    }
+    $.post(url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        var zTree = $.fn.zTree.getZTreeObj("image_tree")
+        var pnode = zTree.getNodeByParam("name", parent_node_name, null);
+
+        zTree.addNodes(pnode, { name: items['cdisk'], isParent:false } );
+        if (items['ddisk'] != "") {
+            zTree.addNodes(pnode, { name: items['ddisk'], isParent:false } );
+        }
+    });
 }
 
 $("#add_image_node").click(function(){

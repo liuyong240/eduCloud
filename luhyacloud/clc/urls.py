@@ -43,6 +43,7 @@ urlpatterns = patterns('',
 
     url(r'^tasks$',         views.tasks_view,                         name='tasks_view'),
     url(r'^tools$',         views.tools_view,                         name='tools_view'),
+    url(r'^tools/post_image_upload$',    views.tools_post_image_upload,                       name='tools_post_image_upload'),
     url(r'^tools/image_upload$',         views.tools_image_upload,                       name='tools_image_upload'),
     url(r'^tools/file_upload$',          views.tools_file_upload,                        name='tools_file_upload'),
     url(r'^tools/prv_upload/(?P<uid>\w+)$',           views.tools_prv_upload,                         name='tools_prv_upload'),

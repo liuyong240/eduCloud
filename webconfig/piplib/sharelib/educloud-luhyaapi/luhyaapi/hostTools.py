@@ -21,6 +21,8 @@ def zmq_send(ip, msg, port):
     socket.connect("tcp://%s:%s" % (ip,port))
 
     socket.send(msg)
+    message = socket.recv()
+    logger.error("zmq_send result = %s" % message)
 
 # PUBLIC or PRIVATE
 def getIPType(ipaddr):

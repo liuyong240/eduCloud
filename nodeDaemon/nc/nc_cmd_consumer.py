@@ -5,7 +5,7 @@ from luhyaapi.rsyncWrapper import *
 from luhyaapi.vboxWrapper import *
 from luhyaapi.clcAPIWrapper import *
 import pika, json, time, shutil, os, commands, zmq
-import multiprocessing
+import multiprocessing, pexpect
 
 logger = getncdaemonlogger()
 img_tasks_status = {}
@@ -257,8 +257,9 @@ class prepareImageTaskThread(multiprocessing.Process):
 
         if need_delete == True:
             cmd = VBOX_MGR_CMD + " closemedium disk %s --delete" % dstfile
-            logger.error("cmd line = %s", cmd)
-            commands.getoutput(cmd)
+            ret = commands.getoutput(cmd)
+            logger.error("cmd line = %s" % cmd)
+            logger.error("result = %s" % ret)
 
             if os.path.exists(os.path.dirname(dstfile)):
                 shutil.rmtree(os.path.dirname(dstfile))
@@ -268,6 +269,7 @@ class prepareImageTaskThread(multiprocessing.Process):
             cmd = VBOX_MGR_CMD + " clonehd " + " " + srcfile + " " + dstfile
             logger.error("cmd line = %s", cmd)
             procid = pexpect.spawn(cmd)
+            logger.error("start to watch clonehd progress ... ... ")
 
             while procid.isalive():
                 try:
@@ -975,6 +977,7 @@ class nc_cmdConsumer():
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REP)
         self.socket.bind("tcp://*:%s" % port)
+        self.ret = {}
 
     def cmdHandle(self, body):
         message = json.loads(body)
@@ -984,10 +987,15 @@ class nc_cmdConsumer():
         else:
             logger.error("zmq: nc get unknown cmd : %s", body)
 
+        self.ret['Result'] = 'OK'
+        self.ret['op']     = message['op']
+        self.ret['tid']    = message['tid']
+
     def run(self):
         while True:
             msg = self.socket.recv()
             self.cmdHandle(msg)
+            self.socket.send(json.dumps(self.ret))
 
 
 def main():

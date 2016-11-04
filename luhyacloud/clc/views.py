@@ -1342,13 +1342,53 @@ def tools_image_upload(request):
         os.chdir(path)
 
         for _file in request.FILES:
+            logger.error("tools_image_upload: loading file %s" % request.POST['name'])
             handle_uploaded_file(request.FILES[_file],
                                  request.POST['chunk'],
-                                 'machine')
+                                 request.POST['name'])
         #response only to notify plUpload that the upload was successful
         return HttpResponse()
     else:
         raise Http404
+
+def tools_post_image_upload(request):
+    imgid = request.POST['imgid']
+    payload = {
+        'cdisk': "machine",
+        'ddisk': ""
+    }
+
+    # list all files in this folder
+    c_d_template = []
+    imgfile_path_dir = '/storage/images/' + imgid
+
+    for name in os.listdir(imgfile_path_dir):
+        if not os.path.isdir(os.path.join(imgfile_path_dir, name)):
+            c_d_template.append(os.path.join(imgfile_path_dir, name))
+
+    if len(c_d_template) == 1:
+        cmd = 'mv %s %s' % (c_d_template[0], os.path.join(imgfile_path_dir, 'machine'))
+        commands.getoutput(cmd)
+
+    if len(c_d_template) == 2:
+        file0_size = os.path.getsize(c_d_template[0])
+        file1_size = os.path.getsize(c_d_template[1])
+        if file0_size > file1_size:
+            cmd = 'mv %s %s' % (c_d_template[0], os.path.join(imgfile_path_dir, 'machine'))
+            commands.getoutput(cmd)
+            cmd = 'mv %s %s' % (c_d_template[1], os.path.join(imgfile_path_dir, 'data'))
+            commands.getoutput(cmd)
+        else:
+            cmd = 'mv %s %s' % (c_d_template[0], os.path.join(imgfile_path_dir, 'data'))
+            commands.getoutput(cmd)
+            cmd = 'mv %s %s' % (c_d_template[1], os.path.join(imgfile_path_dir, 'machine'))
+            commands.getoutput(cmd)
+        payload['ddisk'] = 'data'
+
+    retvalue = json.dumps(payload)
+    return HttpResponse(retvalue, content_type="application/json")
+
+
 
 def tools_file_upload(request):
     root_dir = '/storage/space/software/'
@@ -1766,10 +1806,16 @@ def genVMDisks(tid, usage):
         e['mtype']   = 'multiattach'
         disks.append(e)
 
-    if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0 :
+    if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0:
+        trec = ectaskTransaction.objects.get(tid=tid)
+
         c['file']    = '/storage/images/%s/machine' % dst_imgid
         c['mtype']   = 'multiattach'
         disks.append(c)
+
+        d['file']    = '/storage/space/prv-data/%s/disk/data' % trec.user
+        d['mtype']   = 'normal'
+        disks.append(d)
 
     if ins_id.find('VS') == 0:
         c['file']    = '/storage/images/%s/machine' % dst_imgid
@@ -1800,7 +1846,7 @@ def genVMFolders(tid, usage):
     if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0 :
         trec = ectaskTransaction.objects.get(tid=tid)
         f1 = {
-            'path': '/storage/space/prv-data/%s' % trec.user,
+            'path': '/storage/space/prv-data/%s/data' % trec.user,
             'name': 'prvdata',
         }
         f2 = {
