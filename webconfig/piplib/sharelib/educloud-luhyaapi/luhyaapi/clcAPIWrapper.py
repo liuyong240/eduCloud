@@ -160,3 +160,31 @@ def getVMStatus(clcip, tid):
     r = requests.get(url)
     logger.error(r.content)
     return json.loads(r.content)
+
+def ndpStopCCWrapper(ccip, insid):
+    if DAEMON_DEBUG == True:
+        url = "http://%s:8000/cc/api/1.0/ndp/stop" % (ccip)
+    else:
+        url = "http://%s/cc/api/1.0/ndp/stop" % (ccip)
+    payload = {
+        'insid'   : insid,
+    }
+    logger.error('ndpStopCCWrapper:' + url)
+    logger.error('ndpStopCCWrapper:' + insid)
+    r = requests.post(url, data=payload)
+    logger.error(r.content)
+    return json.loads(r.content)
+
+def ndpStopCLCWrapper(clcip, insid):
+    if DAEMON_DEBUG == True:
+        url = "http://%s:8000/clc/image/ndp/stop" % (clcip)
+    else:
+        url = "http://%s/clc/image/ndp/stop" % (clcip)
+    payload = {
+        'insid'   : insid,
+    }
+    logger.error('ndpStopCLCWrapper:' + url)
+    logger.error('ndpStopCLCWrapper:' + insid)
+    r = requests.post(url, data=payload)
+    logger.error(r.content)
+    return json.loads(r.content)

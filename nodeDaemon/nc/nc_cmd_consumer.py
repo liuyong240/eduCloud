@@ -959,8 +959,11 @@ def nc_task_delete_handle(tid, runtime_option):
     worker.start()
     return worker
 
-def nc_ndp_stop_handle(tid):
-    pass
+def nc_ndp_stop_handle(insid, runtime_option):
+    logger.error("--- --- ---zmq: nc_ndp_stop_handle %s " % insid)
+    ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
+    r = ndpStopCCWrapper(ccip, insid)
+
 
 nc_cmd_handlers = {
     'image/prepare'     : nc_image_prepare_handle,
@@ -980,16 +983,19 @@ class nc_cmdConsumer():
         self.ret = {}
 
     def cmdHandle(self, body):
-        message = json.loads(body)
-        if message.has_key('op') and message['op'] in  nc_cmd_handlers and nc_cmd_handlers[message['op']] != None:
-            logger.error("zmq: nc get cmd = %s" %  body)
-            nc_cmd_handlers[message['op']](message['tid'], message['runtime_option'])
-        else:
-            logger.error("zmq: nc get unknown cmd : %s", body)
+        logger.error("zmq: get cmd body = %s" % body)
+        try:
+            message = json.loads(body)
+            if message.has_key('op') and message['op'] in  nc_cmd_handlers and nc_cmd_handlers[message['op']] != None:
+                nc_cmd_handlers[message['op']](message['tid'], message['runtime_option'])
+            else:
+                logger.error("zmq: nc get unknown cmd : %s", body)
 
-        self.ret['Result'] = 'OK'
-        self.ret['op']     = message['op']
-        self.ret['tid']    = message['tid']
+            self.ret['Result'] = 'OK'
+            self.ret['op']     = message['op']
+            self.ret['tid']    = message['tid']
+        except Exception as e:
+            logger.error("zmq: exception =  %s" % str(e))
 
     def run(self):
         while True:

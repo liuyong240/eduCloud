@@ -69,6 +69,7 @@ urlpatterns = patterns('',
 
     url(r'^image/create/task/run/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                                views.image_create_task_run,                    name='image_create_task_run'),
     url(r'^image/create/task/stop/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                               views.image_create_task_stop,                   name='image_create_task_stop'),
+    url(r'^image/ndp/stop$',                                                                                    views.image_ndp_stop,                           name='image_ndp_stop'),
     url(r'^image/create/task/getvmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)$',                        views.image_create_task_getvmstatus,            name='image_create_task_getvmstatus'),
     url(r'^image/create/task/updatevmstatus/(?P<srcid>\w+)/(?P<dstid>\w+)/(?P<insid>\w+)/(?P<vmstatus>\w+)$',   views.image_create_task_updatevmstatus,         name='image_create_task_updatevmstatus'),
 

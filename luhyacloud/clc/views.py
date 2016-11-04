@@ -503,17 +503,22 @@ def findBuildResource(srcid):
     end = len(l)
     for index in range(0, end):
         data = l[end - index -1]
-        if data['1mem']         > vm_res_matrix['mem']          and \
-           data['2cpu_usage']   > vm_res_matrix['cpu_usage']    and \
-           data['3disk']        > vm_res_matrix['disk']:
+        if data['1mem'] < vm_res_matrix['mem']:
+            _msg = (_('available nc %s Memory is ') + '%s G' + _(', but required is ') + '%s G') % (data['xncip'], data['1mem'], vm_res_matrix['mem'])
+            logger.error(_msg)
+        elif data['2cpu_usage']  < vm_res_matrix['cpu_usage']:
+            _msg = (_('available nc %s CPU is ') + '%s' + _(', but required is ') + '%s ') % (data['xncip'], data['2cpu_usage'], vm_res_matrix['cpu_usage'])
+            logger.error(_msg)
+        elif  data['3disk']      < vm_res_matrix['disk']:
+            _msg = (_('available nc %s Disk is ') + '%s G' + _(', but required is ') + '%s G') % (data['xncip'], data['3disk'], vm_res_matrix['disk'])
+            logger.error(_msg)
+        else:
             _ccip = data['xccip']
             _ncip = data['xncip']
             _msg = ''
             logger.error("get best node : ip = %s" % _ncip)
-            break;
-        else:
-            _msg = (_('available nc resource is ') + '%s' + _(', but required is ') + '%s') % (json.dumps(data), json.dumps(vm_res_matrix))
-            logger.error(_msg)
+            break
+
     return _ccip, _ncip, _msg
 
 def display_login_window(request):
@@ -2350,6 +2355,20 @@ def image_create_task_run(request, srcid, dstid, insid):
     retvalue = json.dumps(response)
 
     return HttpResponse(retvalue, content_type="application/json")
+
+def image_ndp_stop(request):
+    insid = request.POST['insid']
+    logger.error("--- --- --- image_ndp_stop %s " % insid)
+    try:
+        rec = ectaskTransaction.objects.get(insid=insid)
+        r = delet_task_by_id(rec.tid)
+        return HttpResponse(r.content, content_type="application/json")
+    except Exception as e:
+        logger.error('--- image_ndp_stop error = %s ' % str(e))
+        response = {}
+        response['Result'] = 'OK'
+        retvalue = json.dumps(response)
+        return HttpResponse(retvalue, content_type="application/json")
 
 def image_create_task_stop(request, srcid, dstid, insid):
     logger.error("--- --- --- stop_image_create_task")
