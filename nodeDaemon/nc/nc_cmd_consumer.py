@@ -298,6 +298,7 @@ class prepareImageTaskThread(multiprocessing.Process):
 
         return retvalue
 
+
     def run(self):
         payload = {
             'type'      : 'taskstatus',
@@ -328,7 +329,7 @@ class prepareImageTaskThread(multiprocessing.Process):
                     if self.downloadFromWalrus2CC(data) == "OK":
                         if self.cloneImage(data) == "OK":
                             done_2 = True
-                else:
+                else:# clone D disk for user if needed
                     done_2 = True
 
             if done_1 == False or done_2 == False:
@@ -811,7 +812,7 @@ class DeleteImageTaskThread(multiprocessing.Process):
         # need to update nc's status at once
         update_nc_running_status()
 
-def update_nc_running_status():
+def update_nc_running_status(external=None):
     payload = { }
     payload['type']             = 'nodestatus'
     payload['service_data']     = getServiceStatus('nc')
@@ -820,6 +821,9 @@ def update_nc_running_status():
     payload['vm_data']          = getVMlist()
 
     payload['nid']              = "nc#" + payload['net_data']['mac0'] + "#status"
+
+    if external != None:
+        payload['external'] = external
 
     ccip = getccipbyconf()
     simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
@@ -960,9 +964,12 @@ def nc_task_delete_handle(tid, runtime_option):
     return worker
 
 def nc_ndp_stop_handle(insid, runtime_option):
-    logger.error("--- --- ---zmq: nc_ndp_stop_handle %s " % insid)
-    ccip = getccipbyconf(mydebug=DAEMON_DEBUG)
-    r = ndpStopCCWrapper(ccip, insid)
+    logger.error("--- --- ---ndp/stop: nc_ndp_stop_handle %s " % insid)
+    ext = {}
+    ext['op'] = 'ndp/stop'
+    ext['data'] = insid
+    ext['runtime_option'] = runtime_option
+    update_nc_running_status(external=ext)
 
 
 nc_cmd_handlers = {
@@ -990,18 +997,15 @@ class nc_cmdConsumer():
                 nc_cmd_handlers[message['op']](message['tid'], message['runtime_option'])
             else:
                 logger.error("zmq: nc get unknown cmd : %s", body)
-
-            self.ret['Result'] = 'OK'
-            self.ret['op']     = message['op']
-            self.ret['tid']    = message['tid']
         except Exception as e:
             logger.error("zmq: exception =  %s" % str(e))
 
     def run(self):
         while True:
             msg = self.socket.recv()
+            self.socket.send('OK')
             self.cmdHandle(msg)
-            self.socket.send(json.dumps(self.ret))
+
 
 
 def main():

@@ -1783,7 +1783,15 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
         r = requests.post(url, data=payload)
         logger.error("--- --- --- " + url + ":" + r.content)
 
-def genVMDisks(tid, usage):
+#######################################################################################
+# for desktop
+#   c disk = /storage/images/imgid/machine
+#   d disk = /storage/space/prv_data/uid/disk/imgid/data
+# for server
+#   c disk = /storage/images/imgid/machine
+#   d disk = /storage/space/database/images/imgid/database
+
+def genVMDisks(tid, usage, uid):
     tid_info = tid.split(':')
     src_imgid = tid_info[0]
     dst_imgid = tid_info[1]
@@ -1806,6 +1814,10 @@ def genVMDisks(tid, usage):
             d['file']    = '/storage/space/database/images/%s/database' % dst_imgid
             d['mtype']   = 'normal'
             disks.append(d)
+        else:
+            d['file'] = '/storage/space/prv_data/%s/disk/%s/database' % (uid, dst_imgid)
+            d['mtype'] = 'normal'
+            disks.append(d)
 
         e['file']    = '/storage/images/data'
         e['mtype']   = 'multiattach'
@@ -1818,7 +1830,7 @@ def genVMDisks(tid, usage):
         c['mtype']   = 'multiattach'
         disks.append(c)
 
-        d['file']    = '/storage/space/prv-data/%s/disk/data' % trec.user
+        d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (trec.user, dst_imgid)
         d['mtype']   = 'normal'
         disks.append(d)
 
@@ -1930,7 +1942,7 @@ def genRuntimeOptionForImageBuild(transid):
     ncobj       = ecServers.objects.get(ip0=ncip, role='nc')
 
     runtime_option = {}
-
+    runtime_option['uid'] = tid_rec.user
     # 0. get vm access protocol
     runtime_option['protocol'] =  getAccessProtocol(transid)
 
@@ -2358,13 +2370,13 @@ def image_create_task_run(request, srcid, dstid, insid):
 
 def image_ndp_stop(request):
     insid = request.POST['insid']
-    logger.error("--- --- --- image_ndp_stop %s " % insid)
+    logger.error("--- --- ---ndp/stop: image_ndp_stop %s " % insid)
     try:
         rec = ectaskTransaction.objects.get(insid=insid)
         r = delet_task_by_id(rec.tid)
         return HttpResponse(r.content, content_type="application/json")
     except Exception as e:
-        logger.error('--- image_ndp_stop error = %s ' % str(e))
+        logger.error('---ndp/stop: image_ndp_stop error = %s ' % str(e))
         response = {}
         response['Result'] = 'OK'
         retvalue = json.dumps(response)
@@ -5622,11 +5634,20 @@ def rvd_create(request, srcid):
             rec.runtime_option = json.dumps(runtime_option)
             rec.save()
 
+            message = {}
+            message['type'] = "cmd"
+            message['op']   = 'clonehd/ddisk'
+            message['tid']  = _tid
+            message['uid']  = _user_name
+
+            _message = json.dumps(message)
+            zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
+            logger.error("--- --- ---zmq: send clonehd/ddisk cmd to clc sucessfully")
+
             response['Result'] = 'OK'
             response['tid']  = _tid
             retvalue = json.dumps(response)
             return HttpResponse(retvalue, content_type="application/json")
-
 
 def rvd_prepare(request, srcid, dstid, insid):
     _skey = request.POST['sid']

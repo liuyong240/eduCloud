@@ -290,18 +290,3 @@ def delete_tasks(request):
 
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
-
-def delete_ndp(request):
-    insid = request.POST['insid']
-    logger.error("--- --- --- cc delete_ndp %s" % insid)
-
-    clcip = getclcipbyconf(mydebug=DAEMON_DEBUG)
-
-    r = ndpStopCLCWrapper(clcip, insid)
-
-    # return http response
-    response = {}
-    response['Result'] = 'OK'
-
-    retvalue = json.dumps(response)
-    return HttpResponse(retvalue, content_type="application/json")
