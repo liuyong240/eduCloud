@@ -18,6 +18,7 @@ from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.clcAPIWrapper import *
+from luhyaapi.zmqWrapper import *
 
 
 logger = getcclogger()

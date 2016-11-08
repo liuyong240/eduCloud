@@ -20,6 +20,7 @@ from models import *
 from luhyaapi.educloudLog import *
 from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
+from luhyaapi.zmqWrapper import *
 from luhyaapi.settings import *
 from luhyaapi.adToolWrapper import *
 from sortedcontainers import SortedList
@@ -2328,18 +2329,6 @@ def image_create_task_prepare_failure(request, srcid, dstid, insid):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
-def set_vm_boot_timer(tid):
-    res = get_desktop_res()
-    if res['enable_boot_timer'] == 1:
-        message = {}
-        message['type']             = "cmd"
-        message['op']               = 'image/run'
-        message['tid']              = tid
-
-        _message = json.dumps(message)
-        zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
-        logger.error("--- --- ---zmq: send run cmd to clc daemon sucessfully")
-
 def image_create_task_run(request, srcid, dstid, insid):
     logger.error("--- --- --- run_image_create_task")
 
@@ -2365,7 +2354,6 @@ def image_create_task_run(request, srcid, dstid, insid):
         r = requests.post(url, data=payload)
         logger.error("--- --- --- " + url + ":" + r.content)
 
-        set_vm_boot_timer(_tid)
     except Exception as e:
         logger.error('--- image_create_task_stop error = %s ' % str(e))
 
