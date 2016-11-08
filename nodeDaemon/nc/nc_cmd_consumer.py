@@ -4,6 +4,7 @@ from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.rsyncWrapper import *
 from luhyaapi.vboxWrapper import *
 from luhyaapi.clcAPIWrapper import *
+from luhyaapi.zmqWrapper import *
 import pika, json, time, shutil, os, commands, zmq
 import multiprocessing, pexpect
 
@@ -730,8 +731,12 @@ class runImageTaskThread(multiprocessing.Process):
                 snapshot_name = "thomas"
                 if self.runtime_option['run_with_snapshot'] == 1:
                     if vboxmgr.isSnapshotExist(snapshot_name):
-                        logger.error("--- --- --- vm %s is restore snapshot" % vboxmgr.getVMName())
-                        ret = vboxmgr.restore_snapshot(snapshot_name)
+                        if self.insid.find('TMP') == 0:
+                            logger.error("--- --- --- vm %s DONOT restore snapshot " % vboxmgr.getVMName())
+                            pass
+                        else:
+                            logger.error("--- --- --- vm %s is restore snapshot" % vboxmgr.getVMName())
+                            ret = vboxmgr.restore_snapshot(snapshot_name)
                     else:
                         ret = vboxmgr.take_snapshot(snapshot_name)
 
@@ -915,7 +920,7 @@ def process_delete_cmd(tid, runtime_option):
     vboxmgr = vboxWrapper(dstimgid, insid, rootdir)
 
     logger.error("Step 2: unregisterVM of %s" % tid)
-    ret = vboxmgr.unregisterVM(delete=True)
+    ret = vboxmgr.unregisterVM()
     logger.error("--- vboxmgr.unregisterVM ret=%s" % (ret))
 
     logger.error("Step 3: deleteVMConfigFile of %s" % tid)

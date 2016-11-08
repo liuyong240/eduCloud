@@ -1825,9 +1825,9 @@ def genVMDisks(tid, usage, uid):
             d['mtype'] = 'normal'
             disks.append(d)
 
-        e['file']    = '/storage/images/data'
-        e['mtype']   = 'multiattach'
-        disks.append(e)
+        #e['file']    = '/storage/images/data'
+        #e['mtype']   = 'multiattach'
+        #disks.append(e)
 
     if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0:
         trec = ectaskTransaction.objects.get(tid=tid)
@@ -1837,7 +1837,7 @@ def genVMDisks(tid, usage, uid):
         disks.append(c)
 
         d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (trec.user, dst_imgid)
-        d['mtype']   = 'normal'
+        d['mtype']   = 'writethrough'
         disks.append(d)
         logger.error("d_file = %s" % d['file'])
 

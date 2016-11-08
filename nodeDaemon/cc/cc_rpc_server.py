@@ -264,8 +264,8 @@ class cc_rpcServer():
         try:
             logger.error("--- --- --- cc_rpc_handle_submit_success")
 
-            if tid in self.tasks_status and self.tasks_status[tid] != None:
-                del self.tasks_status[tid]
+            if tid in self.img_tasks_status and self.img_tasks_status[tid] != None:
+                del self.img_tasks_status[tid]
 
             if tid in self.submit_tasks and self.submit_tasks[tid] != None:
                 del self.submit_tasks[tid]

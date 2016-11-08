@@ -3,6 +3,7 @@ from luhyaapi.educloudLog import *
 from luhyaapi.clcAPIWrapper import *
 import json, time, shutil, os, commands, zmq
 import multiprocessing, memcache
+from luhyaapi.zmqWrapper import *
 
 logger = getclcdaemonlogger()
 
@@ -17,7 +18,7 @@ class clonehdProcess(multiprocessing.Process):
         srcfile = '/storage/images/%s/data' % self.imgid
         dstfile = '/storage/space/prv-data/%s/disk/%s/data' % (self.uid, self.imgid)
         if os.path.exists(dstfile):
-            logger.error("%s d disk already exist, pass.")
+            logger.error("%s %s d disk already exist, pass." % (self.uid, self.imgid))
         else:
             cmd = "vboxmanage clonehd %s %s " % (srcfile, dstfile)
             logger.error("clc clonehdProcess cmd = %s" % cmd)
