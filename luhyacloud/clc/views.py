@@ -368,9 +368,12 @@ def get_nc_avail_res(nc_mac):
         trecs = ectaskTransaction.objects.filter(ncip = ncobj.ip0)
         if trecs.count() > 0:
             for trec in trecs:
-                runtime_option = json.loads(trec.runtime_option)
-                used_res['cpu']  += runtime_option['cpus']
-                used_res['mem']  += runtime_option['memory']
+                try:
+                    runtime_option = json.loads(trec.runtime_option)
+                    used_res['cpu']  += runtime_option['cpus']
+                    used_res['mem']  += runtime_option['memory']
+                except Exception as e:
+                    logger.error('get_nc_avail_res: %s runtime_optio invalid = %s' % (trec.tid, trec.runtime_option))
 
         computed_avail_res['cpu']   = total_res['cpu']  - used_res['cpu']
         computed_avail_res['mem']   = total_res['mem']  - used_res['mem']
@@ -536,6 +539,7 @@ def user_login(request):
     username = request.POST['email']
     password = request.POST['password']
     user = authenticate(username=username, password=password)
+    logger.error("user %s authenticate OK" % username)
     if user is not None:
         if not user.is_active:
             response['status'] = "FAILURE"
@@ -1442,7 +1446,7 @@ def tools_list_dir_software(request):
 
 def tools_list_dir_prv_data(request, uid):
     ret = []
-    root_dir = '/storage/space/prv-data/%s' % uid
+    root_dir = '/storage/space/prv-data/%s/data' % uid
 
     if "full_path" in request.POST.keys():
         rpath = request.POST['full_path'].split(',')
@@ -1464,7 +1468,7 @@ def tools_list_dir_prv_data(request, uid):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 def tools_prv_upload(request, uid):
-    root_dir = '/storage/space/prv-data/%s' % uid
+    root_dir = '/storage/space/prv-data/%s/data' % uid
 
     if request.method == 'POST' and request.FILES:
 
@@ -1792,6 +1796,7 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
 #   d disk = /storage/space/database/images/imgid/database
 
 def genVMDisks(tid, usage, uid):
+    logger.error("--- --- enter genVMDisk")
     tid_info = tid.split(':')
     src_imgid = tid_info[0]
     dst_imgid = tid_info[1]
@@ -1815,7 +1820,7 @@ def genVMDisks(tid, usage, uid):
             d['mtype']   = 'normal'
             disks.append(d)
         else:
-            d['file'] = '/storage/space/prv_data/%s/disk/%s/database' % (uid, dst_imgid)
+            d['file'] = '/storage/tmp/images/%s/data' % (dst_imgid)
             d['mtype'] = 'normal'
             disks.append(d)
 
@@ -1833,6 +1838,7 @@ def genVMDisks(tid, usage, uid):
         d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (trec.user, dst_imgid)
         d['mtype']   = 'normal'
         disks.append(d)
+        logger.error("d_file = %s" % d['file'])
 
     if ins_id.find('VS') == 0:
         c['file']    = '/storage/images/%s/machine' % dst_imgid
@@ -1843,6 +1849,7 @@ def genVMDisks(tid, usage, uid):
         d['mtype']   = 'writethrough'
         disks.append(d)
 
+    logger.error("--- --- leave genVMDisk")
     return disks
 
 def genVMFolders(tid, usage):
@@ -1936,13 +1943,13 @@ def genRuntimeOptionForImageBuild(transid):
 
     ccip = tid_rec.ccip
     ncip = tid_rec.ncip
+    user = tid_rec.user
 
     ccobj       = ecServers.objects.get(ip0=ccip, role='cc')
     ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
     ncobj       = ecServers.objects.get(ip0=ncip, role='nc')
 
     runtime_option = {}
-    runtime_option['uid'] = tid_rec.user
     # 0. get vm access protocol
     runtime_option['protocol'] =  getAccessProtocol(transid)
 
@@ -2014,7 +2021,7 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['networkcards'] = networkcards
 
     # 3.3 add disks and folders
-    runtime_option['disks']     = genVMDisks(transid,   runtime_option['usage'])
+    runtime_option['disks']     = genVMDisks(transid,   runtime_option['usage'], user)
     runtime_option['folders']   = genVMFolders(transid, runtime_option['usage'])
 
     # 3.4 set public ip and private ip and iptable
@@ -5457,8 +5464,12 @@ def list_myvds(request):
                     vd['tid'] = trec.tid
                     vd['phase'] = trec.phase
                     vd['state'] = trec.state
-                    runtime_option = json.loads(trec.runtime_option)
-                    vd['mgr_url'] = getValidMgrURL(request, runtime_option)
+                    try:
+                        runtime_option = json.loads(trec.runtime_option)
+                        vd['mgr_url'] = getValidMgrURL(request, runtime_option)
+                    except Exception as e:
+                        logger.error("%s runtime_option is invalid as %s" % (trec.tid, trec.runtime_option))
+                        vd['mgr_url'] = ''
                     vd['id']  = 'myvd' + str(index)
                     vds.append(vd)
                     index += 1

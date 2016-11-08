@@ -10,18 +10,19 @@ class clonehdProcess(multiprocessing.Process):
     def __init__(self, msg):
         multiprocessing.Process.__init__(self)
         self.tid = msg['tid']
-        self.imgid = self.tid.split()[0]
+        self.imgid = self.tid.split(':')[0]
         self.uid = msg['uid']
 
     def run(self):
-        srcfile = '/storage/images/%s/data'
-        dstfile = '/storage/space/prv_data/%s/disk/%s/data' % (self.uid, self.imgid)
+        srcfile = '/storage/images/%s/data' % self.imgid
+        dstfile = '/storage/space/prv-data/%s/disk/%s/data' % (self.uid, self.imgid)
         if os.path.exists(dstfile):
             logger.error("%s d disk already exist, pass.")
         else:
             cmd = "vboxmanage clonehd %s %s " % (srcfile, dstfile)
             logger.error("clc clonehdProcess cmd = %s" % cmd)
-            commands.getoutput(cmd)
+            out = commands.getoutput(cmd)
+            logger.error("clc clonehdProcess out = %s" % out)
 
 def clc_clonehd_ddisk_handle(message):
     logger.error("--- --- ---zmq: clc_image_run_handle")
@@ -45,7 +46,7 @@ class clc_cmdConsumer():
         try:
             message = json.loads(body)
             if message.has_key('op') and message['op'] in  clc_cmd_handlers and clc_cmd_handlers[message['op']] != None:
-                logger.error("zmq: nc get cmd = %s" %  body)
+                logger.error("zmq: clc get cmd = %s" %  body)
                 clc_cmd_handlers[message['op']](message)
             else:
                 logger.error("zmq: clc get unknown cmd : %s", body)

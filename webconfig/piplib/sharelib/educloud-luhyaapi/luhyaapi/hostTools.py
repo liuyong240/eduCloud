@@ -34,7 +34,11 @@ def parseTID(tid):
     return _tmp[0], _tmp[1], _tmp[2]
 
 def addUserPrvDataDir(uid):
-    path = '/storage/space/prv-data/%s' % uid
+    path = '/storage/space/prv-data/%s/disk' % uid
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    path = '/storage/space/prv-data/%s/data' % uid
     if not os.path.exists(path):
         os.makedirs(path)
 

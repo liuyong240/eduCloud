@@ -236,15 +236,26 @@ class prepareImageTaskThread(multiprocessing.Process):
 
         if data['rsync'] == 'db':
             payload['prompt'] =  locale_string['promptClone_db']
-            srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
+
             if self.insid.find('TMP') == 0:
-                dstfile  = "/storage/space/database/images/%s/database" % self.dstimgid
-                if self.srcimgid != self.dstimgid:
-                    need_delete = True
-                    need_clone  = True
+                if self.runtime_option['usage'] == 'server':
+                    srcfile  = "/storage/space/database/images/%s/database" % self.srcimgid
+                    dstfile = "/storage/space/database/images/%s/database" % self.dstimgid
+                    if self.srcimgid != self.dstimgid:
+                        need_delete = True
+                        need_clone = True
+                    else:
+                        need_delete = False
+                        need_clone = False
                 else:
-                    need_delete = False
-                    need_clone  = False
+                    srcfile  = "/storage/images/%s/data" % self.srcimgid
+                    dstfile  = "/storage/tmp/images/%s/data" % self.dstimgid
+                    if self.srcimgid != self.dstimgid:
+                        need_delete = True
+                        need_clone = True
+                    else:
+                        need_delete = False
+                        need_clone = False
 
             if self.insid.find('VD')  == 0 or self.insid.find('TVD') == 0 :
                 pass
@@ -260,9 +271,6 @@ class prepareImageTaskThread(multiprocessing.Process):
             ret = commands.getoutput(cmd)
             logger.error("cmd line = %s" % cmd)
             logger.error("result = %s" % ret)
-
-            if os.path.exists(os.path.dirname(dstfile)):
-                shutil.rmtree(os.path.dirname(dstfile))
 
         if need_clone == True:
             src_size = os.path.getsize(srcfile)
@@ -324,12 +332,13 @@ class prepareImageTaskThread(multiprocessing.Process):
                         done_1 = True
 
             if done_1 == True:
+                data['rsync'] = 'db'
                 if self.runtime_option['usage'] == 'server': # desktop, server, app
-                    data['rsync'] = 'db'
                     if self.downloadFromWalrus2CC(data) == "OK":
                         if self.cloneImage(data) == "OK":
                             done_2 = True
                 else:# clone D disk for user if needed
+                    self.cloneImage(data)
                     done_2 = True
 
             if done_1 == False or done_2 == False:
@@ -805,7 +814,11 @@ class DeleteImageTaskThread(multiprocessing.Process):
     def __init__(self, tid, runtime_option):
         multiprocessing.Process.__init__(self)
         self.tid = tid
-        self.runtime_option = json.loads(runtime_option)
+        try:
+            self.runtime_option = json.loads(runtime_option)
+        except Exception as e:
+            logger.error("DeleteImageTaskThread load runtime_option=%s error" % runtime_option)
+            self.runtime_option =''
 
     def run(self):
         process_delete_cmd(self.tid, self.runtime_option)
@@ -835,13 +848,14 @@ def process_stop_cmd(tid, runtime_option):
     dstimgid = retval[1]
     insid    = retval[2]
 
-    if runtime_option['protocol'] == 'NDP':
-        cmd = "pkill -f %s" % insid
-    else:
-        cmd = VBOX_MGR_CMD + " controlvm %s poweroff " % insid
+    if len(runtime_option) > 0:
+        if runtime_option['protocol'] == 'NDP':
+            cmd = "pkill -f %s" % insid
+        else:
+            cmd = VBOX_MGR_CMD + " controlvm %s poweroff " % insid
 
-    out = commands.getoutput(cmd)
-    logger.error("Step 1 of 2: cmd=%s; result=%s" % (cmd, out))
+        out = commands.getoutput(cmd)
+        logger.error("Step 1 of 2: cmd=%s; result=%s" % (cmd, out))
 
     payload = {
             'type'      : 'taskstatus',
