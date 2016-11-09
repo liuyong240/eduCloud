@@ -11,12 +11,16 @@ class clonehdProcess(multiprocessing.Process):
     def __init__(self, msg):
         multiprocessing.Process.__init__(self)
         self.tid = msg['tid']
-        self.imgid = self.tid.split(':')[0]
+        self.imgid, self.dstid, self.insid = parseTID(self.tid)
         self.uid = msg['uid']
 
     def run(self):
         srcfile = '/storage/images/%s/data' % self.imgid
-        dstfile = '/storage/space/prv-data/%s/disk/%s/data' % (self.uid, self.imgid)
+        if self.insid.find('TVD') == 0:
+            dstfile = '/storage/space/prv-data/%s/disk/%s/data' % (self.uid, self.imgid)
+        if self.insid.find("VD")  == 0:
+            dstfile = '/storage/space/prv-data/vds/%s/data' % (self.insid)
+
         if os.path.exists(dstfile):
             logger.error("%s %s d disk already exist, pass." % (self.uid, self.imgid))
         else:

@@ -8,6 +8,10 @@ GUEST_USERNAME = "Administrator"
 GUEST_PASSWORD = "luhya"
 SNAPSHOT_NAME = "thomas"
 
+def isImageWithDDisk(imgid):
+    ddisk_file = '/storage/images/%s/data' % imgid
+    return os.path.exists(ddisk_file)
+
 def execute_cmd(cmd_line, needsplit=True):
     out = commands.getoutput(cmd_line)
     return out

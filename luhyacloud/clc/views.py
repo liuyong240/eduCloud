@@ -18,7 +18,7 @@ from datetime import datetime
 from models import *
 
 from luhyaapi.educloudLog import *
-from luhyaapi.luhyaTools import configuration
+from luhyaapi.luhyaTools import *
 from luhyaapi.hostTools import *
 from luhyaapi.zmqWrapper import *
 from luhyaapi.settings import *
@@ -1821,25 +1821,40 @@ def genVMDisks(tid, usage, uid):
             d['mtype']   = 'normal'
             disks.append(d)
         else:
-            d['file'] = '/storage/tmp/images/%s/data' % (dst_imgid)
-            d['mtype'] = 'normal'
-            disks.append(d)
+            if isImageWithDDisk(src_imgid):
+                d['file'] = '/storage/tmp/images/%s/data' % (dst_imgid)
+                d['mtype'] = 'normal'
+                disks.append(d)
 
         #e['file']    = '/storage/images/data'
         #e['mtype']   = 'multiattach'
         #disks.append(e)
 
-    if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0:
+    if ins_id.find('VD') == 0:
         trec = ectaskTransaction.objects.get(tid=tid)
 
         c['file']    = '/storage/images/%s/machine' % dst_imgid
         c['mtype']   = 'multiattach'
         disks.append(c)
 
-        d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (trec.user, dst_imgid)
-        d['mtype']   = 'writethrough'
-        disks.append(d)
-        logger.error("d_file = %s" % d['file'])
+        if isImageWithDDisk(src_imgid):
+            d['file']    = '/storage/space/prv-data/vds/%s/data' % (ins_id)
+            d['mtype']   = 'writethrough'
+            disks.append(d)
+            logger.error("d_file = %s" % d['file'])
+
+    if ins_id.find('TVD') == 0:
+        trec = ectaskTransaction.objects.get(tid=tid)
+
+        c['file']    = '/storage/images/%s/machine' % dst_imgid
+        c['mtype']   = 'multiattach'
+        disks.append(c)
+
+        if isImageWithDDisk(src_imgid):
+            d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (trec.user, dst_imgid)
+            d['mtype']   = 'writethrough'
+            disks.append(d)
+            logger.error("d_file = %s" % d['file'])
 
     if ins_id.find('VS') == 0:
         c['file']    = '/storage/images/%s/machine' % dst_imgid
@@ -4264,6 +4279,18 @@ def create_vds(request):
             new_vm_auth.save()
             logger.error("create new vds record2 --- OK")
 
+        # create D disk for this VDS
+        if isImageWithDDisk(request.POST['imageid']):
+            message = {}
+            message['type'] = "cmd"
+            message['op'] = 'clonehd/ddisk'
+            message['tid'] = ('%s:%s:%s' % (request.POST['imageid'], request.POST['imageid'], request.POST['insid']))
+            message['uid'] = request.user
+
+            _message = json.dumps(message)
+            zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
+            logger.error("--- --- ---zmq: send clonehd/ddisk cmd to clc sucessfully")
+
     else:
         old_vm = ecVDS.objects.get(insid = request.POST['insid'])
         old_vm.name        = request.POST['name']
@@ -5633,15 +5660,16 @@ def rvd_create(request, srcid):
             rec.runtime_option = json.dumps(runtime_option)
             rec.save()
 
-            message = {}
-            message['type'] = "cmd"
-            message['op']   = 'clonehd/ddisk'
-            message['tid']  = _tid
-            message['uid']  = _user_name
+            if isImageWithDDisk(_srcimgid):
+                message = {}
+                message['type'] = "cmd"
+                message['op']   = 'clonehd/ddisk'
+                message['tid']  = _tid
+                message['uid']  = _user_name
 
-            _message = json.dumps(message)
-            zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
-            logger.error("--- --- ---zmq: send clonehd/ddisk cmd to clc sucessfully")
+                _message = json.dumps(message)
+                zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
+                logger.error("--- --- ---zmq: send clonehd/ddisk cmd to clc sucessfully")
 
             response['Result'] = 'OK'
             response['tid']  = _tid
