@@ -1019,7 +1019,15 @@ class nc_cmdConsumer():
         except Exception as e:
             logger.error("zmq: exception =  %s" % str(e))
 
+
+    def handle_reboot_and_poweroff(self):
+        vms = os.listdir('/storage/VMs/')
+        vms = getNotRunningVMs(vms)
+        for insid in vms:
+            nc_ndp_stop_handle(insid, " ")
+
     def run(self):
+        self.handle_reboot_and_poweroff()
         while True:
             msg = self.socket.recv()
             self.socket.send('OK')

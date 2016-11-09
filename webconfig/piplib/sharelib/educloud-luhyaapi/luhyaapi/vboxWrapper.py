@@ -498,3 +498,23 @@ class vboxWrapper():
         cmd_line = cmd_line + authstr
         ret = commands.getoutput(cmd_line)
         return ret
+
+
+def getNotRunningVMs(insids):
+    logger.error("start getNotRunningVMs -------- ")
+    not_running_vms = []
+
+    vbox_cmd = VBOX_MGR_CMD + " list runningvms"
+    ndp_cmd  = 'ps -ef | grep ndp | grep %s | grep -v grep'
+    vbox_ret = commands.getoutput(vbox_cmd)
+    for insid in insids:
+        if insid in vbox_ret:
+            pass
+        else:
+            try:
+                ndp_ret = subprocess.check_output((ndp_cmd % insid), shell=True)
+            except Exception as e:
+                logger.error("%s is NOT running. " % insid)
+                not_running_vms.append(insid)
+
+    return not_running_vms
