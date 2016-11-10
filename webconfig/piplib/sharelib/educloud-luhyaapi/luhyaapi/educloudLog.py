@@ -31,7 +31,7 @@ DEBUG_LOG_FILE = '/var/log/educloud/luhya-debug.log'
 luhya_debug_logger = init_log(DEBUG_LOG_FILE)
 
 NC_DEBUG_LOG_FILE = '/var/log/educloud/nc.log'
-nc_debug_logger = init_log(NC_DEBUG_LOG_FILE)
+nc_debug_logger = init_log(NC_DEBUG_LOG_FILE, 'node')
 
 def getclcdaemonlogger():
     return luhya_debug_logger

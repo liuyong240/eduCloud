@@ -1797,7 +1797,7 @@ def releaseRuntimeOptionForImageBuild(_tid, _runtime_option=None):
 #   d disk = /storage/space/database/images/imgid/database
 
 def genVMDisks(tid, usage, uid):
-    logger.error("--- --- enter genVMDisk")
+    logger.error("--- --- enter genVMDisk  %s %s %s " % (tid, usage, uid))
     tid_info = tid.split(':')
     src_imgid = tid_info[0]
     dst_imgid = tid_info[1]
@@ -1807,6 +1807,7 @@ def genVMDisks(tid, usage, uid):
     c = {}
     d = {}
     e = {}
+
     if ins_id.find('TMP') == 0:
         # add disk c
         if src_imgid == dst_imgid:
@@ -1838,6 +1839,7 @@ def genVMDisks(tid, usage, uid):
         disks.append(c)
 
         if isImageWithDDisk(src_imgid):
+
             d['file']    = '/storage/space/prv-data/vds/%s/data' % (ins_id)
             d['mtype']   = 'writethrough'
             disks.append(d)
@@ -1845,13 +1847,12 @@ def genVMDisks(tid, usage, uid):
 
     if ins_id.find('TVD') == 0:
         trec = ectaskTransaction.objects.get(tid=tid)
-
         c['file']    = '/storage/images/%s/machine' % dst_imgid
         c['mtype']   = 'multiattach'
         disks.append(c)
 
         if isImageWithDDisk(src_imgid):
-            d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (trec.user, dst_imgid)
+            d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (uid, dst_imgid)
             d['mtype']   = 'writethrough'
             disks.append(d)
             logger.error("d_file = %s" % d['file'])

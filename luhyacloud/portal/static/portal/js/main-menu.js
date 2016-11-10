@@ -11,7 +11,7 @@ var mainMenu = (function() {
 	}
 
 	function open( event ) {
-
+        return ;
 		var $item = $( event.currentTarget ).parent( 'li.has-submenu' ),
 			idx = $item.index();
 		if($item.length != 0){

@@ -2,6 +2,16 @@
 {% load i18n %}
 {% load staticfiles %}
 
+{% block login %}
+	<li style=”display:inline”>
+		<a href="#" onclick="editPassword()">{% trans " Edit Password" %}</a>
+		<div id="uid"   style="display: none;">{{ uid }}</div>
+	</li>
+	<li style=”display:inline”>
+		<a href="/portal/user_logout">{% trans " Logout" %}</a>
+	</li>
+{% endblock %}
+
 {% block content %}
 <link href="{% static "clc/plupload-2.1.2/js/jquery.plupload.queue/css/jquery.plupload.queue.css" %}" rel="stylesheet">
 <link href="{% static "clc/zTree_v3/css/zTreeStyle/zTreeStyle.css" %}" rel="stylesheet">
@@ -893,6 +903,14 @@ function add_prv_leaf(parent_node_name, filename) {
     var pnode = zTree.getNodeByParam("name", parent_node_name, null);
     zTree.addNodes(pnode, { name:filename, isParent:false } );
 };
+
+function editPassword() {
+	u_name = $('#uid').text()
+	url="/clc/user/edit_password/" + u_name;
+	var left = ($(window).width() / 2) - (800 / 2);
+	var top = ($(window).height() / 2) - (600 / 2);
+	window.open(url, '', 'height=550,width=650,left=' + left + ',top=' + top);
+}
 
 $(document).ready(function () {
      init_GUI();

@@ -15,6 +15,6 @@ urlpatterns = patterns('',
     url(r'^documents$',          views.portal_documents,            name='portal_documents'),
     url(r'^sdk$',                views.portal_sdk,                  name='portal_sdk'),
 
-
+    url(r'^user_logout',         views.user_logout,                  name='user_logout'),
 
     )

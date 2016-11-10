@@ -101,3 +101,7 @@ def portal_vds(request):
 
     }
     return render(request, 'portal/cloud-desktop.html', context)
+
+def user_logout(request):
+    logout(request)
+    return render(request, 'portal/login.html', {})
