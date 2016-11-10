@@ -5260,6 +5260,28 @@ def perm_update(request):
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
+def perm_delete(request):
+    id = request.POST['id']
+    table = request.POST['table']
+    data = request.POST['data']
+
+    try:
+        if table == 'ecImages':
+            ecImages_auth.objects.filter(ecid=id, role_value=data).delete()
+        elif table == "ecServers":
+            pass
+        elif table == "ecVSS":
+            pass
+        elif table == "ecVDS":
+            pass
+    except Exception as e:
+        logger.error("perm_delete(%s %s %s) with exception = %s" % (id, table, data, str(e)))
+
+    response = {}
+    response['Result'] = "OK"
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")
+
 def eip_update(request):
     _eip = request.POST['eip']
     _mac0 = request.POST['mac0']

@@ -258,6 +258,7 @@ urlpatterns = patterns('',
     url(r'^api/1.0/account/reset_password$',     views.account_reset_password,              name='account_reset_password'),
 
     url(r'^api/1.0/perm/update$',     views.perm_update,                     name='perm_update'),
+    url(r'^api/1.0/perm/delete$',     views.perm_delete,                     name='perm_delete'),
     url(r'^api/1.0/software/op$',     views.software_operation,              name='software_operation'),
     url(r'^api/1.0/prv_data/op/(?P<uid>\w+)$',     views.prv_data_operation,              name='prv_data_operation'),
     url(r'^api/1.0/vrde$',     views.rdp_web_client,              name='rdp_web_client'),
