@@ -11,3 +11,60 @@ alias publish_client='scp /mnt/src/educloud-client/*.deb root@121.41.80.147:/roo
 
 sudo apt-get install git git-core openssh-server dpkg dpkg-dev python-pip quilt
 pip install PyInstaller
+
+working flow for virtual desktop:
+startVD
+---tid=" " => client:create_tvd("/clc/api/1.0/rvd/create/s") => client:prepare_tvd("/clc/api/1.0/rvd/prepare/s/d/i") => client:run_tvd("/clc/api/1.0/rvd/run/s/d/i") => client:stop_tvd(tid)
+               server:rvd_create()                               server:rvd_prepare()                                    server:rvd_run()                                TVD:   delete_task(tid) "/clc/api/1.0/tasks/delete"
+               --- insid = TVD+random                            --- image_create_task_prepare()                         --- image_create_task_run()                     server:delete_tasks()/delet_task_by_id() "cc/api/1.0/task/delete'"
+               --- findBuildResource()                                                                                                                                   VD:    stop_task(tid)  "/clc/api/1.0/rvd/stop/"
+               --- gen Runtime option                                                                                                                                    server:rvd_stop()/image_create_task_stop()
+               --- create Transaction record
+---tid="x"  => client:start_tvd("/clc/api/1.0/rvd/s/d/i")     => client:prepare_tvd("/clc/api/1.0/rvd/prepare/s/d/i") => client:run_tvd("/clc/api/1.0/rvd/run/s/di") => client:stop_tvd()
+               server:rvd_start()                                server:rvd_prepare()
+                --- findVMRunningResource                        --- image_create_task_prepare()
+                --- update Transaction phase/state, ccip/ncip
+                --- gen Runtime option
+                for both TVD and VD
+
+
+working flow for image build/modify:
+prepareVM() -- "/clc/image/create/task/prepare/srcid/dstid/insid"   image_create_task_prepare()
+                                                                    --- update phase/state
+                                                                    --- call cc/api/1.0/image/create/task/prepare
+runVM()     -- "/clc/image/create/task/run/srcid/dstid/insid"       image_create_task_run()
+                                                                    --- update phase/state
+                                                                    --- call cc/api/1.0/image/create/task/run
+stopVM()    -- "/clc/image/create/task/stop/srcid/dstid/insid"      image_create_task_stop()
+                                                                    --- update phase/state
+                                                                    --- call cc/api/1.0/image/create/task/stop
+
+for VD,
+admin create a concept, assign to user
+user instantiate it to run
+
+for TMP,
+start:   create vm, take snapshot, run
+stop:    power off
+restart: run
+stop:    power off
+delete:  unregister, delete config, delete transaction
+
+
+
+for TVD:
+start:   create vm,  run
+stop:    power off, unregister, delete config
+restart: create vm, run
+stop:    power off, unregister, delete confige
+delete:  delete transaction
+
+for VD:
+start:   create vm,  run
+stop:    power off, unregister, delete config
+restart: create vm, run
+stop:    power off, unregister, delete confige
+delete:  delete transaction, delete vds
+
+for VS:
+???

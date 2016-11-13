@@ -678,10 +678,10 @@ class runImageTaskThread(multiprocessing.Process):
                             ret = vboxmgr.addVRDPproperty()
                             logger.error("--- --- --- vboxmgr.addVRDPproperty for video channel, error=%s" % ret)
 
-                    ret = vboxmgr.unregisterVM()
-                    logger.error("--- --- --- vboxmgr.unregisterVM, error=%s" % ret)
-                    ret = vboxmgr.registerVM()
-                    logger.error("--- --- --- vboxmgr.registerVM, error=%s" % ret)
+                    # ret = vboxmgr.unregisterVM()
+                    # logger.error("--- --- --- vboxmgr.unregisterVM, error=%s" % ret)
+                    # ret = vboxmgr.registerVM()
+                    # logger.error("--- --- --- vboxmgr.registerVM, error=%s" % ret)
 
                 except Exception as e:
                     logger.error("createVM Exception error=%s" % str(e))

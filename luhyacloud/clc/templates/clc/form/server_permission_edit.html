@@ -51,6 +51,28 @@
 
     }
 
+    function bind_click_event() {
+        $('body').on("click", ".delete_btn", function(){
+            var select_id = this.id.split("_")[1];
+            var e = document.getElementById(select_id);
+            var role_value = e.options[e.selectedIndex].value;
+
+            srole = $('#srole').text();
+            smac0 = $("#smac0").text();
+            table = $('#table').text();
+
+            url = "/clc/api/1.0/perm/delete";
+            postdata = {
+                id:             srole + "&" + smac0,
+                table:          table,
+                data:           role_value,
+            }
+            $.post(url, postdata, function(data) {
+                location.reload();
+            });
+        });
+    }
+
     function add_new_role() {
         next = $('#next').text();
         el = '<div class="well well-sm">\
@@ -62,6 +84,7 @@
                             <option value="{{ role.value }}">{{ role.name }}</option> \
                             {% endfor %} \
                         </select> \
+                        <button id="btn_perm' + next + '" class="btn btn-default pull-right delete_btn">{% trans "Delete" %}</button>\
                    </div> \
                    <div class="form-group" id="checkbox_perm' + next + '"> \
                         <label>{% trans "Access Contorl" %}:</label> \
@@ -102,6 +125,7 @@
         });
 
         //init_data();
+        bind_click_event();
 
     });
 </script>
@@ -138,6 +162,7 @@
                                     {% endif %}
                                 {% endfor %}
                             </select>
+                            <button id="btn_{{ perm.id }}" class="btn btn-default pull-right delete_btn">{% trans "Delete" %}</button>
                         </div>
                         <div class="form-group" id="checkbox_{{ perm.id  }}">
                             <label>{% trans "Access Contorl" %}:</label>

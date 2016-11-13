@@ -79,6 +79,7 @@ def portal_vapp(request):
 
 @login_required(login_url='/portal/vdlogin')
 def portal_vds(request):
+    logger.error("enter portal_vds")
     clcip = getclcipbyconf()
     if DAEMON_DEBUG == True:
         url = 'http://%s:8000/clc/api/1.0/list_myvds' % clcip
@@ -90,16 +91,24 @@ def portal_vds(request):
         'sid':  request.session.session_key,
     }
 
-    r = requests.post(url, data=payload)
-    result = json.loads(r.content)
+    try:
+        r = requests.post(url, data=payload)
+        result = json.loads(r.content)
+        context = {
+            'uid': request.user.username,
+            'vds': result['data'],
+            'vapps': result['vapp'],
+            'sid': request.session.session_key,
+        }
+    except Exception as e:
+        logger.error("portal_vds call list_myvds with exception = %s" % str(e))
+        context = {
+            'uid': request.user.username,
+            'vds': [],
+            'vapps': [],
+            'sid': request.session.session_key,
+        }
 
-    context = {
-        'uid' : request.user.username,
-        'vds' : result['data'],
-        'vapps': result['vapp'],
-        'sid' : request.session.session_key,
-
-    }
     return render(request, 'portal/cloud-desktop.html', context)
 
 def user_logout(request):

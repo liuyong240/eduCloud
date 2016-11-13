@@ -412,6 +412,7 @@ def findVMRunningResource(request, insid):
     cc_def = vmrec.cc_def
     nc_def = vmrec.nc_def
 
+    logger.error("cc_def=%s nc_def=%s" % (cc_def, nc_def))
     if cc_def == 'any':
         if is_vd_allowed_in_vscc() == True:
             ccs = ecCCResources.objects.filter()
@@ -424,9 +425,11 @@ def findVMRunningResource(request, insid):
         ccobj = ecServers.objects.get(ccname=cc.ccname, role='cc')
 
         # add permission check here for those admin
+        logger.error("ecServers_auth mac0=%s role_value=%s" % (ccobj.mac0, role_prefix))
         sobjs = ecServers_auth.objects.filter(srole='cc', mac0=ccobj.mac0, role_value__contains=role_prefix)
         if sobjs.count() == 0:
-            continue
+            logger.error("sobjs.count == 0, ignore it by now. will recover in the future.")
+            # continue 
 
         if nc_def == 'any':
             ncs = ecServers.objects.filter(ccname=cc.ccname, role='nc')
@@ -442,9 +445,11 @@ def findVMRunningResource(request, insid):
             final_avail_res['xncip'] = ncobj.ip0
             final_avail_res['xccip'] = ccobj.ip0
             l.add(final_avail_res)
+            logger.error("final_avail_res = %s" % json.dumps(final_avail_res))
 
     # now check sorted nc to find best one
     end = len(l)
+    logger.error("end = %d" % end)
     for index in range(0, end):
         data = l[end - index -1]
         if data['1mem']         > vm_res_matrix['mem']          and \
@@ -556,6 +561,7 @@ def user_login(request):
         response['status'] = "SUCCESS"
         response['url'] = "/portal/cloud-desktops"
         response['sid'] = request.session.session_key
+        logger.error("user %s login operation OK" % username)
         return HttpResponse(json.dumps(response), content_type='application/json')
     else:
         # Return an 'invalid login' error message.
@@ -2384,8 +2390,14 @@ def image_ndp_stop(request):
     logger.error("--- --- ---ndp/stop: image_ndp_stop %s " % insid)
     try:
         rec = ectaskTransaction.objects.get(insid=insid)
-        r = delet_task_by_id(rec.tid)
-        return HttpResponse(r.content, content_type="application/json")
+        if rec.insid.find("TVD") == 0:
+            r = delet_task_by_id(rec.tid)()
+            return HttpResponse(r.content, content_type="application/json")
+        if rec.insid.find("VD") == 0:
+            return image_create_task_stop(request, rec.srcimgid, rec.dstimgid, rec.insid)
+        if rec.insid.find("VS") == 0:
+            return image_create_task_stop(request, rec.srcimgid, rec.dstimgid, rec.insid)
+
     except Exception as e:
         logger.error('---ndp/stop: image_ndp_stop error = %s ' % str(e))
         response = {}
@@ -5269,7 +5281,8 @@ def perm_delete(request):
         if table == 'ecImages':
             ecImages_auth.objects.filter(ecid=id, role_value=data).delete()
         elif table == "ecServers":
-            pass
+            _srole, _smac0 = id.split("&")
+            ecServers_auth.objects.filter(srole=_srole, mac0=_smac0, role_value=data).delete()
         elif table == "ecVSS":
             pass
         elif table == "ecVDS":
@@ -5461,6 +5474,8 @@ def list_myvapps(uid):
     # check vapp list available for this user
     return list_my_availed_vapp
 
+#----------------------------------------------
+# enhancement: for vd instance, it should show up if there is record in clc_ecvds table.
 def list_myvds(request):
     '''
     :param request:
@@ -5468,7 +5483,7 @@ def list_myvds(request):
              name, description, ostype,
     :        tid, phase, state, mgr_url
     '''
-
+    logger.error("enter list_myvds")
     vds = []
     index = 0
     _user = request.POST['user']
@@ -5520,31 +5535,37 @@ def list_myvds(request):
                 vds.append(vd)
                 index += 1
 
-    trecs = ectaskTransaction.objects.filter(user=_user)
-    for trec in trecs:
-        insid = trec.insid
-        if insid.find('VD') == 0:
-            imgobj = ecImages.objects.get(ecid=trec.srcimgid)
-            vd = {}
-            vd['ecid'] = imgobj.ecid
-            vd['name'] = imgobj.name
-            vd['ostype'] = imgobj.ostype
-            vd['desc'] = imgobj.description
+    vds_recs = ecVDS.objects.filter(user=_user)
+    for vds_rec in vds_recs:
+        imgobj = ecImages.objects.get(ecid=vds_rec.imageid)
+        vd = {}
+        vd['ecid']   = imgobj.ecid
+        vd['ostype'] = imgobj.ostype
+        vd['desc']   = imgobj.description
 
-            def_vd = ecVDS.objects.get(insid=insid)
-            vd['name'] = def_vd.name
-            if len(def_vd.description) > 0:
-                vd['desc'] = def_vd.description
+        vd['name']   = vds_rec.name
+        if len(vds_rec.description) > 0:
+            vd['desc'] = vds_rec.description
 
-            vd['tid'] = trec.tid
+        _tid = "%s:%s:%s" % (vds_rec.imageid, vds_rec.imageid, vds_rec.insid)
+        vd['tid'] = _tid
+
+        try:
+            trec = ectaskTransaction.objects.get(user=_user, tid=_tid)
             vd['phase'] = trec.phase
             vd['state'] = trec.state
+            logger.error("find vd's transaction record")
             runtime_option = json.loads(trec.runtime_option)
             vd['mgr_url'] = getValidMgrURL(request, runtime_option)
-            vd['id']  = 'myvd' + str(index)
-            vds.append(vd)
-            index += 1
+        except Exception as e:
+            vd['phase'] = ''
+            vd['state'] = ''
+            vd['mgr_url'] = ''
+            logger.error("Not find vd's transaction record")
 
+        vd['id'] = 'myvd' + str(index)
+        vds.append(vd)
+        index += 1
 
     response = {}
     response['Result'] = 'OK'
@@ -5588,6 +5609,7 @@ def rvd_start(request, srcid, dstid, insid):
         return HttpResponse(retvalue, content_type="application/json")
     else:
         _ccip, _ncip, _msg = findVMRunningResource(request, insid)
+
         if _ncip == None:
             response['Result'] = 'FAIL'
             response['error']  = _msg
@@ -5618,12 +5640,24 @@ def rvd_start(request, srcid, dstid, insid):
                 rec.runtime_option = json.dumps(runtime_option)
                 rec.save()
 
+                if isImageWithDDisk(srcid):
+                    message = {}
+                    message['type']= "cmd"
+                    message['op']  = 'clonehd/ddisk'
+                    message['tid'] = _tid
+                    message['uid'] = request.user.username
+
+                    _message = json.dumps(message)
+                    zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
+                    logger.error("--- --- ---zmq: send clonehd/ddisk cmd to clc sucessfully")
+
                 response['Result'] = 'OK'
                 response['tid']  = _tid
                 retvalue = json.dumps(response)
                 return HttpResponse(retvalue, content_type="application/json")
 
-
+##############################################
+# create transaction and allocate resource
 def rvd_create(request, srcid):
     _skey = request.POST['sid']
 
@@ -5699,6 +5733,9 @@ def rvd_create(request, srcid):
             retvalue = json.dumps(response)
             return HttpResponse(retvalue, content_type="application/json")
 
+
+##############################################
+# call task
 def rvd_prepare(request, srcid, dstid, insid):
     _skey = request.POST['sid']
 

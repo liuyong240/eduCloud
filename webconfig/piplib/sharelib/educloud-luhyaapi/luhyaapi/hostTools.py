@@ -15,7 +15,7 @@ def getIPType(ipaddr):
     return ip.iptype()
 
 def parseTID(tid):
-    _tmp = tid.spit(':')
+    _tmp = tid.split(':')
     return _tmp[0], _tmp[1], _tmp[2]
 
 def addUserPrvDataDir(uid):

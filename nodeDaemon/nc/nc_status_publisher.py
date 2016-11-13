@@ -31,6 +31,7 @@ class nc_statusPublisher():
             logger.error('getServiceStatus exception = %s' % str(e))
         try:
             payload['hardware_data']    = getHostHardware()
+            logger.error("nc_statusPublisher-hardware data %s" % json.dumps(payload['hardware_data']))
         except Exception as e:
             logger.error('getHostHardware exception = %s' % str(e))
         try:

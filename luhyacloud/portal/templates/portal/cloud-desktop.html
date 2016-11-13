@@ -50,7 +50,7 @@
 
                             <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
 
-                            <button type="button" id="stop_{{ vd.id }}" onclick="stop_tvd('{{ vd.id }}');"   class="btn ">{% trans "Stop" %}</button>
+                            <button type="button" id="stop_{{ vd.id }}" onclick="stop_tvd('{{ vd.id }}');"   class="btn">{% trans "Stop" %}</button>
 
 	        			</div>
 	        		</div>
@@ -340,6 +340,7 @@ function run_tvd(id, taskid) {
     postdata = {
         'sid': $('#sid').text(),
     }
+
     $.post(url, postdata, function (data) {
         items = [];
         $.each(data, function (key, val) {
@@ -396,6 +397,27 @@ function sleep(sleepTime) {
     for (var start = Date.now(); Date.now() - start <= sleepTime;) {}
 }
 
+function stop_task(taskid) {
+    //console.log("delete_task() is called.");
+
+	tmp = taskid.split(':')
+    srcid = tmp[0];
+    dstid = tmp[1];
+    insid = tmp[2];
+    url = stop_url + $.trim(srcid) + "/" + $.trim(dstid) + "/" + $.trim(insid);
+    postdata = {
+        'sid': $('#sid').text(),
+    }
+
+    $.post(url, postdata, function (data) {
+        items = [];
+        $.each(data, function (key, val) {
+            items[key] = val;
+        });
+
+        location.reload();
+    });
+}
 
 function delete_task(taskid) {
     //console.log("delete_task() is called.");
@@ -423,7 +445,12 @@ function delete_task(taskid) {
 function stop_tvd(id) {
     //console.log("stop_tvd() is called.");
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
-    delete_task(taskid);
+	insid = taskid.split(":")[2]
+	if (insid.indexOf("VD") == 0) {
+		stop_task(taskid);
+	} else {
+    	delete_task(taskid);
+    }
 }
 
 
@@ -658,16 +685,23 @@ function init_GUI() {
             $('#show_{{ vd.id }}').addClass('disabled');
             $('#stop_{{ vd.id }}').addClass('disabled');
         {% else %}
-            data['id']      = '{{ vd.id }}'
-            data['phase']   = '{{ vd.phase }}';
-            data['state']   = '{{ vd.state}}';
-            data['tid']     = '{{ vd.tid }}',
-            data['promt']   = '';
-            data['errormsg']= '';
-            data['failed']  = 0;
-            data['progress']= 0;
+        	data['phase']   = '{{ vd.phase }}';
+			data['state']   = '{{ vd.state}}';
+			data['tid']     = '{{ vd.tid }}',
+        	insid = data['tid'].split(":")[2]
+        	if (insid.indexOf("VD") == 0 && data['phase'] == "" && data['state'] == "" ) {
+				$('#run_{{ vd.id }}').removeClass('disabled');
+            	$('#show_{{ vd.id }}').addClass('disabled');
+            	$('#stop_{{ vd.id }}').addClass('disabled');
+        	} else {
+        		data['id']      = '{{ vd.id }}'
+				data['promt']   = '';
+				data['errormsg']= '';
+				data['failed']  = 0;
+				data['progress']= 0;
 
-            gui_update(data, 0);
+				gui_update(data, 0);
+        	}
         {% endif %}
     {% endfor%}
 }

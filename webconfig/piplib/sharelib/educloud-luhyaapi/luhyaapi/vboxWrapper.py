@@ -169,6 +169,7 @@ class vboxWrapper():
         vm_name = self._tool._vmname
         self._ostype = ostype
         cmd_line = VBOX_MGR_CMD + " createvm --name " + vm_name + " --ostype " + ostype + " --basefolder " + self._baseVMfolder
+        logger.error("cmd = %s" % cmd_line)
         ret = commands.getoutput(cmd_line)
         return ret
 
@@ -187,6 +188,7 @@ class vboxWrapper():
             cmd_line = cmd_line + " --delete"
         logger.error("cmd = %s" % cmd_line)
         ret = commands.getoutput(cmd_line)
+        logger.error('cmd = %s' % cmd_line)
         return ret
 
 
@@ -324,6 +326,7 @@ class vboxWrapper():
         multi_str = ' --vrdemulticon on '
         cmd_line = VBOX_MGR_CMD + " modifyvm " + vm_name + video_str + video_qa + multi_str
         ret = commands.getoutput(cmd_line)
+        logger.error('cmd = %s' % cmd_line)
         return ret
 
     # in win7, run "mstsc /v:<ip:port>"
@@ -335,6 +338,7 @@ class vboxWrapper():
         portstr = " --vrdeport %d " % port
         cmd_line = VBOX_MGR_CMD + " modifyvm " + vm_name + enablestr + authstr + connectstr + portstr
         ret = commands.getoutput(cmd_line)
+        logger.error('cmd = %s' % cmd_line)
         return ret
 
     def SendCAD(self):
@@ -362,6 +366,7 @@ class vboxWrapper():
         logger.error("modifyvm paras = %s" % vmsettingstr)
 
         ret = commands.getoutput(cmd_line)
+        logger.error('cmd = %s' % cmd_line)
         return ret
 
     def getVMStorageCtrl(self, ostype):
@@ -390,7 +395,7 @@ class vboxWrapper():
         vm_name = self._tool._vmname
 
         cmd_line = VBOX_MGR_CMD + " storagectl " + vm_name + storagectl
-
+        logger.error("cmd = %s" % cmd_line)
         ret = commands.getoutput(cmd_line)
         return ret
 
@@ -419,7 +424,7 @@ class vboxWrapper():
             cmd_line = ['VBoxManage', 'storageattach', vm_name, '--storagectl', storageCtl, '--port', str(port), '--device', str(device), '--type', 'hdd', '--medium', imgfile, '--mtype', mtype]
             cmd_line = ' '.join(map(lambda x: '%s' % x, cmd_line))
             ret = commands.getoutput(cmd_line)
-            logger.error('add disk cmd = %s' % cmd_line)
+            logger.error('cmd = %s' % cmd_line)
         return ret
 
     # VBoxManage storageattach test  --storagectl IDE --port 1 --device 0 --type dvddrive --medium host:/dev/sr0 --mtype readonly --passthrough on
@@ -440,6 +445,7 @@ class vboxWrapper():
 
         cmd_line = VBOX_MGR_CMD + " sharedfolder add " + vm_name + " --name " + name  + " --hostpath " + path + " --automount "
         ret = commands.getoutput(cmd_line)
+        logger.error('cmd = %s' % cmd_line)
         return ret
 
     def isVMRegistered(self):
