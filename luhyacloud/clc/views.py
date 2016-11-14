@@ -1981,16 +1981,15 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option['ostype']        = img_info.ostype
     runtime_option['usage']         = img_info.img_usage
 
-    if ins_id.find('TMP') == 0 or ins_id.find('TVD') == 0 :
-        if img_info.img_usage == "desktop":
-            vmtype = 'vdsmall'
-        else:
-            vmtype = 'vssmall'
+    ostype_info                     = ecOSTypes.objects.get(ec_ostype = img_info.ostype)
+    runtime_option['memory']        = ostype_info.ec_memory
+    runtime_option['cpus']          = ostype_info.ec_cpus
+    runtime_option['disk_type']     = ostype_info.ec_disk_type
+    runtime_option['audio_para']    = ostype_info.ec_audio_para
 
-        # 2. hardware option
-        vmtype_info                     = ecVMTypes.objects.get(name=vmtype)
-        runtime_option['memory']        = vmtype_info.memory
-        runtime_option['cpus']          = vmtype_info.cpus
+
+    if ins_id.find('TMP') == 0 or ins_id.find('TVD') == 0 :
+        pass
     else:
         if ins_id.find('VS') == 0:
             insobj = ecVSS.objects.get(insid=ins_id)
@@ -2000,12 +1999,7 @@ def genRuntimeOptionForImageBuild(transid):
         runtime_option['cpus']      = insobj.cpus
     logger.error('allocate memory  %sG for %s' % (runtime_option['memory'], transid))
 
-    ostype_info                     = ecOSTypes.objects.get(ec_ostype = img_info.ostype)
-    runtime_option['disk_type']     = ostype_info.ec_disk_type
-    runtime_option['audio_para']    = ostype_info.ec_audio_para
-
     # 3 network option
-
     networkMode = ccres_info.network_mode
 
     # 3.1 allocate rpd port
@@ -3122,6 +3116,8 @@ def list_ostypes(request):
         jrec = {}
         jrec['id'] = rec.id
         jrec['ec_ostype'] = rec.ec_ostype
+        jrec['ec_memory'] = rec.ec_memory
+        jrec['ec_cpus']   = rec.ec_cpus
         jrec['ec_disk_type'] = rec.ec_disk_type
         jrec['ec_nic_type'] = rec.ec_nic_type
         jrec['ec_audio_para'] = rec.ec_audio_para
@@ -3167,6 +3163,8 @@ def update_ostypes(request):
 
     rec = ecOSTypes.objects.get(id=request.POST['id']);
     rec.ec_ostype = request.POST['ec_ostype']
+    rec.ec_memory = request.POST['ec_memory']
+    rec.ec_cpus   = request.POST['ec_cpus']
     rec.ec_disk_type = request.POST['ec_disk_type']
     rec.ec_nic_type = request.POST['ec_nic_type']
     rec.ec_audio_para = request.POST['ec_audio_para']

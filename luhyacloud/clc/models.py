@@ -63,6 +63,8 @@ class ecOSTypes(models.Model):
     # Linux:    Ubuntu, Ubuntu_64
     # ostype already include 32/64bit information
     ec_ostype      = models.CharField(max_length=20)
+    ec_memory      = models.IntegerField(default=1)
+    ec_cpus        = models.IntegerField(default=1)
     ec_disk_type   = models.CharField(max_length=100)
     ec_nic_type    = models.CharField(max_length=100)
     ec_audio_para  = models.CharField(max_length=100)
