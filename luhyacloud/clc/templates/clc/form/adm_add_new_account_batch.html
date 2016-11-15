@@ -52,6 +52,7 @@
         password2  = $('#password2').val();
         role = $('#role_list').val();
         pds = $('#data_size').val();
+        usb = $('#ext_device').val();
         r1 = $('#optionsRadios1').is(':checked');
         if (r1 == true) {
             sds = $('#optionsRadios1').val();
@@ -78,6 +79,7 @@
                 role:           role,
                 pds:            pds,
                 sds:            sds,
+                usb:            usb,
                 vapp:           vapp,
                 email:          email,
                 phone:          phone,
@@ -173,6 +175,13 @@
                             <option value="20">20 G</option>
                             <option value="50">50 G</option>
                             <option value="100G" >100 G</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>{% trans "External Device" %}</label>
+                        <select id="ext_device" class="form-control">
+                            <option value="0">{% trans "disable" %}</option>
+                            <option value="1">{% trans "allow"   %}</option>
                         </select>
                     </div>
                     <div class="form-group" style="display:none">

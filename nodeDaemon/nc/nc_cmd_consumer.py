@@ -678,10 +678,10 @@ class runImageTaskThread(multiprocessing.Process):
                             ret = vboxmgr.addVRDPproperty()
                             logger.error("--- --- --- vboxmgr.addVRDPproperty for video channel, error=%s" % ret)
 
-                    # ret = vboxmgr.unregisterVM()
-                    # logger.error("--- --- --- vboxmgr.unregisterVM, error=%s" % ret)
-                    # ret = vboxmgr.registerVM()
-                    # logger.error("--- --- --- vboxmgr.registerVM, error=%s" % ret)
+                    ret = vboxmgr.unregisterVM()
+                    logger.error("--- --- --- vboxmgr.unregisterVM, error=%s" % ret)
+                    ret = vboxmgr.registerVM()
+                    logger.error("--- --- --- vboxmgr.registerVM, error=%s" % ret)
 
                 except Exception as e:
                     logger.error("createVM Exception error=%s" % str(e))
@@ -845,7 +845,7 @@ def update_nc_running_status(external=None):
 
     ccip = getccipbyconf()
     simple_send(logger, ccip, 'cc_status_queue', json.dumps(payload))
-    # logger.error("update_nc_running_status = %s" % json.dumps(payload))
+    logger.error("update_nc_running_status hardware data %s" % json.dumps(payload['hardware_data']))
 
 def process_stop_cmd(tid, runtime_option):
     retval   = tid.split(':')

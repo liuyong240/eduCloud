@@ -3,12 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-20 07:49+0000\n"
+"POT-Creation-Date: 2016-11-15 10:53+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,265 +17,283 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: views.py:34 views.py:174 templates/clc/clc_mgr.html:83
+#: views.py:35 views.py:175 templates/clc/clc_mgr.html:83
 #: templates/clc/walrus_mgr.html:34
 msgid "Service Data"
 msgstr "系统服务状态"
 
-#: views.py:36 templates/clc/clc_mgr.html:86 templates/clc/walrus_mgr.html:36
+#: views.py:37 templates/clc/clc_mgr.html:86 templates/clc/walrus_mgr.html:36
 msgid "Web Service"
 msgstr "WEB服务"
 
-#: views.py:41 views.py:176 templates/clc/clc_mgr.html:91
+#: views.py:42 views.py:177 templates/clc/clc_mgr.html:91
 #: templates/clc/walrus_mgr.html:41
 msgid "Daemon Service"
 msgstr "Daemon服务"
 
-#: views.py:46 views.py:180 templates/clc/clc_mgr.html:96
+#: views.py:47 views.py:181 templates/clc/clc_mgr.html:96
 #: templates/clc/walrus_mgr.html:46
 msgid "SSH Service"
 msgstr "SSH服务"
 
-#: views.py:51 templates/clc/walrus_mgr.html:51
+#: views.py:52 templates/clc/walrus_mgr.html:51
 msgid "RSYNC Service"
 msgstr "RSYNC服务"
 
-#: views.py:56 templates/clc/clc_mgr.html:101
+#: views.py:57 templates/clc/clc_mgr.html:101
 msgid "AMQP Service"
 msgstr "AMQP服务"
 
-#: views.py:61 templates/clc/clc_mgr.html:106
+#: views.py:62 templates/clc/clc_mgr.html:106
 msgid "Memcache Service"
 msgstr "Memcache服务"
 
-#: views.py:65 views.py:183 templates/clc/clc_mgr.html:117
+#: views.py:66 views.py:188 templates/clc/clc_mgr.html:117
 #: templates/clc/walrus_mgr.html:55
 msgid "Hardware Parameters"
 msgstr "硬件数据"
 
-#: views.py:67 views.py:185 templates/clc/clc_mgr.html:119
+#: views.py:68 views.py:190 templates/clc/clc_mgr.html:119
 #: templates/clc/walrus_mgr.html:57
 msgid "HostName"
 msgstr "主机名"
 
-#: views.py:71 views.py:189 templates/clc/clc_mgr.html:123
+#: views.py:72 views.py:194 templates/clc/clc_mgr.html:123
 #: templates/clc/walrus_mgr.html:61
 #: templates/clc/jtable/servers_cc_table.html:85
-#: templates/clc/jtable/servers_nc_table.html:85
+#: templates/clc/jtable/servers_lnc_table.html:88
+#: templates/clc/jtable/servers_nc_table.html:89
+#: templates/clc/jtable/servers_tnc_table.html:83
 msgid "Location"
 msgstr "主机物理位置"
 
-#: views.py:76 views.py:194 templates/clc/clc_mgr.html:128
+#: views.py:77 views.py:199 templates/clc/clc_mgr.html:128
 #: templates/clc/walrus_mgr.html:66
 msgid "CPU Cores"
 msgstr "CPU核"
 
-#: views.py:80 views.py:198 templates/clc/clc_mgr.html:132
+#: views.py:81 views.py:203 templates/clc/clc_mgr.html:132
 #: templates/clc/walrus_mgr.html:70
 msgid "CPU Usage"
 msgstr "CPU占用率"
 
-#: views.py:85 views.py:203 templates/clc/clc_mgr.html:137
+#: views.py:86 views.py:208 templates/clc/clc_mgr.html:137
 #: templates/clc/walrus_mgr.html:75
 msgid "Total Memory"
 msgstr "物理内存"
 
-#: views.py:89 views.py:207 templates/clc/clc_mgr.html:141
+#: views.py:90 views.py:212 templates/clc/clc_mgr.html:141
 #: templates/clc/walrus_mgr.html:79
 msgid "Memory Usage"
 msgstr "内存使用率"
 
-#: views.py:94 views.py:212 templates/clc/clc_mgr.html:146
+#: views.py:95 views.py:217 templates/clc/clc_mgr.html:146
 #: templates/clc/walrus_mgr.html:84
 msgid "Total Disk"
 msgstr "物理硬盘"
 
-#: views.py:98 views.py:216 templates/clc/clc_mgr.html:150
+#: views.py:99 views.py:221 templates/clc/clc_mgr.html:150
 #: templates/clc/walrus_mgr.html:88
 msgid "Disk Usage"
 msgstr "硬盘使用率"
 
-#: views.py:102
+#: views.py:103
 msgid "Network Resource Configure"
 msgstr "配置集群网络参数"
 
-#: views.py:109 views.py:225 templates/clc/clc_mgr.html:153
+#: views.py:110 views.py:230 templates/clc/clc_mgr.html:153
 #: templates/clc/walrus_mgr.html:99
 msgid "IP Addresses"
 msgstr "IP地址"
 
-#: views.py:111 views.py:227 templates/clc/clc_mgr.html:155
+#: views.py:112 views.py:232 templates/clc/clc_mgr.html:155
 #: templates/clc/walrus_mgr.html:101
 msgid "External IP Address"
 msgstr "外部IP地址"
 
-#: views.py:113 views.py:229 templates/clc/clc_mgr.html:158
+#: views.py:114 views.py:234 templates/clc/clc_mgr.html:158
 #: templates/clc/walrus_mgr.html:104
 msgid "Edit"
 msgstr "编辑"
 
-#: views.py:116 views.py:232 templates/clc/clc_mgr.html:162
+#: views.py:117 views.py:237 templates/clc/clc_mgr.html:162
 #: templates/clc/walrus_mgr.html:108
 msgid "IP Address 0"
 msgstr "IP地址0"
 
-#: views.py:120 views.py:236 templates/clc/clc_mgr.html:166
+#: views.py:121 views.py:241 templates/clc/clc_mgr.html:166
 #: templates/clc/walrus_mgr.html:112
 msgid "IP Address 1"
 msgstr "IP地址1"
 
-#: views.py:124 views.py:240 templates/clc/clc_mgr.html:170
+#: views.py:125 views.py:245 templates/clc/clc_mgr.html:170
 #: templates/clc/walrus_mgr.html:116
 msgid "IP Address 2"
 msgstr "IP地址2"
 
-#: views.py:128 views.py:244 templates/clc/clc_mgr.html:174
+#: views.py:129 views.py:249 templates/clc/clc_mgr.html:174
 #: templates/clc/walrus_mgr.html:120
 msgid "IP Address 3"
 msgstr "IP地址3"
 
-#: views.py:131 views.py:247 templates/clc/clc_mgr.html:177
+#: views.py:132 views.py:252 templates/clc/clc_mgr.html:177
 #: templates/clc/walrus_mgr.html:123
 msgid "MAC Addresses"
 msgstr "MAC地址"
 
-#: views.py:133 views.py:249 templates/clc/clc_mgr.html:179
+#: views.py:134 views.py:254 templates/clc/clc_mgr.html:179
 #: templates/clc/walrus_mgr.html:125
 msgid "MAC Address 0"
 msgstr "MAC地址0"
 
-#: views.py:137 views.py:253 templates/clc/clc_mgr.html:183
+#: views.py:138 views.py:258 templates/clc/clc_mgr.html:183
 #: templates/clc/walrus_mgr.html:129
 msgid "MAC Address 1"
 msgstr "MAC地址1"
 
-#: views.py:141 views.py:257 templates/clc/clc_mgr.html:187
+#: views.py:142 views.py:262 templates/clc/clc_mgr.html:187
 #: templates/clc/walrus_mgr.html:133
 msgid "MAC Address 2"
 msgstr "MAC地址2"
 
-#: views.py:145 views.py:261 templates/clc/clc_mgr.html:191
+#: views.py:146 views.py:266 templates/clc/clc_mgr.html:191
 #: templates/clc/walrus_mgr.html:137
 msgid "MAC Address 3"
 msgstr "MAC地址3"
 
-#: views.py:158
+#: views.py:159
 msgid "Guest OS"
 msgstr "操作系统"
 
-#: views.py:161
+#: views.py:162
 msgid "Memroy"
 msgstr "内存"
 
-#: views.py:164
+#: views.py:165
 msgid "VCPU"
 msgstr "虚拟CPU"
 
-#: views.py:172
+#: views.py:173
 msgid "Virtual Machine Data"
 msgstr "虚拟机状态数据"
 
-#: views.py:442 views.py:501
+#: views.py:185
+msgid "NDP Service"
+msgstr "AMQP服务"
+
+#: views.py:464
 msgid "available nc resource is "
 msgstr "工作服务器可用的资源是 "
 
-#: views.py:442 views.py:501
+#: views.py:464 views.py:516 views.py:519 views.py:522
 msgid ", but required is "
 msgstr "，但是虚拟机要求的是 "
 
-#: views.py:452
+#: views.py:474
 msgid "Can't Find appropriate cluster machine and node machine ."
 msgstr "没有找到满足虚拟机运行资源要求的工作服务器。"
 
-#: views.py:523 views.py:550
+#: views.py:516
+msgid "available nc %s Memory is "
+msgstr "工作服务器可用的资源是 "
+
+#: views.py:519
+msgid "available nc %s CPU is "
+msgstr "工作服务器可用的资源是 "
+
+#: views.py:522
+msgid "available nc %s Disk is "
+msgstr "工作服务器可用的资源是 "
+
+#: views.py:552 views.py:580
 msgid "account is not activated."
 msgstr "账号还未激活！"
 
-#: views.py:528
+#: views.py:557
 msgid "Admin is NOT allowd to login"
 msgstr "不允许管理员登陆！"
 
-#: views.py:539 views.py:565
+#: views.py:569 views.py:595
 msgid "account is invalid"
 msgstr "账号无效！"
 
-#: views.py:555
+#: views.py:585
 msgid "Only Admin is allowd to login"
 msgstr "只允许管理员登陆！"
 
-#: views.py:672
+#: views.py:702
 msgid "duplicated user name: "
 msgstr "重复的用户名"
 
-#: views.py:712
+#: views.py:742
 msgid "duplicated user name."
 msgstr "重复的用户名"
 
-#: views.py:810 views.py:1996 views.py:2020 views.py:2042 views.py:2060
-#: views.py:2079 views.py:2102 views.py:2420 views.py:2440 views.py:2462
-#: views.py:2618 views.py:2640 views.py:4527 templates/clc/error.html:34
+#: views.py:840 views.py:2151 views.py:2175 views.py:2197 views.py:2215
+#: views.py:2234 views.py:2257 views.py:2609 views.py:2629 views.py:2651
+#: views.py:2807 views.py:2829 views.py:5056 templates/clc/error.html:34
 msgid "Error Report"
 msgstr "错误报告"
 
-#: views.py:811
+#: views.py:841
 msgid "user Role MUST be set before approved."
 msgstr "批准前必须设置用户角色。"
 
-#: views.py:812
+#: views.py:842
 msgid "Please edit user's role first"
 msgstr "请编辑用户角色。"
 
-#: views.py:821
+#: views.py:851
 msgid "user"
 msgstr "用户"
 
-#: views.py:821
+#: views.py:851
 msgid "is activated now."
 msgstr "已经激活了。"
 
-#: views.py:848
+#: views.py:878
 msgid "Password is not correct!"
 msgstr "密码不正确。"
 
-#: views.py:861
+#: views.py:891
 msgid "System Run-time Status Overview"
 msgstr "系统运行状态"
 
-#: views.py:874
+#: views.py:904
 msgid "Account Management"
 msgstr "用户账户管理"
 
-#: views.py:888
+#: views.py:918
 msgid "Images Management"
 msgstr "镜像文件管理"
 
-#: views.py:949
+#: views.py:979
 msgid "Cloud Control Management"
 msgstr "云控制器管理"
 
-#: views.py:1008
+#: views.py:1038
 msgid "Cloud Walrus Management"
 msgstr "云存储控制器管理"
 
-#: views.py:1024
+#: views.py:1054
 msgid "Cloud Cluster Management"
 msgstr "云集群控制器管理"
 
-#: views.py:1073 templates/clc/clc_mgr.html:196 templates/clc/images.html:13
+#: views.py:1107 templates/clc/clc_mgr.html:196 templates/clc/images.html:13
 #: templates/clc/walrus_mgr.html:142
 msgid "Edit Permission"
 msgstr "权限修改"
 
-#: views.py:1092
+#: views.py:1126
 msgid "Cloud Node Management"
 msgstr "云工作服务器管理"
 
-#: views.py:1124
+#: views.py:1158
 msgid ""
 "<div class=\"col-lg-6\"><p>detail information is NOT available.</p></div>"
 msgstr "<div class=\"col-lg-6\"><p>无法获取详细信息。</p></div>"
 
-#: views.py:1142
+#: views.py:1176
 msgid ""
 "\n"
 "                <p class=\"list-group-item\">\n"
@@ -289,117 +307,117 @@ msgstr ""
 "                </p>\n"
 "        "
 
-#: views.py:1188
+#: views.py:1223
 msgid "Cloud Local Node Management"
 msgstr "云本地工作节点管理"
 
-#: views.py:1200
+#: views.py:1235
 msgid "Cloud Terminal Management"
 msgstr "云终端管理"
 
-#: views.py:1212
+#: views.py:1247
 msgid "Hosts Management"
 msgstr "主机管理"
 
-#: views.py:1224
+#: views.py:1259
 msgid "System Settings Management"
 msgstr "系统参数设置"
 
-#: views.py:1236
+#: views.py:1271
 msgid "Cloud Server Management"
 msgstr "云服务器管理"
 
-#: views.py:1249
+#: views.py:1284
 msgid "Remote Cloud Desktop Management"
 msgstr "远程云桌面管理"
 
-#: views.py:1262
+#: views.py:1297
 msgid "Local Cloud Desktop Management"
 msgstr "本地云桌面管理"
 
-#: views.py:1275
+#: views.py:1310
 msgid "Tasks Management"
 msgstr "系统任务管理"
 
-#: views.py:1293
+#: views.py:1328
 msgid "Administrator Tools"
 msgstr "管理员工具"
 
-#: views.py:1590
+#: views.py:1665
 msgid "Configure CC Network Resources"
 msgstr "设置集群网络参数"
 
-#: views.py:1857
+#: views.py:2012
 msgid "Need more rdp port resources!."
 msgstr "需要更多的RDP端口资源"
 
-#: views.py:1876
+#: views.py:2031
 msgid "Need more ether resources."
 msgstr "需要更多的IP/MAC资源"
 
-#: views.py:1920
+#: views.py:2075
 msgid "Need more Proxy Web IP resources for Cluster."
 msgstr "需要更多的WEB代理IP资源"
 
-#: views.py:1989
+#: views.py:2144
 msgid "cloud desktop"
 msgstr "本地云桌面"
 
-#: views.py:2061
+#: views.py:2216
 msgid "current user not allowed to create new images"
 msgstr "当前用户没有权限来创建新的镜像文件。"
 
-#: views.py:2062 views.py:2620
+#: views.py:2217 views.py:2809
 msgid "Ask eduCloud.admin to assign CREATE rigth."
 msgstr "向系统管理员申请CREATE权限。"
 
-#: views.py:2421
+#: views.py:2610
 msgid "current user not allowed to modify images"
 msgstr "当前用户没有权限来修改镜像文件。"
 
-#: views.py:2422
+#: views.py:2611
 msgid "Ask eduCloud.admin to assign WRITE rigth."
 msgstr "向系统管理员申请WRITE权限。"
 
-#: views.py:2484
+#: views.py:2673
 msgid "image build"
 msgstr ""
 
-#: views.py:2619
+#: views.py:2808
 msgid "current user not allowed to create new VM"
 msgstr "当前用户没有权限来创建新的虚拟机。"
 
-#: views.py:2641
-#, fuzzy
+#: views.py:2830
+
 msgid "current user not allowed to manage any cluster"
 msgstr "当前用户没有权限来修改镜像文件。"
 
-#: views.py:2642
-#, fuzzy
+#: views.py:2831
+
 msgid "Ask eduCloud.admin to assign a cluster to current user."
 msgstr "向系统管理员申请WRITE权限。"
 
-#: views.py:2647 views.py:2663
+#: views.py:2836 views.py:2852
 msgid "VM Create"
 msgstr "创建虚拟机"
 
-#: views.py:4528
+#: views.py:5057
 msgid "Only eduCloud.Admin can change image permission!"
 msgstr "只有系统管理员才能修改镜像文件访问权限！"
 
-#: views.py:4529
+#: views.py:5058
 msgid "Please logon as eduCloud.Admin."
 msgstr "请以系统管理员身份登录。"
 
-#: views.py:4562
+#: views.py:5091
 msgid "Image "
 msgstr "镜像文件"
 
-#: views.py:4788
+#: views.py:5340
 msgid "Server "
 msgstr "物理服务器"
 
-#: views.py:4833
+#: views.py:5385
 msgid "VM "
 msgstr "虚拟机"
 
@@ -415,24 +433,25 @@ msgstr "创建新账号"
 msgid " Batch Add New Account"
 msgstr "批量增加账号"
 
-#: templates/clc/accounts.html:31
+#: templates/clc/accounts.html:30
 msgid "Active Accounts"
 msgstr "已激活账号"
 
-#: templates/clc/accounts.html:34
+#: templates/clc/accounts.html:33
 msgid "Inactive Accounts"
 msgstr "待激活账号"
 
-#: templates/clc/accounts.html:44 templates/clc/accounts.html.py:52
+#: templates/clc/accounts.html:43 templates/clc/accounts.html.py:51
 msgid "Reset Password"
 msgstr "重置密码"
 
-#: templates/clc/accounts.html:53
+#: templates/clc/accounts.html:52
 msgid "Approval"
 msgstr "批准"
 
 #: templates/clc/cc_mgr.html:76 templates/clc/clc_mgr.html:28
-#: templates/clc/nc_mgr.html:69 templates/clc/walrus_mgr.html:28
+#: templates/clc/lnc_mgr.html:69 templates/clc/nc_mgr.html:69
+#: templates/clc/tnc_mgr.html:69 templates/clc/walrus_mgr.html:28
 msgid "OverView"
 msgstr "总体说明"
 
@@ -582,12 +601,12 @@ msgstr " 系统任务"
 msgid " Tools"
 msgstr " 系统工具"
 
-#: templates/clc/images.html:10 templates/clc/form/permission_edit.html:77
-#: templates/clc/form/permission_edit.html:165
-#: templates/clc/form/permission_edit.html:167
-#: templates/clc/form/server_permission_edit.html:78
-#: templates/clc/form/server_permission_edit.html:167
-#: templates/clc/form/server_permission_edit.html:169
+#: templates/clc/images.html:10 templates/clc/form/permission_edit.html:101
+#: templates/clc/form/permission_edit.html:193
+#: templates/clc/form/permission_edit.html:195
+#: templates/clc/form/server_permission_edit.html:101
+#: templates/clc/form/server_permission_edit.html:192
+#: templates/clc/form/server_permission_edit.html:194
 #: templates/clc/form/vm_permission_edit.html:77
 #: templates/clc/form/vm_permission_edit.html:165
 #: templates/clc/form/vm_permission_edit.html:167
@@ -671,7 +690,7 @@ msgid "Action"
 msgstr "操作"
 
 #: templates/clc/lvds.html:19
-#, fuzzy
+
 msgid "Another action"
 msgstr "操作"
 
@@ -684,12 +703,16 @@ msgid "Run/View"
 msgstr "运行/查看"
 
 #: templates/clc/rvds.html:15 templates/clc/tasks.html:12
-#: templates/clc/vss.html:15 templates/clc/form/permission_edit.html:80
-#: templates/clc/form/permission_edit.html:172
-#: templates/clc/form/permission_edit.html:174
-#: templates/clc/form/server_permission_edit.html:81
-#: templates/clc/form/server_permission_edit.html:174
-#: templates/clc/form/server_permission_edit.html:176
+#: templates/clc/vss.html:15 templates/clc/form/permission_edit.html:87
+#: templates/clc/form/permission_edit.html:104
+#: templates/clc/form/permission_edit.html:166
+#: templates/clc/form/permission_edit.html:200
+#: templates/clc/form/permission_edit.html:202
+#: templates/clc/form/server_permission_edit.html:87
+#: templates/clc/form/server_permission_edit.html:104
+#: templates/clc/form/server_permission_edit.html:165
+#: templates/clc/form/server_permission_edit.html:199
+#: templates/clc/form/server_permission_edit.html:201
 #: templates/clc/form/vm_permission_edit.html:80
 #: templates/clc/form/vm_permission_edit.html:172
 #: templates/clc/form/vm_permission_edit.html:174
@@ -700,35 +723,35 @@ msgstr "删除"
 msgid "View"
 msgstr "查看"
 
-#: templates/clc/tools.html:331
+#: templates/clc/tools.html:347
 msgid "Upload Raw Images"
 msgstr "上传镜像文件"
 
-#: templates/clc/tools.html:337 templates/clc/tools.html.py:372
+#: templates/clc/tools.html:353 templates/clc/tools.html.py:388
 msgid "Step 1: create and select directory"
 msgstr "步骤1：创建并选择目录"
 
-#: templates/clc/tools.html:340
+#: templates/clc/tools.html:356
 msgid "Image Directory in Server"
 msgstr "云平台上的镜像文件目录"
 
-#: templates/clc/tools.html:356
+#: templates/clc/tools.html:372
 msgid "Step 2: Select image file to upload"
 msgstr "步骤2：选择镜像文件上传"
 
-#: templates/clc/tools.html:357 templates/clc/tools.html.py:392
+#: templates/clc/tools.html:373 templates/clc/tools.html.py:408
 msgid "Your browser doesn't support HTML5."
 msgstr "你得浏览器不支持HTML5."
 
-#: templates/clc/tools.html:366
+#: templates/clc/tools.html:382
 msgid "Upload Software"
 msgstr "上传软件安装包"
 
-#: templates/clc/tools.html:375
+#: templates/clc/tools.html:391
 msgid "Software Directory in Server"
 msgstr "云平台上的软件安装包目录"
 
-#: templates/clc/tools.html:391
+#: templates/clc/tools.html:407
 msgid "Step 2: select files to upload"
 msgstr "步骤2：选择文件上传"
 
@@ -793,53 +816,69 @@ msgstr "私人数据存储"
 
 #: templates/clc/form/adm_add_new_account.html:157
 #: templates/clc/form/adm_add_new_account_batch.html:179
+
+msgid "External Device"
+msgstr "外设"
+
+#: templates/clc/form/adm_add_new_account.html:159
+#: templates/clc/form/adm_add_new_account_batch.html:181
+msgid "disable"
+msgstr "禁止"
+
+#: templates/clc/form/adm_add_new_account.html:160
+#: templates/clc/form/adm_add_new_account_batch.html:182
+msgid "allow"
+msgstr "允许"
+
+#: templates/clc/form/adm_add_new_account.html:164
+#: templates/clc/form/adm_add_new_account_batch.html:186
 #: templates/clc/form/update_account_profile.html:141
 msgid "Shared Data Storage"
 msgstr "公共数据存储"
 
-#: templates/clc/form/adm_add_new_account.html:170
-#: templates/clc/form/adm_add_new_account_batch.html:192
+#: templates/clc/form/adm_add_new_account.html:177
+#: templates/clc/form/adm_add_new_account_batch.html:199
 msgid "Enable Virtualized Application"
 msgstr "启用虚拟应用服务"
 
-#: templates/clc/form/adm_add_new_account.html:183
-#: templates/clc/form/adm_add_new_account_batch.html:205
+#: templates/clc/form/adm_add_new_account.html:190
+#: templates/clc/form/adm_add_new_account_batch.html:212
 #: templates/clc/form/request_new_account.html:114
 #: templates/clc/form/update_account_profile.html:155
 msgid "E-Mail"
 msgstr "电子邮件"
 
-#: templates/clc/form/adm_add_new_account.html:187
-#: templates/clc/form/adm_add_new_account_batch.html:209
+#: templates/clc/form/adm_add_new_account.html:194
+#: templates/clc/form/adm_add_new_account_batch.html:216
 #: templates/clc/form/request_new_account.html:118
 #: templates/clc/form/update_account_profile.html:159
 msgid "Phone Number"
 msgstr "电话号码"
 
-#: templates/clc/form/adm_add_new_account.html:191
-#: templates/clc/form/adm_add_new_account_batch.html:213
+#: templates/clc/form/adm_add_new_account.html:198
+#: templates/clc/form/adm_add_new_account_batch.html:220
 #: templates/clc/form/request_new_account.html:122
 #: templates/clc/form/update_account_profile.html:163
-#: templates/clc/jtable/vds_table.html:94
+#: templates/clc/jtable/vds_table.html:100
 #: templates/clc/jtable/vss_table.html:94
 msgid "Description"
 msgstr "详细说明"
 
-#: templates/clc/form/adm_add_new_account.html:195
-#: templates/clc/form/adm_add_new_account_batch.html:217
+#: templates/clc/form/adm_add_new_account.html:202
+#: templates/clc/form/adm_add_new_account_batch.html:224
 #: templates/clc/form/cc_modify_resource.html:391
 #: templates/clc/form/edit_eip.html:63
-#: templates/clc/form/permission_edit.html:181
+#: templates/clc/form/permission_edit.html:209
 #: templates/clc/form/request_new_account.html:126
 #: templates/clc/form/reset_account_password.html:111
-#: templates/clc/form/server_permission_edit.html:183
+#: templates/clc/form/server_permission_edit.html:208
 #: templates/clc/form/update_account_profile.html:167
 #: templates/clc/form/vm_permission_edit.html:181
 msgid "Submit Button"
 msgstr "提交"
 
-#: templates/clc/form/adm_add_new_account.html:196
-#: templates/clc/form/adm_add_new_account_batch.html:218
+#: templates/clc/form/adm_add_new_account.html:203
+#: templates/clc/form/adm_add_new_account_batch.html:225
 #: templates/clc/form/cc_modify_resource.html:392
 #: templates/clc/form/edit_eip.html:64
 #: templates/clc/form/request_new_account.html:127
@@ -847,12 +886,12 @@ msgstr "提交"
 msgid "Reset Button"
 msgstr "重置"
 
-#: templates/clc/form/adm_add_new_account.html:200
+#: templates/clc/form/adm_add_new_account.html:207
 msgid "New Account is created Successfully."
 msgstr "新用户账号已经成功创建。"
 
-#: templates/clc/form/adm_add_new_account.html:203
-#: templates/clc/form/adm_add_new_account_batch.html:225
+#: templates/clc/form/adm_add_new_account.html:210
+#: templates/clc/form/adm_add_new_account_batch.html:232
 #: templates/clc/form/update_account_profile.html:175
 msgid "Create new account Failed, try again."
 msgstr "创建新账号失败，请重新尝试。"
@@ -889,7 +928,7 @@ msgstr "用户ID前缀"
 msgid "User ID Suffix*"
 msgstr "用户ID后缀"
 
-#: templates/clc/form/adm_add_new_account_batch.html:222
+#: templates/clc/form/adm_add_new_account_batch.html:229
 msgid "New Accounts are created Successfully."
 msgstr "新的用户账号已经批量生成。"
 
@@ -899,6 +938,7 @@ msgstr "集群服务器网络参数配置"
 
 #: templates/clc/form/cc_modify_resource.html:291
 #: templates/clc/jtable/servers_cc_table.html:51
+#: templates/clc/jtable/servers_lnc_table.html:83
 #: templates/clc/jtable/servers_nc_table.html:51
 msgid "Cluster Name"
 msgstr "集群名称"
@@ -1007,80 +1047,80 @@ msgstr "新的外部IP地址已经更新成功。"
 msgid "Update External IP Failed, try again."
 msgstr "更新外部IP地址失败，请重试。"
 
-#: templates/clc/form/permission_edit.html:57
-#: templates/clc/form/permission_edit.html:128
-#: templates/clc/form/server_permission_edit.html:58
-#: templates/clc/form/server_permission_edit.html:130
+#: templates/clc/form/permission_edit.html:80
+#: templates/clc/form/permission_edit.html:155
+#: templates/clc/form/server_permission_edit.html:80
+#: templates/clc/form/server_permission_edit.html:154
 #: templates/clc/form/vm_permission_edit.html:57
 #: templates/clc/form/vm_permission_edit.html:128
 msgid "Allocated Role"
 msgstr "角色分配"
 
-#: templates/clc/form/permission_edit.html:66
-#: templates/clc/form/permission_edit.html:141
-#: templates/clc/form/server_permission_edit.html:67
-#: templates/clc/form/server_permission_edit.html:143
+#: templates/clc/form/permission_edit.html:90
+#: templates/clc/form/permission_edit.html:169
+#: templates/clc/form/server_permission_edit.html:90
+#: templates/clc/form/server_permission_edit.html:168
 #: templates/clc/form/vm_permission_edit.html:66
 #: templates/clc/form/vm_permission_edit.html:141
 msgid "Access Contorl"
 msgstr "访问控制"
 
-#: templates/clc/form/permission_edit.html:68
-#: templates/clc/form/permission_edit.html:144
-#: templates/clc/form/permission_edit.html:146
-#: templates/clc/form/server_permission_edit.html:69
-#: templates/clc/form/server_permission_edit.html:146
-#: templates/clc/form/server_permission_edit.html:148
+#: templates/clc/form/permission_edit.html:92
+#: templates/clc/form/permission_edit.html:172
+#: templates/clc/form/permission_edit.html:174
+#: templates/clc/form/server_permission_edit.html:92
+#: templates/clc/form/server_permission_edit.html:171
+#: templates/clc/form/server_permission_edit.html:173
 #: templates/clc/form/vm_permission_edit.html:68
 #: templates/clc/form/vm_permission_edit.html:144
 #: templates/clc/form/vm_permission_edit.html:146
 msgid "Read"
 msgstr "读取"
 
-#: templates/clc/form/permission_edit.html:71
-#: templates/clc/form/permission_edit.html:151
-#: templates/clc/form/permission_edit.html:153
-#: templates/clc/form/server_permission_edit.html:72
-#: templates/clc/form/server_permission_edit.html:153
-#: templates/clc/form/server_permission_edit.html:155
+#: templates/clc/form/permission_edit.html:95
+#: templates/clc/form/permission_edit.html:179
+#: templates/clc/form/permission_edit.html:181
+#: templates/clc/form/server_permission_edit.html:95
+#: templates/clc/form/server_permission_edit.html:178
+#: templates/clc/form/server_permission_edit.html:180
 #: templates/clc/form/vm_permission_edit.html:71
 #: templates/clc/form/vm_permission_edit.html:151
 #: templates/clc/form/vm_permission_edit.html:153
 msgid "Write"
 msgstr "写入"
 
-#: templates/clc/form/permission_edit.html:74
-#: templates/clc/form/permission_edit.html:158
-#: templates/clc/form/permission_edit.html:160
-#: templates/clc/form/server_permission_edit.html:75
-#: templates/clc/form/server_permission_edit.html:160
-#: templates/clc/form/server_permission_edit.html:162
+#: templates/clc/form/permission_edit.html:98
+#: templates/clc/form/permission_edit.html:186
+#: templates/clc/form/permission_edit.html:188
+#: templates/clc/form/server_permission_edit.html:98
+#: templates/clc/form/server_permission_edit.html:185
+#: templates/clc/form/server_permission_edit.html:187
 #: templates/clc/form/vm_permission_edit.html:74
 #: templates/clc/form/vm_permission_edit.html:158
 #: templates/clc/form/vm_permission_edit.html:160
 msgid "Execute"
 msgstr "运行"
 
-#: templates/clc/form/permission_edit.html:114
-#: templates/clc/form/server_permission_edit.html:115
+#: templates/clc/form/permission_edit.html:141
+#: templates/clc/form/server_permission_edit.html:139
 #: templates/clc/form/vm_permission_edit.html:114
 msgid "Permission Configuration"
 msgstr "权限配置"
 
-#: templates/clc/form/permission_edit.html:182
-#: templates/clc/form/server_permission_edit.html:184
+#: templates/clc/form/permission_edit.html:210
+#: templates/clc/form/server_permission_edit.html:209
 #: templates/clc/form/vm_permission_edit.html:182
 msgid "Add Permission"
 msgstr "添加权限"
 
-#: templates/clc/form/permission_edit.html:186
-#: templates/clc/form/server_permission_edit.html:188
+#: templates/clc/form/permission_edit.html:214
+#: templates/clc/form/server_permission_edit.html:213
 #: templates/clc/form/vm_permission_edit.html:186
 msgid "Update Permission Successfully."
 msgstr "权限更新成功。"
 
-#: templates/clc/form/permission_edit.html:189
-#: templates/clc/form/server_permission_edit.html:191
+#: templates/clc/form/permission_edit.html:217
+#: templates/clc/form/server_permission_edit.html:216
 #: templates/clc/form/vm_permission_edit.html:189
 msgid "Update Permission Failed, try again."
 msgstr "权限更新失败，请重试。"
@@ -1244,18 +1284,27 @@ msgstr "外部WEB映射端口"
 
 #: templates/clc/jtable/ethers_table.html:56
 #: templates/clc/jtable/tasks_table.html:49
-#: templates/clc/jtable/vds_table.html:72
+#: templates/clc/jtable/vds_table.html:73
 #: templates/clc/jtable/vss_table.html:72
 msgid "Instance ID"
 msgstr "虚拟机ID"
+
+#: templates/clc/jtable/hypervisor_table.html:12
+msgid "HyperVisor"
+msgstr ""
+
+#: templates/clc/jtable/hypervisor_table.html:34
+msgid "hypervisor"
+msgstr ""
 
 #: templates/clc/jtable/images_table.html:8
 #: templates/clc/jtable/images_table.html:95
 #: templates/clc/jtable/rbac_table.html:32
 #: templates/clc/jtable/servers_cc_table.html:47
-#: templates/clc/jtable/servers_lnc_table.html:80
+#: templates/clc/jtable/servers_lnc_table.html:79
 #: templates/clc/jtable/servers_nc_table.html:47
-#: templates/clc/jtable/vds_table.html:84
+#: templates/clc/jtable/servers_tnc_table.html:74
+#: templates/clc/jtable/vds_table.html:85
 #: templates/clc/jtable/vmtypes_table.html:34
 #: templates/clc/jtable/vss_table.html:84
 msgid "Name"
@@ -1271,7 +1320,6 @@ msgid "Filter Images"
 msgstr "镜像文件过滤"
 
 #: templates/clc/jtable/images_table.html:25
-#: templates/clc/jtable/servers_lnc_table.html:12
 msgid "Images List"
 msgstr "镜像文件列表"
 
@@ -1284,33 +1332,33 @@ msgid " Detail Description"
 msgstr "详细说明"
 
 #: templates/clc/jtable/images_table.html:90
-#: templates/clc/jtable/servers_lnc_table.html:75
 msgid "ecID"
 msgstr "镜像文件ID"
 
 #: templates/clc/jtable/images_table.html:99
-#: templates/clc/jtable/servers_lnc_table.html:84
 msgid "OSType"
 msgstr "操作系统类型"
 
 #: templates/clc/jtable/images_table.html:104
-#: templates/clc/jtable/servers_lnc_table.html:89
+#: templates/clc/jtable/servers_lnc_table.html:50
+#: templates/clc/jtable/servers_nc_table.html:56
+msgid "Hypervisor"
+msgstr ""
+
+#: templates/clc/jtable/images_table.html:109
 #: templates/clc/jtable/vmusage_table.html:34
 msgid "Usage"
 msgstr "用途"
 
-#: templates/clc/jtable/images_table.html:109
-#: templates/clc/jtable/servers_lnc_table.html:99
+#: templates/clc/jtable/images_table.html:114
 msgid "Version"
 msgstr "版本"
 
-#: templates/clc/jtable/images_table.html:114
-#: templates/clc/jtable/servers_lnc_table.html:104
+#: templates/clc/jtable/images_table.html:119
 msgid "Size(G)"
 msgstr "大小(G)"
 
-#: templates/clc/jtable/images_table.html:119
-#: templates/clc/jtable/servers_lnc_table.html:112
+#: templates/clc/jtable/images_table.html:124
 msgid "Desc"
 msgstr "详细说明"
 
@@ -1323,29 +1371,41 @@ msgid "OS Types"
 msgstr "操作系统类型"
 
 #: templates/clc/jtable/ostypes_table.html:38
+#: templates/clc/jtable/vds_table.html:124
+#: templates/clc/jtable/vss_table.html:115
+msgid "Memory"
+msgstr "内存"
+
+#: templates/clc/jtable/ostypes_table.html:42
+#: templates/clc/jtable/vds_table.html:118
+#: templates/clc/jtable/vmtypes_table.html:42
+#: templates/clc/jtable/vss_table.html:110
+msgid "CPUs"
+msgstr "CPUs"
+
+#: templates/clc/jtable/ostypes_table.html:46
 msgid "disk"
 msgstr "硬盘"
 
-#: templates/clc/jtable/ostypes_table.html:42
+#: templates/clc/jtable/ostypes_table.html:50
 msgid "nic"
 msgstr "网卡"
 
-#: templates/clc/jtable/ostypes_table.html:47
+#: templates/clc/jtable/ostypes_table.html:55
 msgid "audio"
 msgstr "声卡"
 
 #: templates/clc/jtable/rbac_table.html:12
 msgid "RBAC"
-msgstr ""
+msgstr "基于角色的访问控制"
 
 #: templates/clc/jtable/rbac_table.html:36
-#: templates/clc/jtable/servers_lnc_table.html:94
 msgid "Group"
-msgstr ""
+msgstr "组/角色"
 
 #: templates/clc/jtable/rbac_table.html:41
 msgid "Permision"
-msgstr ""
+msgstr "权限"
 
 #: templates/clc/jtable/serverrole_table.html:12
 msgid "Server Role"
@@ -1360,12 +1420,15 @@ msgid "shortname"
 msgstr "缩写"
 
 #: templates/clc/jtable/servers_cc_table.html:8
+#: templates/clc/jtable/servers_lnc_table.html:8
 #: templates/clc/jtable/servers_nc_table.html:8
 msgid "Cluster Name:"
 msgstr "集群名称:"
 
 #: templates/clc/jtable/servers_cc_table.html:9
+#: templates/clc/jtable/servers_lnc_table.html:9
 #: templates/clc/jtable/servers_nc_table.html:9
+#: templates/clc/jtable/servers_tnc_table.html:8
 msgid "IP:"
 msgstr "IP:"
 
@@ -1378,38 +1441,63 @@ msgid "Cluster Server List"
 msgstr "集群服务器列表"
 
 #: templates/clc/jtable/servers_cc_table.html:56
-#: templates/clc/jtable/servers_nc_table.html:56
+#: templates/clc/jtable/servers_lnc_table.html:64
+#: templates/clc/jtable/servers_nc_table.html:60
+#: templates/clc/jtable/servers_tnc_table.html:59
 msgid "Cores"
 msgstr "CPU核"
 
 #: templates/clc/jtable/servers_cc_table.html:61
-#: templates/clc/jtable/servers_nc_table.html:61
+#: templates/clc/jtable/servers_lnc_table.html:69
+#: templates/clc/jtable/servers_nc_table.html:65
+#: templates/clc/jtable/servers_tnc_table.html:64
 msgid "Mem(G)"
 msgstr "内存(G)"
 
 #: templates/clc/jtable/servers_cc_table.html:66
-#: templates/clc/jtable/servers_nc_table.html:66
+#: templates/clc/jtable/servers_lnc_table.html:74
+#: templates/clc/jtable/servers_nc_table.html:70
+#: templates/clc/jtable/servers_tnc_table.html:69
 msgid "Disk(G)"
 msgstr "硬盘(G)"
 
 #: templates/clc/jtable/servers_cc_table.html:71
-#: templates/clc/jtable/servers_nc_table.html:71
+#: templates/clc/jtable/servers_nc_table.html:75
 msgid "External IP"
 msgstr "外部IP"
 
 #: templates/clc/jtable/servers_cc_table.html:75
-#: templates/clc/jtable/servers_nc_table.html:75
+#: templates/clc/jtable/servers_lnc_table.html:54
+#: templates/clc/jtable/servers_nc_table.html:79
+#: templates/clc/jtable/servers_tnc_table.html:49
 msgid "IP0"
 msgstr "IP地址0"
 
 #: templates/clc/jtable/servers_cc_table.html:80
-#: templates/clc/jtable/servers_nc_table.html:80
+#: templates/clc/jtable/servers_lnc_table.html:59
+#: templates/clc/jtable/servers_nc_table.html:84
+#: templates/clc/jtable/servers_tnc_table.html:54
 msgid "MAC0"
 msgstr "MAC地址0"
 
+#: templates/clc/jtable/servers_lnc_table.html:10
 #: templates/clc/jtable/servers_nc_table.html:10
+#: templates/clc/jtable/servers_tnc_table.html:9
 msgid "Filter Nodes"
 msgstr "过滤"
+
+#: templates/clc/jtable/servers_lnc_table.html:45
+#: templates/clc/jtable/servers_tnc_table.html:44
+msgid "status"
+msgstr "状态"
+
+#: templates/clc/jtable/servers_lnc_table.html:92
+msgid "runtime option"
+msgstr "运行参数"
+
+#: templates/clc/jtable/servers_tnc_table.html:78
+msgid "OS Name"
+msgstr "名称"
 
 #: templates/clc/jtable/tasks_table.html:39
 msgid "Source ImageID"
@@ -1420,6 +1508,7 @@ msgid "Destine ImageID"
 msgstr "目标镜像文件ID"
 
 #: templates/clc/jtable/tasks_table.html:54
+#: templates/clc/jtable/vds_table.html:90
 msgid "Owner"
 msgstr "所有者"
 
@@ -1428,7 +1517,7 @@ msgid "Current Phase"
 msgstr "当前阶段"
 
 #: templates/clc/jtable/tasks_table.html:64
-#: templates/clc/jtable/vds_table.html:89
+#: templates/clc/jtable/vds_table.html:95
 #: templates/clc/jtable/vss_table.html:89
 msgid "VM State"
 msgstr "虚拟机状态"
@@ -1442,31 +1531,20 @@ msgstr "完成"
 msgid "cloud server list"
 msgstr "云服务列表"
 
-#: templates/clc/jtable/vds_table.html:78
+#: templates/clc/jtable/vds_table.html:79
 #: templates/clc/jtable/vss_table.html:78
 msgid "Image ID"
 msgstr "镜像文件ID"
 
-#: templates/clc/jtable/vds_table.html:100
+#: templates/clc/jtable/vds_table.html:106
 #: templates/clc/jtable/vss_table.html:100
 msgid "Cluster"
 msgstr "集群名称"
 
-#: templates/clc/jtable/vds_table.html:105
+#: templates/clc/jtable/vds_table.html:112
 #: templates/clc/jtable/vss_table.html:105
 msgid "Node"
 msgstr "工作服务器"
-
-#: templates/clc/jtable/vds_table.html:110
-#: templates/clc/jtable/vmtypes_table.html:42
-#: templates/clc/jtable/vss_table.html:110
-msgid "CPUs"
-msgstr "CPUs"
-
-#: templates/clc/jtable/vds_table.html:115
-#: templates/clc/jtable/vss_table.html:115
-msgid "Memory"
-msgstr "内存"
 
 #: templates/clc/jtable/vmtypes_table.html:12
 msgid "VM Types"
@@ -1480,145 +1558,142 @@ msgstr "内存"
 msgid "VM Usage"
 msgstr "虚拟机用途"
 
-#: templates/clc/wizard/image_create_wizard.html:135
+#: templates/clc/wizard/image_create_wizard.html:140
 msgid "Prepare Image Succeed. please click 'Next' button and run it."
 msgstr "镜像文件准备就绪，请点击‘下一步’"
 
-#: templates/clc/wizard/image_create_wizard.html:183
+#: templates/clc/wizard/image_create_wizard.html:188
 msgid "Sorry, Run Image failed. please click 'Run' button and try again."
 msgstr "抱歉，镜像文件运行失败，请重试。"
 
-#: templates/clc/wizard/image_create_wizard.html:319
+#: templates/clc/wizard/image_create_wizard.html:327
 msgid "Submit Image Succeed. please click 'Next' button and finish it."
 msgstr "镜像文件提交成功，请点击‘下一步’"
 
-#: templates/clc/wizard/image_create_wizard.html:389
+#: templates/clc/wizard/image_create_wizard.html:419
 msgid "Cancel"
 msgstr "取消"
 
-#: templates/clc/wizard/image_create_wizard.html:392
+#: templates/clc/wizard/image_create_wizard.html:422
 msgid "Previous"
 msgstr "上一步"
 
-#: templates/clc/wizard/image_create_wizard.html:395
+#: templates/clc/wizard/image_create_wizard.html:425
 msgid "Next"
 msgstr "下一步"
 
-#: templates/clc/wizard/image_create_wizard.html:398
+#: templates/clc/wizard/image_create_wizard.html:428
 msgid "Finish"
 msgstr "完成"
 
-#: templates/clc/wizard/image_create_wizard.html:452
+#: templates/clc/wizard/image_create_wizard.html:492
 msgid "Prepare Image."
 msgstr "镜像文件准备"
 
-#: templates/clc/wizard/image_create_wizard.html:453
+#: templates/clc/wizard/image_create_wizard.html:493
 msgid "Prepare"
 msgstr "准备镜像文件"
 
-#: templates/clc/wizard/image_create_wizard.html:456
+#: templates/clc/wizard/image_create_wizard.html:496
 msgid "start to prepare image, please wait ... ..."
 msgstr "开始准备镜像文件，请稍候... ..."
 
-#: templates/clc/wizard/image_create_wizard.html:458
+#: templates/clc/wizard/image_create_wizard.html:498
 msgid "downloading ... ..."
 msgstr "下载中... ..."
 
-#: templates/clc/wizard/image_create_wizard.html:463
+#: templates/clc/wizard/image_create_wizard.html:503
 msgid "run/edit Image."
 msgstr "运行/修改镜像文件"
 
-#: templates/clc/wizard/image_create_wizard.html:466
+#: templates/clc/wizard/image_create_wizard.html:506
 msgid "Run"
 msgstr "运行"
 
-#: templates/clc/wizard/image_create_wizard.html:467
+#: templates/clc/wizard/image_create_wizard.html:507
 msgid "Stop"
 msgstr "停止"
 
-#: templates/clc/wizard/image_create_wizard.html:471
+#: templates/clc/wizard/image_create_wizard.html:509
 msgid "display Screen"
 msgstr "显示虚拟机桌面"
 
-#: templates/clc/wizard/image_create_wizard.html:475
-msgid "display in new Browser"
-msgstr "用浏览器中显示"
-
-#: templates/clc/wizard/image_create_wizard.html:477
-msgid "display by windows-tool"
-msgstr "用windows工具显示"
-
-#: templates/clc/wizard/image_create_wizard.html:491
+#: templates/clc/wizard/image_create_wizard.html:520
 msgid "Image Template Name"
 msgstr "镜像文件模板名称"
 
-#: templates/clc/wizard/image_create_wizard.html:492
+#: templates/clc/wizard/image_create_wizard.html:521
 msgid "New Image Status"
 msgstr "新镜像文件状态"
 
-#: templates/clc/wizard/image_create_wizard.html:504
-msgid "Download plugin for Cloud Desktop Connection"
-msgstr "下载RDP客户端Google Chrome插件"
-
-#: templates/clc/wizard/image_create_wizard.html:509
+#: templates/clc/wizard/image_create_wizard.html:537
 msgid "submit Image"
 msgstr "提交镜像文件"
 
-#: templates/clc/wizard/image_create_wizard.html:511
+#: templates/clc/wizard/image_create_wizard.html:539
 msgid "Submit"
 msgstr "提交"
 
-#: templates/clc/wizard/image_create_wizard.html:515
+#: templates/clc/wizard/image_create_wizard.html:543
 msgid "Now we will start to submit a new image, pglease wait ... ..."
 msgstr "即将开始提交新的镜像文件，请稍候... ..."
 
-#: templates/clc/wizard/image_create_wizard.html:517
+#: templates/clc/wizard/image_create_wizard.html:545
 msgid "Submitting ... ..."
 msgstr "提交中... ..."
 
-#: templates/clc/wizard/vs_create_wizard.html:157
+#: templates/clc/wizard/vs_create_wizard.html:160
 msgid "Basic Config"
 msgstr "基本参数配置"
 
-#: templates/clc/wizard/vs_create_wizard.html:159
+#: templates/clc/wizard/vs_create_wizard.html:162
 msgid "Image Name"
 msgstr "镜像文件"
 
-#: templates/clc/wizard/vs_create_wizard.html:163
+#: templates/clc/wizard/vs_create_wizard.html:166
 msgid "VS VM Name"
 msgstr "虚拟机名称"
 
-#: templates/clc/wizard/vs_create_wizard.html:167
+#: templates/clc/wizard/vs_create_wizard.html:170
 msgid "VS VM Description"
 msgstr "虚拟机详细说明"
 
-#: templates/clc/wizard/vs_create_wizard.html:173
+#: templates/clc/wizard/vs_create_wizard.html:176
 msgid "Running Config"
 msgstr "运行参数配置"
 
-#: templates/clc/wizard/vs_create_wizard.html:175
+#: templates/clc/wizard/vs_create_wizard.html:178
 msgid "Select Cluster"
 msgstr "选择集群"
 
-#: templates/clc/wizard/vs_create_wizard.html:183
+#: templates/clc/wizard/vs_create_wizard.html:186
 msgid "Select Node"
 msgstr "选择工作服务器"
 
-#: templates/clc/wizard/vs_create_wizard.html:191
+#: templates/clc/wizard/vs_create_wizard.html:194
 msgid "Hardware Config"
 msgstr "硬件参数配置"
 
-#: templates/clc/wizard/vs_create_wizard.html:193
+#: templates/clc/wizard/vs_create_wizard.html:196
 msgid "Select CPUs"
 msgstr "配置CPU"
 
-#: templates/clc/wizard/vs_create_wizard.html:201
+#: templates/clc/wizard/vs_create_wizard.html:204
 msgid "Select Memory(G)"
 msgstr "配置内存(G)"
 
-#: templates/clc/wizard/vs_create_wizard.html:211
+#: templates/clc/wizard/vs_create_wizard.html:214
 msgid "Select MAC/IP"
 msgstr "配置MAC/IP"
+
+#~ msgid "display in new Browser"
+#~ msgstr "用浏览器中显示"
+
+#~ msgid "display by windows-tool"
+#~ msgstr "用windows工具显示"
+
+#~ msgid "Download plugin for Cloud Desktop Connection"
+#~ msgstr "下载RDP客户端Google Chrome插件"
 
 #~ msgid "Reset {{ uid }}'s Password"
 #~ msgstr "重置{{ uid }}的密码"
@@ -1626,7 +1701,7 @@ msgstr "配置MAC/IP"
 #~ msgid "Add"
 #~ msgstr "添加"
 
-#, fuzzy
+
 #~ msgid "Allocated Role:"
 #~ msgstr "角色分配"
 

@@ -638,6 +638,7 @@ def account_create(request):
     _vdparar = {}
     _vdparar['pds'] = request.POST['pds']
     _vdparar['sds'] = request.POST['sds']
+    _vdparar['usb'] = request.POST['usb']
     _vdparar['vapp'] = request.POST['vapp']
     rec = ecAccount(
         userid  = request.POST['userid'],
@@ -688,6 +689,7 @@ def account_create_batch(request):
     _vdparar = {}
     _vdparar['pds'] = request.POST['pds']
     _vdparar['sds'] = request.POST['sds']
+    _vdparar['usb'] = request.POST['usb']
     _vdparar['vapp'] = request.POST['vapp']
 
     # construct user list
@@ -2385,7 +2387,7 @@ def image_ndp_stop(request):
     try:
         rec = ectaskTransaction.objects.get(insid=insid)
         if rec.insid.find("TVD") == 0:
-            r = delet_task_by_id(rec.tid)()
+            r = delet_task_by_id(rec.tid)
             return HttpResponse(r.content, content_type="application/json")
         if rec.insid.find("VD") == 0:
             return image_create_task_stop(request, rec.srcimgid, rec.dstimgid, rec.insid)
