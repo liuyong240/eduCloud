@@ -659,6 +659,8 @@ class runImageTaskThread(multiprocessing.Process):
                     _memory  = self.runtime_option['memory'] * 1024
                     if self.runtime_option['usage'] == 'desktop':
                         _network_para = " --nic1 nat  --nictype1 %s " % self.runtime_option['networkcards'][0]['nic_type']
+                        if self.runtime_option['usb_enabled'] == 1:
+                            _network_para = " --nic1 bridged --bridgeadapter1 %s --nictype1 %s " % (bridged_ifs[0], self.runtime_option['networkcards'][0]['nic_type'])
                     else:
                         _network_para = " --nic1 bridged --bridgeadapter1 %s --nictype1 %s --macaddress1 %s" % (bridged_ifs[0], self.runtime_option['networkcards'][0]['nic_type'], self.runtime_option['networkcards'][0]['nic_mac'])
                     if self.runtime_option['protocol'] != 'RDP':

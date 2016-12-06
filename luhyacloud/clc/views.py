@@ -1969,6 +1969,8 @@ def genRuntimeOptionForImageBuild(transid):
     ccip = tid_rec.ccip
     ncip = tid_rec.ncip
     user = tid_rec.user
+    user_obj = ecAccount.objects.get(userid=user)
+    user_vdpara = json.loads(user_obj.vdpara)
 
     ccobj       = ecServers.objects.get(ip0=ccip, role='cc')
     ccres_info  = ecCCResources.objects.get(ccmac0=ccobj.mac0)
@@ -1977,6 +1979,10 @@ def genRuntimeOptionForImageBuild(transid):
     runtime_option = {}
     # 0. get vm access protocol
     runtime_option['protocol'] =  getAccessProtocol(transid)
+    if user_vdpara['usb'] == '0':
+        runtime_option['usb_enabled'] = 0
+    else:
+        runtime_option['usb_enabled'] = 1
 
     # 1. general option
     img_info                        = ecImages.objects.get(ecid = src_imgid)

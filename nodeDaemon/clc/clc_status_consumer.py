@@ -15,7 +15,7 @@ class clc_statusConsumer():
 
     def save2Mem(self, key, msg):
         try:
-            self.mc.set(key, msg, 5*60)
+            self.mc.set(key, msg, 5*5*60)
         except Exception as e:
             logger.errro(str(e))
 
