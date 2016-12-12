@@ -31,6 +31,7 @@ def get_desktop_res():
     res['cpu']       = int(conf_obj.getvalue('desktop', 'cpu'))
     res['disk']      = int(conf_obj.getvalue('desktop', 'disk'))
     res['mem']       = int(conf_obj.getvalue('desktop', 'mem'))
+    res['max_pboot_vms'] = int(conf_obj.getvalue('desktop', 'max_pboot_vms'))
     return res
 
 # NODE_DAEMON_LANG = 'en-us'
