@@ -10,7 +10,8 @@ import multiprocessing
 logger = getncdaemonlogger()
 img_tasks_status = {}
 db_tasks_status  = {}
-my_semaphores = Semaphore(get_desktop_res()['max_pboot_vms'])
+my_semaphores = multiprocessing.Semaphore(get_desktop_res()['max_pboot_vms'])
+my_pboot_delay = get_desktop_res()['max_pboot_delay']
 
 #################################################
 #  worker thread
@@ -761,6 +762,7 @@ class runImageTaskThread(multiprocessing.Process):
 
     def run(self):
         with my_semaphores:
+            logger.error("Start proces %s" % self.tid)
             try:
                 done_1 = False
                 done_2 = False
@@ -779,6 +781,9 @@ class runImageTaskThread(multiprocessing.Process):
                 update_nc_running_status()
             except Exception as e:
                 logger.error("runImageTask Exception Error Message : %s" % str(e))
+
+            time.sleep(my_pboot_delay)
+            logger.error("Stop proces %s" % self.tid)
 
 
 class StopImageTaskThread(multiprocessing.Process):
