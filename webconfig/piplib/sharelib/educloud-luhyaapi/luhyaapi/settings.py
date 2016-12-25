@@ -1,6 +1,6 @@
 # coding=UTF-8
 import os
-from luhyaapi.luhyaTools import configuration
+from luhyaapi.hostTools import configuration
 
 if os.path.exists("/etc/educloud/modules/core") == True:
     DAEMON_DEBUG = False

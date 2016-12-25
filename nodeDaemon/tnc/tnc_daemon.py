@@ -5,7 +5,6 @@ __version__ = '1.0.0'
 import Queue, requests
 from tnc_statusPublisherThread import *
 from luhyaapi.educloudLog import *
-from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 
 logger = getncdaemonlogger()

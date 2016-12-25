@@ -16,15 +16,13 @@ class clonehdProcess(multiprocessing.Process):
 
     def run(self):
         srcfile = '/storage/images/%s/data' % self.imgid
-        if self.insid.find('TVD') == 0:
-            dstfile = '/storage/space/prv-data/%s/disk/%s/data' % (self.uid, self.imgid)
-        if self.insid.find("VD")  == 0:
-            dstfile = '/storage/space/prv-data/vds/%s/data' % (self.insid)
+        dstfile = '/storage/space/prv-data/%s/disk/%s/data' % (self.uid, self.imgid)
 
         if os.path.exists(dstfile):
             logger.error("%s %s d disk already exist, pass." % (self.uid, self.imgid))
         else:
             cmd = "vboxmanage clonehd %s %s " % (srcfile, dstfile)
+
             logger.error("clc clonehdProcess cmd = %s" % cmd)
             out = commands.getoutput(cmd)
             logger.error("clc clonehdProcess out = %s" % out)
@@ -34,8 +32,33 @@ def clc_clonehd_ddisk_handle(message):
     worker = clonehdProcess(message)
     worker.start()
 
+class clonehdPVDProcess(multiprocessing.Process):
+    def __init__(self, msg):
+        multiprocessing.Process.__init__(self)
+        self.tid = msg['tid']
+        self.imgid, self.dstid, self.insid = parseTID(self.tid)
+        self.uid = msg['uid']
+
+    def run(self):
+        srcfile = '/storage/images/%s/machine' % self.imgid
+        dstfile = '/storage/pimages/%s/%s/machine' % (self.uid, self.imgid)
+
+        if os.path.exists(dstfile):
+            logger.error("%s %s C disk already exist, pass." % (self.uid, self.imgid))
+        else:
+            cmd = "vboxmanage clonehd %s %s " % (srcfile, dstfile)
+            logger.error("clc clonehdPVDProcess cmd = %s" % cmd)
+            out = commands.getoutput(cmd)
+            logger.error("clc clonehdPVDProcess out = %s" % out)
+
+def clc_clondhd_pvd_handle(message):
+    logger.error("--- --- ---zmq: clc_image_run_handle")
+    worker = clonehdPVDProcess(message)
+    worker.start()
+
 clc_cmd_handlers = {
     'clonehd/ddisk'         : clc_clonehd_ddisk_handle,
+    'clonehd/pvd'           : clc_clondhd_pvd_handle,
     #'image/stop'        : clc_image_stop_handle,
 }
 

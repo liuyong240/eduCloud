@@ -49,6 +49,7 @@
                             <button type="button" id="show_{{ vd.id }}"  onclick="display_vm_window( '{{ vd.id }}' );"       class="btn" >{% trans "Show" %}</button>
 
                             <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
+							<div><p id="prepare_{{ vd.id }}"></p>镜像文件准备中，请稍候再刷新</p></div>
 
                             <button type="button" id="stop_{{ vd.id }}" onclick="stop_tvd('{{ vd.id }}');"   class="btn">{% trans "Stop" %}</button>
 
@@ -447,8 +448,12 @@ function stop_tvd(id) {
     taskid = $('#taskid_for_show_in_browser_' + id ).text();
 	insid = taskid.split(":")[2]
 	if (insid.indexOf("VD") == 0) {
+		delete_task(taskid);
+	}
+	if (insid.indexOf("PVD") == 0) {
 		stop_task(taskid);
-	} else {
+	}
+	if (insid.indexOf("TVD") == 0) {
     	delete_task(taskid);
     }
 }
@@ -669,6 +674,7 @@ function gui_update(items, do2run) {
             $('#error_msg_' + id).css('display', 'none');
 
             $('#taskid_for_show_in_browser_' + id).text(taskid);
+            display_vm_window(id);
         }
 
         else {
@@ -689,7 +695,7 @@ function init_GUI() {
 			data['state']   = '{{ vd.state}}';
 			data['tid']     = '{{ vd.tid }}',
         	insid = data['tid'].split(":")[2]
-        	if (insid.indexOf("VD") == 0 && data['phase'] == "" && data['state'] == "" ) {
+        	if ((insid.indexOf("VD") == 0 || insid.indexOf("PVD") == 0) && data['phase'] == "" && data['state'] == "" ) {
 				$('#run_{{ vd.id }}').removeClass('disabled');
             	$('#show_{{ vd.id }}').addClass('disabled');
             	$('#stop_{{ vd.id }}').addClass('disabled');
@@ -702,6 +708,15 @@ function init_GUI() {
 
 				gui_update(data, 0);
         	}
+        {% endif %}
+
+        {% if vd.datadisk != 'ready' or vd.systemdisk != 'ready' %}
+        	$('#run_{{ vd.id }}').hide();
+        	$('#show_{{ vd.id }}').hide();
+        	$('#stop_{{ vd.id }}').hide();
+        	$('#prepare_{{ vd.id}}').show();
+        {% else %}
+        	$('#prepare_{{ vd.id}}').hide();
         {% endif %}
     {% endfor%}
 }

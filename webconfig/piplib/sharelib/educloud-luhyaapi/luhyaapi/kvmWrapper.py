@@ -1,9 +1,9 @@
 # coding=UTF-8
 
 import os
-from luhyaTools import *
-from educloudLog import *
-from hostTools import *
+from luhyaapi.luhyaTools import *
+from luhyaapi.educloudLog import *
+from luhyaapi.hostTools import *
 import json
 
 logger = getncdaemonlogger()

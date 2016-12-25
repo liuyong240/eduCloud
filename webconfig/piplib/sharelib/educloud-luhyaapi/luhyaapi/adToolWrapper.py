@@ -1,6 +1,6 @@
 import requests, json, os
-from settings import *
-from educloudLog import *
+from luhyaapi.settings import *
+from luhyaapi.educloudLog import *
 
 import ldap
 from ldap.controls import SimplePagedResultsControl

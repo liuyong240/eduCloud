@@ -395,7 +395,7 @@ def findVMRunningResource(request, insid):
     _ncip = None
     _msg  = "Can't Find appropriate cluster machine and node machine ."
 
-    if insid.find('VD') == 0:
+    if insid.find('VD') == 0 or insid.find('PVD') == 0:
         vmrec = ecVDS.objects.get(insid=insid)
         filter = 'rvd'
         vm_res_matrix = get_desktop_res()
@@ -449,6 +449,7 @@ def findVMRunningResource(request, insid):
 
     # now check sorted nc to find best one
     end = len(l)
+    bfind = False
     logger.error("end = %d" % end)
     for index in range(0, end):
         data = l[end - index -1]
@@ -457,12 +458,23 @@ def findVMRunningResource(request, insid):
            data['3disk']        > vm_res_matrix['disk']:
             _ccip = data['xccip']
             _ncip = data['xncip']
+            bfind = True
             _msg = ''
             logger.error("get best node : ip = %s" % _ncip)
             break;
         else:
             _msg = (_('available nc resource is ') + '%s' + _(', but required is ') + '%s') % (json.dumps(data), json.dumps(vm_res_matrix))
             logger.error(_msg)
+
+    ## optimize for allinone configuration
+    if bfind == False:
+        if amIclc() and amIcc() and amInc():
+            clcobj = ecServers.objects.get(role='clc')
+            _ccip = clcobj.ip0
+            _ncip = clcobj.ip0
+            _msg = ''
+            logger.error("allinone get best node : ip = %s" % _ncip)
+
     return _ccip, _ncip, _msg
 
 def findBuildResource(srcid):
@@ -1339,18 +1351,21 @@ def handle_uploaded_file(f, chunk, filename):
     :param f: the file
     :param chunk: number of chunk to save
     """
-    if int(chunk) > 0:
-        #opens for append
-        _file = open(filename, 'a')
-    else:
-        #erases content
-        _file = open(filename, 'w')
+    try:
+        if int(chunk) > 0:
+            #opens for append
+            _file = open(filename.encode('utf-8'), 'a')
+        else:
+            #erases content
+            _file = open(filename.encode('utf-8'), 'w')
 
-    if f.multiple_chunks:
-        for chunk in f.chunks():
-            _file.write(chunk)
-    else:
-        _file.write(f.read())
+        if f.multiple_chunks:
+            for chunk in f.chunks():
+                _file.write(chunk)
+        else:
+            _file.write(f.read())
+    except Exception as e:
+        logger.error(str(e))
 
 def tools_image_upload(request):
     if request.method == 'POST' and request.FILES:
@@ -1838,6 +1853,19 @@ def genVMDisks(tid, usage, uid):
         #e['file']    = '/storage/images/data'
         #e['mtype']   = 'multiattach'
         #disks.append(e)
+    if ins_id.find('PVD') == 0:
+        trec = ectaskTransaction.objects.get(tid=tid)
+
+        c['file']    = '/storage/pimages/%s/%s/machine' % (uid, dst_imgid)
+        c['mtype']   = 'normal'
+        disks.append(c)
+
+        if isImageWithDDisk(src_imgid):
+
+            d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (uid, src_imgid)
+            d['mtype']   = 'writethrough'
+            disks.append(d)
+            logger.error("d_file = %s" % d['file'])
 
     if ins_id.find('VD') == 0:
         trec = ectaskTransaction.objects.get(tid=tid)
@@ -1848,7 +1876,7 @@ def genVMDisks(tid, usage, uid):
 
         if isImageWithDDisk(src_imgid):
 
-            d['file']    = '/storage/space/prv-data/vds/%s/data' % (ins_id)
+            d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (uid, src_imgid)
             d['mtype']   = 'writethrough'
             disks.append(d)
             logger.error("d_file = %s" % d['file'])
@@ -1860,7 +1888,7 @@ def genVMDisks(tid, usage, uid):
         disks.append(c)
 
         if isImageWithDDisk(src_imgid):
-            d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (uid, dst_imgid)
+            d['file']    = '/storage/space/prv-data/%s/disk/%s/data' % (uid, src_imgid)
             d['mtype']   = 'writethrough'
             disks.append(d)
             logger.error("d_file = %s" % d['file'])
@@ -1892,7 +1920,7 @@ def genVMFolders(tid, usage):
         }
         folders.append(f)
 
-    if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0 :
+    if ins_id.find('VD') == 0 or ins_id.find('TVD') == 0 or ins_id.find('PVD') == 0:
         trec = ectaskTransaction.objects.get(tid=tid)
         f1 = {
             'path': '/storage/space/prv-data/%s/data' % trec.user,
@@ -2001,7 +2029,7 @@ def genRuntimeOptionForImageBuild(transid):
     else:
         if ins_id.find('VS') == 0:
             insobj = ecVSS.objects.get(insid=ins_id)
-        if ins_id.find('VD') == 0:
+        if ins_id.find('VD') == 0 or ins_id.find('PVD') == 0:
             insobj = ecVDS.objects.get(insid=ins_id)
         runtime_option['memory']    = insobj.memory
         runtime_option['cpus']      = insobj.cpus
@@ -2030,7 +2058,7 @@ def genRuntimeOptionForImageBuild(transid):
     netcard = {}
     netcard['nic_type'] = ostype_info.ec_nic_type
     if ccres_info.cc_usage == 'rvd' or runtime_option['usage'] == 'desktop':
-        netcard['nic_mac']  = ''
+        netcard['nic_mac']  = randomMAC()
         netcard['nic_ip']   = ''
     if ccres_info.cc_usage == 'vs' and runtime_option['usage'] == 'server':
         netcard['nic_mac'], netcard['nic_ip'], web_port = ethers_allocate(ccres_info.ccname, ins_id)
@@ -2163,7 +2191,7 @@ def vm_display(request, srcid, dstid, insid):
         return render(request, 'clc/error.html', context)
 
 def vm_run(request, insid):
-    if insid.find('VD') == 0:
+    if insid.find('VD') == 0 or insid.find('PVD') == 0:
         vmrec = ecVDS.objects.get(insid=insid)
     elif insid.find('VS') == 0:
         vmrec = ecVSS.objects.get(insid=insid)
@@ -2395,7 +2423,7 @@ def image_ndp_stop(request):
         if rec.insid.find("TVD") == 0:
             r = delet_task_by_id(rec.tid)
             return HttpResponse(r.content, content_type="application/json")
-        if rec.insid.find("VD") == 0:
+        if rec.insid.find("VD") == 0 or rec.insid.find('PVD') == 0:
             return image_create_task_stop(request, rec.srcimgid, rec.dstimgid, rec.insid)
         if rec.insid.find("VS") == 0:
             return image_create_task_stop(request, rec.srcimgid, rec.dstimgid, rec.insid)
@@ -4032,7 +4060,7 @@ def list_tasks(request):
             if rec.user != request.user.username:
                 if rec.insid.find('TMP') == 0:
                     continue
-                if rec.insid.find('VD') == 0:
+                if rec.insid.find('VD') == 0 or rec.insid.find('PVD') == 0:
                     vdobj = ecVDS.objects.get(insid=rec.insid)
                     if vdobj.creator != request.user.username:
                         continue
@@ -4299,16 +4327,13 @@ def create_vds(request):
             logger.error("create new vds record2 --- OK")
 
         # create D disk for this VDS
+        fake_tid = ('%s:%s:%s' % (request.POST['imageid'], request.POST['imageid'], request.POST['insid']))
         if isImageWithDDisk(request.POST['imageid']):
-            message = {}
-            message['type'] = "cmd"
-            message['op'] = 'clonehd/ddisk'
-            message['tid'] = ('%s:%s:%s' % (request.POST['imageid'], request.POST['imageid'], request.POST['insid']))
-            message['uid'] = request.user
+            makeDataDiskReady(fake_tid, request.user)
 
-            _message = json.dumps(message)
-            zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
-            logger.error("--- --- ---zmq: send clonehd/ddisk cmd to clc sucessfully")
+        # create persistent C disk for PVD
+        if request.POST['insid'].find("PVD") == 0:
+            makeSystemDiskReady(fake_tid, request.user)
 
     else:
         old_vm = ecVDS.objects.get(insid = request.POST['insid'])
@@ -5368,7 +5393,7 @@ def edit_vm_permission_view(request, insid):
         permsObjs = ecVSS_auth.objects.filter(insid=insid)
         sobj = ecVSS.objects.get(insid=insid)
         table = 'ecVSS'
-    if insid.find('VD') == 0:
+    if insid.find('VD') == 0 or insid.find('PVD') == 0:
         permsObjs = ecVDS_auth.objects.filter(insid=insid)
         sobj = ecVDS.objects.get(insid=insid)
         table = 'ecVDS'
@@ -5508,6 +5533,7 @@ def list_myvds(request):
     ua = ecAccount.objects.get(userid=_user)
     ua_role_value = ecAuthPath.objects.get(ec_authpath_name = ua.ec_authpath_name)
 
+    logger.error("start to list all TMP vms ... ...")
     for imgobj in imgobjs:
         objs = ecImages_auth.objects.filter(ecid=imgobj.ecid, role_value=ua_role_value.ec_authpath_value )
         if objs.count() > 0 and objs[0].execute == True:
@@ -5530,17 +5556,27 @@ def list_myvds(request):
                         logger.error("%s runtime_option is invalid as %s" % (trec.tid, trec.runtime_option))
                         vd['mgr_url'] = ''
                     vd['id']  = 'myvd' + str(index)
-                    vds.append(vd)
-                    index += 1
             else:
                 vd['tid'] = ''
                 vd['phase'] = ''
                 vd['state'] = ''
                 vd['mgr_url'] = ''
                 vd['id']  = 'myvd' + str(index)
-                vds.append(vd)
-                index += 1
 
+            logger.error("start to prepare data disk of TMP ... ...")
+            if isImageWithDDisk(imgobj.ecid):
+                fake_tid = '%s:%s:%s' % (imgobj.ecid, imgobj.ecid, 'TMPxxx')
+                logger.error("11111 - %s" % fake_tid)
+                vd['datadisk'] = makeDataDiskReady(fake_tid, _user)
+                logger.error("22222")
+            else:
+                vd['datadisk'] = "ready"
+            logger.error("TMP vm data disk is ready")
+            vd['systemdisk'] = "ready"
+            vds.append(vd)
+            index += 1
+
+    logger.error("start to list all VD/PVD vms ... ...")
     vds_recs = ecVDS.objects.filter(user=_user)
     for vds_rec in vds_recs:
         imgobj = ecImages.objects.get(ecid=vds_rec.imageid)
@@ -5569,6 +5605,20 @@ def list_myvds(request):
             vd['mgr_url'] = ''
             logger.error("Not find vd's transaction record")
 
+        fake_tid = '%s:%s:%s' % (imgobj.ecid, imgobj.ecid, 'PVDxxx')
+        logger.error("start to prepare data disk of VD/PVD ... ...")
+        if isImageWithDDisk(imgobj.ecid):
+            vd['datadisk'] = makeDataDiskReady(fake_tid, _user)
+        else:
+            vd['datadisk'] = "ready"
+
+            logger.error("start to prepare system disk of VD/PVD ... ...")
+        if vds_rec.insid.find('PVD') == 0:
+            vd['systemdisk'] = makeSystemDiskReady(fake_tid, _user)
+        else:
+            vd['systemdisk'] = "ready"
+
+        logger.error("system disk of VD/PVD is ready")
         vd['id'] = 'myvd' + str(index)
         vds.append(vd)
         index += 1
@@ -5647,15 +5697,11 @@ def rvd_start(request, srcid, dstid, insid):
                 rec.save()
 
                 if isImageWithDDisk(srcid):
-                    message = {}
-                    message['type']= "cmd"
-                    message['op']  = 'clonehd/ddisk'
-                    message['tid'] = _tid
-                    message['uid'] = request.user.username
+                    makeDataDiskReady(_tid, request.user.username)
 
-                    _message = json.dumps(message)
-                    zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
-                    logger.error("--- --- ---zmq: send clonehd/ddisk cmd to clc sucessfully")
+                # create persistent C disk for PVD
+                if insid.find("PVD") == 0:
+                    makeSystemDiskReady(_tid, request.user.username)
 
                 response['Result'] = 'OK'
                 response['tid']  = _tid
@@ -5724,21 +5770,12 @@ def rvd_create(request, srcid):
             rec.save()
 
             if isImageWithDDisk(_srcimgid):
-                message = {}
-                message['type'] = "cmd"
-                message['op']   = 'clonehd/ddisk'
-                message['tid']  = _tid
-                message['uid']  = _user_name
-
-                _message = json.dumps(message)
-                zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
-                logger.error("--- --- ---zmq: send clonehd/ddisk cmd to clc sucessfully")
+                makeDataDiskReady(_tid, _user_name)
 
             response['Result'] = 'OK'
             response['tid']  = _tid
             retvalue = json.dumps(response)
             return HttpResponse(retvalue, content_type="application/json")
-
 
 ##############################################
 # call task

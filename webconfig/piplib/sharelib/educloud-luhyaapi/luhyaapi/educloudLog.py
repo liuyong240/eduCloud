@@ -1,7 +1,5 @@
 import logging
 import logging.handlers
-from settings import *
-
 
 MAX_LOGFILE_BYTE = 10 * 1024 * 1024
 MAX_LOG_COUNT = 10

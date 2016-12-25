@@ -12,6 +12,10 @@ alias publish_client='scp /mnt/src/educloud-client/*.deb root@121.41.80.147:/roo
 sudo apt-get install git git-core openssh-server dpkg dpkg-dev python-pip quilt
 pip install PyInstaller
 
+
+python ../manage.py makemessages -l zh_CN
+python ../manage.py compilemessages
+
 working flow for virtual desktop:
 startVD
 ---tid=" " => client:create_tvd("/clc/api/1.0/rvd/create/s") => client:prepare_tvd("/clc/api/1.0/rvd/prepare/s/d/i") => client:run_tvd("/clc/api/1.0/rvd/run/s/d/i") => client:stop_tvd(tid)
@@ -39,32 +43,65 @@ stopVM()    -- "/clc/image/create/task/stop/srcid/dstid/insid"      image_create
                                                                     --- update phase/state
                                                                     --- call cc/api/1.0/image/create/task/stop
 
-for VD,
+for VD and PVD,
 admin create a concept, assign to user
 user instantiate it to run
 
-for TMP,
+for TMP
 start:   create vm, take snapshot, run
 stop:    power off
 restart: run
 stop:    power off
-delete:  unregister, delete config, delete transaction
-
-
+delete:  delete transaction, stop, unregister, delete config, delete image
 
 for TVD:
-start:   create vm,  run
-stop:    power off, unregister, delete config
-restart: create vm, run
-stop:    power off, unregister, delete confige
-delete:  delete transaction
+ start:   create vm,  run
+#stop:    power off, restore-snapshot
+ restart: run
+#stop:    power off, restore-snapshot
+ delete:  delete transaction, stop, unregister, delete config
 
 for VD:
-start:   create vm,  run
-stop:    power off, unregister, delete config
-restart: create vm, run
-stop:    power off, unregister, delete confige
-delete:  delete transaction, delete vds
+ start:   create vm,  run
+#stop:    power off, restore-snapshot
+ restart: run
+#stop:    power off, restore-snapshot
+ delete:  delete transaction, stop, unregister, delete config
+
+for PVD: (c disk writethrough)
+ start:   create vm,  run
+ stop:    power off
+ restart: run
+ stop:    power off
+#delete:  delete transaction, stop, unregister, delete config
+
+disk c: /storage/pimages/uid/imgid/machine
 
 for VS:
 ???
+
+==========================================
+VM Post-boot Event Handle Designe
+==========================================
+Description:
+there os a program that will be executed after windows VM booting,
+and this program will do following:
+- read the MAC address
+- post MAC address to clcl
+- get back the runtime_option, include hostname, new IP address
+- rewrite the host name,
+- reconfigure the IP adress
+
+Impelmentation
+- based on POST mac address, clc generate a python script, which will be transfer to the vm and run in it
+- based on POST mac address, vm python script will do all the work based on http response.
+
+
+Extra Consideration: binding account, IP and MAC
+Solution 1: clc maintain a table on each cluster.
+Solution 2: clc query the IP and MAC by account ( ask for CC, whatever implementation it should be )
+
+CC property:
+I not bind between account/IP(DHCP)/MAC(random)
+II binding IP(static)/MAC(random)
+II binding account/IP/MAC

@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-15 10:53+0800\n"
+"POT-Creation-Date: 2016-12-21 12:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -181,119 +180,119 @@ msgstr "虚拟机状态数据"
 msgid "NDP Service"
 msgstr "AMQP服务"
 
-#: views.py:464
+#: views.py:466
 msgid "available nc resource is "
 msgstr "工作服务器可用的资源是 "
 
-#: views.py:464 views.py:516 views.py:519 views.py:522
+#: views.py:466 views.py:528 views.py:531 views.py:534
 msgid ", but required is "
 msgstr "，但是虚拟机要求的是 "
 
-#: views.py:474
+#: views.py:486
 msgid "Can't Find appropriate cluster machine and node machine ."
 msgstr "没有找到满足虚拟机运行资源要求的工作服务器。"
 
-#: views.py:516
+#: views.py:528
 msgid "available nc %s Memory is "
 msgstr "工作服务器可用的资源是 "
 
-#: views.py:519
+#: views.py:531
 msgid "available nc %s CPU is "
 msgstr "工作服务器可用的资源是 "
 
-#: views.py:522
+#: views.py:534
 msgid "available nc %s Disk is "
 msgstr "工作服务器可用的资源是 "
 
-#: views.py:552 views.py:580
+#: views.py:564 views.py:592
 msgid "account is not activated."
 msgstr "账号还未激活！"
 
-#: views.py:557
+#: views.py:569
 msgid "Admin is NOT allowd to login"
 msgstr "不允许管理员登陆！"
 
-#: views.py:569 views.py:595
+#: views.py:581 views.py:607
 msgid "account is invalid"
 msgstr "账号无效！"
 
-#: views.py:585
+#: views.py:597
 msgid "Only Admin is allowd to login"
 msgstr "只允许管理员登陆！"
 
-#: views.py:702
+#: views.py:716
 msgid "duplicated user name: "
 msgstr "重复的用户名"
 
-#: views.py:742
+#: views.py:756
 msgid "duplicated user name."
 msgstr "重复的用户名"
 
-#: views.py:840 views.py:2151 views.py:2175 views.py:2197 views.py:2215
-#: views.py:2234 views.py:2257 views.py:2609 views.py:2629 views.py:2651
-#: views.py:2807 views.py:2829 views.py:5056 templates/clc/error.html:34
+#: views.py:854 views.py:2187 views.py:2211 views.py:2233 views.py:2251
+#: views.py:2270 views.py:2293 views.py:2645 views.py:2665 views.py:2687
+#: views.py:2843 views.py:2865 views.py:5092 templates/clc/error.html:34
 msgid "Error Report"
 msgstr "错误报告"
 
-#: views.py:841
+#: views.py:855
 msgid "user Role MUST be set before approved."
 msgstr "批准前必须设置用户角色。"
 
-#: views.py:842
+#: views.py:856
 msgid "Please edit user's role first"
 msgstr "请编辑用户角色。"
 
-#: views.py:851
+#: views.py:865
 msgid "user"
 msgstr "用户"
 
-#: views.py:851
+#: views.py:865
 msgid "is activated now."
 msgstr "已经激活了。"
 
-#: views.py:878
+#: views.py:892
 msgid "Password is not correct!"
 msgstr "密码不正确。"
 
-#: views.py:891
+#: views.py:905
 msgid "System Run-time Status Overview"
 msgstr "系统运行状态"
 
-#: views.py:904
+#: views.py:918
 msgid "Account Management"
 msgstr "用户账户管理"
 
-#: views.py:918
+#: views.py:932
 msgid "Images Management"
 msgstr "镜像文件管理"
 
-#: views.py:979
+#: views.py:993
 msgid "Cloud Control Management"
 msgstr "云控制器管理"
 
-#: views.py:1038
+#: views.py:1052
 msgid "Cloud Walrus Management"
 msgstr "云存储控制器管理"
 
-#: views.py:1054
+#: views.py:1068
 msgid "Cloud Cluster Management"
 msgstr "云集群控制器管理"
 
-#: views.py:1107 templates/clc/clc_mgr.html:196 templates/clc/images.html:13
+#: views.py:1121 templates/clc/clc_mgr.html:196 templates/clc/images.html:13
 #: templates/clc/walrus_mgr.html:142
 msgid "Edit Permission"
 msgstr "权限修改"
 
-#: views.py:1126
+#: views.py:1140
 msgid "Cloud Node Management"
 msgstr "云工作服务器管理"
 
-#: views.py:1158
+#: views.py:1172
 msgid ""
 "<div class=\"col-lg-6\"><p>detail information is NOT available.</p></div>"
 msgstr "<div class=\"col-lg-6\"><p>无法获取详细信息。</p></div>"
 
-#: views.py:1176
+#: views.py:1190
 msgid ""
 "\n"
 "                <p class=\"list-group-item\">\n"
@@ -307,117 +306,115 @@ msgstr ""
 "                </p>\n"
 "        "
 
-#: views.py:1223
+#: views.py:1237
 msgid "Cloud Local Node Management"
 msgstr "云本地工作节点管理"
 
-#: views.py:1235
+#: views.py:1249
 msgid "Cloud Terminal Management"
 msgstr "云终端管理"
 
-#: views.py:1247
+#: views.py:1261
 msgid "Hosts Management"
 msgstr "主机管理"
 
-#: views.py:1259
+#: views.py:1273
 msgid "System Settings Management"
 msgstr "系统参数设置"
 
-#: views.py:1271
+#: views.py:1285
 msgid "Cloud Server Management"
 msgstr "云服务器管理"
 
-#: views.py:1284
+#: views.py:1298
 msgid "Remote Cloud Desktop Management"
 msgstr "远程云桌面管理"
 
-#: views.py:1297
+#: views.py:1311
 msgid "Local Cloud Desktop Management"
 msgstr "本地云桌面管理"
 
-#: views.py:1310
+#: views.py:1324
 msgid "Tasks Management"
 msgstr "系统任务管理"
 
-#: views.py:1328
+#: views.py:1342
 msgid "Administrator Tools"
 msgstr "管理员工具"
 
-#: views.py:1665
+#: views.py:1682
 msgid "Configure CC Network Resources"
 msgstr "设置集群网络参数"
 
-#: views.py:2012
+#: views.py:2048
 msgid "Need more rdp port resources!."
 msgstr "需要更多的RDP端口资源"
 
-#: views.py:2031
+#: views.py:2067
 msgid "Need more ether resources."
 msgstr "需要更多的IP/MAC资源"
 
-#: views.py:2075
+#: views.py:2111
 msgid "Need more Proxy Web IP resources for Cluster."
 msgstr "需要更多的WEB代理IP资源"
 
-#: views.py:2144
+#: views.py:2180
 msgid "cloud desktop"
 msgstr "本地云桌面"
 
-#: views.py:2216
+#: views.py:2252
 msgid "current user not allowed to create new images"
 msgstr "当前用户没有权限来创建新的镜像文件。"
 
-#: views.py:2217 views.py:2809
+#: views.py:2253 views.py:2845
 msgid "Ask eduCloud.admin to assign CREATE rigth."
 msgstr "向系统管理员申请CREATE权限。"
 
-#: views.py:2610
+#: views.py:2646
 msgid "current user not allowed to modify images"
 msgstr "当前用户没有权限来修改镜像文件。"
 
-#: views.py:2611
+#: views.py:2647
 msgid "Ask eduCloud.admin to assign WRITE rigth."
 msgstr "向系统管理员申请WRITE权限。"
 
-#: views.py:2673
+#: views.py:2709
 msgid "image build"
 msgstr ""
 
-#: views.py:2808
+#: views.py:2844
 msgid "current user not allowed to create new VM"
 msgstr "当前用户没有权限来创建新的虚拟机。"
 
-#: views.py:2830
-
+#: views.py:2866
 msgid "current user not allowed to manage any cluster"
 msgstr "当前用户没有权限来修改镜像文件。"
 
-#: views.py:2831
-
+#: views.py:2867
 msgid "Ask eduCloud.admin to assign a cluster to current user."
 msgstr "向系统管理员申请WRITE权限。"
 
-#: views.py:2836 views.py:2852
+#: views.py:2872 views.py:2888
 msgid "VM Create"
 msgstr "创建虚拟机"
 
-#: views.py:5057
+#: views.py:5093
 msgid "Only eduCloud.Admin can change image permission!"
 msgstr "只有系统管理员才能修改镜像文件访问权限！"
 
-#: views.py:5058
+#: views.py:5094
 msgid "Please logon as eduCloud.Admin."
 msgstr "请以系统管理员身份登录。"
 
-#: views.py:5091
+#: views.py:5127
 msgid "Image "
 msgstr "镜像文件"
 
-#: views.py:5340
+#: views.py:5376
 msgid "Server "
 msgstr "物理服务器"
 
-#: views.py:5385
+#: views.py:5421
 msgid "VM "
 msgstr "虚拟机"
 
@@ -690,7 +687,6 @@ msgid "Action"
 msgstr "操作"
 
 #: templates/clc/lvds.html:19
-
 msgid "Another action"
 msgstr "操作"
 
@@ -774,89 +770,88 @@ msgstr "密码不能为空"
 msgid "password Not Match."
 msgstr "密码不匹配"
 
-#: templates/clc/form/adm_add_new_account.html:114
+#: templates/clc/form/adm_add_new_account.html:116
 msgid "Add a New Account"
 msgstr "创建账号"
 
-#: templates/clc/form/adm_add_new_account.html:123
+#: templates/clc/form/adm_add_new_account.html:125
 #: templates/clc/form/request_new_account.html:98
 #: templates/clc/form/update_account_profile.html:108
 msgid "User ID*"
 msgstr "用户ID"
 
-#: templates/clc/form/adm_add_new_account.html:127
+#: templates/clc/form/adm_add_new_account.html:129
 #: templates/clc/form/request_new_account.html:102
 #: templates/clc/form/update_account_profile.html:114
 msgid "Display Name"
 msgstr "显示名"
 
-#: templates/clc/form/adm_add_new_account.html:131
-#: templates/clc/form/adm_add_new_account_batch.html:153
+#: templates/clc/form/adm_add_new_account.html:133
+#: templates/clc/form/adm_add_new_account_batch.html:155
 #: templates/clc/form/request_new_account.html:106
 msgid "Password*"
 msgstr "输入密码*"
 
-#: templates/clc/form/adm_add_new_account.html:135
-#: templates/clc/form/adm_add_new_account_batch.html:157
+#: templates/clc/form/adm_add_new_account.html:137
+#: templates/clc/form/adm_add_new_account_batch.html:159
 #: templates/clc/form/request_new_account.html:110
 msgid "Password Again*"
 msgstr "确认密码*"
 
-#: templates/clc/form/adm_add_new_account.html:139
-#: templates/clc/form/adm_add_new_account_batch.html:161
+#: templates/clc/form/adm_add_new_account.html:141
+#: templates/clc/form/adm_add_new_account_batch.html:163
 #: templates/clc/form/update_account_profile.html:121
 msgid "Role*"
 msgstr "角色*"
 
-#: templates/clc/form/adm_add_new_account.html:147
-#: templates/clc/form/adm_add_new_account_batch.html:169
+#: templates/clc/form/adm_add_new_account.html:149
+#: templates/clc/form/adm_add_new_account_batch.html:171
 #: templates/clc/form/update_account_profile.html:130
 msgid "Private Data Storage*"
 msgstr "私人数据存储"
 
-#: templates/clc/form/adm_add_new_account.html:157
-#: templates/clc/form/adm_add_new_account_batch.html:179
-
+#: templates/clc/form/adm_add_new_account.html:159
+#: templates/clc/form/adm_add_new_account_batch.html:181
 msgid "External Device"
 msgstr "外设"
 
-#: templates/clc/form/adm_add_new_account.html:159
-#: templates/clc/form/adm_add_new_account_batch.html:181
+#: templates/clc/form/adm_add_new_account.html:161
+#: templates/clc/form/adm_add_new_account_batch.html:183
 msgid "disable"
 msgstr "禁止"
 
-#: templates/clc/form/adm_add_new_account.html:160
-#: templates/clc/form/adm_add_new_account_batch.html:182
+#: templates/clc/form/adm_add_new_account.html:162
+#: templates/clc/form/adm_add_new_account_batch.html:184
 msgid "allow"
 msgstr "允许"
 
-#: templates/clc/form/adm_add_new_account.html:164
-#: templates/clc/form/adm_add_new_account_batch.html:186
+#: templates/clc/form/adm_add_new_account.html:166
+#: templates/clc/form/adm_add_new_account_batch.html:188
 #: templates/clc/form/update_account_profile.html:141
 msgid "Shared Data Storage"
 msgstr "公共数据存储"
 
-#: templates/clc/form/adm_add_new_account.html:177
-#: templates/clc/form/adm_add_new_account_batch.html:199
+#: templates/clc/form/adm_add_new_account.html:179
+#: templates/clc/form/adm_add_new_account_batch.html:201
 msgid "Enable Virtualized Application"
 msgstr "启用虚拟应用服务"
 
-#: templates/clc/form/adm_add_new_account.html:190
-#: templates/clc/form/adm_add_new_account_batch.html:212
+#: templates/clc/form/adm_add_new_account.html:192
+#: templates/clc/form/adm_add_new_account_batch.html:214
 #: templates/clc/form/request_new_account.html:114
 #: templates/clc/form/update_account_profile.html:155
 msgid "E-Mail"
 msgstr "电子邮件"
 
-#: templates/clc/form/adm_add_new_account.html:194
-#: templates/clc/form/adm_add_new_account_batch.html:216
+#: templates/clc/form/adm_add_new_account.html:196
+#: templates/clc/form/adm_add_new_account_batch.html:218
 #: templates/clc/form/request_new_account.html:118
 #: templates/clc/form/update_account_profile.html:159
 msgid "Phone Number"
 msgstr "电话号码"
 
-#: templates/clc/form/adm_add_new_account.html:198
-#: templates/clc/form/adm_add_new_account_batch.html:220
+#: templates/clc/form/adm_add_new_account.html:200
+#: templates/clc/form/adm_add_new_account_batch.html:222
 #: templates/clc/form/request_new_account.html:122
 #: templates/clc/form/update_account_profile.html:163
 #: templates/clc/jtable/vds_table.html:100
@@ -864,8 +859,8 @@ msgstr "电话号码"
 msgid "Description"
 msgstr "详细说明"
 
-#: templates/clc/form/adm_add_new_account.html:202
-#: templates/clc/form/adm_add_new_account_batch.html:224
+#: templates/clc/form/adm_add_new_account.html:204
+#: templates/clc/form/adm_add_new_account_batch.html:226
 #: templates/clc/form/cc_modify_resource.html:391
 #: templates/clc/form/edit_eip.html:63
 #: templates/clc/form/permission_edit.html:209
@@ -877,8 +872,8 @@ msgstr "详细说明"
 msgid "Submit Button"
 msgstr "提交"
 
-#: templates/clc/form/adm_add_new_account.html:203
-#: templates/clc/form/adm_add_new_account_batch.html:225
+#: templates/clc/form/adm_add_new_account.html:205
+#: templates/clc/form/adm_add_new_account_batch.html:227
 #: templates/clc/form/cc_modify_resource.html:392
 #: templates/clc/form/edit_eip.html:64
 #: templates/clc/form/request_new_account.html:127
@@ -886,12 +881,12 @@ msgstr "提交"
 msgid "Reset Button"
 msgstr "重置"
 
-#: templates/clc/form/adm_add_new_account.html:207
+#: templates/clc/form/adm_add_new_account.html:209
 msgid "New Account is created Successfully."
 msgstr "新用户账号已经成功创建。"
 
-#: templates/clc/form/adm_add_new_account.html:210
-#: templates/clc/form/adm_add_new_account_batch.html:232
+#: templates/clc/form/adm_add_new_account.html:212
+#: templates/clc/form/adm_add_new_account_batch.html:234
 #: templates/clc/form/update_account_profile.html:175
 msgid "Create new account Failed, try again."
 msgstr "创建新账号失败，请重新尝试。"
@@ -912,23 +907,23 @@ msgstr "用户ID后缀必须为正整数"
 msgid "first suffix should be less than second suffix."
 msgstr "第一个后缀必须小于第二个后缀"
 
-#: templates/clc/form/adm_add_new_account_batch.html:126
+#: templates/clc/form/adm_add_new_account_batch.html:128
 msgid "Batch Add New Accounts"
 msgstr "批量增加账号"
 
-#: templates/clc/form/adm_add_new_account_batch.html:135
+#: templates/clc/form/adm_add_new_account_batch.html:137
 msgid "This form will generate user accounts from test0 to test99."
 msgstr "这个表单将创建用户账号test0到test99"
 
-#: templates/clc/form/adm_add_new_account_batch.html:139
+#: templates/clc/form/adm_add_new_account_batch.html:141
 msgid "User ID Prefix*"
 msgstr "用户ID前缀"
 
-#: templates/clc/form/adm_add_new_account_batch.html:142
+#: templates/clc/form/adm_add_new_account_batch.html:144
 msgid "User ID Suffix*"
 msgstr "用户ID后缀"
 
-#: templates/clc/form/adm_add_new_account_batch.html:229
+#: templates/clc/form/adm_add_new_account_batch.html:231
 msgid "New Accounts are created Successfully."
 msgstr "新的用户账号已经批量生成。"
 
@@ -1642,47 +1637,59 @@ msgstr "即将开始提交新的镜像文件，请稍候... ..."
 msgid "Submitting ... ..."
 msgstr "提交中... ..."
 
-#: templates/clc/wizard/vs_create_wizard.html:160
+#: templates/clc/wizard/vs_create_wizard.html:165
 msgid "Basic Config"
 msgstr "基本参数配置"
 
-#: templates/clc/wizard/vs_create_wizard.html:162
+#: templates/clc/wizard/vs_create_wizard.html:167
 msgid "Image Name"
 msgstr "镜像文件"
 
-#: templates/clc/wizard/vs_create_wizard.html:166
+#: templates/clc/wizard/vs_create_wizard.html:171
 msgid "VS VM Name"
 msgstr "虚拟机名称"
 
-#: templates/clc/wizard/vs_create_wizard.html:170
+#: templates/clc/wizard/vs_create_wizard.html:175
 msgid "VS VM Description"
 msgstr "虚拟机详细说明"
 
-#: templates/clc/wizard/vs_create_wizard.html:176
+#: templates/clc/wizard/vs_create_wizard.html:181
 msgid "Running Config"
 msgstr "运行参数配置"
 
-#: templates/clc/wizard/vs_create_wizard.html:178
+#: templates/clc/wizard/vs_create_wizard.html:183
+msgid "disk C persistent"
+msgstr "系统盘可修改"
+
+#: templates/clc/wizard/vs_create_wizard.html:185
+msgid "No"
+msgstr "否"
+
+#: templates/clc/wizard/vs_create_wizard.html:186
+msgid "Yes"
+msgstr "是"
+
+#: templates/clc/wizard/vs_create_wizard.html:191
 msgid "Select Cluster"
 msgstr "选择集群"
 
-#: templates/clc/wizard/vs_create_wizard.html:186
+#: templates/clc/wizard/vs_create_wizard.html:199
 msgid "Select Node"
 msgstr "选择工作服务器"
 
-#: templates/clc/wizard/vs_create_wizard.html:194
+#: templates/clc/wizard/vs_create_wizard.html:207
 msgid "Hardware Config"
 msgstr "硬件参数配置"
 
-#: templates/clc/wizard/vs_create_wizard.html:196
+#: templates/clc/wizard/vs_create_wizard.html:209
 msgid "Select CPUs"
 msgstr "配置CPU"
 
-#: templates/clc/wizard/vs_create_wizard.html:204
+#: templates/clc/wizard/vs_create_wizard.html:217
 msgid "Select Memory(G)"
 msgstr "配置内存(G)"
 
-#: templates/clc/wizard/vs_create_wizard.html:214
+#: templates/clc/wizard/vs_create_wizard.html:227
 msgid "Select MAC/IP"
 msgstr "配置MAC/IP"
 
@@ -1700,7 +1707,6 @@ msgstr "配置MAC/IP"
 
 #~ msgid "Add"
 #~ msgstr "添加"
-
 
 #~ msgid "Allocated Role:"
 #~ msgstr "角色分配"

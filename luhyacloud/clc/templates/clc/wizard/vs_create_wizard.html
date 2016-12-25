@@ -26,6 +26,9 @@ $(document).ready(function () {
     }
     function submit_new_vs() {
         vm_insid    = '{{ insid }}';
+        if ($('#vm_disk_c').val() == "Yes") {
+            vm_insid = vm_insid.replace("VD", "PVD");
+        }
         vm_imgid    = '{{ imgobj.ecid }}';
         vm_name     = $('#vm_name').val();
         vm_desc     = $('#vm_desc').val();
@@ -56,6 +59,8 @@ $(document).ready(function () {
             'mac'            :    vm_macip,
             'hypervisor'     :    '{{ imgobj.hypervisor }}',
         }
+
+
 
         $.post(url, postdata, function(data) {
             var items = [];
@@ -174,6 +179,14 @@ $(document).ready(function () {
 
         <fieldset>
             <legend>{% trans "Running Config" %}</legend>
+            <div class="form-group">
+                <label>{% trans "disk C persistent" %}</label>
+                <select id="vm_disk_c" class="form-control">
+                    <option selected value="No">{% trans "No" %}</option>
+                    <option value="Yes">{% trans "Yes" %}</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label>{% trans "Select Cluster" %}</label>
                 <select class="form-control" id="vm_cc">

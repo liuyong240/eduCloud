@@ -114,6 +114,7 @@ def main(argv):
         os.system('sudo mkdir /storage')
     if not os.path.exists('/storage/images'):
         os.system('sudo mkdir -p /storage/images')
+        os.system('sudo mkdir -p /storage/pimages')
         os.system('sudo mkdir -p /storage/VMs')
         os.system('sudo mkdir -p /storage/config')
         os.system('sudo mkdir -p /storage/space')

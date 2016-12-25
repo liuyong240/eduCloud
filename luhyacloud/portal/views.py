@@ -18,7 +18,6 @@ from datetime import datetime
 from models import *
 
 from luhyaapi.educloudLog import *
-from luhyaapi.luhyaTools import configuration
 from luhyaapi.hostTools import *
 from luhyaapi.settings import *
 from sortedcontainers import SortedList

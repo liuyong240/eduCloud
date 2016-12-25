@@ -258,7 +258,7 @@ class prepareImageTaskThread(multiprocessing.Process):
                         need_delete = False
                         need_clone = False
 
-            if self.insid.find('VD')  == 0 or self.insid.find('TVD') == 0 :
+            if self.insid.find('VD')  == 0 or self.insid.find('TVD') == 0 or self.insid.find('PVD') == 0:
                 pass
             if self.insid.find('VS')  == 0:
                 dstfile  = "/storage/space/database/instances/%s/database" % self.insid
@@ -731,7 +731,7 @@ class runImageTaskThread(multiprocessing.Process):
                 logger.error("--- --- --- vboxmgr is not running")
                 # every time before running, take a NEW snapshot
                 snapshot_name = "thomas"
-                if self.runtime_option['run_with_snapshot'] == 1:
+                if self.runtime_option['run_with_snapshot'] == 1 and self.insid.find("PVD") != 0:
                     if vboxmgr.isSnapshotExist(snapshot_name):
                         if self.insid.find('TMP') == 0:
                             logger.error("--- --- --- vm %s DONOT restore snapshot " % vboxmgr.getVMName())
@@ -886,7 +886,7 @@ def process_stop_cmd(tid, runtime_option):
     vboxmgr = vboxWrapper(dstimgid, insid, rootdir)
 
     # build/modify insid is TMPxxxxx, when stopped, do nothing else
-    if insid.find('TMP') == 0:
+    if insid.find('TMP') == 0 or insid.find('PVD') == 0:
         pass
 
     # running vd   insid is VDxxxx,   when stopped, delete all except image file
@@ -935,7 +935,7 @@ def process_delete_cmd(tid, runtime_option):
         if srcimgid != dstimgid:
             disks.append('/storage/tmp/images/%s/machine' % dstimgid)
 
-    if insid.find('VD') == 0 or insid.find('TVD') == 0:
+    if insid.find('VD') == 0 or insid.find('TVD') == 0 or insid.find('PVD') == 0:
         pass
 
     if insid.find('VS') == 0:

@@ -1,6 +1,6 @@
 import requests, json
-from settings import *
-from educloudLog import *
+from luhyaapi.settings import *
+from luhyaapi.educloudLog import *
 
 logger = geteducloudlogger()
 
