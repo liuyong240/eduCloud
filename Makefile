@@ -42,6 +42,7 @@ install:
 	install -d $(EDU_CORE)/usr/local/webconfig
 	cp    $(CURDIR)/debian/fuse.conf                       $(EDU_CORE)/usr/local/webconfig/
 	cp    $(CURDIR)/debian/sudoers                         $(EDU_CORE)/usr/local/webconfig/
+	cp    $(CURDIR)/debian/afterboot.py                    $(EDU_CORE)/usr/local/webconfig/
 	cp -r $(CURDIR)/webconfig/rsync                        $(EDU_CORE)/usr/local/webconfig/
 
 	#####################

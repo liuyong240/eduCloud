@@ -4,51 +4,12 @@ import random, os, commands, time
 from linux_metrics import cpu_stat
 from sortedcontainers import SortedList
 from IPy import IP
-import ConfigParser
+
 from luhyaapi.educloudLog import *
+from luhyaapi.settings import *
 logger = getclclogger()
 
-class configuration():
-    def __init__(self, conf):
-        self.cf = None
-        self.filename = conf
 
-        if os.path.exists(self.filename):
-            self.cf = ConfigParser.ConfigParser()
-            self.cf.read(self.filename)
-
-    def getvalue(self, section, name):
-        if self.cf:
-            return self.cf.get(section, name)
-        else:
-            return None
-
-    def setvalue(self, section, name, value):
-        if self.cf:
-            return self.cf.set(section, name, value)
-        else:
-            return None
-
-class vmattributes():
-    def __init__(self, vmattrfile):
-        self.cf = None
-        self.filename = vmattrfile
-        if os.path.exists(self.filename):
-            self.cf = ConfigParser.ConfigParser()
-            self.cf.read(self.filename)
-
-    def getvalue(self, section, name):
-        if self.cf != None:
-            return self.cf.get(section, name)
-        else:
-            return 0
-
-    def setvalue(self, section, name, value):
-        if self.cf != None:
-            self.cf.set(section, name, value)
-            self.cf.write(open(self.filename, "w"))
-        else:
-            return None
 
 # PUBLIC or PRIVATE
 def getIPType(ipaddr):

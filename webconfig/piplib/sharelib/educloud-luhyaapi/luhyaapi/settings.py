@@ -1,6 +1,48 @@
 # coding=UTF-8
 import os
-from luhyaapi.hostTools import configuration
+import ConfigParser
+
+class configuration():
+    def __init__(self, conf):
+        self.cf = None
+        self.filename = conf
+
+        if os.path.exists(self.filename):
+            self.cf = ConfigParser.ConfigParser()
+            self.cf.read(self.filename)
+
+    def getvalue(self, section, name):
+        if self.cf:
+            return self.cf.get(section, name)
+        else:
+            return None
+
+    def setvalue(self, section, name, value):
+        if self.cf:
+            return self.cf.set(section, name, value)
+        else:
+            return None
+
+class vmattributes():
+    def __init__(self, vmattrfile):
+        self.cf = None
+        self.filename = vmattrfile
+        if os.path.exists(self.filename):
+            self.cf = ConfigParser.ConfigParser()
+            self.cf.read(self.filename)
+
+    def getvalue(self, section, name):
+        if self.cf != None:
+            return self.cf.get(section, name)
+        else:
+            return 0
+
+    def setvalue(self, section, name, value):
+        if self.cf != None:
+            self.cf.set(section, name, value)
+            self.cf.write(open(self.filename, "w"))
+        else:
+            return None
 
 if os.path.exists("/etc/educloud/modules/core") == True:
     DAEMON_DEBUG = False

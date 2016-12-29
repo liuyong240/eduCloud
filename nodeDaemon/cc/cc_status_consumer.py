@@ -1,6 +1,7 @@
 from luhyaapi.rabbitmqWrapper import *
 from luhyaapi.hostTools import *
 from luhyaapi.educloudLog import *
+from luhyaapi.settings import *
 import time, requests
 
 logger = getccdaemonlogger()

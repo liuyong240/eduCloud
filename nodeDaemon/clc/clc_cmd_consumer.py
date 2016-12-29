@@ -21,8 +21,7 @@ class clonehdProcess(multiprocessing.Process):
         if os.path.exists(dstfile):
             logger.error("%s %s d disk already exist, pass." % (self.uid, self.imgid))
         else:
-            cmd = "vboxmanage clonehd %s %s " % (srcfile, dstfile)
-
+            cmd = "su - luhya -c 'vboxmanage clonehd %s %s'" % (srcfile, dstfile)
             logger.error("clc clonehdProcess cmd = %s" % cmd)
             out = commands.getoutput(cmd)
             logger.error("clc clonehdProcess out = %s" % out)
@@ -46,7 +45,7 @@ class clonehdPVDProcess(multiprocessing.Process):
         if os.path.exists(dstfile):
             logger.error("%s %s C disk already exist, pass." % (self.uid, self.imgid))
         else:
-            cmd = "vboxmanage clonehd %s %s " % (srcfile, dstfile)
+            cmd = "su - luhya -c 'vboxmanage clonehd %s %s' " % (srcfile, dstfile)
             logger.error("clc clonehdPVDProcess cmd = %s" % cmd)
             out = commands.getoutput(cmd)
             logger.error("clc clonehdPVDProcess out = %s" % out)

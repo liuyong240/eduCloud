@@ -1,6 +1,7 @@
 from luhyaapi.educloudLog import *
 from luhyaapi.hostTools import *
 from luhyaapi.rabbitmqWrapper import *
+from luhyaapi.settings import *
 
 import time, psutil
 

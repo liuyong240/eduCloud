@@ -546,7 +546,7 @@ def display_login_window(request):
     return render(request, 'clc/login.html', {})
 
 def isAdmin(user):
-    u = ecAccount.objects.get(userid = user.username)
+    u = ecAccount.objects.get(userid = user)
     role_name = u.ec_authpath_name
     role_value = ecAuthPath.objects.get(ec_authpath_name = role_name)
     return role_value.ec_authpath_value.endswith('.admin')
@@ -564,7 +564,7 @@ def user_login(request):
             response['reason'] = _("account is not activated.")
             return HttpResponse(json.dumps(response), content_type='application/json')
 
-        if isAdmin(user):
+        if isAdmin(user.username):
             response['status'] = "FAILURE"
             response['reason'] = _("Admin is NOT allowd to login")
             return HttpResponse(json.dumps(response), content_type='application/json')
@@ -592,7 +592,7 @@ def admin_login(request):
             response['reason'] = _("account is not activated.")
             return HttpResponse(json.dumps(response), content_type='application/json')
 
-        if not isAdmin(user):
+        if not isAdmin(user.username):
             response['status'] = "FAILURE"
             response['reason'] = _("Only Admin is allowd to login")
             return HttpResponse(json.dumps(response), content_type='application/json')
@@ -4275,6 +4275,17 @@ def update_vds(request):
 
     response['Result'] = 'OK'
 
+    #### prepare cloned disk
+    try:
+        if not isAdmin(rec.user):
+            fake_tid = '%s:%s:%s' % (rec.imageid, rec.imageid, rec.insid)
+            if isImageWithDDisk(rec.imageid):
+                makeDataDiskReady(fake_tid, rec.user)
+            if rec.insid.find("PVD") == 0:
+                makeSystemDiskReady(fake_tid, rec.user)
+    except Exception as e:
+        logger.error('update_vds error=%s' % str(e))
+
     retvalue = json.dumps(response)
     return HttpResponse(retvalue, content_type="application/json")
 
@@ -4325,16 +4336,6 @@ def create_vds(request):
             )
             new_vm_auth.save()
             logger.error("create new vds record2 --- OK")
-
-        # create D disk for this VDS
-        fake_tid = ('%s:%s:%s' % (request.POST['imageid'], request.POST['imageid'], request.POST['insid']))
-        if isImageWithDDisk(request.POST['imageid']):
-            makeDataDiskReady(fake_tid, request.user)
-
-        # create persistent C disk for PVD
-        if request.POST['insid'].find("PVD") == 0:
-            makeSystemDiskReady(fake_tid, request.user)
-
     else:
         old_vm = ecVDS.objects.get(insid = request.POST['insid'])
         old_vm.name        = request.POST['name']
@@ -5563,16 +5564,15 @@ def list_myvds(request):
                 vd['mgr_url'] = ''
                 vd['id']  = 'myvd' + str(index)
 
-            logger.error("start to prepare data disk of TMP ... ...")
+            fake_tid = '%s:%s:%s' % (imgobj.ecid, imgobj.ecid, 'TMPxxx')
+            logger.error("start to prepare data disk of %s ... ..." % fake_tid )
             if isImageWithDDisk(imgobj.ecid):
-                fake_tid = '%s:%s:%s' % (imgobj.ecid, imgobj.ecid, 'TMPxxx')
-                logger.error("11111 - %s" % fake_tid)
-                vd['datadisk'] = makeDataDiskReady(fake_tid, _user)
-                logger.error("22222")
+                vd['datadisk'], vd['dataper'] = makeDataDiskReady(fake_tid, _user)
             else:
                 vd['datadisk'] = "ready"
-            logger.error("TMP vm data disk is ready")
+                vd['dataper'] = 100
             vd['systemdisk'] = "ready"
+            vd['systemper'] = 100
             vds.append(vd)
             index += 1
 
@@ -5605,18 +5605,20 @@ def list_myvds(request):
             vd['mgr_url'] = ''
             logger.error("Not find vd's transaction record")
 
-        fake_tid = '%s:%s:%s' % (imgobj.ecid, imgobj.ecid, 'PVDxxx')
-        logger.error("start to prepare data disk of VD/PVD ... ...")
+        fake_tid = _tid
+        logger.error("start to prepare data disk of %s ... ..." % fake_tid)
         if isImageWithDDisk(imgobj.ecid):
-            vd['datadisk'] = makeDataDiskReady(fake_tid, _user)
+            vd['datadisk'], vd['dataper'] = makeDataDiskReady(fake_tid, _user)
         else:
             vd['datadisk'] = "ready"
+            vd['dataper'] = 100
 
-            logger.error("start to prepare system disk of VD/PVD ... ...")
+        logger.error("start to prepare system disk of %s ... ..." % fake_tid)
         if vds_rec.insid.find('PVD') == 0:
-            vd['systemdisk'] = makeSystemDiskReady(fake_tid, _user)
+            vd['systemdisk'], vd['systemper'] = makeSystemDiskReady(fake_tid, _user)
         else:
             vd['systemdisk'] = "ready"
+            vd['systemper'] = 100
 
         logger.error("system disk of VD/PVD is ready")
         vd['id'] = 'myvd' + str(index)
@@ -5696,13 +5698,6 @@ def rvd_start(request, srcid, dstid, insid):
                 rec.runtime_option = json.dumps(runtime_option)
                 rec.save()
 
-                if isImageWithDDisk(srcid):
-                    makeDataDiskReady(_tid, request.user.username)
-
-                # create persistent C disk for PVD
-                if insid.find("PVD") == 0:
-                    makeSystemDiskReady(_tid, request.user.username)
-
                 response['Result'] = 'OK'
                 response['tid']  = _tid
                 retvalue = json.dumps(response)
@@ -5768,9 +5763,6 @@ def rvd_create(request, srcid):
         else:
             rec.runtime_option = json.dumps(runtime_option)
             rec.save()
-
-            if isImageWithDDisk(_srcimgid):
-                makeDataDiskReady(_tid, _user_name)
 
             response['Result'] = 'OK'
             response['tid']  = _tid
@@ -5867,3 +5859,18 @@ def rvd_get_rdp_url(request, srcid, dstid, insid):
 
     return rvd_get_rdp_para(request, srcid, dstid, insid)
 
+def vm_afterboot(request):
+    vmfile = 'afterboot.py'
+    #mac = request.POST['mac']
+    #filepath = '/usr/local/webconfig/%s' % vmfile
+    filepath = '/storage/config/%s' % vmfile
+
+    with open(filepath, 'r') as myfile:
+        mycontent = myfile.readlines()
+
+    response = {}
+    response['Result']   = 'OK'
+    response['filename'] = vmfile
+    response['content']  = mycontent
+    retvalue = json.dumps(response)
+    return HttpResponse(retvalue, content_type="application/json")

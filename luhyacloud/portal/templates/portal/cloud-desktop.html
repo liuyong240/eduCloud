@@ -49,7 +49,7 @@
                             <button type="button" id="show_{{ vd.id }}"  onclick="display_vm_window( '{{ vd.id }}' );"       class="btn" >{% trans "Show" %}</button>
 
                             <div id="taskid_for_show_in_browser_{{ vd.id }}" style="display:none;">{{ vd.tid }}</div>
-							<div><p id="prepare_{{ vd.id }}"></p>镜像文件准备中，请稍候再刷新</p></div>
+							<div><p id="prepare_{{ vd.id }}">像文件准备中，请稍候再刷新</p></div>
 
                             <button type="button" id="stop_{{ vd.id }}" onclick="stop_tvd('{{ vd.id }}');"   class="btn">{% trans "Stop" %}</button>
 
@@ -715,6 +715,11 @@ function init_GUI() {
         	$('#show_{{ vd.id }}').hide();
         	$('#stop_{{ vd.id }}').hide();
         	$('#prepare_{{ vd.id}}').show();
+
+        	$('#progress_{{ vd.id }}').css('display', 'block');
+        	progress = ({{ vd.dataper }} + {{ vd.systemper }})/2;
+            $('#progressbar_{{ vd.id }}').css('width', progress + '%');
+            $('#progressbar_{{ vd.id }}').text(progress + '%');
         {% else %}
         	$('#prepare_{{ vd.id}}').hide();
         {% endif %}

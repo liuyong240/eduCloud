@@ -1,6 +1,19 @@
 import os, commands, sys, getopt
 import time
 
+def chownDir():
+    cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
+    commands.getoutput(cmd_line)
+    cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
+    commands.getoutput(cmd_line)
+    cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/nodedaemon'
+    commands.getoutput(cmd_line)
+    cmd_line = 'sudo chown -R luhya:luhya /usr/local/webconfig && sudo chmod -R 777 /usr/local/webconfig'
+    commands.getoutput(cmd_line)
+    cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
+    commands.getoutput(cmd_line)
+
+
 def checkPackage( pname ):
     cmd_line = 'dpkg -l | grep %s' % pname
     output = commands.getoutput(cmd_line)
@@ -174,14 +187,7 @@ def main(argv):
         cmd_line = 'sudo apt-get -y install nodedaemon-nc-kvm'
         os.system(cmd_line)
 
-    cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
-    commands.getoutput(cmd_line)
-    cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
-    commands.getoutput(cmd_line)
-    cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/nodedaemon'
-    commands.getoutput(cmd_line)
-    cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
-    commands.getoutput(cmd_line)
+    chownDir()
 
     # verify deb package install status
     if checkPackage('educloud-core') == False:
@@ -333,14 +339,7 @@ def main(argv):
     cmd_line = 'sudo rm /var/cache/apt/archives/partial/*.deb'
     commands.getoutput(cmd_line)
 
-    cmd_line = 'sudo chown -R luhya:luhya /storage && sudo chmod -R 777 /storage'
-    commands.getoutput(cmd_line)
-    cmd_line = 'sudo chown -R luhya:luhya /usr/local/www && sudo chmod -R 777 /usr/local/www'
-    commands.getoutput(cmd_line)
-    cmd_line = 'sudo chown -R luhya:luhya /usr/local/nodedaemon && sudo chmod -R 777 /usr/local/nodedaemon'
-    commands.getoutput(cmd_line)
-    cmd_line = 'sudo chown -R luhya:luhya /var/log/educloud'
-    commands.getoutput(cmd_line)
+    chownDir()
 
     print '----------------------------------------------------------'
     print  'Now system will reboot to enable all services ... ... ...'

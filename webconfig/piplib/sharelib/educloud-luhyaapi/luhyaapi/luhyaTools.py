@@ -5,6 +5,10 @@ from threading import *
 
 from luhyaapi.hostTools import *
 from luhyaapi.zmqWrapper import *
+from luhyaapi.educloudLog import *
+from luhyaapi.settings import *
+
+logger = geteducloudlogger()
 
 GUEST_USERNAME = "Administrator"
 GUEST_PASSWORD = "luhya"
@@ -18,22 +22,25 @@ SNAPSHOT_NAME = "thomas"
 def makeDataDiskReady(tid, uid):
     logger.error("enter makeDataDiskReady ... ...")
     imgid, dstid, insid = parseTID(tid)
-    logger.error("22222")
-    origin_disk = '/storage/images/%s/data' % imgid
-    cloned_disk = '/storage/space/prv-data/%s/disk/%s/data' % (uid, imgid)
 
+    origin_disk = '/storage/images/%s/data' % imgid
+    logger.error("origin_disk = %s" % origin_disk)
+    cloned_disk = '/storage/space/prv-data/%s/disk/%s/data' % (uid, imgid)
+    logger.error("cloned_disk = %s" % cloned_disk)
     if os.path.exists(cloned_disk):
         origin_size = os.path.getsize(origin_disk)
         cloned_size = os.path.getsize(cloned_disk)
-        logger.error("33333")
         if origin_size <= cloned_size:
-            flag = "readay"
+            flag = "ready"
+            per = 100
         else:
             flag = "prepare"
+            per = (cloned_size * 100 / origin_size)
+
     else:
         flag = "none"
+        per = 0.0
 
-    logger.error("444444")
     if flag == "none":
         message = {}
         message['type'] = "cmd"
@@ -45,7 +52,8 @@ def makeDataDiskReady(tid, uid):
         zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
         logger.error("--- --- ---zmq: send clonehd/ddisk cmd to clc sucessfully")
 
-    return flag
+    logger.error("makeDataDiskReady tid= %s flag = %s" % (tid,flag))
+    return flag, per
 
 
 # check existence of system disk,
@@ -62,11 +70,14 @@ def makeSystemDiskReady(tid, uid):
         origin_size = os.path.getsize(origin_disk)
         cloned_size = os.path.getsize(cloned_disk)
         if origin_size <= cloned_size:
-            flag = "readay"
+            flag = "ready"
+            per = 100
         else:
             flag = "prepare"
+            per = (cloned_size * 100 / origin_size)
     else:
         flag = "none"
+        per = 0
 
     if flag == 'none':
         message = {}
@@ -79,7 +90,8 @@ def makeSystemDiskReady(tid, uid):
         zmq_send('127.0.0.1', _message, CLC_CMD_QUEUE_PORT)
         logger.error("--- --- ---zmq: send clonehd/pvd cmd to clc sucessfully")
 
-    return flag
+    logger.error("makeSystemDiskReady tid= %s flag = %s" % (tid, flag))
+    return flag, per
 
 def isImageWithDDisk(imgid):
     ddisk_file = '/storage/images/%s/data' % imgid
